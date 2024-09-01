@@ -74,7 +74,10 @@ private:
   ButtonControl *pair_device;
 
   // FrogPilot variables
+///////////////////////////////////
+  ButtonControl *fastinstallBtn;
   Params paramsMemory{"/dev/shm/params"};
+///////////////////////////////////
 
   ButtonControl *resetCalibBtn;
   FrogPilotButtonsControl *forceStartedBtn;
@@ -118,6 +121,10 @@ private:
 
   QLabel *onroadLbl;
   LabelControl *versionLbl;
+///////////////////////////////////
+  ButtonControl *delLogBtn;
+  ButtonControl *fastinstallBtn;
+///////////////////////////////////
   ButtonControl *installBtn;
   ButtonControl *downloadBtn;
   ButtonControl *targetBranchBtn;

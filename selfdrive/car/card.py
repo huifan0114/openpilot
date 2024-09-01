@@ -40,6 +40,9 @@ class Car:
     self.last_actuators_output = car.CarControl.Actuators.new_message()
 
     self.params = Params()
+    ################################################
+    self.params_memory = Params("/dev/shm/params")
+    ################################################
 
     if CI is None:
       # wait for one pandaState and one CAN packet
@@ -127,6 +130,11 @@ class Car:
       (CS.brakePressed and (not self.CS_prev.brakePressed or not CS.standstill)) or \
       (CS.regenBraking and (not self.CS_prev.regenBraking or not CS.standstill)):
       self.events.add(EventName.pedalPressed)
+      ################################################
+      self.params_memory.put_bool("KeyResume", False)
+      self.params_memory.put_int('SpeedPrev',0)
+      self.params_memory.put_bool('KeyChanged', True)
+      ################################################
 
     CS.events = self.events.to_msg()
 

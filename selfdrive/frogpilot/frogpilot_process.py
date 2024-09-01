@@ -52,10 +52,11 @@ def time_checks(automatic_updates, deviceState, now, started, params, params_mem
 
   if not is_url_pingable("https://github.com"):
     return
-
-  screen_off = deviceState.screenBrightnessPercent == 0
-  if automatic_updates and screen_off:
+############################
+  # screen_off = deviceState.screenBrightnessPercent == 0
+  if automatic_updates:
     automatic_update_check(started, params)
+############################
 
   update_maps(now, params, params_memory)
 

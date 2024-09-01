@@ -105,9 +105,9 @@ class SpeedLimitController:
       return min(filtered_limits)
 
     speed_limits = {
-      "Dashboard": self.car_speed_limit,
-      "Offline Maps": self.map_speed_limit,
-      "Navigation": self.nav_speed_limit,
+      "儀表": self.car_speed_limit,
+      "離線地圖": self.map_speed_limit,
+      "導航": self.nav_speed_limit,
     }
 
     for priority in [

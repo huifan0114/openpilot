@@ -163,10 +163,16 @@ void Sidebar::mouseReleaseEvent(QMouseEvent *event) {
     flag_pressed = settings_pressed = false;
     update();
   }
-  if (onroad && home_btn.contains(event->pos())) {
+////////////////////////////////
+  if (home_btn.contains(event->pos())) {
+////////////////////////////////
     MessageBuilder msg;
     msg.initEvent().initUserFlag();
     pm->send("userFlag", msg);
+////////////////////////////////
+    params.putInt("Fuelconsumptionweek", 0);
+    params.putInt("Fuelcostsweek", 0);
+////////////////////////////////
   } else if (settings_btn.contains(event->pos())) {
     emit openSettings();
   }
@@ -245,19 +251,19 @@ void Sidebar::updateState(const UIState &s) {
     QString storage = QString::number(isStorageLeft ? storage_left : storage_used) + tr(" GB");
 
     if (isMemoryUsage) {
-      ItemStatus memoryStatus = {{tr("MEMORY"), memory}, currentColors[0]};
+      ItemStatus memoryStatus = {{tr("記憶體"), memory}, currentColors[0]};
       if (memory_usage >= 85) {
-        memoryStatus = {{tr("MEMORY"), memory}, danger_color};
+        memoryStatus = {{tr("記憶體"), memory}, danger_color};
       } else if (memory_usage >= 70) {
-        memoryStatus = {{tr("MEMORY"), memory}, warning_color};
+        memoryStatus = {{tr("記憶體"), memory}, warning_color};
       }
       setProperty("memoryStatus", QVariant::fromValue(memoryStatus));
     } else {
-      ItemStatus storageStatus = {{isStorageLeft ? tr("LEFT") : tr("USED"), storage}, currentColors[0]};
+      ItemStatus storageStatus = {{isStorageLeft ? tr("剩餘量") : tr("使用量"), storage}, currentColors[0]};
       if (25 > storage_left && storage_left >= 10) {
-        storageStatus = {{isStorageLeft ? tr("LEFT") : tr("USED"), storage}, warning_color};
+        storageStatus = {{isStorageLeft ? tr("剩餘量") : tr("使用量"), storage}, warning_color};
       } else if (10 > storage_left) {
-        storageStatus = {{isStorageLeft ? tr("LEFT") : tr("USED"), storage}, danger_color};
+        storageStatus = {{isStorageLeft ? tr("剩餘量") : tr("使用量"), storage}, danger_color};
       }
       setProperty("storageStatus", QVariant::fromValue(storageStatus));
     }
@@ -266,28 +272,28 @@ void Sidebar::updateState(const UIState &s) {
   ItemStatus connectStatus;
   auto last_ping = deviceState.getLastAthenaPingTime();
   if (last_ping == 0) {
-    connectStatus = ItemStatus{{tr("CONNECT"), tr("OFFLINE")}, warning_color};
+    connectStatus = ItemStatus{{tr("雲端服務"), tr("已離線")}, warning_color};
   } else {
     connectStatus = nanos_since_boot() - last_ping < 80e9
-                        ? ItemStatus{{tr("CONNECT"), tr("ONLINE")}, currentColors[0]}
-                        : ItemStatus{{tr("CONNECT"), tr("ERROR")}, danger_color};
+                        ? ItemStatus{{tr("雲端服務"), tr("已連線")}, currentColors[0]}
+                        : ItemStatus{{tr("連接"), tr("錯誤")}, danger_color};
   }
   setProperty("connectStatus", QVariant::fromValue(connectStatus));
 
-  ItemStatus tempStatus = {{tr("TEMP"), isNumericalTemp ? max_temp : tr("HIGH")}, danger_color};
+  ItemStatus tempStatus = {{tr("溫度"), isNumericalTemp ? max_temp : tr("偏高")}, danger_color};
   auto ts = deviceState.getThermalStatus();
   if (ts == cereal::DeviceState::ThermalStatus::GREEN) {
-    tempStatus = {{tr("TEMP"), isNumericalTemp ? max_temp : tr("GOOD")}, currentColors[0]};
+    tempStatus = {{tr("溫度"), isNumericalTemp ? max_temp : tr("溫度")}, currentColors[0]};
   } else if (ts == cereal::DeviceState::ThermalStatus::YELLOW) {
-    tempStatus = {{tr("TEMP"), isNumericalTemp ? max_temp : tr("OK")}, warning_color};
+    tempStatus = {{tr("溫度"), isNumericalTemp ? max_temp : tr("一般")}, warning_color};
   }
   setProperty("tempStatus", QVariant::fromValue(tempStatus));
 
-  ItemStatus pandaStatus = {{tr("VEHICLE"), tr("ONLINE")}, currentColors[0]};
+  ItemStatus pandaStatus = {{tr("車輛通訊"), tr("已連線")}, currentColors[0]};
   if (s.scene.pandaType == cereal::PandaState::PandaType::UNKNOWN) {
-    pandaStatus = {{tr("NO"), tr("PANDA")}, danger_color};
+    pandaStatus = {{tr("無"), tr("PANDA")}, danger_color};
   } else if (s.scene.started && !sm["liveLocationKalman"].getLiveLocationKalman().getGpsOK()) {
-    pandaStatus = {{tr("GPS"), tr("SEARCH")}, warning_color};
+    pandaStatus = {{tr("GPS"), tr("搜尋")}, warning_color};
   }
   setProperty("pandaStatus", QVariant::fromValue(pandaStatus));
 }

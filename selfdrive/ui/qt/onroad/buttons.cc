@@ -208,7 +208,7 @@ void DistanceButton::paintEvent(QPaintEvent *event) {
   qreal imageOpacity = 1.0 - textOpacity;
 
   p.setOpacity(textOpacity);
-  p.setFont(InterFont(40, QFont::Bold));
+  p.setFont(InterFont(40, QFont::Normal));
   p.setPen(Qt::white);
   QRect textRect(-25, 0, width(), height() + btn_size / 2);
   p.drawText(textRect, Qt::AlignCenter, profileText);

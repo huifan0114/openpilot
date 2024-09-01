@@ -41,7 +41,7 @@ void Setup::download(QString url) {
 
   CURL *curl = curl_easy_init();
   if (!curl) {
-    emit finished(url, tr("Something went wrong. Reboot the device."));
+    emit finished(url, tr("發生了一些錯誤。請重新啟動您的設備。"));
     return;
   }
 
@@ -67,9 +67,9 @@ void Setup::download(QString url) {
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &res_status);
 
   if (ret != CURLE_OK || res_status != 200) {
-    emit finished(url, tr("Ensure the entered URL is valid, and the device’s internet connection is good."));
+    emit finished(url, tr("請確定您輸入的是有效的安裝網址，並且確定設備的網路連線狀態良好。"));
   } else if (!is_elf(tmpfile)) {
-    emit finished(url, tr("No custom software found at this URL."));
+    emit finished(url, tr("在此網址找不到安裝資料"));
   } else {
     rename(tmpfile, "/tmp/installer");
 
@@ -101,13 +101,13 @@ QWidget * Setup::low_voltage() {
   inner_layout->addWidget(triangle, 0, Qt::AlignTop | Qt::AlignLeft);
   inner_layout->addSpacing(80);
 
-  QLabel *title = new QLabel(tr("WARNING: Low Voltage"));
+  QLabel *title = new QLabel(tr("警告：電壓過低"));
   title->setStyleSheet("font-size: 90px; font-weight: 500; color: #FF594F;");
   inner_layout->addWidget(title, 0, Qt::AlignTop | Qt::AlignLeft);
 
   inner_layout->addSpacing(25);
 
-  QLabel *body = new QLabel(tr("Power your device in a car with a harness or proceed at your own risk."));
+  QLabel *body = new QLabel(tr("請使用車上 harness 提供的電源，若繼續的話您需要自擔風險。"));
   body->setWordWrap(true);
   body->setAlignment(Qt::AlignTop | Qt::AlignLeft);
   body->setStyleSheet("font-size: 80px; font-weight: 300;");
@@ -120,14 +120,14 @@ QWidget * Setup::low_voltage() {
   blayout->setSpacing(50);
   main_layout->addLayout(blayout, 0);
 
-  QPushButton *poweroff = new QPushButton(tr("Power off"));
+  QPushButton *poweroff = new QPushButton(tr("關機"));
   poweroff->setObjectName("navBtn");
   blayout->addWidget(poweroff);
   QObject::connect(poweroff, &QPushButton::clicked, this, [=]() {
     Hardware::poweroff();
   });
 
-  QPushButton *cont = new QPushButton(tr("Continue"));
+  QPushButton *cont = new QPushButton(tr("繼續"));
   cont->setObjectName("navBtn");
   blayout->addWidget(cont);
   QObject::connect(cont, &QPushButton::clicked, this, &Setup::nextPage);
@@ -145,12 +145,12 @@ QWidget * Setup::getting_started() {
   vlayout->setContentsMargins(165, 280, 100, 0);
   main_layout->addLayout(vlayout);
 
-  QLabel *title = new QLabel(tr("Getting Started"));
+  QLabel *title = new QLabel(tr("入門"));
   title->setStyleSheet("font-size: 90px; font-weight: 500;");
   vlayout->addWidget(title, 0, Qt::AlignTop | Qt::AlignLeft);
 
   vlayout->addSpacing(90);
-  QLabel *desc = new QLabel(tr("Before we get on the road, let’s finish installation and cover some details."));
+  QLabel *desc = new QLabel(tr("在上路之前，讓我們完成安裝並介紹一些細節"));
   desc->setWordWrap(true);
   desc->setStyleSheet("font-size: 80px; font-weight: 300;");
   vlayout->addWidget(desc, 0, Qt::AlignTop | Qt::AlignLeft);
@@ -175,7 +175,7 @@ QWidget * Setup::network_setup() {
   main_layout->setContentsMargins(55, 50, 55, 50);
 
   // title
-  QLabel *title = new QLabel(tr("Connect to Wi-Fi"));
+  QLabel *title = new QLabel(tr("連接到無線網絡"));
   title->setStyleSheet("font-size: 90px; font-weight: 500;");
   main_layout->addWidget(title, 0, Qt::AlignLeft | Qt::AlignTop);
 
@@ -193,7 +193,7 @@ QWidget * Setup::network_setup() {
   main_layout->addLayout(blayout);
   blayout->setSpacing(50);
 
-  QPushButton *back = new QPushButton(tr("Back"));
+  QPushButton *back = new QPushButton(tr("返回"));
   back->setObjectName("navBtn");
   QObject::connect(back, &QPushButton::clicked, this, &Setup::prevPage);
   blayout->addWidget(back);
@@ -211,9 +211,9 @@ QWidget * Setup::network_setup() {
     cont->setEnabled(success);
     if (success) {
       const bool wifi = networking->wifi->currentNetworkType() == NetworkType::WIFI;
-      cont->setText(wifi ? tr("Continue") : tr("Continue without Wi-Fi"));
+      cont->setText(wifi ? tr("繼續") : tr("在沒有 Wi-Fi 的情況下繼續"));
     } else {
-      cont->setText(tr("Waiting for internet"));
+      cont->setText(tr("連接至網路中"));
     }
     repaint();
   });
@@ -332,7 +332,7 @@ QWidget * Setup::software_selection() {
 QWidget * Setup::downloading() {
   QWidget *widget = new QWidget();
   QVBoxLayout *main_layout = new QVBoxLayout(widget);
-  QLabel *txt = new QLabel(tr("Downloading..."));
+  QLabel *txt = new QLabel(tr("下載中..."));
   txt->setStyleSheet("font-size: 90px; font-weight: 500;");
   main_layout->addWidget(txt, 0, Qt::AlignCenter);
   return widget;
@@ -344,7 +344,7 @@ QWidget * Setup::download_failed(QLabel *url, QLabel *body) {
   main_layout->setContentsMargins(55, 185, 55, 55);
   main_layout->setSpacing(0);
 
-  QLabel *title = new QLabel(tr("Download Failed"));
+  QLabel *title = new QLabel(tr("下載失敗"));
   title->setStyleSheet("font-size: 90px; font-weight: 500;");
   main_layout->addWidget(title, 0, Qt::AlignTop | Qt::AlignLeft);
 
@@ -369,14 +369,14 @@ QWidget * Setup::download_failed(QLabel *url, QLabel *body) {
   blayout->setSpacing(50);
   main_layout->addLayout(blayout, 0);
 
-  QPushButton *reboot = new QPushButton(tr("Reboot device"));
+  QPushButton *reboot = new QPushButton(tr("重啟設備"));
   reboot->setObjectName("navBtn");
   blayout->addWidget(reboot);
   QObject::connect(reboot, &QPushButton::clicked, this, [=]() {
     Hardware::reboot();
   });
 
-  QPushButton *restart = new QPushButton(tr("Start over"));
+  QPushButton *restart = new QPushButton(tr("重新開始"));
   restart->setObjectName("navBtn");
   restart->setProperty("primary", true);
   blayout->addWidget(restart);
@@ -470,7 +470,7 @@ Setup::Setup(QWidget *parent) : QStackedWidget(parent) {
 
 void Setup::selectLanguage() {
   QMap<QString, QString> langs = getSupportedLanguages();
-  QString selection = MultiOptionDialog::getSelection(tr("Select a language"), langs.keys(), "", this);
+  QString selection = MultiOptionDialog::getSelection(tr("選擇語系"), langs.keys(), "", this);
   if (!selection.isEmpty()) {
     QString selectedLang = langs[selection];
     Params().put("LanguageSetting", selectedLang.toStdString());

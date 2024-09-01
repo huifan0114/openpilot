@@ -16,7 +16,7 @@ void updateFrogPilotToggles() {
 }
 
 bool FrogPilotConfirmationDialog::toggle(const QString &prompt_text, const QString &confirm_text, QWidget *parent) {
-  ConfirmationDialog d = ConfirmationDialog(prompt_text, confirm_text, tr("Reboot Later"), false, parent);
+  ConfirmationDialog d = ConfirmationDialog(prompt_text, confirm_text, tr("稍後重啟"), false, parent);
   return d.exec();
 }
 
@@ -26,7 +26,7 @@ bool FrogPilotConfirmationDialog::toggleAlert(const QString &prompt_text, const 
 }
 
 bool FrogPilotConfirmationDialog::yesorno(const QString &prompt_text, QWidget *parent) {
-  ConfirmationDialog d = ConfirmationDialog(prompt_text, tr("Yes"), tr("No"), false, parent);
+  ConfirmationDialog d = ConfirmationDialog(prompt_text, tr("是"), tr("否"), false, parent);
   return d.exec();
 }
 

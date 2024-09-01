@@ -22,77 +22,77 @@
 #include "selfdrive/frogpilot/ui/qt/offroad/control_settings.h"
 #include "selfdrive/frogpilot/ui/qt/offroad/vehicle_settings.h"
 #include "selfdrive/frogpilot/ui/qt/offroad/visual_settings.h"
+/////////////////////////////////////////////////////
+#include "selfdrive/frogpilot/ui/qt/offroad/hfop_settings.h"
+/////////////////////////////////////////////////////
 
 TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
   // param, title, desc, icon
   std::vector<std::tuple<QString, QString, QString, QString>> toggle_defs{
     {
       "OpenpilotEnabledToggle",
-      tr("Enable openpilot"),
-      tr("Use the openpilot system for adaptive cruise control and lane keep driver assistance. Your attention is required at all times to use this feature. Changing this setting takes effect when the car is powered off."),
+      tr("啟用 openpilot"),
+      tr("使用 openpilot 的主動式巡航和車道保持功能，開啟後您需要持續集中注意力，設定變更在重新啟動車輛後生效。"),
       "../assets/offroad/icon_openpilot.png",
     },
     {
       "ExperimentalLongitudinalEnabled",
-      tr("openpilot Longitudinal Control (Alpha)"),
+      tr("openpilot 縱向控制 (Alpha 版)"),
       QString("<b>%1</b><br><br>%2")
-      .arg(tr("WARNING: openpilot longitudinal control is in alpha for this car and will disable Automatic Emergency Braking (AEB)."))
-      .arg(tr("On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. "
-              "Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.")),
+      .arg(tr("警告：此車輛的 Openpilot 縱向控制功能目前處於 Alpha 版本，使用此功能將會停用自動緊急制動（AEB）功能。"))
+      .arg(tr("在這輛車上，Openpilot 預設使用車輛內建的主動巡航控制（ACC），而非 Openpilot 的縱向控制。啟用此項功能可切換至 Openpilot 的縱向控制。當啟用 Openpilot 縱向控制 Alpha 版本時，建議同時啟用實驗性模式（Experimental mode）。")),
       "../assets/offroad/icon_speed_limit.png",
     },
     {
       "ExperimentalMode",
-      tr("Experimental Mode"),
+      tr("實驗模式"),
       "",
       "../assets/img_experimental_white.svg",
     },
     {
       "DisengageOnAccelerator",
-      tr("Disengage on Accelerator Pedal"),
-      tr("When enabled, pressing the accelerator pedal will disengage openpilot."),
+      tr("油門取消控車"),
+      tr("啟用後，踩踏油門將會取消 openpilot 控制。"),
       "../assets/offroad/icon_disengage_on_accelerator.svg",
     },
     {
       "IsLdwEnabled",
-      tr("Enable Lane Departure Warnings"),
-      tr("Receive alerts to steer back into the lane when your vehicle drifts over a detected lane line without a turn signal activated while driving over 31 mph (50 km/h)."),
+      tr("啟用車道偏離警告"),
+      tr("車速在時速 50 公里 (31 英里) 以上且未打方向燈的情況下，如果偵測到車輛駛出目前車道線時，發出車道偏離警告。"),
       "../assets/offroad/icon_warning.png",
     },
     {
       "RecordFront",
-      tr("Record and Upload Driver Camera"),
-      tr("Upload data from the driver facing camera and help improve the driver monitoring algorithm."),
+      tr("記錄並上傳駕駛監控影像"),
+      tr("上傳駕駛監控的錄像來協助我們提升駕駛監控的準確率。"),
       "../assets/offroad/icon_monitoring.png",
     },
     {
       "IsMetric",
-      tr("Use Metric System"),
-      tr("Display speed in km/h instead of mph."),
+      tr("使用公制單位"),
+      tr("啟用後，速度單位顯示將從 mp/h 改為 km/h。"),
       "../assets/offroad/icon_metric.png",
     },
 #ifdef ENABLE_MAPS
     {
       "NavSettingTime24h",
-      tr("Show ETA in 24h Format"),
-      tr("Use 24h format instead of am/pm"),
+      tr("預計到達時間單位改用 24 小時制"),
+      tr("使用 24 小時制。(預設值為 12 小時制)"),
       "../assets/offroad/icon_metric.png",
     },
     {
       "NavSettingLeftSide",
-      tr("Show Map on Left Side of UI"),
-      tr("Show map on left side when in split screen view."),
+      tr("將地圖顯示在畫面的左側"),
+      tr("進入分割畫面後，地圖將會顯示在畫面的左側。"),
       "../assets/offroad/icon_road.png",
     },
 #endif
   };
 
 
-  std::vector<QString> longi_button_texts{tr("Aggressive"), tr("Standard"), tr("Relaxed")};
-  long_personality_setting = new ButtonParamControl("LongitudinalPersonality", tr("Driving Personality"),
-                                          tr("Standard is recommended. In aggressive mode, openpilot will follow lead cars closer and be more aggressive with the gas and brake. "
-                                             "In relaxed mode openpilot will stay further away from lead cars. On supported cars, you can cycle through these personalities with "
-                                             "your steering wheel distance button."),
+  std::vector<QString> longi_button_texts{tr("積極"), tr("標準"), tr("舒適")};
+  long_personality_setting = new ButtonParamControl("LongitudinalPersonality", tr("駕駛模式"),
+                                          tr("推薦使用標準模式。在積極模式中，openpilot 會更靠近前車並在加速和剎車方面更積極。在舒適模式中，openpilot 會與前車保持較遠的距離。"),
                                           "../assets/offroad/icon_speed_limit.png",
                                           longi_button_texts);
 
@@ -164,13 +164,12 @@ void TogglesPanel::updateToggles() {
                                           "%3<br>"
                                           "<h4>%4</h4><br>"
                                           "%5<br>")
-                                  .arg(tr("openpilot defaults to driving in <b>chill mode</b>. Experimental mode enables <b>alpha-level features</b> that aren't ready for chill mode. Experimental features are listed below:"))
-                                  .arg(tr("End-to-End Longitudinal Control"))
-                                  .arg(tr("Let the driving model control the gas and brakes. openpilot will drive as it thinks a human would, including stopping for red lights and stop signs. "
-                                          "Since the driving model decides the speed to drive, the set speed will only act as an upper bound. This is an alpha quality feature; "
-                                          "mistakes should be expected."))
-                                  .arg(tr("New Driving Visualization"))
-                                  .arg(tr("The driving visualization will transition to the road-facing wide-angle camera at low speeds to better show some turns. The Experimental mode logo will also be shown in the top right corner."));
+                                  .arg(tr("openpilot 預設以 <b>輕鬆模式</b>駕駛. 實驗模式啟用了尚未準備好進入輕鬆模式的 <b>alpha 級功能</b> 。實驗功能如下：:"))
+                                  .arg(tr("點對點的縱向控制"))
+                                  .arg(tr("讓駕駛模型來控制油門及煞車。openpilot將會模擬人類的駕駛行為，包含在看見紅燈及停止標示時停車。"
+                                          "由於車速將由駕駛模型決定，因此您設定的時速將成為速度上限。本功能仍在早期實驗階段，請預期模型有犯錯的可能性。"))
+                                  .arg(tr("新的駕駛視覺介面"))
+                                  .arg(tr("行駛畫面將在低速時切換至道路朝向的廣角鏡頭，以更好地顯示一些轉彎。實驗模式圖標也將顯示在右上角。當設定了導航目的地並且行駛模型正在將其作為輸入時，地圖上的行駛路徑將變為綠色。"));
 
   auto cp_bytes = params.get("CarParamsPersistent");
   if (!cp_bytes.empty()) {
@@ -199,10 +198,10 @@ void TogglesPanel::updateToggles() {
       long_personality_setting->setEnabled(false);
       params.remove("ExperimentalMode");
 
-      const QString unavailable = tr("Experimental mode is currently unavailable on this car since the car's stock ACC is used for longitudinal control.");
+      const QString unavailable = tr("因車輛使用內建ACC系統，無法在本車輛上啟動實驗模式。");
 
       QString long_desc = unavailable + " " + \
-                          tr("openpilot longitudinal control may come in a future update.");
+                          tr("openpilot 縱向控制可能會在未來的更新中提供。");
       if (CP.getExperimentalLongitudinalAvailable()) {
         long_desc = tr("Enable the openpilot longitudinal control (alpha) toggle to allow Experimental mode.");
       }
@@ -217,9 +216,46 @@ void TogglesPanel::updateToggles() {
 }
 
 DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
+  // power buttons
+  QHBoxLayout *power_layout = new QHBoxLayout();
+  power_layout->setSpacing(30);
+
+  QPushButton *reboot_btn = new QPushButton(tr("重啟"));
+  reboot_btn->setObjectName("reboot_btn");
+  power_layout->addWidget(reboot_btn);
+  QObject::connect(reboot_btn, &QPushButton::clicked, this, &DevicePanel::reboot);
+
+  QPushButton *poweroff_btn = new QPushButton(tr("關機"));
+  poweroff_btn->setObjectName("poweroff_btn");
+  power_layout->addWidget(poweroff_btn);
+  QObject::connect(poweroff_btn, &QPushButton::clicked, this, &DevicePanel::poweroff);
+
+  if (!Hardware::PC()) {
+    connect(uiState(), &UIState::offroadTransition, poweroff_btn, &QPushButton::setVisible);
+  }
+
+  setStyleSheet(R"(
+    #reboot_btn { height: 120px; border-radius: 15px; background-color: #add8e6; }
+    #reboot_btn:pressed { background-color: #0083b5; }
+    #poweroff_btn { height: 120px; border-radius: 15px; background-color: #ee8080; }
+    #poweroff_btn:pressed { background-color: #FF2424; }
+  )");
+  addItem(power_layout);
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+  fastinstallBtn = new ButtonControl(tr("快速更新"), tr("更新"), "立刻進行更新並重啟機器.");
+  connect(fastinstallBtn, &ButtonControl::clicked, [=]() {
+    params.putBool("Faststart", false);
+    paramsMemory.putBool("FrogPilotTogglesUpdated", true);
+    std::system("git pull");
+    Hardware::reboot();
+  });
+  addItem(fastinstallBtn);
+//////////////////////////////////////////////////////////////////////////////////////////////
+
   setSpacing(50);
-  addItem(new LabelControl(tr("Dongle ID"), getDongleId().value_or(tr("N/A"))));
-  addItem(new LabelControl(tr("Serial"), params.get("HardwareSerial").c_str()));
+  addItem(new LabelControl(tr("Dongle ID"), getDongleId().value_or(tr("無法使用"))));
+  addItem(new LabelControl(tr("序號"), params.get("HardwareSerial").c_str()));
 
   pair_device = new ButtonControl(tr("Pair Device"), tr("PAIR"),
                                   tr("Pair your device with comma connect (connect.comma.ai) and claim your comma prime offer."));
@@ -231,22 +267,22 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
 
   // offroad-only buttons
 
-  auto dcamBtn = new ButtonControl(tr("Driver Camera"), tr("PREVIEW"),
-                                   tr("Preview the driver facing camera to ensure that driver monitoring has good visibility. (vehicle must be off)"));
+  auto dcamBtn = new ButtonControl(tr("駕駛監控鏡頭"), tr("預覽"),
+                                   tr("預覽駕駛員監控鏡頭畫面，以確保其具有良好視野。（僅在熄火時可用）"));
   connect(dcamBtn, &ButtonControl::clicked, [=]() { emit showDriverView(); });
   addItem(dcamBtn);
 
-  resetCalibBtn = new ButtonControl(tr("Reset Calibration"), tr("RESET"), "");
+  auto resetCalibBtn = new ButtonControl(tr("重設校正"), tr("重設"), "");
   connect(resetCalibBtn, &ButtonControl::showDescriptionEvent, this, &DevicePanel::updateCalibDescription);
   connect(resetCalibBtn, &ButtonControl::clicked, [&]() {
-    if (ConfirmationDialog::confirm(tr("Are you sure you want to reset calibration?"), tr("Reset"), this)) {
+    if (ConfirmationDialog::confirm(tr("是否確定要重設校正?"), tr("重設"), this)) {
       params.remove("CalibrationParams");
       params.remove("LiveTorqueParameters");
     }
   });
   addItem(resetCalibBtn);
 
-  auto retrainingBtn = new ButtonControl(tr("Review Training Guide"), tr("REVIEW"), tr("Review the rules, features, and limitations of openpilot"));
+  auto retrainingBtn = new ButtonControl(tr("觀看使用教學"), tr("觀看"), tr("觀看 openpilot 的使用規則、功能和限制"));
   connect(retrainingBtn, &ButtonControl::clicked, [=]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to review the training guide?"), tr("Review"), this)) {
       emit reviewTrainingGuide();
@@ -255,7 +291,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   addItem(retrainingBtn);
 
   if (Hardware::TICI()) {
-    auto regulatoryBtn = new ButtonControl(tr("Regulatory"), tr("VIEW"), "");
+    auto regulatoryBtn = new ButtonControl(tr("法規/監管"), tr("觀看"), "");
     connect(regulatoryBtn, &ButtonControl::clicked, [=]() {
       const std::string txt = util::read_file("../assets/offroad/fcc.html");
       ConfirmationDialog::rich(QString::fromStdString(txt), this);
@@ -263,10 +299,10 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
     addItem(regulatoryBtn);
   }
 
-  auto translateBtn = new ButtonControl(tr("Change Language"), tr("CHANGE"), "");
+  auto translateBtn = new ButtonControl(tr("更改語言"), tr("更改"), "");
   connect(translateBtn, &ButtonControl::clicked, [=]() {
     QMap<QString, QString> langs = getSupportedLanguages();
-    QString selection = MultiOptionDialog::getSelection(tr("Select a language"), langs.keys(), langs.key(uiState()->language), this);
+    QString selection = MultiOptionDialog::getSelection(tr("選擇語系"), langs.keys(), langs.key(uiState()->language), this);
     if (!selection.isEmpty()) {
       // put language setting, exit Qt UI, and trigger fast restart
       params.put("LanguageSetting", langs[selection].toStdString());
@@ -371,23 +407,23 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   addItem(screenRecordingsBtn);
 
   // Backup FrogPilot
-  std::vector<QString> frogpilotBackupOptions{tr("BACKUP"), tr("DELETE"), tr("RESTORE")};
-  FrogPilotButtonsControl *frogpilotBackupBtn = new FrogPilotButtonsControl(tr("FrogPilot Backups"), tr("Backup, delete, or restore your FrogPilot backups."), "", frogpilotBackupOptions);
+  std::vector<QString> frogpilotBackupOptions{tr("備份"), tr("刪除"), tr("還原")};
+  FrogPilotButtonsControl *frogpilotBackupBtn = new FrogPilotButtonsControl(tr("FrogPilot 備份"), tr("備份、刪除或還原您的 FrogPilot 備份.") "", frogpilotBackupOptions);
   connect(frogpilotBackupBtn, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
     QDir backupDir("/data/backups");
 
     if (id == 0) {
-      QString nameSelection = InputDialog::getText(tr("Name your backup"), this, "", false, 1);
+      QString nameSelection = InputDialog::getText(tr("為您的備份命名"), this, "", false, 1);
       if (!nameSelection.isEmpty()) {
         std::thread([=]() {
           frogpilotBackupBtn->setEnabled(false);
-          frogpilotBackupBtn->setValue(tr("Backing up..."));
+          frogpilotBackupBtn->setValue(tr("備份中..."));
 
           std::string fullBackupPath = backupDir.absolutePath().toStdString() + "/" + nameSelection.toStdString();
           std::string command = "mkdir -p " + fullBackupPath + " && rsync -av /data/openpilot/ " + fullBackupPath + "/";
 
           int result = std::system(command.c_str());
-          frogpilotBackupBtn->setValue(result == 0 ? tr("Success!") : tr("Failed..."));
+          frogpilotBackupBtn->setValue(result == 0 ? tr("成功!") : tr("失敗..."));
 
           std::this_thread::sleep_for(std::chrono::seconds(2));
           frogpilotBackupBtn->setValue("");
@@ -398,16 +434,16 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
     } else if (id == 1) {
       QStringList backupNames = backupDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
-      QString selection = MultiOptionDialog::getSelection(tr("Select a backup to delete"), backupNames, "", this);
+      QString selection = MultiOptionDialog::getSelection(tr("選擇要刪除的備份"), backupNames, "", this);
       if (!selection.isEmpty()) {
-        if (!ConfirmationDialog::confirm(tr("Are you sure you want to delete this backup?"), tr("Delete"), this)) return;
+        if (!ConfirmationDialog::confirm(tr("您確定要刪除此備份嗎?"), tr("刪除"), this)) return;
         std::thread([=]() {
           frogpilotBackupBtn->setEnabled(false);
-          frogpilotBackupBtn->setValue(tr("Deleting..."));
+          frogpilotBackupBtn->setValue(tr("刪除中..."));
 
           QDir dirToDelete(backupDir.absoluteFilePath(selection));
 
-          frogpilotBackupBtn->setValue(dirToDelete.removeRecursively() ? tr("Deleted!") : tr("Failed..."));
+          frogpilotBackupBtn->setValue(dirToDelete.removeRecursively() ? tr("已刪除!") : tr("刪除失敗..."));
 
           std::this_thread::sleep_for(std::chrono::seconds(2));
           frogpilotBackupBtn->setValue("");
@@ -418,12 +454,12 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
     } else if (id == 2) {
       QStringList backupNames = backupDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
-      QString selection = MultiOptionDialog::getSelection(tr("Select a restore point"), backupNames, "", this);
+      QString selection = MultiOptionDialog::getSelection(tr("選擇一個還原點"), backupNames, "", this);
       if (!selection.isEmpty()) {
-        if (!ConfirmationDialog::confirm(tr("Are you sure you want to restore this version of FrogPilot?"), tr("Restore"), this)) return;
+        if (!ConfirmationDialog::confirm(tr("您確定要還原此版本的 FrogPilot?"), tr("還原"), this)) return;
         std::thread([=]() {
           frogpilotBackupBtn->setEnabled(false);
-          frogpilotBackupBtn->setValue(tr("Restoring..."));
+          frogpilotBackupBtn->setValue(tr("還原中..."));
 
           std::string sourcePath = backupDir.absolutePath().toStdString() + "/" + selection.toStdString();
           std::string targetPath = "/data/safe_staging/finalized";
@@ -441,10 +477,10 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
               consistentFile.close();
               Hardware::reboot();
             } else {
-              frogpilotBackupBtn->setValue(tr("Failed..."));
+              frogpilotBackupBtn->setValue(tr("失敗..."));
             }
           } else {
-            frogpilotBackupBtn->setValue(tr("Failed..."));
+            frogpilotBackupBtn->setValue(tr("失敗..."));
           }
           std::this_thread::sleep_for(std::chrono::seconds(2));
           frogpilotBackupBtn->setValue("");
@@ -456,23 +492,23 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   addItem(frogpilotBackupBtn);
 
   // Backup toggles
-  std::vector<QString> toggleBackupOptions{tr("BACKUP"), tr("DELETE"), tr("RESTORE")};
-  FrogPilotButtonsControl *toggleBackupBtn = new FrogPilotButtonsControl(tr("Toggle Backups"), tr("Backup, delete, or restore your toggle backups."), "", toggleBackupOptions);
+  std::vector<QString> toggleBackupOptions{tr("備份"), tr("刪除"), tr("還原")};
+  FrogPilotButtonsControl *toggleBackupBtn = new FrogPilotButtonsControl(tr("參數備份"), tr("備份、刪除或還原您的參數備份."), "", toggleBackupOptions);
   connect(toggleBackupBtn, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
     QDir backupDir("/data/toggle_backups");
 
     if (id == 0) {
-      QString nameSelection = InputDialog::getText(tr("Name your backup"), this, "", false, 1);
+      QString nameSelection = InputDialog::getText(tr("為您的備份命名"), this, "", false, 1);
       if (!nameSelection.isEmpty()) {
         std::thread([=]() {
           toggleBackupBtn->setEnabled(false);
-          toggleBackupBtn->setValue(tr("Backing up..."));
+          toggleBackupBtn->setValue(tr("備份中..."));
 
           std::string fullBackupPath = backupDir.absolutePath().toStdString() + "/" + nameSelection.toStdString() + "/";
           std::string command = "mkdir -p " + fullBackupPath + " && rsync -av /data/params/d/ " + fullBackupPath;
 
           int result = std::system(command.c_str());
-          toggleBackupBtn->setValue(result == 0 ? tr("Success!") : tr("Failed..."));
+          toggleBackupBtn->setValue(result == 0 ? tr("成功!") : tr("失敗..."));
 
           std::this_thread::sleep_for(std::chrono::seconds(2));
           toggleBackupBtn->setValue("");
@@ -483,16 +519,16 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
     } else if (id == 1) {
       QStringList backupNames = backupDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
-      QString selection = MultiOptionDialog::getSelection(tr("Select a backup to delete"), backupNames, "", this);
+      QString selection = MultiOptionDialog::getSelection(tr("選擇要刪除的備份"), backupNames, "", this);
       if (!selection.isEmpty()) {
-        if (!ConfirmationDialog::confirm(tr("Are you sure you want to delete this backup?"), tr("Delete"), this)) return;
+        if (!ConfirmationDialog::confirm(tr("您確定要刪除此備份嗎?"), tr("刪除"), this)) return;
         std::thread([=]() {
           toggleBackupBtn->setEnabled(false);
-          toggleBackupBtn->setValue(tr("Deleting..."));
+          toggleBackupBtn->setValue(tr("刪除中..."));
 
           QDir dirToDelete(backupDir.absoluteFilePath(selection));
 
-          toggleBackupBtn->setValue(dirToDelete.removeRecursively() ? tr("Deleted!") : tr("Failed..."));
+          toggleBackupBtn->setValue(dirToDelete.removeRecursively() ? tr("已刪除!") : tr("失敗..."));
 
           std::this_thread::sleep_for(std::chrono::seconds(2));
           toggleBackupBtn->setValue("");
@@ -503,12 +539,12 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
     } else if (id == 2) {
       QStringList backupNames = backupDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
-      QString selection = MultiOptionDialog::getSelection(tr("Select a restore point"), backupNames, "", this);
+      QString selection = MultiOptionDialog::getSelection(tr("選擇一個還原點"), backupNames, "", this);
       if (!selection.isEmpty()) {
-        if (!ConfirmationDialog::confirm(tr("Are you sure you want to restore this toggle backup?"), tr("Restore"), this)) return;
+        if (!ConfirmationDialog::confirm(tr("您確定要還原此切換備份嗎?"), tr("還原"), this)) return;
         std::thread([=]() {
           toggleBackupBtn->setEnabled(false);
-          toggleBackupBtn->setValue(tr("Restoring..."));
+          toggleBackupBtn->setValue(tr("還原中..."));
 
           std::string sourcePath = backupDir.absolutePath().toStdString() + "/" + selection.toStdString() + "/";
           std::string targetPath = "/data/params/d/";
@@ -516,10 +552,10 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
           int result = std::system(command.c_str());
 
           if (result == 0) {
-            toggleBackupBtn->setValue(tr("Success!"));
+            toggleBackupBtn->setValue(tr("成功!"));
             updateFrogPilotToggles();
           } else {
-            toggleBackupBtn->setValue(tr("Failed..."));
+            toggleBackupBtn->setValue(tr("失敗..."));
           }
 
           std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -559,7 +595,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
 
         flashPandaBtn->setValue(tr("Flashed!"));
         std::this_thread::sleep_for(std::chrono::seconds(2));
-        flashPandaBtn->setValue(tr("Rebooting..."));
+        flashPandaBtn->setValue(tr("重新啟動..."));
         std::this_thread::sleep_for(std::chrono::seconds(2));
         Hardware::reboot();
       }).detach();
@@ -568,19 +604,19 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   addItem(flashPandaBtn);
 
   // Reset toggles to default
-  ButtonControl *resetTogglesBtn = new ButtonControl(tr("Reset Toggles To Default"), tr("RESET"), tr("Reset your toggle settings back to their default settings."));
+  ButtonControl *resetTogglesBtn = new ButtonControl(tr("將切換重設為預設值"), tr("重置"), tr("將您的切換設定重設為預設設定."));
   connect(resetTogglesBtn, &ButtonControl::clicked, [=]() {
-    if (ConfirmationDialog::confirm(tr("Are you sure you want to completely reset all of your toggle settings?"), tr("Reset"), this)) {
+    if (ConfirmationDialog::confirm(tr("您確定要完全重設所有切換設定嗎?"), tr("重置"), this)) {
       std::thread([&] {
         resetTogglesBtn->setEnabled(false);
-        resetTogglesBtn->setValue(tr("Resetting toggles..."));
+        resetTogglesBtn->setValue(tr("重置設定..."));
 
         std::system("rm -rf /persist/params");
         params.putBool("DoToggleReset", true);
 
-        resetTogglesBtn->setValue(tr("Reset!"));
+        resetTogglesBtn->setValue(tr("重置!"));
         std::this_thread::sleep_for(std::chrono::seconds(2));
-        resetTogglesBtn->setValue(tr("Rebooting..."));
+        resetTogglesBtn->setValue(tr("重新啟動..."));
         std::this_thread::sleep_for(std::chrono::seconds(2));
         Hardware::reboot();
       }).detach();
@@ -607,37 +643,12 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   forceStartedBtn->updateButtonStyles(2);
   addItem(forceStartedBtn);
 
-  // power buttons
-  QHBoxLayout *power_layout = new QHBoxLayout();
-  power_layout->setSpacing(30);
-
-  QPushButton *reboot_btn = new QPushButton(tr("Reboot"));
-  reboot_btn->setObjectName("reboot_btn");
-  power_layout->addWidget(reboot_btn);
-  QObject::connect(reboot_btn, &QPushButton::clicked, this, &DevicePanel::reboot);
-
-  QPushButton *poweroff_btn = new QPushButton(tr("Power Off"));
-  poweroff_btn->setObjectName("poweroff_btn");
-  power_layout->addWidget(poweroff_btn);
-  QObject::connect(poweroff_btn, &QPushButton::clicked, this, &DevicePanel::poweroff);
-
-  if (!Hardware::PC()) {
-    connect(uiState(), &UIState::offroadTransition, poweroff_btn, &QPushButton::setVisible);
-  }
-
-  setStyleSheet(R"(
-    #reboot_btn { height: 120px; border-radius: 15px; background-color: #393939; }
-    #reboot_btn:pressed { background-color: #4a4a4a; }
-    #poweroff_btn { height: 120px; border-radius: 15px; background-color: #E22C2C; }
-    #poweroff_btn:pressed { background-color: #FF2424; }
-  )");
-  addItem(power_layout);
 }
 
 void DevicePanel::updateCalibDescription() {
   QString desc =
-      tr("openpilot requires the device to be mounted within 4° left or right and "
-         "within 5° up or 9° down. openpilot is continuously calibrating, resetting is rarely required.");
+      tr("openpilot 需要將設備固定在左右偏差 4° 以內，朝上偏差 5° 以内或朝下偏差 8° 以内。 "
+         "鏡頭在後台會持續自動校準，很少有需要重置的情况。");
   std::string calib_bytes = params.get("CalibrationParams");
   if (!calib_bytes.empty()) {
     try {
@@ -647,9 +658,9 @@ void DevicePanel::updateCalibDescription() {
       if (calib.getCalStatus() != cereal::LiveCalibrationData::Status::UNCALIBRATED) {
         double pitch = calib.getRpyCalib()[1] * (180 / M_PI);
         double yaw = calib.getRpyCalib()[2] * (180 / M_PI);
-        desc += tr(" Your device is pointed %1° %2 and %3° %4.")
-                    .arg(QString::number(std::abs(pitch), 'g', 1), pitch > 0 ? tr("down") : tr("up"),
-                         QString::number(std::abs(yaw), 'g', 1), yaw > 0 ? tr("left") : tr("right"));
+        desc += tr("你的設備目前朝 %1° %2 以及朝 %3° %4.")
+                    .arg(QString::number(std::abs(pitch), 'g', 1), pitch > 0 ? tr("下") : tr("上"),
+                         QString::number(std::abs(yaw), 'g', 1), yaw > 0 ? tr("左") : tr("右"));
       }
     } catch (kj::Exception) {
       qInfo() << "invalid CalibrationParams";
@@ -660,27 +671,27 @@ void DevicePanel::updateCalibDescription() {
 
 void DevicePanel::reboot() {
   if (!uiState()->engaged()) {
-    if (ConfirmationDialog::confirm(tr("Are you sure you want to reboot?"), tr("Reboot"), this)) {
+    if (ConfirmationDialog::confirm(tr("是否確定要重新啟動?"), tr("重新啟動"), this)) {
       // Check engaged again in case it changed while the dialog was open
       if (!uiState()->engaged()) {
         params.putBool("DoReboot", true);
       }
     }
   } else {
-    ConfirmationDialog::alert(tr("Disengage to Reboot"), this);
+    ConfirmationDialog::alert(tr("請先取消控車才能重新啟動"), this);
   }
 }
 
 void DevicePanel::poweroff() {
   if (!uiState()->engaged()) {
-    if (ConfirmationDialog::confirm(tr("Are you sure you want to power off?"), tr("Power Off"), this)) {
+    if (ConfirmationDialog::confirm(tr("是否確定要關機?"), tr("關機"), this)) {
       // Check engaged again in case it changed while the dialog was open
       if (!uiState()->engaged()) {
         params.putBool("DoShutdown", true);
       }
     }
   } else {
-    ConfirmationDialog::alert(tr("Disengage to Power Off"), this);
+    ConfirmationDialog::alert(tr("請先取消控車才能關機"), this);
   }
 }
 
@@ -721,7 +732,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   panel_widget = new QStackedWidget();
 
   // close button
-  QPushButton *close_btn = new QPushButton(tr("← Back"));
+  QPushButton *close_btn = new QPushButton(tr("← 返回"));
   close_btn->setStyleSheet(R"(
     QPushButton {
       font-size: 50px;
@@ -768,15 +779,23 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   FrogPilotVisualsPanel *frogpilotVisuals = new FrogPilotVisualsPanel(this);
   QObject::connect(frogpilotVisuals, &FrogPilotVisualsPanel::openParentToggle, this, [this]() {parentToggleOpen=true;});
 
+/////////////////////////////////////////////////////
+  HFOPControlsPanel *hfoppilotControls = new HFOPControlsPanel(this);
+  QObject::connect(hfoppilotControls, &HFOPControlsPanel::openParentToggle, this, [this]() {parentToggleOpen = true;});
+/////////////////////////////////////////////////////
+
   QList<QPair<QString, QWidget *>> panels = {
-    {tr("Device"), device},
-    {tr("Network"), new Networking(this)},
-    {tr("Toggles"), toggles},
-    {tr("Software"), new SoftwarePanel(this)},
-    {tr("Controls"), frogpilotControls},
-    {tr("Navigation"), new FrogPilotNavigationPanel(this)},
-    {tr("Vehicles"), new FrogPilotVehiclesPanel(this)},
-    {tr("Visuals"), frogpilotVisuals},
+    {tr("設備資訊"), device},
+    {tr("網路設定"), new Networking(this)},
+    {tr("官方設定"), toggles},
+    {tr("軟體資訊"), new SoftwarePanel(this)},
+    {tr("控制設定"), frogpilotControls},
+    {tr("導航設定"), new FrogPilotNavigationPanel(this)},
+    {tr("車輛設定"), new FrogPilotVehiclesPanel(this)},
+    {tr("介面設定"), frogpilotVisuals},
+/////////////////////////////////////////////////////
+    {tr("H F O P"), hfoppilotControls},
+/////////////////////////////////////////////////////
   };
 
   nav_btns = new QButtonGroup(this);
@@ -789,21 +808,21 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
         color: grey;
         border: none;
         background: none;
-        font-size: 65px;
+        font-size: 55px;
         font-weight: 500;
       }
       QPushButton:checked {
         color: white;
       }
       QPushButton:pressed {
-        color: #ADADAD;
+        color: #68beca;
       }
     )");
     btn->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     nav_btns->addButton(btn);
-    sidebar_layout->addWidget(btn, 0, Qt::AlignRight);
+    sidebar_layout->addWidget(btn, 0, Qt::AlignHCenter);
 
-    const int lr_margin = name != tr("Network") ? 50 : 0;  // Network panel handles its own margins
+    const int lr_margin = name != tr("網路") ? 50 : 0;  // Network panel handles its own margins
     panel->setContentsMargins(lr_margin, 25, lr_margin, 25);
 
     ScrollView *panel_frame = new ScrollView(panel, this);

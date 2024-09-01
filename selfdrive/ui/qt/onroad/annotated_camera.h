@@ -7,6 +7,9 @@
 #include "selfdrive/ui/qt/widgets/cameraview.h"
 
 #include "selfdrive/frogpilot/screenrecorder/screenrecorder.h"
+////////////////////////
+#include "selfdrive/ui/qt/maps/map_instructions.h"
+////////////////////////
 
 class Compass : public QWidget {
   Q_OBJECT
@@ -99,6 +102,9 @@ private:
   void drawTurnSignals(QPainter &p);
 
   // FrogPilot variables
+/////////////////////////
+  Params params;
+/////////////////////////
   Params paramsMemory{"/dev/shm/params"};
 
   Compass *compass_img;
@@ -162,6 +168,23 @@ private:
   int standstillDuration;
   int stoppedEquivalence;
   int totalFrames;
+
+  ////////////////////////////
+  int leadspeed_diffProfile;
+  bool autoaccProfile;
+  bool fuelpriceProfile;
+  bool HFOPinfProfile;
+  float batteryVol;
+  float tankvolumeProfile;
+  float tankusedProfile;
+  float kplProfile;
+  float fueltProfile;
+  float oiltempProfile;
+  float distance;
+  bool currentIsEngaged;
+  MapInstructions *map_instructions;
+  QString navBanner;
+////////////////////////////
 
   QPixmap stopSignImg;
 

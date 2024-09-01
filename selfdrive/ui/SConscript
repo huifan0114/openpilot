@@ -26,8 +26,9 @@ widgets_src = ["ui.cc", "qt/widgets/input.cc", "qt/widgets/wifi.cc",
                "../frogpilot/ui/qt/widgets/drive_stats.cc", "../frogpilot/ui/qt/widgets/frogpilot_controls.cc",
                "../frogpilot/ui/qt/widgets/model_reviewer.cc", "../frogpilot/navigation/ui/navigation_settings.cc",
                "../frogpilot/ui/qt/offroad/control_settings.cc", "../frogpilot/ui/qt/offroad/vehicle_settings.cc",
-               "../frogpilot/ui/qt/offroad/visual_settings.cc"]
-
+###########################
+               "../frogpilot/ui/qt/offroad/visual_settings.cc","../frogpilot/ui/qt/offroad/hfop_settings.cc"]
+###########################
 qt_env['CPPDEFINES'] = []
 if maps:
   base_libs += ['QMapLibre']

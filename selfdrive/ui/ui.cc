@@ -446,9 +446,9 @@ void ui_update_frogpilot_params(UIState *s, Params &params) {
   scene.use_vienna_slc_sign = scene.speed_limit_controller && params.getBool("UseVienna");
 
   scene.tethering_config = params.getInt("TetheringEnabled");
-  if (scene.tethering_config == 2) {
-    WifiManager(s).setTetheringEnabled(true);
-  }
+  // if (scene.tethering_config == 2) {
+  //   WifiManager(s).setTetheringEnabled(true);
+  // }
 }
 
 void UIState::updateStatus() {
@@ -632,27 +632,41 @@ void Device::updateBrightness(const UIState &s) {
 void Device::updateWakefulness(const UIState &s) {
   bool ignition_state_changed = s.scene.ignition != ignition_on;
   ignition_on = s.scene.ignition;
+//////////////////////////////////////////////////////////////////
+  Params params;
+  bool carstart_OffScreen = params.getBool("GooffScreen");
+  // bool ignition_just_turned_off = !s.scene.ignition && ignition_on;
+//////////////////////////////////////////////////////////////////
 
-  if (ignition_on && s.scene.standby_mode) {
-    if (s.scene.wake_up_screen) {
-      resetInteractiveTimeout(s.scene.screen_timeout, s.scene.screen_timeout_onroad);
+  if(carstart_OffScreen){
+    if(ignition_on){
+      setAwake(false);
+    }else if(ignition_state_changed){
+      setAwake(true);
     }
-  }
-
-  if (ignition_state_changed) {
-    if (ignition_on && s.scene.screen_brightness_onroad == 0 && !s.scene.standby_mode) {
-      resetInteractiveTimeout(0, 0);
-    } else {
-      resetInteractiveTimeout(s.scene.screen_timeout, s.scene.screen_timeout_onroad);
-    }
-  } else if (interactive_timeout > 0 && --interactive_timeout == 0) {
-    emit interactiveTimeout();
-  }
-
-  if (s.scene.screen_brightness_onroad != 0) {
-    setAwake(s.scene.ignition || interactive_timeout > 0);
   } else {
-    setAwake(interactive_timeout > 0);
+    if (ignition_on && s.scene.standby_mode) {
+    if (s.scene.wake_up_screen) {
+        resetInteractiveTimeout(s.scene.screen_timeout, s.scene.screen_timeout_onroad);
+      }
+    }
+
+    if (ignition_state_changed) {
+      // Instantly turn off the screen if the onroad brightness is set to 0%
+      if (ignition_on && s.scene.screen_brightness_onroad == 0 && !s.scene.standby_mode) {
+        resetInteractiveTimeout(0, 0);
+      } else {
+        resetInteractiveTimeout(s.scene.screen_timeout, s.scene.screen_timeout_onroad);
+      }
+    } else if (interactive_timeout > 0 && --interactive_timeout == 0) {
+      emit interactiveTimeout();
+    }
+
+    if (s.scene.screen_brightness_onroad != 0) {
+      setAwake(s.scene.ignition || interactive_timeout > 0);
+    } else {
+      setAwake(interactive_timeout > 0);
+    }
   }
 }
 
