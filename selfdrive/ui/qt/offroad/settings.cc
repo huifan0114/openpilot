@@ -272,7 +272,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   connect(dcamBtn, &ButtonControl::clicked, [=]() { emit showDriverView(); });
   addItem(dcamBtn);
 
-  auto resetCalibBtn = new ButtonControl(tr("重設校正"), tr("重設"), "");
+  resetCalibBtn = new ButtonControl(tr("重設校正"), tr("重設"), "");
   connect(resetCalibBtn, &ButtonControl::showDescriptionEvent, this, &DevicePanel::updateCalibDescription);
   connect(resetCalibBtn, &ButtonControl::clicked, [&]() {
     if (ConfirmationDialog::confirm(tr("是否確定要重設校正?"), tr("重設"), this)) {
@@ -408,7 +408,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
 
   // Backup FrogPilot
   std::vector<QString> frogpilotBackupOptions{tr("備份"), tr("刪除"), tr("還原")};
-  FrogPilotButtonsControl *frogpilotBackupBtn = new FrogPilotButtonsControl(tr("FrogPilot 備份"), tr("備份、刪除或還原您的 FrogPilot 備份.") "", frogpilotBackupOptions);
+  FrogPilotButtonsControl *frogpilotBackupBtn = new FrogPilotButtonsControl(tr("FrogPilot 備份"), tr("備份、刪除或還原您的 FrogPilot 備份."), "", frogpilotBackupOptions);
   connect(frogpilotBackupBtn, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
     QDir backupDir("/data/backups");
 
