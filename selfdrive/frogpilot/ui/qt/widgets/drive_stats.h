@@ -20,9 +20,14 @@ private:
   bool metric;
 
   QJsonDocument stats;
+////////////////////////
+  bool fuelpriceProfile;
+////////////////////////
 
   struct StatsLabels {
-    QLabel *routes, *distance, *distance_unit, *hours;
+////////////////////////////////////////////////////////
+    QLabel *routes, *distance, *distance_unit, *hours, *Fuelconsumptionsweek, *Fuelcostsweek;
+////////////////////////////////////////////////////////
   } all, week, frogPilot;
 
 private slots:
