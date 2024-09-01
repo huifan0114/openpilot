@@ -273,7 +273,9 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
     int top_radius = 32;
     int bottom_radius = has_eu_speed_limit ? 100 : 32;
 
+    //////////////////////////////////////
     QRect set_speed_rect(QPoint(30 + (default_size.width() - set_speed_size.width()) / 2, 45), set_speed_size);
+    //////////////////////////////////////
     if (is_cruise_set && cruiseAdjustment != 0) {
       float transition = qBound(0.0f, 5.0f * (cruiseAdjustment / setSpeed), 1.0f);
       QColor min = whiteColor(75);
@@ -1435,9 +1437,9 @@ void AnnotatedCameraWidget::drawLeadInfo(QPainter &p) {
                       .arg(accelerationUnit);
   }
 
-  QString obstacleText = createText(mapOpen ? tr("障礙物:") : tr("障礙物:"), obstacleDistance);
-  QString stopText = createText(mapOpen ? tr("停止:") : tr("停止:"), stoppedEquivalence);
-  QString followText = " = " + createText(mapOpen ? tr("跟隨:") : tr("跟隨:"), desiredFollow);
+  QString obstacleText = createText(mapOpen ? tr("障礙物:") : tr("障礙物係數:"), obstacleDistance);
+  QString stopText = createText(mapOpen ? tr("停止:") : tr("停止係數:"), stoppedEquivalence);
+  QString followText = " = " + createText(mapOpen ? tr("跟隨:") : tr("跟隨距離:"), desiredFollow);
 
   auto createDiffText = [&](double data, double stockData) {
     double difference = std::round((data - stockData) * distanceConversion);
@@ -1681,27 +1683,27 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
   int roadProfile = params.getInt("RoadtypeProfile");
 
   if (auto_roadtype){
-  if (roadName.contains("高速")) {
-    if (roadProfile != 4) {
-      roadProfile = 4;
+    if (roadName.contains("街") ||roadName.contains("巷") || roadName.contains("弄")) {
+      if (roadProfile != 1) {
+        roadProfile = 1;
+      }
+    } else if (roadName.contains("交流道")) {
+      if (roadProfile != 2) {
+        roadProfile = 2;
+      }
+    } else if (roadName.contains("快速")) {
+      if (roadProfile != 3) {
+        roadProfile = 3;
+      }
+    } else if (roadName.contains("高速")) {
+      if (roadProfile != 4) {
+        roadProfile = 4;
+      }
+    } else {
+      if (roadProfile != 2) {
+        roadProfile = 2;
+      }
     }
-  } else if (roadName.contains("快速")) {
-    if (roadProfile != 3) {
-      roadProfile = 3;
-    }
-  } else if (roadName.contains("街") ||roadName.contains("巷") || roadName.contains("弄")) {
-    if (roadProfile != 1) {
-      roadProfile = 1;
-    }
-  } else if (roadName.contains("交流道")) {
-    if (roadProfile != 2) {
-      roadProfile = 2;
-    }
-  } else {
-    if (roadProfile != 2) {
-      roadProfile = 2;
-    }
-  }
     params.putInt("RoadtypeProfile", roadProfile);
     updateFrogPilotToggles();
   }

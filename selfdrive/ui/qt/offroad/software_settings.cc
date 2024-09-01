@@ -124,7 +124,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
 //////////////////////////////////////////////////////////////////////////////////////////////
   delLogBtn = new ButtonControl(tr("刪除訊息"), tr("刪除"), "刪除訊息.");
   connect(delLogBtn, &ButtonControl::clicked, [=]() {
-    std::system("rm -r /data/community/crashes && mkdir -p /data/community/crashes/");
+    std::system("rm -r /data/crashes && mkdir -p /data/crashes/");
   });
   addItem(delLogBtn);
 //////////////////////////////////////////////////////////////////////////////////////////////

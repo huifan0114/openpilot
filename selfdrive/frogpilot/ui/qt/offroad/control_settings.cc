@@ -36,7 +36,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"HideAOLStatusBar", tr("隱藏狀態列"), tr("不要使用「始終橫向顯示」的狀態列'."), ""},
 
     {"ConditionalExperimental", tr("條件式的實驗模式"), tr("根據特定條件自動啟動實驗模式."), "../frogpilot/assets/toggle_icons/icon_conditional.png"},
-    {"CESpeed", tr("Below"), tr("Switch to 'Experimental Mode' below this speed when not following a lead vehicle."), ""},
+    {"CESpeed", tr("  時速低於"), tr("當無前車時，低於此速度切換到“實驗模式”."), ""},
     {"CECurves", tr("  彎道"), tr("偵測到曲線時切換到“實驗模式”."), ""},
     {"CELead", tr("  前車"), tr("當偵測到前方車輛時切換到“實驗模式”."), ""},
     {"CENavigation", tr("  導航"), tr("根據導航十字路口、停車標誌等切換到“實驗模式"), ""},
@@ -54,7 +54,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
 
     {"DrivingPersonalities", tr("設定駕駛模式"), tr("管理個人的駕駛行為'."), "../frogpilot/assets/toggle_icons/icon_personality.png"},
     {"CustomPersonalities", tr("客製化設定"), tr("根據您的駕駛風格客製化駕駛個性檔案."), ""},
-    {"PersonalityInfo", tr("What Do All These Do"), tr("Learn what all the values in 'Custom Personality Profiles' do on openpilot's driving behaviors."), ""},
+    {"PersonalityInfo", tr("這些的作用"), tr("了解「自訂個性設定檔」中的所有數值對 openpilot 的駕駛行為有何影響."), ""}, 
     {"TrafficPersonalityProfile", tr("塞車模式"), tr("設定塞車模式行為."), "../frogpilot/assets/other_images/traffic.png"},
     {"TrafficFollow", tr("跟隨距離"), tr("設定使用「塞車模式」時的最小跟隨距離。當在 0 到 %1 之間行駛時，您的跟隨距離將在此距離和「激進」設定檔中的跟隨距離之間動態調整.\n\n例如:\n\n塞車模式: 0.5s\n積極模式: 1.0s\n\n0%2 = 0.5s\n%3 = 0.75s\n%1 = 1.0s"), ""},
     {"TrafficJerkAcceleration", tr("加速/減速度 反應調整"), tr("自訂使用「塞車模式」時的加速反應."), ""},
@@ -115,17 +115,17 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"MTSCCurvatureCheck",  tr("  模型曲率檢測故障保護"), tr("僅當模型偵測到道路上有彎道時才觸發 MTSC。純粹用作故障保護以防止誤報。如果您從未遇到過誤報，請關閉此選項."), ""},
     {"MTSCAggressiveness", tr("  轉彎速度積極性"), tr("設定轉彎速度攻擊性.較高的數值會導致較快的轉彎，較低的數值會導致較平緩的轉彎."), ""},
 
-    {"ModelManagement", tr("Model Management"), tr("Manage openpilot's driving models."), "../assets/offroad/icon_calibration.png"},
-    {"AutomaticallyUpdateModels", tr("Automatically Update Models"), tr("Automatically download models as they're updated or added to the model list."), ""},
-    {"ModelRandomizer", tr("Model Randomizer"), tr("Have a random model be selected each drive that can be reviewed at the end of each drive to find your preferred model."), ""},
-    {"ManageBlacklistedModels", tr("Manage Model Blacklist"), "Manage the models on your blacklist.", ""},
-    {"ResetScores", tr("Reset Model Scores"), tr("Reset the scores you have rated the openpilot models."), ""},
-    {"ReviewScores", tr("Review Model Scores"), tr("View the scores FrogPilot and yourself have rated the openpilot models."), ""},
-    {"DeleteModel", tr("Delete Model"), "", ""},
-    {"DownloadModel", tr("Download Model"), "", ""},
-    {"DownloadAllModels", tr("Download All Models"), "", ""},
-    {"SelectModel", tr("Select Model"), "", ""},
-    {"ResetCalibrations", tr("Reset Model Calibrations"), tr("Reset the driving model calibrations."), ""},
+    {"ModelManagement", tr("模型管理"), tr("管理 openpilot 的駕駛模型."), "../assets/offroad/icon_calibration.png"},
+    {"AutomaticallyUpdateModels", tr("自動更新模型"), tr("當模型更新或新增到模型清單時自動下載模型."), ""},
+    {"ModelRandomizer", tr("模型隨機產生器"), tr("為每個駕駛選擇一個隨機型號，可以在每個駕駛結束時進行查看以找到您喜歡的型號."), ""},
+    {"ManageBlacklistedModels", tr("管理模型黑名單"), tr("管理黑名單上的型號."), ""},
+    {"ResetScores", tr("重置模型分數"), tr("重置您對 openpilot 模型的評分."), ""},
+    {"ReviewScores", tr("查看模型分數"), tr("查看 FrogPilot 和您自己對 openpilot 模型的評分."), ""},
+    {"DeleteModel", tr("刪除模型"), "", ""},
+    {"DownloadModel", tr("下載模型"), "", ""},
+    {"DownloadAllModels", tr("下載所有型號"), "", ""},
+    {"SelectModel", tr("選擇型號"), "", ""},
+    {"ResetCalibrations", tr("重置模型校準"), tr("重置駕駛模型校準."), ""},
 
     {"QOLControls", tr("優化體驗"), tr("各種控制細項的調整可改善您的openpilot體驗."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
     {"CustomCruise", tr("  巡航增加間隔"), tr("設定自訂間隔以增加最大設定速度."), ""},
@@ -187,8 +187,8 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
       });
       controlToggle = conditionalExperimentalToggle;
     } else if (param == "CESpeed") {
-      FrogPilotParamValueControl *CESpeed = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, std::map<int, QString>(), this, false, tr("mph"));
-      FrogPilotParamValueControl *CESpeedLead = new FrogPilotParamValueControl("CESpeedLead", tr("  有車"), tr("有前方車輛時低於此速度切換到實驗模式."), icon, 0, 99, std::map<int, QString>(), this, false, tr("mph"));
+      FrogPilotParamValueControl *CESpeed = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, std::map<int, QString>(), this, false, tr("英里/小時"));
+      FrogPilotParamValueControl *CESpeedLead = new FrogPilotParamValueControl("CESpeedLead", tr("  有車"), tr("有前方車輛時低於此速度切換到實驗模式."), icon, 0, 99, std::map<int, QString>(), this, false, tr("英里/小時"));
       FrogPilotDualParamControl *conditionalSpeeds = new FrogPilotDualParamControl(CESpeed, CESpeedLead, this);
       controlToggle = reinterpret_cast<AbstractControl*>(conditionalSpeeds);
     } else if (param == "CECurves") {
@@ -225,10 +225,10 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
       controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 33, shutdownLabels, this, false);
     } else if (param == "NoUploads") {
       std::vector<QString> uploadsToggles{"DisableOnroadUploads"};
-      std::vector<QString> uploadsToggleNames{tr("Only Onroad")};
+      std::vector<QString> uploadsToggleNames{tr("僅上路時")};
       controlToggle = new FrogPilotParamToggleControl(param, title, desc, icon, uploadsToggles, uploadsToggleNames);
     } else if (param == "LowVoltageShutdown") {
-      controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 11.8, 12.5, std::map<int, QString>(), this, false, tr(" volts"), 1, 0.01);
+      controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 11.8, 12.5, std::map<int, QString>(), this, false, tr(" 伏特"), 1, 0.01);
 
     } else if (param == "DrivingPersonalities") {
       FrogPilotParamManageControl *drivingPersonalitiesToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
@@ -302,16 +302,16 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
                relaxedPersonalityKeys.find(param) != relaxedPersonalityKeys.end()) {
       if (param == "TrafficFollow" || param == "AggressiveFollow" || param == "StandardFollow" || param == "RelaxedFollow") {
         if (param == "TrafficFollow") {
-          controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.5, 5, std::map<int, QString>(), this, false, tr(" seconds"), 1, 0.01);
+          controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.5, 5, std::map<int, QString>(), this, false, tr(" 秒"), 1, 0.01);
         } else {
-          controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 5, std::map<int, QString>(), this, false, tr(" seconds"), 1, 0.01);
+          controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 5, std::map<int, QString>(), this, false, tr(" 秒"), 1, 0.01);
         }
       } else {
         controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 500, std::map<int, QString>(), this, false, "%");
       }
     } else if (param == "OnroadDistanceButton") {
       std::vector<QString> onroadDistanceToggles{"KaofuiIcons"};
-      std::vector<QString> onroadDistanceToggleNames{tr("Kaofui's Icons")};
+      std::vector<QString> onroadDistanceToggleNames{tr("Kaofui's 圖示")};
       controlToggle = new FrogPilotParamToggleControl(param, title, desc, icon, onroadDistanceToggles, onroadDistanceToggleNames);
 
     } else if (param == "ExperimentalModeActivation") {
@@ -427,7 +427,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
       });
       controlToggle = modelRandomizerToggle;
     } else if (param == "ManageBlacklistedModels") {
-      std::vector<QString> blacklistOptions{tr("ADD"), tr("REMOVE")};
+      std::vector<QString> blacklistOptions{tr("增加"), tr("移除")};
       FrogPilotButtonsControl *manageModelsBlacklistBtn = new FrogPilotButtonsControl(title, desc, "", blacklistOptions);
       QObject::connect(manageModelsBlacklistBtn, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
         QStringList blacklistedModels = QString::fromStdString(params.get("BlacklistedModels")).split(",", QString::SkipEmptyParts);
@@ -449,11 +449,11 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
           if (selectableModels.size() == 1) {
             QString onlyModel = selectableModels.first();
             FrogPilotConfirmationDialog::toggleAlert(
-              tr("There's no more models to blacklist! The only available model is \"%1\"!").arg(onlyModel),
+              tr("沒有可添加至黑名單的模型! 唯一可用的模型是 \"%1\"!").arg(onlyModel),
               tr("OK"), this);
           } else {
-            QString selectedModel = MultiOptionDialog::getSelection(tr("Select a model to add to the blacklist"), selectableModels, "", this);
-            if (!selectedModel.isEmpty() && ConfirmationDialog::confirm(tr("Are you sure you want to add this model to the blacklist?"), tr("Add"), this)) {
+            QString selectedModel = MultiOptionDialog::getSelection(tr("選擇要加入黑名單的型號"), selectableModels, "", this);
+            if (!selectedModel.isEmpty() && ConfirmationDialog::confirm(tr("您確定要將此型號新增至黑名單嗎?"), tr("增加"), this)) {
               QString modelToAdd = labelToModelMap[selectedModel];
               if (!blacklistedModels.contains(modelToAdd)) {
                 blacklistedModels.append(modelToAdd);
@@ -462,8 +462,8 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
             }
           }
         } else if (id == 1) {
-          QString selectedModel = MultiOptionDialog::getSelection(tr("Select a model to remove from the blacklist"), deletableModels, "", this);
-          if (!selectedModel.isEmpty() && ConfirmationDialog::confirm(tr("Are you sure you want to remove this model from the blacklist?"), tr("Remove"), this)) {
+          QString selectedModel = MultiOptionDialog::getSelection(tr("選擇要從黑名單中刪除的型號"), deletableModels, "", this);
+          if (!selectedModel.isEmpty() && ConfirmationDialog::confirm(tr("您確定要將此型號從黑名單中移除嗎?"), tr("移除"), this)) {
             QString modelToRemove = labelToModelMap[selectedModel];
             if (blacklistedModels.contains(modelToRemove)) {
               blacklistedModels.removeAll(modelToRemove);
@@ -475,9 +475,9 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
       });
       controlToggle = reinterpret_cast<AbstractControl*>(manageModelsBlacklistBtn);
     } else if (param == "ResetScores") {
-      ButtonControl *resetScoresBtn = new ButtonControl(title, tr("RESET"), desc);
+      ButtonControl *resetScoresBtn = new ButtonControl(title, tr("重置"), desc);
       QObject::connect(resetScoresBtn, &ButtonControl::clicked, [=]() {
-        if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset all of your model scores?"), this)) {
+        if (FrogPilotConfirmationDialog::yesorno(tr("您確定要完全重置所有模型分數嗎?"), this)) {
           for (QString model : availableModelNames) {
             QString cleanedModelName = processModelName(model);
             params.remove(QString("%1Drives").arg(cleanedModelName).toStdString());
@@ -491,7 +491,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
       });
       controlToggle = reinterpret_cast<AbstractControl*>(resetScoresBtn);
     } else if (param == "ReviewScores") {
-      ButtonControl *reviewScoresBtn = new ButtonControl(title, tr("VIEW"), desc);
+      ButtonControl *reviewScoresBtn = new ButtonControl(title, tr("查看"), desc);
       QObject::connect(reviewScoresBtn, &ButtonControl::clicked, [=]() {
         for (LabelControl *label : labelControls) {
           label->setVisible(true);
@@ -551,7 +551,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     } else if (param == "DownloadModel") {
       downloadModelBtn = new ButtonControl(title, tr("下載"), desc);
       QObject::connect(downloadModelBtn, &ButtonControl::clicked, [=]() {
-        if (downloadModelBtn->text() == tr("CANCEL")) {
+        if (downloadModelBtn->text() == tr("取消")) {
           paramsMemory.remove("ModelToDownload");
           paramsMemory.putBool("CancelModelDownload", true);
           cancellingDownload = true;
@@ -568,13 +568,13 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
             }
           }
 
-          QString modelToDownload = MultiOptionDialog::getSelection(tr("Select a driving model to download"), downloadableModelLabels, "", this);
+          QString modelToDownload = MultiOptionDialog::getSelection(tr("選擇要下載的駕駛模型"), downloadableModelLabels, "", this);
           if (!modelToDownload.isEmpty()) {
             modelDownloading = true;
             paramsMemory.put("ModelToDownload", labelToModelMap.value(modelToDownload).toStdString());
             paramsMemory.put("ModelDownloadProgress", "0%");
 
-            downloadModelBtn->setValue(tr("下載中 %1...").arg(modelToDownload.remove(QRegularExpression("[🗺️👀📡]")).trimmed()));
+            downloadModelBtn->setValue(tr("正在下載 %1...").arg(modelToDownload.remove(QRegularExpression("[🗺️👀📡]")).trimmed()));
 
             QTimer *progressTimer = new QTimer(this);
             progressTimer->setInterval(100);
@@ -657,7 +657,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
           }
         }
 
-        QString modelToSelect = MultiOptionDialog::getSelection(tr("Select a model - 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC"), selectableModelLabels, "", this);
+        QString modelToSelect = MultiOptionDialog::getSelection(tr("選擇模型 - 🗺️ = 導航 | 📡 = 雷達 | 👀 = VOACC"), selectableModelLabels, "", this);
         if (!modelToSelect.isEmpty()) {
           selectModelBtn->setValue(modelToSelect);
           int modelIndex = availableModelNames.indexOf(modelToSelect);
@@ -667,22 +667,22 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
 
           if (experimentalModels.contains(availableModels.at(modelIndex))) {
             FrogPilotConfirmationDialog::toggleAlert(
-              tr("WARNING: This is a very experimental model and may drive dangerously!"),
-              tr("I understand the risks."), this);
+              tr("警告：這是一個非常實驗性的模型，可能會造成危險駕駛!"),
+              tr("我了解風險."), this);
           }
 
           QString model = availableModelNames.at(modelIndex);
           QString part_model_param = processModelName(model);
 
           if (!params.checkKey(part_model_param.toStdString() + "CalibrationParams") || !params.checkKey(part_model_param.toStdString() + "LiveTorqueParameters")) {
-            if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to start with a fresh calibration for the newly selected model?"), this)) {
+            if (FrogPilotConfirmationDialog::yesorno(tr("您想對新選擇的型號進行全新校準嗎?"), this)) {
               params.remove("CalibrationParams");
               params.remove("LiveTorqueParameters");
             }
           }
 
           if (started) {
-            if (FrogPilotConfirmationDialog::toggle(tr("Reboot required to take effect."), tr("Reboot Now"), this)) {
+            if (FrogPilotConfirmationDialog::toggle(tr("需要重新啟動才能生效."), tr("馬上重啟"), this)) {
               Hardware::reboot();
             }
           }
@@ -696,7 +696,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
       QObject::connect(resetCalibrationsBtn, &FrogPilotButtonsControl::showDescriptionEvent, this, &FrogPilotControlsPanel::updateCalibrationDescription);
       QObject::connect(resetCalibrationsBtn, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
         if (id == 0) {
-          if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset all of your model calibrations?"), this)) {
+          if (FrogPilotConfirmationDialog::yesorno(tr("您確定要完全重設所有模型校準嗎?"), this)) {
             for (QString model : availableModelNames) {
               QString cleanedModelName = processModelName(model);
               params.remove(QString("%1CalibrationParams").arg(cleanedModelName).toStdString());
@@ -711,9 +711,9 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
             selectableModelLabels.append(availableModelNames[i]);
           }
 
-          QString modelToReset = MultiOptionDialog::getSelection(tr("Select a model to reset"), selectableModelLabels, "", this);
+          QString modelToReset = MultiOptionDialog::getSelection(tr("選擇要重置的模型"), selectableModelLabels, "", this);
           if (!modelToReset.isEmpty()) {
-            if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset this model's calibrations?"), this)) {
+            if (FrogPilotConfirmationDialog::yesorno(tr("您確定要完全重設該模型的校準嗎?"), this)) {
               QString cleanedModelName = processModelName(modelToReset);
               params.remove(QString("%1CalibrationParams").arg(cleanedModelName).toStdString());
               paramsStorage.remove(QString("%1CalibrationParams").arg(cleanedModelName).toStdString());
@@ -749,29 +749,29 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
       });
       controlToggle = qolToggle;
     } else if (param == "CustomCruise") {
-      controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 99, std::map<int, QString>(), this, false, tr("mph"));
+      controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 99, std::map<int, QString>(), this, false, tr("英里/小時"));
     } else if (param == "CustomCruiseLong") {
-      controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 99, std::map<int, QString>(), this, false, tr("mph"));
+      controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 99, std::map<int, QString>(), this, false, tr("英里/小時"));
     } else if (param == "ForceStandstill") {
       std::vector<QString> forceStopToggles{"ForceStops"};
-      std::vector<QString> forceStopToggleNames{tr("Only For Stop Lights/Stop Signs")};
+      std::vector<QString> forceStopToggleNames{tr("僅適用於停車燈/停車標誌")};
       controlToggle = new FrogPilotParamToggleControl(param, title, desc, icon, forceStopToggles, forceStopToggleNames);
     } else if (param == "MapGears") {
       std::vector<QString> mapGearsToggles{"MapAcceleration", "MapDeceleration"};
-      std::vector<QString> mapGearsToggleNames{tr("Acceleration"), tr("Deceleration")};
+      std::vector<QString> mapGearsToggleNames{tr("加速"), tr("減速")};
       controlToggle = new FrogPilotParamToggleControl(param, title, desc, icon, mapGearsToggles, mapGearsToggleNames);
     } else if (param == "PauseLateralSpeed") {
       std::vector<QString> pauseLateralToggles{"PauseLateralOnSignal"};
       std::vector<QString> pauseLateralToggleNames{"Turn Signal Only"};
-      controlToggle = new FrogPilotParamValueToggleControl(param, title, desc, icon, 0, 99, std::map<int, QString>(), this, false, tr("mph"), 1, 1, pauseLateralToggles, pauseLateralToggleNames);
+      controlToggle = new FrogPilotParamValueToggleControl(param, title, desc, icon, 0, 99, std::map<int, QString>(), this, false, tr("英里/小時"), 1, 1, pauseLateralToggles, pauseLateralToggleNames);
     } else if (param == "PauseLateralOnSignal") {
-      controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, std::map<int, QString>(), this, false, tr("mph"));
+      controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, std::map<int, QString>(), this, false, tr("英里/小時"));
     } else if (param == "ReverseCruise") {
       std::vector<QString> reverseCruiseToggles{"ReverseCruiseUI"};
-      std::vector<QString> reverseCruiseNames{tr("Control Via UI")};
+      std::vector<QString> reverseCruiseNames{tr("透過使用者介面控制")};
       controlToggle = new FrogPilotParamToggleControl(param, title, desc, icon, reverseCruiseToggles, reverseCruiseNames);
     } else if (param == "SetSpeedOffset") {
-      controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, std::map<int, QString>(), this, false, tr("mph"));
+      controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, std::map<int, QString>(), this, false, tr("英里/小時"));
 
     } else if (param == "LaneChangeCustomizations") {
       FrogPilotParamManageControl *laneChangeToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
@@ -785,13 +785,13 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     } else if (param == "LaneChangeTime") {
       std::map<int, QString> laneChangeTimeLabels;
       for (int i = 0; i <= 10; ++i) {
-        laneChangeTimeLabels[i] = i == 0 ? "Instant" : QString::number(i / 2.0) + " seconds";
+        laneChangeTimeLabels[i] = i == 0 ? "立即的" : QString::number(i / 2.0) + " 秒";
       }
       controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, laneChangeTimeLabels, this, false);
     } else if (param == "LaneDetectionWidth") {
       controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 100, std::map<int, QString>(), this, false, " feet", 10);
     } else if (param == "MinimumLaneChangeSpeed") {
-      controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, std::map<int, QString>(), this, false, tr("mph"));
+      controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, std::map<int, QString>(), this, false, tr("英里/小時"));
 
     } else if (param == "SpeedLimitController") {
       FrogPilotParamManageControl *speedLimitControllerToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
@@ -833,7 +833,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
       controlToggle = manageSLCQOLToggle;
     } else if (param == "SLCConfirmation") {
       std::vector<QString> slcConfirmationToggles{"SLCConfirmationLower", "SLCConfirmationHigher"};
-      std::vector<QString> slcConfirmationNames{tr("Lower Limits"), tr("Higher Limits")};
+      std::vector<QString> slcConfirmationNames{tr("較低的限速"), tr("較高的限速")};
       controlToggle = new FrogPilotParamToggleControl(param, title, desc, icon, slcConfirmationToggles, slcConfirmationNames);
     } else if (param == "SLCLookaheadHigher" || param == "SLCLookaheadLower") {
       controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 60, std::map<int, QString>(), this, false, " seconds");
@@ -906,7 +906,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
         QString priorityKey = QString("SLCPriority%1").arg(i);
         QString priority = QString::fromStdString(params.get(priorityKey.toStdString()));
 
-        if (!priority.isEmpty() && primaryPriorities.contains(priority) && priority != tr("None")) {
+        if (!priority.isEmpty() && primaryPriorities.contains(priority) && priority != tr("無")) {
           initialPriorities.append(priority);
         }
       }
@@ -997,7 +997,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
   QObject::connect(static_cast<ToggleControl*>(toggles["ModelRandomizer"]), &ToggleControl::toggleFlipped, [this](bool state) {
     modelRandomizer = state;
     if (state && !modelsDownloaded) {
-      if (FrogPilotConfirmationDialog::yesorno(tr("The 'Model Randomizer' only works with downloaded models. Do you want to download all the driving models?"), this)) {
+      if (FrogPilotConfirmationDialog::yesorno(tr("「模型隨機產生器」僅適用於下載的模型。您想下載所有駕駛模型嗎?"), this)) {
         startDownloadAllModels();
       }
     }
@@ -1030,7 +1030,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
   FrogPilotButtonsControl *aggressiveResetButton = static_cast<FrogPilotButtonsControl*>(toggles["ResetAggressivePersonality"]);
 
   QObject::connect(aggressiveResetButton, &FrogPilotButtonsControl::buttonClicked, this, [=]() {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your settings for the 'Aggressive' personality?"), this)) {
+    if (FrogPilotConfirmationDialog::yesorno(tr("您確定要完全重置「積極」模式的設定嗎?"), this)) {
       params.putFloat("AggressiveFollow", 1.25);
       params.putFloat("AggressiveJerkAcceleration", 50);
       params.putFloat("AggressiveJerkDanger", 100);
@@ -1050,7 +1050,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
   FrogPilotButtonsControl *standardResetButton = static_cast<FrogPilotButtonsControl*>(toggles["ResetStandardPersonality"]);
 
   QObject::connect(standardResetButton, &FrogPilotButtonsControl::buttonClicked, this, [=]() {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your settings for the 'Standard' personality?"), this)) {
+    if (FrogPilotConfirmationDialog::yesorno(tr("您確定要完全重置「標準」模式的設定嗎?"), this)) {
       params.putFloat("StandardFollow", 1.45);
       params.putFloat("StandardJerkAcceleration", 100);
       params.putFloat("StandardJerkDanger", 100);
@@ -1070,7 +1070,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
   FrogPilotButtonsControl *relaxedResetButton = static_cast<FrogPilotButtonsControl*>(toggles["ResetRelaxedPersonality"]);
 
   QObject::connect(relaxedResetButton, &FrogPilotButtonsControl::buttonClicked, this, [=]() {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your settings for the 'Relaxed' personality?"), this)) {
+    if (FrogPilotConfirmationDialog::yesorno(tr("您確定要完全重置「輕鬆」模式的設定嗎?"), this)) {
       params.putFloat("RelaxedFollow", 1.75);
       params.putFloat("RelaxedJerkAcceleration", 100);
       params.putFloat("RelaxedJerkDanger", 100);
@@ -1112,8 +1112,8 @@ void FrogPilotControlsPanel::updateState(const UIState &s) {
   if (!isVisible()) return;
 
   if (modelManagementOpen) {
-    downloadAllModelsBtn->setText(modelDownloading && allModelsDownloading ? tr("CANCEL") : tr("DOWNLOAD"));
-    downloadModelBtn->setText(modelDownloading && !allModelsDownloading ? tr("CANCEL") : tr("DOWNLOAD"));
+    downloadAllModelsBtn->setText(modelDownloading && allModelsDownloading ? tr("取消") : tr("下載"));
+    downloadModelBtn->setText(modelDownloading && !allModelsDownloading ? tr("取消") : tr("下載"));
 
     deleteModelBtn->setEnabled(!modelDeleting && !modelDownloading);
     downloadAllModelsBtn->setEnabled(s.scene.online && !cancellingDownload && !modelDeleting && (!modelDownloading || allModelsDownloading) && !modelsDownloaded);
@@ -1279,7 +1279,7 @@ void FrogPilotControlsPanel::startDownloadAllModels() {
 
   paramsMemory.putBool("DownloadAllModels", true);
 
-  downloadAllModelsBtn->setValue(tr("Downloading models..."));
+  downloadAllModelsBtn->setValue(tr("下載模型..."));
 
   QTimer *checkDownloadTimer = new QTimer(this);
   checkDownloadTimer->setInterval(100);
@@ -1331,8 +1331,8 @@ void FrogPilotControlsPanel::updateCalibrationDescription() {
   QString part_model_param = processModelName(model);
 
   QString desc =
-      tr("openpilot requires the device to be mounted within 4° left or right and "
-         "within 5° up or 9° down. openpilot is continuously calibrating, resetting is rarely required.");
+      tr("openpilot 要求設備安裝在左或右 4° 以內  向上 5° 或向下 9° 以內"
+         "openpilot 持續校準，很少需要重置.");
   std::string calib_bytes = params.get(part_model_param.toStdString() + "CalibrationParams");
   if (!calib_bytes.empty()) {
     try {
@@ -1342,9 +1342,9 @@ void FrogPilotControlsPanel::updateCalibrationDescription() {
       if (calib.getCalStatus() != cereal::LiveCalibrationData::Status::UNCALIBRATED) {
         double pitch = calib.getRpyCalib()[1] * (180 / M_PI);
         double yaw = calib.getRpyCalib()[2] * (180 / M_PI);
-        desc += tr(" Your device is pointed %1° %2 and %3° %4.")
-                    .arg(QString::number(std::abs(pitch), 'g', 1), pitch > 0 ? tr("down") : tr("up"),
-                         QString::number(std::abs(yaw), 'g', 1), yaw > 0 ? tr("left") : tr("right"));
+        desc += tr(" 您的裝置已指向 %1° %2 and %3° %4.")
+                    .arg(QString::number(std::abs(pitch), 'g', 1), pitch > 0 ? tr("向下") : tr("向上"),
+                         QString::number(std::abs(yaw), 'g', 1), yaw > 0 ? tr("向左") : tr("向右"));
       }
     } catch (kj::Exception) {
       qInfo() << "invalid CalibrationParams";

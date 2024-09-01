@@ -1,5 +1,6 @@
+#########################################
 import numpy as np
-
+#########################################
 import cereal.messaging as messaging
 
 from cereal import car
@@ -135,24 +136,19 @@ class FrogPilotPlanner:
     else:
       self.lane_width_left = 0
       self.lane_width_right = 0
+
 ############
     if self.tracking_lead_distance < 10 :
-      if frogpilot_toggles.lead_departing_alert and self.tracking_lead and carState.standstill:
-        self.lead_departing = self.lead_one.dRel - self.tracking_lead_distance > 1
+      if frogpilot_toggles.lead_departing_alert and self.tracking_lead and driving_gear and carState.standstill:
+        if self.tracking_lead_distance == 0:
+          self.tracking_lead_distance = lead_distance
+
+        self.lead_departing = lead_distance - self.tracking_lead_distance > 1
         self.lead_departing &= v_lead > 1
       else:
         self.lead_departing = False
+        self.tracking_lead_distance = 0
 ############
-
-    if frogpilot_toggles.lead_departing_alert and self.tracking_lead and driving_gear and carState.standstill:
-      if self.tracking_lead_distance == 0:
-        self.tracking_lead_distance = lead_distance
-
-      self.lead_departing = lead_distance - self.tracking_lead_distance > 1
-      self.lead_departing &= v_lead > 1
-    else:
-      self.lead_departing = False
-      self.tracking_lead_distance = 0
 
     self.model_length = modelData.position.x[MODEL_LENGTH - 1]
     self.model_stopped = self.model_length < CRUISING_SPEED * PLANNER_TIME

@@ -1,26 +1,26 @@
-Following Distance:
-Represents the desired time-based distance from the lead vehicle in seconds. This value adjusts how closely openpilot follows the car in front. It is not an exact value but a more representative value.
+跟隨距離：
+表示與導引車輛之間所需的基於時間的距離（以秒為單位）。該值調整 openpilot 跟隨前方車輛的緊密程度。它不是精確的物理距離，而是時間的代表值。
+現實世界的例子：
+如果該值設定為 1.5 秒，並且您以 50 英里/小時（約 80 公里/小時）的速度行駛，openpilot 的目標是與領先車輛保持約 110 英尺（約 33.5 公尺）的距離。這意味著在任何給定速度下它將保持 1.5 秒的時間間隙。
 
-Real-World Example: If this value is set to 1.5 seconds, and you’re driving at 50 mph (80 kph), openpilot aims to keep a distance of about 110 feet (33.5 meters) from the car in front. It means if the car in front suddenly stops, you have 1.5 seconds to react and stop safely.
+加減速反應：
+控制 openpilot 調整加速和減速速率的積極程度。增加該值會使改變車輛加速或減速的速率變得更加“昂貴”，從而實現更平滑的過渡。這主要影響車輛在速度變化期間的行為，例如加速或減速時。
+現實世界的例子：
+如果您希望在汽車變速時獲得更平穩的駕駛體驗，則可以增加此值。例如，如果數值較高，當跟隨突然加速或減速的引導車輛時，openpilot 將需要更多時間來匹配引導車輛的速度，從而實現更平緩的行駛。
 
-Acceleration Jerk:
-Controls how quickly the car speeds up or slows down.
+危險區域反應：
+調整進入「危險區域」狀態的積極程度。增加該值會使其在接近領先車輛時更加謹慎。此設定會影響車輛對交通擁堵狀況的反應方式。
+現實世界的例子：
+如果您正在接近前方較慢的汽車，設定較高的危險區域將導致 openpilot 更加謹慎，速度差越大且距離越小，煞車越快、越用力。
 
-Real-World Example: If you like your rides to be smooth and gentle, you can set this value higher. So, if the car in front speeds up or slows down suddenly, openpilot will change its speed more slowly to avoid jerky movements.
+速度控制響應：
+調整 openpilot 改變車輛整體速度的積極程度。增加該值會使調整速度的「成本」更高，從而導致更漸進的變化。此設定會影響車輛如何響應交通狀況並設定巡航速度。
+現實世界的例子：
+如果您在交通頻繁走走停停的城市駕駛，設定較高的速度急動係數將使 openpilot 的速度調整更加平滑。例如，當加速以匹配設定的巡航速度或因交通擁堵而減速時，Openpilot 將使這些速度變化更加漸進，提供更流暢的整體駕駛體驗。
 
-Danger Zone Jerk:
-How careful the car is when it gets close to other cars or obstacles.
+總結:
 
-Real-World Example: If there’s a much slower car ahead of you, setting a higher danger zone will make openpilot more cautious. It will brake sooner and harder if the speed difference is big or the distance is small, making sure you don’t get too close too quickly.
-
-Speed Control Jerk:
-How smoothly the car changes its speed overall.
-
-Real-World Example: If you set this value higher, openpilot will change the car's speed more gradually to adjust to higher/lower speed limits and other speed change conditions where there's no lead. So, when you need to speed up to match the set cruise speed or slow down because of traffic, openpilot will do it gently, making the ride smoother.
-
-In Summary:
-
-Following Distance: Sets how far to stay behind the car in front, based on time.
-Acceleration Jerk: Controls how smoothly the car changes speed.
-Danger Zone Jerk: Adjusts how cautious the car is when getting close to other cars or obstacles.
-Speed Control Jerk: Controls the overall smoothness of speed changes when there's no lead in front.
+跟隨距離：根據時間設定與前車保持多遠的距離。
+加速加加速度：控制汽車變速的平穩程度。
+危險區域加加速度：調整汽車在接近其他汽車或障礙物時的謹慎程度。
+速度控制加加速度：當前方沒有領先時，控制速度變化的整體平滑度。

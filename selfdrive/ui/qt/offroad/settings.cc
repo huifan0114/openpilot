@@ -203,7 +203,7 @@ void TogglesPanel::updateToggles() {
       QString long_desc = unavailable + " " + \
                           tr("openpilot 縱向控制可能會在未來的更新中提供。");
       if (CP.getExperimentalLongitudinalAvailable()) {
-        long_desc = tr("Enable the openpilot longitudinal control (alpha) toggle to allow Experimental mode.");
+        long_desc = tr("啟用 openpilot 縱向控制 (alpha) 切換以允許實驗模式。");
       }
       experimental_mode_toggle->setDescription("<b>" + long_desc + "</b><br><br>" + e2e_description);
     }
@@ -595,7 +595,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
 
         flashPandaBtn->setValue(tr("Flashed!"));
         std::this_thread::sleep_for(std::chrono::seconds(2));
-        flashPandaBtn->setValue(tr("重新啟動..."));
+        flashPandaBtn->setValue(tr("Rebooting..."));
         std::this_thread::sleep_for(std::chrono::seconds(2));
         Hardware::reboot();
       }).detach();
