@@ -1,3 +1,5 @@
+import numpy as np
+
 import cereal.messaging as messaging
 
 from cereal import car
