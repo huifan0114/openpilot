@@ -46,7 +46,7 @@ class SpeedLimitController:
     self.write_map_state(v_ego)
     self.nav_speed_limit = navigationSpeedLimit
 
-    self.max_speed_limit = v_cruise if enabled else 0
+    # self.max_speed_limit = v_cruise if enabled else 0
 
     self.frogpilot_toggles = frogpilot_toggles
 
