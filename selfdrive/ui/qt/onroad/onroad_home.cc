@@ -172,7 +172,7 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
 /////////////////////////////////////////////////////////////////////////////////
     bool Traffic_Mode = !params.getBool("TrafficMode");
     params.putBoolNonBlocking("TrafficMode", Traffic_Mode);
-    paramsMemory.putBoolNonBlocking("TrafficModeActive", false);
+    paramsMemory.putBoolNonBlocking("TrafficModeActive", Traffic_Mode);
 
     if(Traffic_Mode == 1){
       params.putBoolNonBlocking("speedreminderreset", false);
