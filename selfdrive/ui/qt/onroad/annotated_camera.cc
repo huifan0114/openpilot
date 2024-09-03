@@ -1619,8 +1619,7 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
     }
   }
 
-  QString roadName = QString::fromStdString(paramsMemory.get("RoadName"));
-  roadName = (!roadNameUI || roadName.isEmpty() || roadName == "null") ? "" : roadName;
+  QString roadName = roadNameUI ? QString::fromStdString(paramsMemory.get("RoadName")) : QString();
 
 /////////////////////////////////////////////////////////////////////////////////
   if (newStatus != lastShownStatus) {
