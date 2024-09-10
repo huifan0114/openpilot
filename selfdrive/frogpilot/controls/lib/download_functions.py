@@ -43,18 +43,16 @@ def handle_error(destination, error_message, error, download_param, progress_par
     params_memory.put(progress_param, error_message)
 
 def handle_request_error(error, destination, download_param, progress_param, params_memory):
-  if isinstance(error, requests.HTTPError):
-    if error.response.status_code == 404:
-      return
-    error_message = f"Server error ({error.response.status_code})" if error.response else "Server error."
-  elif isinstance(error, requests.ConnectionError):
-    error_message = "Connection dropped."
-  elif isinstance(error, requests.Timeout):
-    error_message = "Download timed out."
-  elif isinstance(error, requests.RequestException):
-    error_message = "Network request error. Check connection."
-  else:
-    error_message = "Unexpected error."
+  error_map = {
+    requests.HTTPError: lambda e: f"Server error ({e.response.status_code})" if e.response else "Server error.",
+    requests.ConnectionError: "Connection dropped.",
+    requests.Timeout: "Download timed out.",
+    requests.RequestException: "Network request error. Check connection."
+  }
+
+  error_message = error_map.get(type(error), "Unexpected error.")
+  if isinstance(error, requests.HTTPError) and error.response and error.response.status_code == 404:
+    return
 
   handle_error(destination, f"Failed: {error_message}", error, download_param, progress_param, params_memory)
 
@@ -66,8 +64,8 @@ def get_remote_file_size(url):
   except requests.HTTPError as e:
     if e.response.status_code == 404:
       return 0
-    else:
-      handle_request_error(e, None, None, None, None)
+    handle_request_error(e, None, None, None, None)
+    return 0
   except Exception as e:
     handle_request_error(e, None, None, None, None)
     return 0
@@ -84,6 +82,10 @@ def link_valid(url):
     response = requests.head(url, allow_redirects=True, timeout=5)
     response.raise_for_status()
     return True
+  except requests.HTTPError as e:
+    if e.response.status_code != 404:
+      handle_request_error(e, None, None, None, None)
+    return False
   except Exception as e:
     handle_request_error(e, None, None, None, None)
     return False

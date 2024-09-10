@@ -5,9 +5,6 @@ import stat
 import subprocess
 import time
 import urllib.request
-import http.client
-import socket
-import openpilot.system.sentry as sentry
 
 from openpilot.common.realtime import Ratekeeper
 
@@ -26,9 +23,8 @@ def get_latest_version():
     try:
       with urllib.request.urlopen(url, timeout=5) as response:
         return json.loads(response.read().decode('utf-8'))['version']
-    except (http.client.IncompleteRead, http.client.RemoteDisconnected, socket.gaierror, socket.timeout, urllib.error.HTTPError, urllib.error.URLError) as e:
-      sentry.capture_exception(e)
-      print(f"Failed to get latest version from {url}. Error: {e}")
+    except Exception as e:
+      print(f"Error fetching version from {url}: {e}")
   print("Failed to get the latest version from both sources.")
   return None
 
@@ -54,9 +50,8 @@ def download(current_version):
 
       print(f"Successfully downloaded mapd from {url}")
       return True
-    except (http.client.IncompleteRead, http.client.RemoteDisconnected, socket.gaierror, socket.timeout, urllib.error.HTTPError, urllib.error.URLError) as e:
-      sentry.capture_exception(e)
-      print(f"Failed to download from {url}. Error: {e}")
+    except Exception as e:
+      print(f"Failed to download from {url}: {e}")
 
   print(f"Failed to download mapd for version {current_version} from both sources.")
   return False
@@ -66,7 +61,6 @@ def ensure_mapd_is_running():
     try:
       subprocess.run([MAPD_PATH], check=True)
     except Exception as e:
-      sentry.capture_exception(e)
       print(f"Error running mapd process: {e}")
     time.sleep(1)
 
@@ -89,7 +83,6 @@ def mapd_thread(sm=None, pm=None):
               continue
       ensure_mapd_is_running()
     except Exception as e:
-      sentry.capture_exception(e)
       print(f"Exception in mapd_thread: {e}")
       time.sleep(1)
 
@@ -99,7 +92,6 @@ def main(sm=None, pm=None):
   try:
     mapd_thread(sm, pm)
   except Exception as e:
-    sentry.capture_exception(e)
     print(f"Unhandled exception in main: {e}")
 
 if __name__ == "__main__":

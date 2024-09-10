@@ -366,7 +366,7 @@ class ThemeManager:
         self.previous_assets = {}
         self.update_active_theme()
 
-  def update_themes(self):
+  def update_themes(self, boot_run=False):
     if not os.path.exists(THEME_SAVE_PATH):
       return
 
@@ -374,6 +374,9 @@ class ThemeManager:
     if repo_url is None:
       print("GitHub and GitLab are offline...")
       return
+
+    if boot_run:
+      self.validate_themes()
 
     if repo_url == GITHUB_URL:
       base_url = "https://github.com/FrogAi/FrogPilot-Resources/blob/Themes/"

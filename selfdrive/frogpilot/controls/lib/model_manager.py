@@ -1,7 +1,6 @@
 import json
 import os
 import re
-import requests
 import shutil
 import time
 import urllib.request
@@ -50,12 +49,12 @@ class ModelManager:
       handle_error(model_path, "Model already exists...", "Model already exists...", self.download_param, self.download_progress_param, self.params_memory)
       return
 
-    self.repo_url = get_repository_url()
-    if not self.repo_url:
+    repo_url = get_repository_url()
+    if not repo_url:
       handle_error(model_path, "GitHub and GitLab are offline...", "Repository unavailable", self.download_param, self.download_progress_param, self.params_memory)
       return
 
-    model_url = f"{self.repo_url}Models/{model_to_download}.thneed"
+    model_url = f"{repo_url}Models/{model_to_download}.thneed"
     print(f"Downloading model: {model_to_download}")
     download_file(self.cancel_download_param, model_path, self.download_progress_param, model_url, self.download_param, self.params_memory)
 
@@ -74,7 +73,7 @@ class ModelManager:
       handle_request_error(error, None, None, None, None)
       return []
 
-  def update_model_params(self, model_info):
+  def update_model_params(self, model_info, repo_url):
     available_models, available_model_names, experimental_models, navigation_models, radarless_models = [], [], [], [], []
 
     for model in model_info:
@@ -96,16 +95,16 @@ class ModelManager:
     print("Models list updated successfully.")
 
     if available_models:
-      models_downloaded = self.are_all_models_downloaded(available_models, available_model_names)
+      models_downloaded = self.are_all_models_downloaded(available_models, available_model_names, repo_url)
       self.params.put_bool_nonblocking("ModelsDownloaded", models_downloaded)
 
-  def are_all_models_downloaded(self, available_models, available_model_names):
+  def are_all_models_downloaded(self, available_models, available_model_names, repo_url):
     automatically_update_models = self.params.get_bool("AutomaticallyUpdateModels")
     all_models_downloaded = True
 
     for model in available_models:
       model_path = os.path.join(MODELS_PATH, f"{model}.thneed")
-      model_url = f"{self.repo_url}Models/{model}.thneed"
+      model_url = f"{repo_url}Models/{model}.thneed"
 
       if os.path.exists(model_path):
         if automatically_update_models:
@@ -172,26 +171,29 @@ class ModelManager:
       else:
         print(f"Source default model not found at {source_path}. Exiting...")
 
-  def update_models(self, boot_run=True):
+  def update_models(self, boot_run=False):
     if boot_run:
       self.copy_default_model()
 
-    self.repo_url = get_repository_url()
-    if self.repo_url is None:
+    repo_url = get_repository_url()
+    if repo_url is None:
       print("GitHub and GitLab are offline...")
       return
 
-    model_info = self.fetch_models(f"{self.repo_url}Versions/model_names_{VERSION}.json")
+    model_info = self.fetch_models(f"{repo_url}Versions/model_names_{VERSION}.json")
     if model_info:
-      self.update_model_params(model_info)
+      self.update_model_params(model_info, repo_url)
+
+    if boot_run:
+      self.validate_models()
 
   def download_all_models(self):
-    self.repo_url = get_repository_url()
-    if not self.repo_url:
+    repo_url = get_repository_url()
+    if not repo_url:
       handle_error(None, "GitHub and GitLab are offline...", "Repository unavailable", self.download_param, self.download_progress_param, self.params_memory)
       return
 
-    model_info = self.fetch_models(f"{self.repo_url}Versions/model_names_{VERSION}.json")
+    model_info = self.fetch_models(f"{repo_url}Versions/model_names_{VERSION}.json")
     if not model_info:
       handle_error(None, "Unable to update model list...", "Model list unavailable", self.download_param, self.download_progress_param, self.params_memory)
       return
