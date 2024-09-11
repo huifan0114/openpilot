@@ -86,7 +86,7 @@ def manager_init() -> None:
     ("RpassengerdoorOpen", "0"),
     ("LuggagedoorOpen", "1"),
     ("Disablestartstop", "1"),
-    ("Faststart", "0"),
+    # ("Faststart", "0"),
     ("Fuelprice", "1"),
     ("Fuelcosts", "330"),
     ("Fuelcostsweek", "0"),
@@ -483,17 +483,17 @@ def manager_cleanup() -> None:
   cloudlog.info("everything is dead")
 
 ##############
-def touch_prebuilt():
-  FASTSTART_DIR = '/data/openpilot'
-  prebuilt_path = os.path.join(FASTSTART_DIR, "prebuilt")
-  if not os.path.exists(prebuilt_path):
-     subprocess.run(["touch", prebuilt_path], check=True)
+# def touch_prebuilt():
+#   FASTSTART_DIR = '/data/openpilot'
+#   prebuilt_path = os.path.join(FASTSTART_DIR, "prebuilt")
+#   if not os.path.exists(prebuilt_path):
+#      subprocess.run(["touch", prebuilt_path], check=True)
 
-def remove_prebuilt():
-  FASTSTART_DIR = '/data/openpilot'
-  prebuilt_path = os.path.join(FASTSTART_DIR, "prebuilt")
-  if os.path.exists(prebuilt_path):
-    os.remove(prebuilt_path)
+# def remove_prebuilt():
+#   FASTSTART_DIR = '/data/openpilot'
+#   prebuilt_path = os.path.join(FASTSTART_DIR, "prebuilt")
+#   if os.path.exists(prebuilt_path):
+#     os.remove(prebuilt_path)
 ##############
 
 def manager_thread() -> None:
@@ -556,12 +556,12 @@ def manager_thread() -> None:
     # Exit main loop when uninstall/shutdown/reboot is needed
     shutdown = False
     ###############
-    if params.get_bool("Faststart"):
-      params.put_bool("AutomaticUpdates", False)
-      params_memory.put_bool("FrogPilotTogglesUpdated", True)
-      touch_prebuilt()
-    else:
-      remove_prebuilt()
+    # if params.get_bool("Faststart"):
+    #   params.put_bool("AutomaticUpdates", False)
+    #   params_memory.put_bool("FrogPilotTogglesUpdated", True)
+    #   touch_prebuilt()
+    # else:
+    #   remove_prebuilt()
     ###############
 
     for param in ("DoUninstall", "DoShutdown", "DoReboot"):

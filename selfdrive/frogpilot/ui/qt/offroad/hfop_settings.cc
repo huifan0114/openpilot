@@ -7,7 +7,7 @@ HFOPControlsPanel::HFOPControlsPanel(SettingsWindow *parent) : FrogPilotListWidg
   const std::vector<std::tuple<QString, QString, QString, QString>> hfopToggles {
     {"HFOPinf", "  訊息框", "主畫面左下方顯示訊息狀態.", "../assets/offroad/icon_custom.png"},
 
-    {"Faststart", "快速開機", "啟動後開機會加速.", "../frogpilot/assets/toggle_icons/icon_light.png"},
+    // {"Faststart", "快速開機", "啟動後開機會加速.", "../frogpilot/assets/toggle_icons/icon_light.png"},
     {"Fuelprice", "油價計算", "啟動後會計算油費.", "../frogpilot/assets/toggle_icons/icon_light.png"},
     {"Fuelcosts", "油價設定", "設定車輛使用油種與價格.", ""},
 
