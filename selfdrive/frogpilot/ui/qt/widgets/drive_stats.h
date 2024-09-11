@@ -9,7 +9,7 @@ public:
   explicit DriveStats(QWidget *parent = 0);
 
 private:
-  inline QString getDistanceUnit() const { return metric ? tr("KM") : tr("Miles"); }
+  inline QString getDistanceUnit() const { return metric ? tr("公里") : tr("英哩"); }
 
   void showEvent(QShowEvent *event) override;
   void updateStats();
@@ -20,9 +20,14 @@ private:
   bool metric;
 
   QJsonDocument stats;
+////////////////////////
+  bool fuelpriceProfile;
+////////////////////////
 
   struct StatsLabels {
-    QLabel *routes, *distance, *distance_unit, *hours;
+////////////////////////////////////////////////////////
+    QLabel *routes, *distance, *distance_unit, *hours, *Fuelconsumptionsweek, *Fuelcostsweek;
+////////////////////////////////////////////////////////
   } all, week, frogPilot;
 
 private slots:

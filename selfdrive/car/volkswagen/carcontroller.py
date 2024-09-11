@@ -1,6 +1,9 @@
 from cereal import car
 from opendbc.can.packer import CANPacker
-from openpilot.common.numpy_fast import clip
+#############################
+from openpilot.common.numpy_fast import clip, interp
+from openpilot.common.params import Params
+#############################
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.car import apply_driver_steer_torque_limits
@@ -28,11 +31,24 @@ class CarController(CarControllerBase):
     self.eps_timer_soft_disable_alert = False
     self.hca_frame_timer_running = 0
     self.hca_frame_same_torque = 0
+#######################################################################################
+    self.params = Params()
+#######################################################################################
 
   def update(self, CC, CS, now_nanos, frogpilot_toggles):
     actuators = CC.actuators
     hud_control = CC.hudControl
     can_sends = []
+
+#######################################################################################
+    if self.params.get_bool("Disablestartstop"):
+    ###### BCM_01 #####
+      if self.frame % self.CCP.BCM_01_STEP == 0:
+        if CS.motor_18["MO_Hybrid_StartStopp_LED"] == 0:
+          #if CS.out.engineRpm > 0:
+            #can_sends.append(self.CCS.create_bcm_01_control(self.packer_pt, CANBUS.cam, CS.bcm_01))
+          can_sends.append(self.CCS.create_bcm_01_control(self.packer_pt, CANBUS.body, CS.bcm_01))
+#######################################################################################
 
     # **** Steering Controls ************************************************ #
 

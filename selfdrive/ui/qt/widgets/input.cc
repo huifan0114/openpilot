@@ -68,7 +68,7 @@ InputDialog::InputDialog(const QString &title, QWidget *parent, const QString &s
     vlayout->addWidget(sublabel, 1, Qt::AlignTop | Qt::AlignLeft);
   }
 
-  QPushButton* cancel_btn = new QPushButton(tr("Cancel"));
+  QPushButton* cancel_btn = new QPushButton(tr("取消"));
   cancel_btn->setFixedSize(386, 125);
   cancel_btn->setStyleSheet(R"(
     QPushButton {

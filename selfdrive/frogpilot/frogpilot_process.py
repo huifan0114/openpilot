@@ -16,6 +16,9 @@ from openpilot.selfdrive.frogpilot.controls.lib.model_manager import DEFAULT_MOD
 from openpilot.selfdrive.frogpilot.controls.lib.theme_manager import ThemeManager
 
 WIFI = log.DeviceState.NetworkType.wifi
+############################
+CELL = log.DeviceState.NetworkType.cell4G
+############################
 
 locks = {
   "backup_toggles": threading.Lock(),
@@ -73,15 +76,18 @@ def download_assets(model_manager, theme_manager, params, params_memory):
       run_thread_with_lock("download_theme", theme_manager.download_theme, (asset_type, asset_to_download, param))
 
 def time_checks(automatic_updates, deviceState, model_manager, now, started, theme_manager, params, params_memory):
-  if deviceState.networkType != WIFI:
-    return
+  # if deviceState.networkType != WIFI:
+  #   return
 
   if not is_url_pingable("https://github.com"):
     return
+############################
+  # screen_off = deviceState.screenBrightnessPercent == 0
+  wifi_connection = (deviceState.networkType == WIFI) or (deviceState.networkType == CELL)
 
-  screen_off = deviceState.screenBrightnessPercent == 0
-  if automatic_updates and screen_off:
+  if wifi_connection and automatic_updates:
     automatic_update_check(started, params)
+############################
 
   update_maps(now, params, params_memory)
 

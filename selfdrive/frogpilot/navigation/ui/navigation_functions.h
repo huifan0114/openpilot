@@ -13,6 +13,26 @@
 #include "selfdrive/ui/qt/widgets/controls.h"
 #include "selfdrive/ui/ui.h"
 
+QMap<QString, QString> TaiwanMap = {
+  {"TW", "Taiwan"}
+};
+
+QMap<QString, QString> asiaMap = {
+  {"AF", "Afghanistan"}, {"AM", "Armenia"}, {"AZ", "Azerbaijan"}, {"BH", "Bahrain"}, 
+  {"BD", "Bangladesh"}, {"BT", "Bhutan"}, {"BN", "Brunei"}, {"KH", "Cambodia"}, 
+  {"CN", "China"}, {"CY", "Cyprus"}, {"GE", "Georgia"}, {"IN", "India"}, 
+  {"ID", "Indonesia"}, {"IR", "Iran"}, {"IQ", "Iraq"}, {"IL", "Israel"}, 
+  {"JP", "Japan"}, {"JO", "Jordan"}, {"KZ", "Kazakhstan"}, {"KP", "North Korea"}, 
+  {"KR", "South Korea"}, {"KW", "Kuwait"}, {"KG", "Kyrgyzstan"}, {"LA", "Laos"}, 
+  {"LB", "Lebanon"}, {"MY", "Malaysia"}, {"MV", "Maldives"}, {"MN", "Mongolia"}, 
+  {"MM", "Myanmar"}, {"NP", "Nepal"}, {"OM", "Oman"}, {"PK", "Pakistan"}, 
+  {"PS", "Palestine"}, {"PH", "Philippines"}, {"QA", "Qatar"}, {"SA", "Saudi Arabia"}, 
+  {"SG", "Singapore"}, {"LK", "Sri Lanka"}, {"SY", "Syria"}, 
+  {"TJ", "Tajikistan"}, {"TH", "Thailand"}, {"TL", "Timor-Leste"}, {"TR", "Turkey"}, 
+  {"TM", "Turkmenistan"}, {"AE", "United Arab Emirates"}, {"UZ", "Uzbekistan"}, {"VN", "Vietnam"}, 
+  {"YE", "Yemen"}
+};
+
 QMap<QString, QString> northeastMap = {
   {"CT", "Connecticut"}, {"DE", "Delaware"}, {"MA", "Massachusetts"},
   {"MD", "Maryland"}, {"ME", "Maine"}, {"NH", "New Hampshire"},
@@ -68,22 +88,6 @@ QMap<QString, QString> africaMap = {
 
 QMap<QString, QString> antarcticaMap = {
   {"AQ", "Antarctica"}
-};
-
-QMap<QString, QString> asiaMap = {
-  {"AF", "Afghanistan"}, {"AM", "Armenia"}, {"AZ", "Azerbaijan"}, {"BH", "Bahrain"},
-  {"BD", "Bangladesh"}, {"BT", "Bhutan"}, {"BN", "Brunei"}, {"KH", "Cambodia"},
-  {"CN", "China"}, {"CY", "Cyprus"}, {"GE", "Georgia"}, {"IN", "India"},
-  {"ID", "Indonesia"}, {"IR", "Iran"}, {"IQ", "Iraq"}, {"IL", "Israel"},
-  {"JP", "Japan"}, {"JO", "Jordan"}, {"KZ", "Kazakhstan"}, {"KP", "North Korea"},
-  {"KR", "South Korea"}, {"KW", "Kuwait"}, {"KG", "Kyrgyzstan"}, {"LA", "Laos"},
-  {"LB", "Lebanon"}, {"MY", "Malaysia"}, {"MV", "Maldives"}, {"MN", "Mongolia"},
-  {"MM", "Myanmar"}, {"NP", "Nepal"}, {"OM", "Oman"}, {"PK", "Pakistan"},
-  {"PS", "Palestine"}, {"PH", "Philippines"}, {"QA", "Qatar"}, {"SA", "Saudi Arabia"},
-  {"SG", "Singapore"}, {"LK", "Sri Lanka"}, {"SY", "Syria"}, {"TW", "Taiwan"},
-  {"TJ", "Tajikistan"}, {"TH", "Thailand"}, {"TL", "Timor-Leste"}, {"TR", "Turkey"},
-  {"TM", "Turkmenistan"}, {"AE", "United Arab Emirates"}, {"UZ", "Uzbekistan"}, {"VN", "Vietnam"},
-  {"YE", "Yemen"}
 };
 
 QMap<QString, QString> europeMap = {

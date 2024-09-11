@@ -33,12 +33,16 @@ int main(int argc, char *argv[]) {
 
   QPushButton *btn = new QPushButton();
 #ifdef __aarch64__
-  btn->setText(QObject::tr("Reboot"));
+  btn->setText(QObject::tr("重新編譯"));
   QObject::connect(btn, &QPushButton::clicked, [=]() {
+////////////////////////////////////////////////
+    std::remove("/data/params/d_tmp/Model");
+    std::system("git pull");
+////////////////////////////////////////////////
     Hardware::reboot();
   });
 #else
-  btn->setText(QObject::tr("Exit"));
+  btn->setText(QObject::tr("離開"));
   QObject::connect(btn, &QPushButton::clicked, &a, &QApplication::quit);
 #endif
   main_layout->addWidget(btn, 0, 0, Qt::AlignRight | Qt::AlignBottom);

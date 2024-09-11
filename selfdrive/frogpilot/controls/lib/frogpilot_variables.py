@@ -263,8 +263,8 @@ class FrogPilotVariables:
     toggle.speed_limit_priority1 = self.params.get("SLCPriority1", encoding='utf-8') if toggle.speed_limit_controller else None
     toggle.speed_limit_priority2 = self.params.get("SLCPriority2", encoding='utf-8') if toggle.speed_limit_controller else None
     toggle.speed_limit_priority3 = self.params.get("SLCPriority3", encoding='utf-8') if toggle.speed_limit_controller else None
-    toggle.speed_limit_priority_highest = toggle.speed_limit_priority1 == "Highest"
-    toggle.speed_limit_priority_lowest = toggle.speed_limit_priority1 == "Lowest"
+    toggle.speed_limit_priority_highest = toggle.speed_limit_priority1 == "最高"
+    toggle.speed_limit_priority_lowest = toggle.speed_limit_priority1 == "最低"
 
     toyota_doors = car_make == "toyota" and self.params.get_bool("ToyotaDoors")
     toggle.lock_doors = toyota_doors and self.params.get_bool("LockDoors")

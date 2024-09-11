@@ -11,9 +11,14 @@ static QLabel *newLabel(const QString &text, const QString &type) {
 
 DriveStats::DriveStats(QWidget *parent) : QFrame(parent) {
   metric = params.getBool("IsMetric");
+////////////////////////////////////////////////////////
+  fuelpriceProfile = params.getBool("Fuelprice");
+////////////////////////////////////////////////////////
 
   QVBoxLayout *main_layout = new QVBoxLayout(this);
-  main_layout->setContentsMargins(50, 25, 50, 20);
+////////////////////////////////////////////////////////
+  main_layout->setContentsMargins(20, 20, 20, 20);
+////////////////////////////////////////////////////////
 
   auto add_stats_layouts = [=](const QString &title, StatsLabels &labels, bool FrogPilot=false) {
     QGridLayout *grid_layout = new QGridLayout;
@@ -27,18 +32,32 @@ DriveStats::DriveStats(QWidget *parent) : QFrame(parent) {
     grid_layout->addWidget(labels.routes = newLabel("0", "number"), row, 0, Qt::AlignLeft);
     grid_layout->addWidget(labels.distance = newLabel("0", "number"), row, 1, Qt::AlignLeft);
     grid_layout->addWidget(labels.hours = newLabel("0", "number"), row, 2, Qt::AlignLeft);
-
-    grid_layout->addWidget(newLabel((tr("Drives")), "unit"), row + 1, 0, Qt::AlignLeft);
+////////////////////////////////////////////////////////
+    if (fuelpriceProfile){
+      if (FrogPilot) {
+        grid_layout->addWidget(labels.Fuelconsumptionsweek = newLabel("0", "number"), row, 3, Qt::AlignLeft);
+        grid_layout->addWidget(labels.Fuelcostsweek = newLabel("0", "number"), row, 4, Qt::AlignLeft);
+      }
+    }
+////////////////////////////////////////////////////////
+    grid_layout->addWidget(newLabel((tr("旅程")), "unit"), row + 1, 0, Qt::AlignLeft);
     grid_layout->addWidget(labels.distance_unit = newLabel(getDistanceUnit(), "unit"), row + 1, 1, Qt::AlignLeft);
-    grid_layout->addWidget(newLabel(tr("Hours"), "unit"), row + 1, 2, Qt::AlignLeft);
-
+    grid_layout->addWidget(newLabel(tr("小時"), "unit"), row + 1, 2, Qt::AlignLeft);
+////////////////////////////////////////////////////////
+    if (fuelpriceProfile){
+      if (FrogPilot) {
+        grid_layout->addWidget(newLabel(tr("油耗"), "unit"), row + 1, 3, Qt::AlignLeft);
+        grid_layout->addWidget(newLabel(tr("油資"), "unit"), row + 1, 4, Qt::AlignLeft);
+      }
+    }
+////////////////////////////////////////////////////////
     main_layout->addLayout(grid_layout);
     main_layout->addStretch(1);
   };
 
-  add_stats_layouts(tr("ALL TIME"), all);
-  add_stats_layouts(tr("PAST WEEK"), week);
-  add_stats_layouts(tr("FROGPILOT"), frogPilot, true);
+  add_stats_layouts(tr("總時數"), all);
+  add_stats_layouts(tr("上星期"), week);
+  add_stats_layouts(tr("FrogPilot_HFOP_VAG"), frogPilot, true);
 
   if (auto dongleId = getDongleId()) {
     QString url = CommaApi::BASE_URL + "/v1.1/devices/" + *dongleId + "/stats";
@@ -61,12 +80,38 @@ DriveStats::DriveStats(QWidget *parent) : QFrame(parent) {
 
 void DriveStats::updateStats() {
   QJsonObject json = stats.object();
+////////////////////////////////////////////////////////
+  if (fuelpriceProfile) {
+    int Fuelconsumptionnow = params.getInt("Fuelconsumptionnow");
+    int Fuelconsumptionweek = params.getInt("Fuelconsumptionweek");
+    if (Fuelconsumptionnow !=0 ){
+      Fuelconsumptionweek = Fuelconsumptionweek + Fuelconsumptionnow;
+      params.putInt("Fuelconsumptionweek", Fuelconsumptionweek );
+      params.putInt("Fuelconsumptionnow", 0);
+      params.putInt("Fuelconsumptionpre", 0);
+    }
 
+    int Fuelcostsnow = params.getInt("Fuelcostsnow");
+    int Fuelcostsweek = params.getInt("Fuelcostsweek");
+    if (Fuelcostsnow !=0 ){
+      Fuelcostsweek = Fuelcostsweek + Fuelcostsnow;
+      params.putInt("Fuelcostsweek", Fuelcostsweek);
+      params.putInt("Fuelcostsnow", 0);
+      params.putInt("Fuelcostspre", 0);
+    }
+  }
+////////////////////////////////////////////////////////
   auto updateFrogPilot = [this](const QJsonObject &obj, StatsLabels &labels) {
     labels.routes->setText(QString::number(paramsTracking.getInt("FrogPilotDrives")));
     labels.distance->setText(QString::number(int(paramsTracking.getFloat("FrogPilotKilometers") * (metric ? 1 : KM_TO_MILE))));
     labels.distance_unit->setText(getDistanceUnit());
     labels.hours->setText(QString::number(int(paramsTracking.getFloat("FrogPilotMinutes") / 60)));
+////////////////////////////////////////////////////////
+    if (fuelpriceProfile) {
+      labels.Fuelconsumptionsweek->setText(QString::number(params.getFloat("Fuelconsumptionweek") / 100, 'f', 1));
+      labels.Fuelcostsweek->setText(QString::number(params.getFloat("Fuelcostsweek") / 100, 'f', 1));
+    }
+////////////////////////////////////////////////////////
   };
 
   updateFrogPilot(json["frogpilot"].toObject(), frogPilot);
