@@ -245,8 +245,8 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
 //////////////////////////////////////////////////////////////////////////////////////////////
   fastinstallBtn = new ButtonControl(tr("快速更新"), tr("更新"), "立刻進行更新並重啟機器.");
   connect(fastinstallBtn, &ButtonControl::clicked, [=]() {
-    params.putBool("Faststart", false);
-    paramsMemory.putBool("FrogPilotTogglesUpdated", true);
+    // params.putBool("Faststart", false);
+    // paramsMemory.putBool("FrogPilotTogglesUpdated", true);
     std::system("git pull");
     Hardware::reboot();
   });

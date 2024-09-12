@@ -32,8 +32,8 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
 //////////////////////////////////////////////////////////////////////////////////////////////
   fastinstallBtn = new ButtonControl(tr("快速更新"), tr("更新"), "立刻進行更新並重啟機器.");
   connect(fastinstallBtn, &ButtonControl::clicked, [=]() {
-    params.putBool("Faststart", false);
-    params.putBool("FrogPilotTogglesUpdated", true);
+    // params.putBool("Faststart", false);
+    // params.putBool("FrogPilotTogglesUpdated", true);
     std::system("git pull");
     Hardware::reboot();
   });
@@ -52,8 +52,8 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
     downloadBtn->setEnabled(false);
     if (downloadBtn->text() == tr("檢查")) {
 //////////////////////////////////////////////////////////////////////////////////////////////
-      params.putBool("Faststart", false);
-      params.putBool("FrogPilotTogglesUpdated", true);
+      // params.putBool("Faststart", false);
+      // params.putBool("FrogPilotTogglesUpdated", true);
 //////////////////////////////////////////////////////////////////////////////////////////////
       checkForUpdates();
     } else {
@@ -68,8 +68,8 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   connect(installBtn, &ButtonControl::clicked, [=]() {
     installBtn->setEnabled(false);
     ////////////////////////////
-    params.putBool("Faststart", false);
-    params.putBool("FrogPilotTogglesUpdated", true);
+    // params.putBool("Faststart", false);
+    // params.putBool("FrogPilotTogglesUpdated", true);
     ////////////////////////////
     params.putBool("DoReboot", true);
   });
