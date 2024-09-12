@@ -199,8 +199,8 @@ def manager_init() -> None:
     ("ExperimentalModeActivation", "1"),
     ("ExperimentalModels", ""),
     ("ExperimentalModeViaDistance", "1"),
-    ("ExperimentalModeViaLKAS", "1"),
-    ("ExperimentalModeViaTap", "0"),
+    ("ExperimentalModeViaLKAS", "0"),
+    ("ExperimentalModeViaTap", "1"),
     ("Fahrenheit", "0"),
     ("ForceAutoTune", "0"),
     ("ForceFingerprint", "0"),
@@ -223,7 +223,7 @@ def manager_init() -> None:
     ("HideSpeed", "0"),
     ("HideSpeedUI", "0"),
     ("HideUIElements", "0"),
-    ("HolidayThemes", "1"),
+    ("HolidayThemes", "0"),
     ("HumanAcceleration", "1"),
     ("HumanFollowing", "1"),
     ("IncreaseThermalLimits", "0"),
@@ -401,7 +401,7 @@ def manager_init() -> None:
     ("WD40Drives", "0"),
     ("WD40LiveTorqueParameters", ""),
     ("WD40Score", "0"),
-    ("WheelIcon", "frog"),
+    ("WheelIcon", "None"),
     ("WheelSpeed", "0")
   ]
   if not PC:
