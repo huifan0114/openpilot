@@ -355,7 +355,8 @@ void MapWindow::updateState(const UIState &s) {
       {9, "mapbox://styles/mapbox/traffic-night-v2"},  // Mapbox Traffic Night
       {10, "mapbox://styles/mike854/clt0hm8mw01ok01p4blkr27jp"},  // mike854's (Satellite hybrid)
 //////////////////////
-      {11, "mapbox://styles/huifan/cm0zikwz901ye01rg67yphthw"},
+      {11, "mapbox://styles/huifan/cm100wznt02kp01pwerct3ep8"},
+      {12, "mapbox://styles/huifan/cm100vqzq02bf01pqaurkfe25"},
 //////////////////////
     };
 

@@ -966,6 +966,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
         {9, tr("Mapbox 交通(夜晚)")},
         {10, tr("mike854's (Satellite hybrid)")},
         {11, tr("huifan's 白天")},
+        {12, tr("huifan's 導航(夜晚)")},
       };
 
       QStringList styles = styleMap.values();
