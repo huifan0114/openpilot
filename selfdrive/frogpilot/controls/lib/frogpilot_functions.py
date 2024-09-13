@@ -103,7 +103,7 @@ def backup_frogpilot(build_metadata, params):
   minimum_backup_size = params.get_int("MinimumBackupSize")
 
   backup_path = "/data/backups"
-  cleanup_backups(backup_path, 4, minimum_backup_size, True)
+  cleanup_backups(backup_path, 1, minimum_backup_size, True)
 
   branch = build_metadata.channel
   commit = build_metadata.openpilot.git_commit_date[12:-16]
@@ -119,7 +119,7 @@ def backup_toggles(params, params_storage):
         params_storage.put(key, value)
 
   backup_path = "/data/toggle_backups"
-  cleanup_backups(backup_path, 3)
+  cleanup_backups(backup_path, 1)
 
   backup_dir = os.path.join(backup_path, datetime.datetime.now().strftime('%Y-%m-%d_%I-%M%p').lower() + "_auto")
   backup_directory("/data/params/d", backup_dir, f"Successfully backed up toggles to {backup_dir}.", f"Failed to backup toggles to {backup_dir}.")
