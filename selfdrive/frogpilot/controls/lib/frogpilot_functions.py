@@ -119,7 +119,7 @@ def backup_toggles(params, params_storage):
         params_storage.put(key, value)
 
   backup_path = "/data/toggle_backups"
-  cleanup_backups(backup_path, 9)
+  cleanup_backups(backup_path, 3)
 
   backup_dir = os.path.join(backup_path, datetime.datetime.now().strftime('%Y-%m-%d_%I-%M%p').lower() + "_auto")
   backup_directory("/data/params/d", backup_dir, f"Successfully backed up toggles to {backup_dir}.", f"Failed to backup toggles to {backup_dir}.")

@@ -639,7 +639,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
               toggleBackupBtn->setValue(tr("失敗..."));
             }
 
-            util::sleep_for(2000);
+            util::sleep_for(1000);
             toggleBackupBtn->setValue("");
             toggleBackupBtn->setEnabled(true);
           }).detach();
