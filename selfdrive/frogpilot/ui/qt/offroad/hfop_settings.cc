@@ -126,9 +126,9 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     }
 
     addItem(hfopcontrolsToggle);
-    toggles[param] = hfopcontrolsToggle;
+    // toggles[param] = hfopcontrolsToggle;
 
-    makeConnections(hfopcontrolsToggle);
+    // makeConnections(hfopcontrolsToggle);
 
     QObject::connect(static_cast<ToggleControl*>(hfopcontrolsToggle), &ToggleControl::toggleFlipped, &updateFrogPilotToggles);
     QObject::connect(static_cast<FrogPilotParamValueControl*>(hfopcontrolsToggle), &FrogPilotParamValueControl::valueChanged, &updateFrogPilotToggles);
