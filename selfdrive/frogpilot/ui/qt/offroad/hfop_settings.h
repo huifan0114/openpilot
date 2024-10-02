@@ -3,6 +3,7 @@
 #include <set>
 
 #include "selfdrive/frogpilot/ui/qt/offroad/frogpilot_settings.h"
+#include "selfdrive/ui/qt/offroad/settings.h"
 
 class HFOPControlsPanel : public FrogPilotListWidget {
   Q_OBJECT
