@@ -73,7 +73,7 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
 
 /////////////////////////////////////////////////////
   HFOPControlsPanel *hfoppilotControls = new HFOPControlsPanel(this);
-  QObject::connect(hfoppilotControls, &HFOPControlsPanel::openParentToggle, this, [this]() {parentToggleOpen = true;});
+  QObject::connect(hfoppilotControls, &HFOPControlsPanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
 /////////////////////////////////////////////////////
 
   std::vector<std::pair<QString, std::vector<QWidget*>>> panels = {
