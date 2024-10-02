@@ -126,13 +126,10 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     }
 
     addItem(hfopcontrolsToggle);
-    toggles[param.toStdString()] = hfopcontrolsToggle;
+    toggles[param] = hfopcontrolsToggle;
 
     QObject::connect(static_cast<ToggleControl*>(hfopcontrolsToggle), &ToggleControl::toggleFlipped, &updateFrogPilotToggles);
-
-
     QObject::connect(static_cast<FrogPilotParamValueControl*>(hfopcontrolsToggle), &FrogPilotParamValueControl::valueChanged, &updateFrogPilotToggles);
-
     QObject::connect(hfopcontrolsToggle, &AbstractControl::showDescriptionEvent, [this]() {
       update();
     });
@@ -143,13 +140,13 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
   }
 
   QObject::connect(parent, &FrogPilotSettingsWindow::closeParentToggle, this, &FrogPilotHFOPPanel::hideToggles);
-  QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotHFOPPanel::updateState);
+  // QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotHFOPPanel::updateState);
   // hideToggles();
 }
 
-void FrogPilotHFOPPanel::showEvent(QShowEvent *event, const UIState &s) {
-  // hasOpenpilotLongitudinal = hasOpenpilotLongitudinal && !params.getBool("DisableOpenpilotLongitudinal");
-}
+// void FrogPilotHFOPPanel::showEvent(QShowEvent *event, const UIState &s) {
+//   // hasOpenpilotLongitudinal = hasOpenpilotLongitudinal && !params.getBool("DisableOpenpilotLongitudinal");
+// }
 
 void FrogPilotHFOPPanel::updateState(const UIState &s) {
   if (!isVisible()) return;

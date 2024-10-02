@@ -17,7 +17,7 @@ signals:
 private:
   FrogPilotSettingsWindow *parent;
   void hideToggles();
-  void showEvent(QShowEvent *event, const UIState &s);
+  // void showEvent(QShowEvent *event, const UIState &s);
   void updateState(const UIState &s);
 
   std::set<QString> FuelpriceKeys = {"Fuelcosts"};

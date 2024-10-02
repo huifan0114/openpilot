@@ -24,7 +24,7 @@ FrogPilotAdvancedVisualsPanel::FrogPilotAdvancedVisualsPanel(FrogPilotSettingsWi
     {"PathEdgeWidth", tr("路徑邊緣寬度"), tr("代表不同模式和狀態的行駛路徑邊緣的寬度.\n\n預設為 20% 總路徑寬度.\n\nColor Guide:\n- Blue: Navigation\n- Light Blue: 'Always On Lateral'\n- Green: Default\n- Orange: 'Experimental Mode'\n- Red: 'Traffic Mode'\n- Yellow: 'Conditional Experimental Mode' Overridden"), ""},
     {"PathWidth", tr("路徑寬度"), tr("螢幕上顯示的行駛路徑有多寬.\n\n預設值（6.1 英尺/1.9 公尺）與 2019 年雷克薩斯 ES 350 的寬度相符."), ""},
     {"RoadEdgesWidth", tr("道路邊緣寬度"), tr("顯示幕上顯示的道路邊緣有多厚.\n\n預設匹配 MUTCD 標準車道線寬度 4 英吋的一半."), ""},
-    {"UnlimitedLength", tr("'無限的道路使用者介面"), tr("將路徑、車道線和道路邊緣的顯示擴展到模型可以看到的範圍."), ""},
+    {"UnlimitedLength", tr("無限的道路使用者介面"), tr("將路徑、車道線和道路邊緣的顯示擴展到模型可以看到的範圍."), ""},
   };
 
   for (const auto &[param, title, desc, icon] : advancedToggles) {
@@ -188,7 +188,7 @@ void FrogPilotAdvancedVisualsPanel::updateMetric() {
     laneLinesWidthToggle->updateControl(0, 60, tr(" 公分"));
     roadEdgesWidthToggle->updateControl(0, 60, tr(" 公分"));
 
-    pathWidthToggle->updateControl(0, 3, tr(" meters"));
+    pathWidthToggle->updateControl(0, 3, tr(" 公尺"));
   } else {
     laneLinesWidthToggle->setDescription(tr("調整顯示器上車道線的粗細程度.\n\n預設符合MUTCD標準4英寸."));
     roadEdgesWidthToggle->setDescription(tr("調整道路邊緣在顯示幕上顯示的厚度.\n\n預設匹配 4 英寸 MUTCD 標準的一半."));
