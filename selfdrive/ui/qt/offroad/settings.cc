@@ -455,7 +455,8 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubParentToggle, [this]() {subParentToggleOpen=true;});
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubSubParentToggle, [this]() {subSubParentToggleOpen=true;});
 /////////////////////////////////////////////////////
-  // HFOPControlsPanel *hfoppilotControls = new HFOPControlsPanel(this);
+  HFOPControlsPanel *hfoppilotControls = new HFOPControlsPanel(this);
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openParentToggle, [this]() {parentToggleOpen=true;});
   // QObject::connect(hfoppilotControls, &HFOPControlsPanel::openParentToggle, this, [this]() {parentToggleOpen = true;});
 /////////////////////////////////////////////////////
 
@@ -466,7 +467,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     {tr("軟體資訊"), new SoftwarePanel(this)},
     {tr("FrogPilot"), frogpilotSettingsWindow},
 /////////////////////////////////////////////////////
-    // {tr("H F O P"), hfoppilotControls},
+    {tr("H F O P"), hfoppilotControls},
 /////////////////////////////////////////////////////
   };
 
