@@ -119,7 +119,7 @@ HFOPControlsPanel::HFOPControlsPanel(SettingsWindow *parent) : FrogPilotListWidg
     } else if(param == "Dooropentype") {
       std::vector<QString> adjustablePersonalitiesToggles{"DriverdoorOpen", "CodriverdoorOpen", "LpassengerdoorOpen", "RpassengerdoorOpen", "LuggagedoorOpen"};
       std::vector<QString> adjustablePersonalitiesNames{tr("駕駛"), tr("副駕"), tr("左乘客"), tr("右乘客"), tr("行李")};
-      hfopcontrolsToggle = new FrogPilotParamToggleControl(param, title, desc, icon, adjustablePersonalitiesToggles, adjustablePersonalitiesNames);
+      hfopcontrolsToggle = new FrogPilotParamManageControl(param, title, desc, icon, adjustablePersonalitiesToggles, adjustablePersonalitiesNames);
 
     } else {
       hfopcontrolsToggle = new ParamControl(param, title, desc, icon, this);
