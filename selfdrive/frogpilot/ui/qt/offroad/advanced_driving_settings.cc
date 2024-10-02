@@ -816,8 +816,8 @@ void FrogPilotAdvancedDrivingPanel::updateCalibrationDescription() {
   QString part_model_param = processModelName(model);
 
   QString desc =
-      tr("openpilot 要求設備安裝在左側或右側 4° 以內，並且“「向上 5° 或向下 9° 以內.
-          openpilot 持續校準，很少需要重置.");
+      tr("openpilot 要求設備安裝在左側或右側 4° 以內，並且“「向上 5° 或向下 9° 以內."
+          "openpilot 持續校準，很少需要重置.");
   std::string calib_bytes = params.get(part_model_param.toStdString() + "CalibrationParams");
   if (!calib_bytes.empty()) {
     try {
