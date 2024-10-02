@@ -9,7 +9,7 @@ class HFOPControlsPanel : public FrogPilotListWidget {
   Q_OBJECT
 
 public:
-  explicit HFOPControlsPanel(SettingsWindow *parent);
+  explicit HFOPControlsPanel(FrogPilotSettingsWindow *parent);
 
 signals:
   void openParentToggle();
