@@ -1,6 +1,6 @@
 #include "selfdrive/frogpilot/ui/qt/offroad/hfop_settings.h"
 
-HFOPControlsPanel::HFOPControlsPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
+HFOPControlsPanel::HFOPControlsPanel(SettingsWindow *parent) : FrogPilotListWidget(parent) {
   const std::vector<std::tuple<QString, QString, QString, QString>> hfopToggles {
     {"HFOPinf", "  訊息框", "主畫面左下方顯示訊息狀態.", "../assets/offroad/icon_custom.png"},
 
