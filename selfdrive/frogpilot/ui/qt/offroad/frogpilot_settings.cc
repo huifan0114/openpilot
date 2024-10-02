@@ -14,6 +14,7 @@
 #include "selfdrive/frogpilot/ui/qt/offroad/utilities.h"
 #include "selfdrive/frogpilot/ui/qt/offroad/vehicle_settings.h"
 #include "selfdrive/frogpilot/ui/qt/offroad/visual_settings.h"
+#include "selfdrive/frogpilot/ui/qt/offroad/hfop_settings.h"
 
 bool checkNNFFLogFileExists(const std::string &carFingerprint) {
   const std::filesystem::path latModelsPath("../car/torque_data/lat_models");
@@ -70,6 +71,11 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
   FrogPilotVisualsPanel *frogpilotVisualsPanel = new FrogPilotVisualsPanel(this);
   QObject::connect(frogpilotVisualsPanel, &FrogPilotVisualsPanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
 
+/////////////////////////////////////////////////////
+  HFOPControlsPanel *hfoppilotControls = new HFOPControlsPanel(this);
+  QObject::connect(hfoppilotControls, &HFOPControlsPanel::openParentToggle, this, [this]() {parentToggleOpen = true;});
+/////////////////////////////////////////////////////
+
   std::vector<std::pair<QString, std::vector<QWidget*>>> panels = {
     {tr("進階設定"), {frogpilotAdvancedDrivingPanel, frogpilotAdvancedVisualsPanel}},
     {tr("警報和聲音"), {frogpilotSoundsPanel}},
@@ -77,7 +83,10 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
     {tr("導航"), {new FrogPilotNavigationPanel(this)}},
     {tr("系統管理"), {new FrogPilotDataPanel(this), frogpilotDevicePanel, new UtilitiesPanel(this)}},
     {tr("主題與外觀"), {frogpilotVisualsPanel, frogpilotThemesPanel}},
-    {tr("車輛控制"), {new FrogPilotVehiclesPanel(this)}}
+    {tr("車輛控制"), {new FrogPilotVehiclesPanel(this)}},
+    /////////////////////////////////////////////////////
+    {tr("H F O P"), {hfoppilotControls}}
+/////////////////////////////////////////////////////
   };
 
   std::vector<QString> icons = {
@@ -88,6 +97,7 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
     "../frogpilot/assets/toggle_icons/icon_system.png",
     "../frogpilot/assets/toggle_icons/icon_display.png",
     "../frogpilot/assets/toggle_icons/icon_vehicle.png",
+    "../frogpilot/assets/toggle_icons/icon_system.png",
   };
 
   std::vector<QString> descriptions = {
@@ -97,7 +107,8 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
     tr("離線地圖下載器和“Navigate On openpilot (NOO)”設置."),
     tr("用於維護和排除 FrogPilot 故障的工具和系統實用程式."),
     tr("用於自訂 FrogPilot 主題、UI 外觀和道路小部件的選項."),
-    tr("支援的品牌和型號的車輛特定設定和配置.")
+    tr("支援的品牌和型號的車輛特定設定和配置."),
+    tr("HFOP 的功能.")
   };
 
   std::vector<std::vector<QString>> buttonLabels = {
@@ -107,6 +118,7 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
     {tr("管理")},
     {tr("數據"), tr("裝置"), tr("公用")},
     {tr("外觀"), tr("主題")},
+    {tr("管理")},
     {tr("管理")}
   };
 
