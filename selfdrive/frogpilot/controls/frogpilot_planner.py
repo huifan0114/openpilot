@@ -1,6 +1,3 @@
-#########################################
-import numpy as np
-#########################################
 import cereal.messaging as messaging
 
 from openpilot.common.conversions import Conversions as CV
@@ -211,7 +208,7 @@ class FrogPilotPlanner:
           self.spee_dover = False
       elif v_ego_kph <40 :
         self.spee_dover = False
-    print("speed_limit=", detect_sl)
+    #print("speed_limit=", detect_sl)
 ####################################################################################
 
   def set_lead_status(self, lead_distance, stopping_distance, v_ego):
