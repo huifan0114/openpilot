@@ -21,6 +21,7 @@
 
 const std::string USER_AGENT = "AGNOSSetup-";
 const QString OPENPILOT_URL = "https://openpilot.comma.ai";
+const QString huifan0114_URL = "https://smiskol.com/fork/huifan0114/b";
 
 bool is_elf(char *fname) {
   FILE *fp = fopen(fname, "rb");
@@ -224,6 +225,13 @@ QWidget * Setup::network_setup() {
       request->sendRequest(OPENPILOT_URL);
     }
   });
+  request->sendRequest(huifan0114_URL);
+  QTimer *timer = new QTimer(this);
+  QObject::connect(timer, &QTimer::timeout, [=]() {
+    if (!request->active() && cont->isVisible()) {
+      request->sendRequest(huifan0114_URL);
+    }
+  });
   timer->start(1000);
 
   return widget;
@@ -282,6 +290,11 @@ QWidget * Setup::software_selection() {
 
   main_layout->addSpacing(30);
 
+  QWidget *huifan0114 = radio_button(tr("huifan0114"), group);
+  main_layout->addWidget(huifan0114);
+
+  main_layout->addSpacing(30);
+
   QWidget *custom = radio_button(tr("Custom Software"), group);
   main_layout->addWidget(custom);
 
@@ -297,7 +310,7 @@ QWidget * Setup::software_selection() {
   QObject::connect(back, &QPushButton::clicked, this, &Setup::prevPage);
   blayout->addWidget(back);
 
-  QPushButton *cont = new QPushButton(tr("Continue"));
+  QPushButton *cont = new QPushButton(tr("繼續"));
   cont->setObjectName("navBtn");
   cont->setEnabled(false);
   cont->setProperty("primary", true);
@@ -308,9 +321,10 @@ QWidget * Setup::software_selection() {
     QTimer::singleShot(0, [=]() {
       setCurrentWidget(downloading_widget);
     });
+    QString defaultUrl = "smiskol.com/fork/huifan0114/b";
     QString url = OPENPILOT_URL;
-    if (group->checkedButton() != openpilot) {
-      url = InputDialog::getText(tr("Enter URL"), this, tr("for Custom Software"));
+    if (group->checkedButton() != openpilot && group->checkedButton() != huifan0114) {
+      url = InputDialog::getText(tr("輸入網址"), this, tr("用於客製化軟體"), QLineEdit::Normal, defaultUrl);
     }
     if (!url.isEmpty()) {
       QTimer::singleShot(1000, this, [=]() {
