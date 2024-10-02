@@ -128,12 +128,24 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   QRect rightRect(size.width() / 2, 0, size.width() / 2, size.height());
 
   QRect hideSpeedRect(rect().center().x() - 175, 50, 350, 350);
+  QRect maxSpeedRect(7, 25, 225, 225);
   QRect speedLimitRect(7, 250, 225, 225);
 
   if (scene.speed_limit_changed && (leftRect.contains(pos) || rightRect.contains(pos))) {
     bool slcConfirmed = leftRect.contains(pos) ? !scene.right_hand_drive : scene.right_hand_drive;
     paramsMemory.putBoolNonBlocking("SLCConfirmed", slcConfirmed);
     paramsMemory.putBoolNonBlocking("SLCConfirmedPressed", true);
+    return;
+  }
+
+  if (maxSpeedRect.contains(pos) ) {
+    // scene.reverse_cruise = !scene.reverse_cruise;
+    // params.putBoolNonBlocking("ReverseCruise", scene.reverse_cruise);
+/////////////////////////////////////////////////////////////////////////////////
+    bool autoaccProfile = !params.getBool("AutoACC");
+    params.putBoolNonBlocking("AutoACC", autoaccProfile);
+/////////////////////////////////////////////////////////////////////////////////
+    updateFrogPilotToggles();
     return;
   }
 
