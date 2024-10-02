@@ -5,11 +5,11 @@
 // #include "selfdrive/frogpilot/ui/qt/offroad/frogpilot_settings.h"
 #include "selfdrive/ui/qt/offroad/settings.h"
 
-class HFOPControlsPanel : public FrogPilotListWidget {
+class hfoppilotControls : public FrogPilotListWidget {
   Q_OBJECT
 
 public:
-  explicit HFOPControlsPanel(FrogPilotSettingsWindow *parent);
+  explicit hfoppilotControls(FrogPilotSettingsWindow *parent);
 
 signals:
   void openParentToggle();

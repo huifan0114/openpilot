@@ -1,6 +1,6 @@
 #include "selfdrive/frogpilot/ui/qt/offroad/hfop_settings.h"
 
-HFOPControlsPanel::HFOPControlsPanel(SettingsWindow *parent) : FrogPilotListWidget(parent) {
+hfoppilotControls::hfoppilotControls(SettingsWindow *parent) : FrogPilotListWidget(parent) {
   const std::vector<std::tuple<QString, QString, QString, QString>> hfopToggles {
     {"HFOPinf", "  訊息框", "主畫面左下方顯示訊息狀態.", "../assets/offroad/icon_custom.png"},
 
@@ -142,22 +142,22 @@ HFOPControlsPanel::HFOPControlsPanel(SettingsWindow *parent) : FrogPilotListWidg
     });
   }
 
-  QObject::connect(parent, &SettingsWindow::closeParentToggle, this, &HFOPControlsPanel::hideToggles);
-  QObject::connect(uiState(), &UIState::uiUpdate, this, &HFOPControlsPanel::updateState);
+  QObject::connect(parent, &SettingsWindow::closeParentToggle, this, &hfoppilotControls::hideToggles);
+  QObject::connect(uiState(), &UIState::uiUpdate, this, &hfoppilotControls::updateState);
   // hideToggles();
 }
 
-void HFOPControlsPanel::showEvent(QShowEvent *event, const UIState &s) {
+void hfoppilotControls::showEvent(QShowEvent *event, const UIState &s) {
   // hasOpenpilotLongitudinal = hasOpenpilotLongitudinal && !params.getBool("DisableOpenpilotLongitudinal");
 }
 
-void HFOPControlsPanel::updateState(const UIState &s) {
+void hfoppilotControls::updateState(const UIState &s) {
   if (!isVisible()) return;
 
   started = s.scene.started;
 }
 
-void HFOPControlsPanel::hideToggles() {
+void hfoppilotControls::hideToggles() {
 
   for (auto &[key, toggle] : toggles) {
     bool subToggles = FuelpriceKeys.find(key.c_str()) != FuelpriceKeys.end() ||

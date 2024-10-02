@@ -83,7 +83,7 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
     {tr("導航"), {new FrogPilotNavigationPanel(this)}},
     {tr("系統管理"), {new FrogPilotDataPanel(this), frogpilotDevicePanel, new UtilitiesPanel(this)}},
     {tr("主題與外觀"), {frogpilotVisualsPanel, frogpilotThemesPanel}},
-    {tr("車輛控制"), {new FrogPilotVehiclesPanel(this)}},
+    {tr("車輛控制"), {new FrogPilotVehiclesPanel(this)}}
     /////////////////////////////////////////////////////
     // {tr("H F O P"), {hfoppilotControls}}
 /////////////////////////////////////////////////////

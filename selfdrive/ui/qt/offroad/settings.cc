@@ -455,9 +455,9 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubParentToggle, [this]() {subParentToggleOpen=true;});
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubSubParentToggle, [this]() {subSubParentToggleOpen=true;});
 /////////////////////////////////////////////////////
-  HFOPControlsPanel *hfoppilotControls = new HFOPControlsPanel(this);
-  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openParentToggle, [this]() {parentToggleOpen=true;});
-  // QObject::connect(hfoppilotControls, &HFOPControlsPanel::openParentToggle, this, [this]() {parentToggleOpen = true;});
+  hfoppilotControls *hfoppilotControls = new hfoppilotControls(this);
+  // QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openParentToggle, [this]() {parentToggleOpen=true;});
+  QObject::connect(hfoppilotControls, &hfoppilotControls::openParentToggle, this, [this]() {parentToggleOpen = true;});
 /////////////////////////////////////////////////////
 
   QList<QPair<QString, QWidget *>> panels = {
