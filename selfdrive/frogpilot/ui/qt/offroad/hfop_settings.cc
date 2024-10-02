@@ -142,7 +142,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     });
   }
 
-  QObject::connect(parent, &SettingsWindow::closeParentToggle, this, &FrogPilotHFOPPanel::hideToggles);
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeParentToggle, this, &FrogPilotHFOPPanel::hideToggles);
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotHFOPPanel::updateState);
   // hideToggles();
 }
