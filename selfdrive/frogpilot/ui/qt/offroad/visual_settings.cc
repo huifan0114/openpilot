@@ -4,18 +4,18 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
   const std::vector<std::tuple<QString, QString, QString, QString>> visualToggles {
     {"CustomUI", tr("自定義道路畫面"), tr("Custom定義自己喜歡的道路介面."), "../assets/offroad/icon_road.png"},
     {"Compass", tr("  羅盤"), tr("將指南針加入道路使用者介面."), ""},
-    {"DynamicPathWidth", tr("  動態路徑寬度"), tr("Automatically adjust the width of the driving path display based on the current engagement state:\n\nFully engaged = 100%\nAlways On Lateral Active = 75%\nFully disengaged = 50%"), ""},
-    {"PedalsOnUI", tr("  踏板"), tr("Pedal indicators in the onroad UI that change opacity based on the pressure applied."), ""},
-    {"CustomPaths", tr("  路徑"), tr("Projected acceleration path, detected lanes, and vehicles in the blind spot."), ""},
-    {"RoadNameUI", tr("  道路名稱"), tr("The current road name is displayed at the bottom of the screen using data from 'OpenStreetMap'."), ""},
-    {"RotatingWheel", tr("  旋轉方向盤"), tr("The steering wheel in the onroad UI rotates along with your steering wheel movements."), ""},
+    {"DynamicPathWidth", tr("  動態路徑寬度"), tr("根據目前接合狀態自動調整行駛路徑顯示的寬度:\n\nFully engaged = 100%\nAlways On Lateral Active = 75%\nFully disengaged = 50%"), ""},
+    {"PedalsOnUI", tr("  踏板"), tr("公路使用者介面中的踏板指示器可根據施加的壓力改變不透明度."), ""},
+    {"CustomPaths", tr("  路徑"), tr("預計的加速路徑、偵測到的車道以及盲點中的車輛."), ""},
+    {"RoadNameUI", tr("  道路名稱"), tr("目前道路名稱使用來自「OpenStreetMap」的資料顯示在螢幕底部'."), ""},
+    {"RotatingWheel", tr("  旋轉方向盤"), tr("onroad UI 中的方向盤會隨著方向盤的移動而旋轉."), ""},
 
-    {"QOLVisuals", tr("Quality of Life Improvements"), tr("Miscellaneous visual focused features to improve your overall openpilot experience."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
-    {"BigMap", tr("Larger Map Display"), tr("A larger size of the map in the onroad UI for easier navigation readings."), ""},
-    {"MapStyle", tr("Map Style"), tr("Custom map styles for the map used during navigation."), ""},
-    {"StandbyMode", tr("Screen Standby Mode"), tr("The screen is turned off after it times out when driving, but it automatically wakes up if engagement state changes or important alerts occur."), ""},
-    {"DriverCamera", tr("Show Driver Camera When In Reverse"), tr("The driver camera feed is displayed when the vehicle is in reverse."), ""},
-    {"StoppedTimer", tr("Stopped Timer"), tr("A timer on the onroad UI to indicate how long the vehicle has been stopped."), ""}
+    {"QOLVisuals", tr("Quality of Life Improvements"), tr("Misce各種視覺集中功能可改善您的整體開放駕駛體驗."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
+    {"BigMap", tr("更大的地圖顯示"), tr("道路使用者介面中的地圖尺寸更大，更易於導航閱讀."), ""},
+    {"MapStyle", tr("地圖樣式"), tr("導航期間使用的地圖的自訂地圖樣式."), ""},
+    {"StandbyMode", tr("螢幕待機模式"), tr("開車時超時後螢幕會關閉，但如果交戰狀態發生變化或發生重要警報，螢幕會自動喚醒."), ""},
+    {"DriverCamera", tr("倒車時顯示駕駛員攝影機"), tr("車輛倒車時顯示駕駛攝影機畫面."), ""},
+    {"StoppedTimer", tr("停止計時器"), tr("道路使用者介面上的計時器可指示車輛停止了多長時間."), ""}
   };
 
   for (const auto &[param, title, desc, icon] : visualToggles) {
