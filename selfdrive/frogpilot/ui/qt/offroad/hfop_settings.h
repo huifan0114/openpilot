@@ -2,19 +2,20 @@
 
 #include <set>
 
-// #include "selfdrive/frogpilot/ui/qt/offroad/frogpilot_settings.h"
-#include "selfdrive/ui/qt/offroad/settings.h"
+#include "selfdrive/frogpilot/ui/qt/offroad/frogpilot_settings.h"
+// #include "selfdrive/ui/qt/offroad/settings.h"
 
-class hfoppilotControls : public FrogPilotListWidget {
+class FrogPilotHFOPPanel : public FrogPilotListWidget {
   Q_OBJECT
 
 public:
-  explicit hfoppilotControls(FrogPilotSettingsWindow *parent);
+  explicit FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent);
 
 signals:
   void openParentToggle();
 
 private:
+  FrogPilotSettingsWindow *parent;
   void hideToggles();
   void showEvent(QShowEvent *event, const UIState &s);
   void updateState(const UIState &s);

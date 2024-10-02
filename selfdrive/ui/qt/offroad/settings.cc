@@ -17,7 +17,7 @@
 
 #include "selfdrive/frogpilot/ui/qt/offroad/frogpilot_settings.h"
 /////////////////////////////////////////////////////
-#include "selfdrive/frogpilot/ui/qt/offroad/hfop_settings.h"
+// #include "selfdrive/frogpilot/ui/qt/offroad/hfop_settings.h"
 /////////////////////////////////////////////////////
 
 TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
@@ -455,9 +455,9 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubParentToggle, [this]() {subParentToggleOpen=true;});
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubSubParentToggle, [this]() {subSubParentToggleOpen=true;});
 /////////////////////////////////////////////////////
-  hfoppilotControls *hfoppilotControls = new hfoppilotControls(this);
+  // hfoppilotControls *hfoppilotControls = new hfoppilotControls(this);
   // QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openParentToggle, [this]() {parentToggleOpen=true;});
-  QObject::connect(hfoppilotControls, &hfoppilotControls::openParentToggle, this, [this]() {parentToggleOpen = true;});
+  // QObject::connect(hfoppilotControls, &hfoppilotControls::openParentToggle, this, [this]() {parentToggleOpen = true;});
 /////////////////////////////////////////////////////
 
   QList<QPair<QString, QWidget *>> panels = {
@@ -467,7 +467,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     {tr("軟體資訊"), new SoftwarePanel(this)},
     {tr("FrogPilot"), frogpilotSettingsWindow},
 /////////////////////////////////////////////////////
-    {tr("H F O P"), hfoppilotControls},
+    // {tr("H F O P"), hfoppilotControls},
 /////////////////////////////////////////////////////
   };
 
