@@ -94,7 +94,7 @@ void TermsPage::showEvent(QShowEvent *event) {
   main_layout->setContentsMargins(45, 35, 45, 45);
   main_layout->setSpacing(0);
 
-  QLabel *title = new QLabel(tr("Terms & Conditions"));
+  QLabel *title = new QLabel(tr("使用條款與條件"));
   title->setStyleSheet("font-size: 90px; font-weight: 600;");
   main_layout->addWidget(title);
 
@@ -122,11 +122,11 @@ void TermsPage::showEvent(QShowEvent *event) {
   buttons->setSpacing(45);
   main_layout->addLayout(buttons);
 
-  QPushButton *decline_btn = new QPushButton(tr("Decline"));
+  QPushButton *decline_btn = new QPushButton(tr("拒絕"));
   buttons->addWidget(decline_btn);
   QObject::connect(decline_btn, &QPushButton::clicked, this, &TermsPage::declinedTerms);
 
-  accept_btn = new QPushButton(tr("Scroll to accept"));
+  accept_btn = new QPushButton(tr("滑動至最後並接受"));
   accept_btn->setEnabled(false);
   accept_btn->setStyleSheet(R"(
     QPushButton {
@@ -144,7 +144,7 @@ void TermsPage::showEvent(QShowEvent *event) {
 }
 
 void TermsPage::enableAccept() {
-  accept_btn->setText(tr("Agree"));
+  accept_btn->setText(tr("同意"));
   accept_btn->setEnabled(true);
 }
 
@@ -158,7 +158,7 @@ void DeclinePage::showEvent(QShowEvent *event) {
   main_layout->setSpacing(40);
 
   QLabel *text = new QLabel(this);
-  text->setText(tr("You must accept the Terms and Conditions in order to use openpilot."));
+  text->setText(tr("您必須接受條款和條件才能使用 openpilot"));
   text->setStyleSheet(R"(font-size: 80px; font-weight: 300; margin: 200px;)");
   text->setWordWrap(true);
   main_layout->addWidget(text, 0, Qt::AlignCenter);
@@ -167,12 +167,12 @@ void DeclinePage::showEvent(QShowEvent *event) {
   buttons->setSpacing(45);
   main_layout->addLayout(buttons);
 
-  QPushButton *back_btn = new QPushButton(tr("Back"));
+  QPushButton *back_btn = new QPushButton(tr("返回"));
   buttons->addWidget(back_btn);
 
   QObject::connect(back_btn, &QPushButton::clicked, this, &DeclinePage::getBack);
 
-  QPushButton *uninstall_btn = new QPushButton(tr("Decline, uninstall %1").arg(getBrand()));
+  QPushButton *uninstall_btn = new QPushButton(tr("拒絕並解除安裝 %1").arg(getBrand()));
   uninstall_btn->setStyleSheet("background-color: #B73D3D");
   buttons->addWidget(uninstall_btn);
   QObject::connect(uninstall_btn, &QPushButton::clicked, [=]() {

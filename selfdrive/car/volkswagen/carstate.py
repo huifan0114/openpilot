@@ -5,6 +5,9 @@ from openpilot.selfdrive.car.interfaces import CarStateBase
 from opendbc.can.parser import CANParser
 from openpilot.selfdrive.car.volkswagen.values import DBC, CANBUS, NetworkLocation, TransmissionType, GearShifter, \
                                             CarControllerParams, VolkswagenFlags
+################################################
+from openpilot.common.params import Params
+################################################
 
 
 class CarState(CarStateBase):
@@ -17,6 +20,24 @@ class CarState(CarStateBase):
     self.esp_hold_confirmation = False
     self.upscale_lead_car_signal = False
     self.eps_stock_values = False
+#############################
+    self.params = Params()
+
+    vsf = self.params.get_int("VagSpeedFactor")/2
+    self.vagspeedfactor = (110 +vsf) /110
+    self.dt = 0.0
+    self.dt_prev = 0.0
+    self.usefuel_prev = 0
+    self.frame = 0
+    self.kpln = 0
+    self.usetimeout = 0
+    self.initial_Tank = 0  # 初始油量
+    self.current_Tank = 0  # 目前油量
+    self.usefuel_Tank = 0
+    self.fuelt = 0
+    self.oiltemperature = 0
+    self.start = True
+#############################
 
   def create_button_events(self, pt_cp, buttons):
     button_events = []
@@ -32,7 +53,12 @@ class CarState(CarStateBase):
 
     return button_events
 
-  def update(self, pt_cp, cam_cp, ext_cp, trans_type, frogpilot_toggles):
+####################################
+  def update(self, pt_cp, body_cp, cam_cp, ext_cp, trans_type, frogpilot_toggles):
+    if self.start:
+      self.fuelt = body_cp.vl["Motor_04"]["MO_KVS"]/1000000
+      self.start = False
+####################################
     if self.CP.flags & VolkswagenFlags.PQ:
       return self.update_pq(pt_cp, cam_cp, ext_cp, trans_type, frogpilot_toggles)
 
@@ -45,8 +71,9 @@ class CarState(CarStateBase):
       pt_cp.vl["ESP_19"]["ESP_HL_Radgeschw_02"],
       pt_cp.vl["ESP_19"]["ESP_HR_Radgeschw_02"],
     )
-
-    ret.vEgoRaw = float(np.mean([ret.wheelSpeeds.fl, ret.wheelSpeeds.fr, ret.wheelSpeeds.rl, ret.wheelSpeeds.rr]))
+##########儀表時速與C3同步############
+    ret.vEgoRaw = float(np.mean([ret.wheelSpeeds.fl, ret.wheelSpeeds.fr, ret.wheelSpeeds.rl, ret.wheelSpeeds.rr])* self.vagspeedfactor)
+####################################
     ret.vEgo, ret.aEgo = self.update_speed_kf(ret.vEgoRaw)
     ret.standstill = ret.vEgoRaw == 0
 
@@ -72,6 +99,11 @@ class CarState(CarStateBase):
     brake_pressure_detected = bool(pt_cp.vl["ESP_05"]["ESP_Fahrer_bremst"])
     ret.brakePressed = brake_pedal_pressed or brake_pressure_detected
     ret.parkingBrake = bool(pt_cp.vl["Kombi_01"]["KBI_Handbremse"])  # FIXME: need to include an EPB check as well
+####################################
+    ret.tankvol = pt_cp.vl["Kombi_03"]["KBI_Tankinhalt_hochaufl"]
+    ret.engineRpm = body_cp.vl["Motor_12"]["MO_Drehzahl_01"]
+    ret.oiltemperature= body_cp.vl["Getriebe_14"]["GE_Sumpftemperatur"] #-58~196 DegreCelsi
+####################################
 
     # Update gear and/or clutch position data.
     if trans_type == TransmissionType.automatic:
@@ -86,10 +118,23 @@ class CarState(CarStateBase):
         ret.gearShifter = GearShifter.drive
 
     # Update door and trunk/hatch lid open status.
-    ret.doorOpen = any([pt_cp.vl["Gateway_72"]["ZV_FT_offen"],
-                        pt_cp.vl["Gateway_72"]["ZV_BT_offen"],
-                        pt_cp.vl["Gateway_72"]["ZV_HFS_offen"],
-                        pt_cp.vl["Gateway_72"]["ZV_HBFS_offen"],
+####################################
+    if self.params.get_bool("Dooropen"):
+      if self.params.get_bool("DriverdoorOpen"):
+        ret.driverdoorOpen = any([pt_cp.vl["Gateway_72"]["ZV_FT_offen"]])
+      if self.params.get_bool("CodriverdoorOpen"):
+        ret.codriverdOpen = any([pt_cp.vl["Gateway_72"]["ZV_BT_offen"]])
+      if self.params.get_bool("LpassengerdoorOpen"):
+        ret.lpassengerdoorOpen = any([pt_cp.vl["Gateway_72"]["ZV_HFS_offen"]])
+      if self.params.get_bool("RpassengerdoorOpen"):
+        ret.rpassengerdoorOpen = any([pt_cp.vl["Gateway_72"]["ZV_HBFS_offen"]])
+      if self.params.get_bool("LuggagedoorOpen"):
+        ret.luggagedoorOpen = any([pt_cp.vl["Gateway_72"]["ZV_HD_offen"]])
+####################################
+    ret.doorOpen = any([pt_cp.vl["Gateway_72"]["ZV_FT_offen"],##駕駛
+                        pt_cp.vl["Gateway_72"]["ZV_BT_offen"],##副駕
+                        pt_cp.vl["Gateway_72"]["ZV_HFS_offen"],##左後
+                        pt_cp.vl["Gateway_72"]["ZV_HBFS_offen"],##右後
                         pt_cp.vl["Gateway_72"]["ZV_HD_offen"]])
 
     # Update seatbelt fastened status.
@@ -158,6 +203,43 @@ class CarState(CarStateBase):
 
     self.prev_distance_button = self.distance_button
     self.distance_button = bool(pt_cp.vl["GRA_ACC_01"]["GRA_Verstellung_Zeitluecke"])
+
+####################################    
+    kvsn = body_cp.vl["Motor_04"]["MO_KVS"]
+    self.dt += ret.vEgo * 0.01
+    if self.frame % 50 == 0:
+      self.frame = 0
+      fueld = 0
+      if kvsn != self.usefuel_prev:
+        if kvsn > self.usefuel_prev:
+          fueld = (kvsn - self.usefuel_prev)
+        else:
+          fueld =  (kvsn + (32767 - self.usefuel_prev))
+        if fueld > 0 and (self.dt-self.dt_prev) > 0:
+          self.kpln = ((self.dt-self.dt_prev)/1000)/(fueld/1000000)
+      self.fuelt += (fueld/1000000)
+      self.usefuel_prev = kvsn
+      self.dt_prev = self.dt
+    if self.kpln < 1 or self.kpln > 999:
+      self.kpln = 0
+    ret.kpl = self.kpln
+    ret.fueltotal = self.fuelt
+
+    self.bcm_01 = pt_cp.vl["BCM_01"]
+    self.motor_18 = pt_cp.vl["Motor_18"]
+
+    self.current_Tank = pt_cp.vl["Kombi_03"]["KBI_Tankinhalt_hochaufl"]
+    self.usetimeout += 1
+    if self.current_Tank != self.initial_Tank:    
+      if  self.initial_Tank == 0:
+        if self.current_Tank > self.initial_Tank:
+          self.initial_Tank = pt_cp.vl["Kombi_03"]["KBI_Tankinhalt_hochaufl"]
+    if self.usetimeout >10000:
+      if self.current_Tank < self.initial_Tank:
+        self.usefuel_Tank = ( self.initial_Tank -self.current_Tank)
+        self.usetimeout = 0
+    ret.tankused = self.usefuel_Tank
+####################################
 
     self.frame += 1
     return ret, fp_ret
@@ -298,6 +380,10 @@ class CarState(CarStateBase):
       ("Kombi_01", 2),      # From J285 Instrument cluster
       ("Blinkmodi_02", 1),  # From J519 BCM (sent at 1Hz when no lights active, 50Hz when active)
       ("Kombi_03", 0),      # From J285 instrument cluster (not present on older cars, 1Hz when present)
+##########################################################
+      ("BCM_01", 1),
+      ("Motor_18", 1),
+##########################################################
     ]
 
     if CP.transmissionType == TransmissionType.automatic:
@@ -312,7 +398,19 @@ class CarState(CarStateBase):
         messages += MqbExtraSignals.bsm_radar_messages
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, CANBUS.pt)
-
+##########################################################
+  @staticmethod
+  def get_body_can_parser(CP):
+    messages = [
+      # sig_address, frequency
+      ("Getriebe_14", 10),
+      ("Motor_12", 100),
+      ("Motor_09", 1),
+      ("OBD_01", 1),
+      ("Motor_04", 0),
+    ]
+    return CANParser(DBC[CP.carFingerprint]["pt"], messages, CANBUS.body)
+##########################################################
   @staticmethod
   def get_cam_can_parser(CP):
     if CP.flags & VolkswagenFlags.PQ:

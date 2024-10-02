@@ -26,7 +26,7 @@ Networking::Networking(QWidget* parent, bool show_advanced) : QFrame(parent) {
   QVBoxLayout* vlayout = new QVBoxLayout(wifiScreen);
   vlayout->setContentsMargins(20, 20, 20, 20);
   if (show_advanced) {
-    QPushButton* advancedSettings = new QPushButton(tr("Advanced"));
+    QPushButton* advancedSettings = new QPushButton(tr("進階選項"));
     advancedSettings->setObjectName("advanced_btn");
     advancedSettings->setStyleSheet("margin-right: 30px;");
     advancedSettings->setFixedSize(400, 100);
@@ -83,7 +83,7 @@ void Networking::connectToNetwork(const Network n) {
   } else if (n.security_type == SecurityType::OPEN) {
     wifi->connect(n, false);
   } else if (n.security_type == SecurityType::WPA) {
-    QString pass = InputDialog::getText(tr("Enter password"), this, tr("for \"%1\"").arg(QString::fromUtf8(n.ssid)), true, 8);
+    QString pass = InputDialog::getText(tr("輸入密碼"), this, tr("給 \"%1\"").arg(QString::fromUtf8(n.ssid)), true, 8);
     if (!pass.isEmpty()) {
       wifi->connect(n, false, pass);
     }
@@ -93,7 +93,7 @@ void Networking::connectToNetwork(const Network n) {
 void Networking::wrongPassword(const QString &ssid) {
   if (wifi->seenNetworks.contains(ssid)) {
     const Network &n = wifi->seenNetworks.value(ssid);
-    QString pass = InputDialog::getText(tr("Wrong password"), this, tr("for \"%1\"").arg(QString::fromUtf8(n.ssid)), true, 8);
+    QString pass = InputDialog::getText(tr("密碼錯誤"), this, tr("給 \"%1\"").arg(QString::fromUtf8(n.ssid)), true, 8);
     if (!pass.isEmpty()) {
       wifi->connect(n, false, pass);
     }
@@ -118,7 +118,7 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
   main_layout->setSpacing(20);
 
   // Back button
-  QPushButton* back = new QPushButton(tr("Back"));
+  QPushButton* back = new QPushButton(tr("返回"));
   back->setObjectName("back_btn");
   back->setFixedSize(400, 100);
   connect(back, &QPushButton::clicked, [=]() { emit backPress(); });
@@ -126,9 +126,9 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
 
   ListWidget *list = new ListWidget(this);
   // Enable tethering layout
-  std::vector<QString> tetheringSelection{tr("Off"), tr("Always"), tr("Only Onroad"), tr("Until Reboot")};
-  tetheringToggle = new ButtonParamControl("TetheringEnabled", tr("Enable Tethering"),
-                                           tr("Allow tethering with your data SIM and keep it active either while driving or continuously."),
+  std::vector<QString> tetheringSelection{tr("關閉"), tr("一直開啟"), tr("僅上路時"), tr("直到重啟")};
+  tetheringToggle = new ButtonParamControl("TetheringEnabled", tr("啟用網路共享"),
+                                           tr("允許與您的數據 SIM 卡共享並在駕駛時或持續保持活動狀態."),
                                            "", tetheringSelection);
   if (params.getInt("TetheringEnabled") == 3) {
     params.remove("TetheringEnabled");
@@ -143,9 +143,9 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
   list->addItem(tetheringToggle);
 
   // Change tethering password
-  ButtonControl *editPasswordButton = new ButtonControl(tr("Tethering Password"), tr("EDIT"));
+  ButtonControl *editPasswordButton = new ButtonControl(tr("網路分享密碼"), tr("編輯"));
   connect(editPasswordButton, &ButtonControl::clicked, [=]() {
-    QString pass = InputDialog::getText(tr("Enter new tethering password"), this, "", true, 8, wifi->getTetheringPassword());
+    QString pass = "comma1234";
     if (!pass.isEmpty()) {
       wifi->changeTetheringPassword(pass);
     }
@@ -153,7 +153,7 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
   list->addItem(editPasswordButton);
 
   // IP address
-  ipLabel = new LabelControl(tr("IP Address"), wifi->ipv4_address);
+  ipLabel = new LabelControl(tr("IP 位址"), wifi->ipv4_address);
   list->addItem(ipLabel);
 
   // SSH keys
@@ -162,7 +162,7 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
 
   // Roaming toggle
   const bool roamingEnabled = params.getBool("GsmRoaming");
-  roamingToggle = new ToggleControl(tr("Enable Roaming"), "", "", roamingEnabled);
+  roamingToggle = new ToggleControl(tr("開啟漫遊"), "", "", roamingEnabled);
   QObject::connect(roamingToggle, &ToggleControl::toggleFlipped, [=](bool state) {
     params.putBool("GsmRoaming", state);
     wifi->updateGsmSettings(state, QString::fromStdString(params.get("GsmApn")), params.getBool("GsmMetered"));
@@ -170,10 +170,10 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
   list->addItem(roamingToggle);
 
   // APN settings
-  editApnButton = new ButtonControl(tr("APN Setting"), tr("EDIT"));
+  editApnButton = new ButtonControl(tr("APN 設定"), tr("編輯"));
   connect(editApnButton, &ButtonControl::clicked, [=]() {
     const QString cur_apn = QString::fromStdString(params.get("GsmApn"));
-    QString apn = InputDialog::getText(tr("Enter APN"), this, tr("leave blank for automatic configuration"), false, -1, cur_apn).trimmed();
+    QString apn = InputDialog::getText(tr("輸入 APN"), this, tr("留空白將自動配置"), false, -1, cur_apn).trimmed();
 
     if (apn.isEmpty()) {
       params.remove("GsmApn");
@@ -186,7 +186,7 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
 
   // Metered toggle
   const bool metered = params.getBool("GsmMetered");
-  meteredToggle = new ToggleControl(tr("Cellular Metered"), tr("Prevent large data uploads when on a metered connection"), "", metered);
+  meteredToggle = new ToggleControl(tr("行動網路"), tr("防止使用行動網路上傳大量的數據"), "", metered);
   QObject::connect(meteredToggle, &SshToggle::toggleFlipped, [=](bool state) {
     params.putBool("GsmMetered", state);
     wifi->updateGsmSettings(params.getBool("GsmRoaming"), QString::fromStdString(params.get("GsmApn")), state);
@@ -194,11 +194,11 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
   list->addItem(meteredToggle);
 
   // Hidden Network
-  hiddenNetworkButton = new ButtonControl(tr("Hidden Network"), tr("CONNECT"));
+  hiddenNetworkButton = new ButtonControl(tr("隱藏網路"), tr("連線"));
   connect(hiddenNetworkButton, &ButtonControl::clicked, [=]() {
-    QString ssid = InputDialog::getText(tr("Enter SSID"), this, "", false, 1);
+    QString ssid = InputDialog::getText(tr("輸入 SSID"), this, "", false, 1);
     if (!ssid.isEmpty()) {
-      QString pass = InputDialog::getText(tr("Enter password"), this, tr("for \"%1\"").arg(ssid), true, -1);
+      QString pass = InputDialog::getText(tr("輸入密碼"), this, tr("給 \"%1\"").arg(ssid), true, -1);
       Network hidden_network;
       hidden_network.ssid = ssid.toUtf8();
       if (!pass.isEmpty()) {
@@ -254,7 +254,7 @@ WifiUI::WifiUI(QWidget *parent, WifiManager* wifi) : QWidget(parent), wifi(wifi)
   checkmark = QPixmap(ASSET_PATH + "offroad/icon_checkmark.svg").scaledToWidth(ICON_WIDTH, Qt::SmoothTransformation);
   circled_slash = QPixmap(ASSET_PATH + "img_circled_slash.svg").scaledToWidth(ICON_WIDTH, Qt::SmoothTransformation);
 
-  scanningLabel = new QLabel(tr("Scanning for networks..."));
+  scanningLabel = new QLabel(tr("掃描無線網路中..."));
   scanningLabel->setStyleSheet("font-size: 65px;");
   main_layout->addWidget(scanningLabel, 0, Qt::AlignCenter);
 
@@ -348,11 +348,11 @@ void WifiUI::refresh() {
 }
 
 WifiItem *WifiUI::getItem(int n) {
-  auto item = n < wifi_items.size() ? wifi_items[n] : wifi_items.emplace_back(new WifiItem(tr("CONNECTING..."), tr("FORGET")));
+  auto item = n < wifi_items.size() ? wifi_items[n] : wifi_items.emplace_back(new WifiItem(tr("連線中..."), tr("取消記憶")));
   if (!item->parentWidget()) {
     QObject::connect(item, &WifiItem::connectToNetwork, this, &WifiUI::connectToNetwork);
     QObject::connect(item, &WifiItem::forgotNetwork, [this](const Network n) {
-      if (ConfirmationDialog::confirm(tr("Forget Wi-Fi Network \"%1\"?").arg(QString::fromUtf8(n.ssid)), tr("Forget"), this))
+      if (ConfirmationDialog::confirm(tr("取消 Wi-Fi 網路設定 \"%1\"?").arg(QString::fromUtf8(n.ssid)), tr("取消記憶"), this))
         wifi->forgetConnection(n.ssid);
     });
     wifi_list_widget->addItem(item);

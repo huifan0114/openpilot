@@ -146,6 +146,18 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     yourFrogTriedToKillMe @146;
     youveGotMail @147;
 
+    ######HFOP##########
+    speedover @148;
+    navturn @149;
+    navuturn @150;
+    navturnleft @151;
+    navturnright @152;
+    navsharpright @153;
+    navsharpleft @154;
+    navofframp @155;
+    doorOpen1 @156;
+    #######################
+
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
     radarCommIssueDEPRECATED @67;
@@ -252,6 +264,19 @@ struct CarState {
 
   # process meta
   cumLagMs @50 :Float32;
+
+######HFOP########
+  tankvol @51 :Float32;
+  kpl @52 :Float32;
+  driverdoorOpen @53 :Bool;
+  codriverdOpen @54 :Bool;
+  lpassengerdoorOpen @55 :Bool;
+  rpassengerdoorOpen @56 :Bool;
+  luggagedoorOpen @57 :Bool;
+  tankused @58 :Float32;
+  fueltotal @59 :Float32;
+  oiltemperature @60 :Float32;
+#######################
 
   struct WheelSpeeds {
     # optional wheel speeds
@@ -456,6 +481,20 @@ struct CarControl {
 
       # Other
       goat @19;
+
+      ########HFOP###########
+      lanechangesound @20;
+      lanechangeblockedsound @21;
+      greenLight @22;
+      navturn @23;
+      navuturn @24;
+      navturnright @25;
+      navturnleft @26;
+      navsharpright @27;
+      navsharpleft @28;
+      navofframp @29;
+      carawayed  @30;
+      ############################
     }
   }
 

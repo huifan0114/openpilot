@@ -2,29 +2,29 @@
 
 FrogPilotAdvancedVisualsPanel::FrogPilotAdvancedVisualsPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
   const std::vector<std::tuple<QString, QString, QString, QString>> advancedToggles {
-    {"AdvancedCustomUI", tr("Advanced Onroad UI Widgets"), tr("Advanced user customizations for the Onroad UI."), "../frogpilot/assets/toggle_icons/icon_advanced_road.png"},
-    {"CameraView", tr("Camera View"), tr("Camera view for the onroad UI. This is purely a visual change and doesn't impact how openpilot drives."), ""},
-    {"ShowStoppingPoint", tr("Display Stopping Points"), tr("Display an image on the screen where openpilot is detecting a potential red light/stop sign."), ""},
-    {"HideLeadMarker", tr("Hide Lead Marker"), tr("Hide the marker for the vehicle ahead on the screen."), ""},
-    {"HideSpeed", tr("Hide Speed"), tr("Hide the speed indicator in the onroad UI. Additional toggle allows it to be hidden/shown via tapping the speed itself."), ""},
-    {"HideUIElements", tr("Hide UI Elements"), tr("Hide the selected UI elements from the onroad screen."), ""},
-    {"WheelSpeed", tr("Use Wheel Speed"), tr("Use the wheel speed instead of the cluster speed in the onroad UI."), ""},
+    {"AdvancedCustomUI", tr("進階 Onroad UI 小工具"), tr("Onroad UI 的進階使用者自訂."), "../frogpilot/assets/toggle_icons/icon_advanced_road.png"},
+    {"CameraView", tr("鏡頭角度"), tr("道路 UI 的攝影機視圖。這純粹是視覺上的變化，不會影響 openpilot 的駕駛方式."), ""},
+    {"ShowStoppingPoint", tr("顯示停止點"), tr("在螢幕上顯示 openpilot 偵測到潛在紅燈/停車標誌的影像."), ""},
+    {"HideLeadMarker", tr("隱藏引導標記"), tr("在螢幕上隱藏前方車輛的標記."), ""},
+    {"HideSpeed", tr("隱藏速度"), tr("隱藏道路使用者介面中的速度指示器。附加切換允許透過點擊速度本身來隱藏/顯示."), ""},
+    {"HideUIElements", tr("隱藏使用者介面元素"), tr("在道路畫面上隱藏選定的 UI 元素."), ""},
+    {"WheelSpeed", tr("使用輪速"), tr("在道路使用者介面中使用車輪速度而不是叢集速度."), ""},
 
-    {"DeveloperUI", tr("Developer UI"), tr("Show detailed information about openpilot's internal operations."), "../frogpilot/assets/toggle_icons/icon_advanced_device.png"},
-    {"BorderMetrics", tr("Border Metrics"), tr("Display performance metrics around the edge of the screen while driving."), ""},
-    {"FPSCounter", tr("FPS Display"), tr("Display the 'Frames Per Second' (FPS) at the bottom of the screen while driving."), ""},
-    {"LateralMetrics", tr("Lateral Metrics"), tr("Display metrics related to steering control at the top of the screen while driving."), ""},
-    {"LongitudinalMetrics", tr("Longitudinal Metrics"), tr("Display metrics related to acceleration, speed, and desired following distance at the top of the screen while driving."), ""},
-    {"NumericalTemp", tr("Numerical Temperature Gauge"), tr("Show exact temperature readings instead of general status labels like 'GOOD', 'OK', or 'HIGH' in the sidebar."), ""},
-    {"SidebarMetrics", tr("Sidebar"), tr("Display system information like CPU, GPU, RAM usage, IP address, and storage space in the sidebar."), ""},
-    {"UseSI", tr("Use International System of Units"), tr("Display measurements using the 'International System of Units' (SI)."), ""},
+    {"DeveloperUI", tr("開發者介面"), tr("顯示openpilot內部操作的詳細信息."), "../frogpilot/assets/toggle_icons/icon_advanced_device.png"},
+    {"BorderMetrics", tr("邊界指標"), tr("駕駛時在螢幕邊緣顯示性能指標."), ""},
+    {"FPSCounter", tr("FPS顯示"), tr("駕駛時在螢幕底部顯示「每秒影格數」(FPS)."), ""},
+    {"LateralMetrics", tr("橫向指標"), tr("駕駛時在螢幕頂部顯示與轉向控制相關的指標."), ""},
+    {"LongitudinalMetrics", tr("縱向指標"), tr("駕駛時在螢幕頂部顯示與加速、速度和所需跟隨距離相關的指標."), ""},
+    {"NumericalTemp", tr("數位溫度計"), tr("在側邊欄中顯示準確的溫度讀數，而不是“良好”、“正常”或“高”等一般狀態標籤."), ""},
+    {"SidebarMetrics", tr("側邊欄"), tr("在側邊欄中顯示 CPU、GPU、RAM 使用情況、IP 位址和儲存空間等系統資訊."), ""},
+    {"UseSI", tr("使用國際單位制"), tr("使用「國際單位制」(SI) 顯示測量值."), ""},
 
-    {"ModelUI", tr("Model UI"), tr("Customize the model visualizations on the screen."), "../frogpilot/assets/toggle_icons/icon_advanced_calibration.png"},
-    {"LaneLinesWidth", tr("Lane Lines Width"), tr("How thick the lane lines appear on the display.\n\nDefault matches the MUTCD standard of 4 inches."), ""},
-    {"PathEdgeWidth", tr("Path Edges Width"), tr("The width of the edges of the driving path to represent different modes and statuses.\n\nDefault is 20% of the total path width.\n\nColor Guide:\n- Blue: Navigation\n- Light Blue: 'Always On Lateral'\n- Green: Default\n- Orange: 'Experimental Mode'\n- Red: 'Traffic Mode'\n- Yellow: 'Conditional Experimental Mode' Overridden"), ""},
-    {"PathWidth", tr("Path Width"), tr("How wide the driving path appears on your screen.\n\nDefault (6.1 feet / 1.9 meters) matches the width of a 2019 Lexus ES 350."), ""},
-    {"RoadEdgesWidth", tr("Road Edges Width"), tr("How thick the road edges appear on the display.\n\nDefault matches half of the MUTCD standard lane line width of 4 inches."), ""},
-    {"UnlimitedLength", tr("'Unlimited' Road UI"), tr("Extend the display of the path, lane lines, and road edges as far as the model can see."), ""},
+    {"ModelUI", tr("使用者介面模型"), tr("自訂螢幕上的模型視覺化."), "../frogpilot/assets/toggle_icons/icon_advanced_calibration.png"},
+    {"LaneLinesWidth", tr("車道線寬度"), tr("顯示幕上顯示的車道線有多粗.\n\n預設符合MUTCD標準4英寸."), ""},
+    {"PathEdgeWidth", tr("路徑邊緣寬度"), tr("代表不同模式和狀態的行駛路徑邊緣的寬度.\n\n預設為 20% 總路徑寬度.\n\nColor Guide:\n- Blue: Navigation\n- Light Blue: 'Always On Lateral'\n- Green: Default\n- Orange: 'Experimental Mode'\n- Red: 'Traffic Mode'\n- Yellow: 'Conditional Experimental Mode' Overridden"), ""},
+    {"PathWidth", tr("路徑寬度"), tr("螢幕上顯示的行駛路徑有多寬.\n\n預設值（6.1 英尺/1.9 公尺）與 2019 年雷克薩斯 ES 350 的寬度相符."), ""},
+    {"RoadEdgesWidth", tr("道路邊緣寬度"), tr("顯示幕上顯示的道路邊緣有多厚.\n\n預設匹配 MUTCD 標準車道線寬度 4 英吋的一半."), ""},
+    {"UnlimitedLength", tr("'無限的道路使用者介面"), tr("將路徑、車道線和道路邊緣的顯示擴展到模型可以看到的範圍."), ""},
   };
 
   for (const auto &[param, title, desc, icon] : advancedToggles) {
@@ -37,20 +37,20 @@ FrogPilotAdvancedVisualsPanel::FrogPilotAdvancedVisualsPanel(FrogPilotSettingsWi
       });
       advancedVisualToggle = advancedCustomUIToggle;
     } else if (param == "CameraView") {
-      std::vector<QString> cameraOptions{tr("Auto"), tr("Driver"), tr("Standard"), tr("Wide")};
+      std::vector<QString> cameraOptions{tr("自動"), tr("駕駛"), tr("標準"), tr("廣角")};
       ButtonParamControl *preferredCamera = new ButtonParamControl(param, title, desc, icon, cameraOptions);
       advancedVisualToggle = preferredCamera;
     } else if (param == "HideSpeed") {
       std::vector<QString> hideSpeedToggles{"HideSpeedUI"};
-      std::vector<QString> hideSpeedToggleNames{tr("Control Via UI")};
+      std::vector<QString> hideSpeedToggleNames{tr("透過使用者介面控制")};
       advancedVisualToggle = new FrogPilotButtonToggleControl(param, title, desc, hideSpeedToggles, hideSpeedToggleNames);
     } else if (param == "HideUIElements") {
       std::vector<QString> uiElementsToggles{"HideAlerts", "HideMapIcon", "HideMaxSpeed"};
-      std::vector<QString> uiElementsToggleNames{tr("Alerts"), tr("Map Icon"), tr("Max Speed")};
+      std::vector<QString> uiElementsToggleNames{tr("警報"), tr("地圖圖示"), tr("最大速度")};
       advancedVisualToggle = new FrogPilotButtonToggleControl(param, title, desc, uiElementsToggles, uiElementsToggleNames);
     } else if (param == "ShowStoppingPoint") {
       std::vector<QString> stoppingPointToggles{"ShowStoppingPointMetrics"};
-      std::vector<QString> stoppingPointToggleNames{tr("Show Distance")};
+      std::vector<QString> stoppingPointToggleNames{tr("顯示距離")};
       advancedVisualToggle = new FrogPilotButtonToggleControl(param, title, desc, stoppingPointToggles, stoppingPointToggleNames);
 
     } else if (param == "DeveloperUI") {
@@ -73,20 +73,20 @@ FrogPilotAdvancedVisualsPanel::FrogPilotAdvancedVisualsPanel(FrogPilotSettingsWi
       advancedVisualToggle = developerUIToggle;
     } else if (param == "BorderMetrics") {
       std::vector<QString> borderToggles{"BlindSpotMetrics", "ShowSteering", "SignalMetrics"};
-      std::vector<QString> borderToggleNames{tr("Blind Spot"), tr("Steering Torque"), tr("Turn Signal")};
+      std::vector<QString> borderToggleNames{tr("盲點"), tr("轉向扭矩"), tr("Turn Signal")};
       borderMetricsBtn = new FrogPilotButtonToggleControl(param, title, desc, borderToggles, borderToggleNames);
       advancedVisualToggle = borderMetricsBtn;
     } else if (param == "LateralMetrics") {
       std::vector<QString> lateralToggles{"AdjacentPathMetrics", "TuningInfo"};
-      std::vector<QString> lateralToggleNames{tr("Adjacent Path Metrics"), tr("Auto Tune")};
+      std::vector<QString> lateralToggleNames{tr("相鄰路徑度量"), tr("自動調諧")};
       advancedVisualToggle = new FrogPilotButtonToggleControl(param, title, desc, lateralToggles, lateralToggleNames);
     } else if (param == "LongitudinalMetrics") {
       std::vector<QString> longitudinalToggles{"LeadInfo", "JerkInfo"};
-      std::vector<QString> longitudinalToggleNames{tr("Lead Info"), tr("Longitudinal Jerk")};
+      std::vector<QString> longitudinalToggleNames{tr("前車訊息"), tr("縱向加加速度")};
       advancedVisualToggle = new FrogPilotButtonToggleControl(param, title, desc, longitudinalToggles, longitudinalToggleNames);
     } else if (param == "NumericalTemp") {
       std::vector<QString> temperatureToggles{"Fahrenheit"};
-      std::vector<QString> temperatureToggleNames{tr("Fahrenheit")};
+      std::vector<QString> temperatureToggleNames{tr("華氏度")};
       advancedVisualToggle = new FrogPilotButtonToggleControl(param, title, desc, temperatureToggles, temperatureToggleNames);
     } else if (param == "SidebarMetrics") {
       std::vector<QString> sidebarMetricsToggles{"ShowCPU", "ShowGPU", "ShowIP", "ShowMemoryUsage", "ShowStorageLeft", "ShowStorageUsed"};
@@ -123,7 +123,7 @@ FrogPilotAdvancedVisualsPanel::FrogPilotAdvancedVisualsPanel(FrogPilotSettingsWi
       });
       advancedVisualToggle = modelUIToggle;
     } else if (param == "LaneLinesWidth" || param == "RoadEdgesWidth") {
-      advancedVisualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 24, tr(" inches"));
+      advancedVisualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 24, tr(" 英吋"));
     } else if (param == "PathEdgeWidth") {
       advancedVisualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 100, tr("%"));
     } else if (param == "PathWidth") {
@@ -182,19 +182,19 @@ void FrogPilotAdvancedVisualsPanel::updateMetric() {
   FrogPilotParamValueControl *roadEdgesWidthToggle = static_cast<FrogPilotParamValueControl*>(toggles["RoadEdgesWidth"]);
 
   if (isMetric) {
-    laneLinesWidthToggle->setDescription(tr("Adjust how thick the lane lines appear on the display.\n\nDefault matches the Vienna standard of 10 centimeters."));
-    roadEdgesWidthToggle->setDescription(tr("Adjust how thick the road edges appear on the display.\n\nDefault matches half of the Vienna standard of 10 centimeters."));
+    laneLinesWidthToggle->setDescription(tr("調整顯示器上車道線的粗細程度.\n\n預設符合維也納標準 10 厘米."));
+    roadEdgesWidthToggle->setDescription(tr("調整道路邊緣在顯示幕上顯示的厚度.\n\n預設值符合維也納標準 10 公分的一半."));
 
-    laneLinesWidthToggle->updateControl(0, 60, tr(" centimeters"));
-    roadEdgesWidthToggle->updateControl(0, 60, tr(" centimeters"));
+    laneLinesWidthToggle->updateControl(0, 60, tr(" 公分"));
+    roadEdgesWidthToggle->updateControl(0, 60, tr(" 公分"));
 
     pathWidthToggle->updateControl(0, 3, tr(" meters"));
   } else {
-    laneLinesWidthToggle->setDescription(tr("Adjust how thick the lane lines appear on the display.\n\nDefault matches the MUTCD standard of 4 inches."));
-    roadEdgesWidthToggle->setDescription(tr("Adjust how thick the road edges appear on the display.\n\nDefault matches half of the MUTCD standard of 4 inches."));
+    laneLinesWidthToggle->setDescription(tr("調整顯示器上車道線的粗細程度.\n\n預設符合MUTCD標準4英寸."));
+    roadEdgesWidthToggle->setDescription(tr("調整道路邊緣在顯示幕上顯示的厚度.\n\n預設匹配 4 英寸 MUTCD 標準的一半."));
 
-    laneLinesWidthToggle->updateControl(0, 24, tr(" inches"));
-    roadEdgesWidthToggle->updateControl(0, 24, tr(" inches"));
+    laneLinesWidthToggle->updateControl(0, 24, tr(" 英吋"));
+    roadEdgesWidthToggle->updateControl(0, 24, tr(" 英吋"));
 
     pathWidthToggle->updateControl(0, 10, tr(" feet"));
   }

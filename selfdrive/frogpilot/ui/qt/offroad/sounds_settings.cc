@@ -2,21 +2,21 @@
 
 FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
   const std::vector<std::tuple<QString, QString, QString, QString>> soundsToggles {
-    {"AlertVolumeControl", tr("Alert Volume Controller"), tr("Control the volume level for each individual sound in openpilot."), "../frogpilot/assets/toggle_icons/icon_mute.png"},
-    {"DisengageVolume", tr("Disengage Volume"), tr("Related alerts:\n\nAdaptive Cruise Disabled\nParking Brake Engaged\nBrake Pedal Pressed\nSpeed too Low"), ""},
-    {"EngageVolume", tr("Engage Volume"), tr("Related alerts:\n\nNNFF Torque Controller loaded\nopenpilot engaged"), ""},
-    {"PromptVolume", tr("Prompt Volume"), tr("Related alerts:\n\nCar Detected in Blindspot\nSpeed too Low\nSteer Unavailable Below 'X'\nTake Control, Turn Exceeds Steering Limit"), ""},
-    {"PromptDistractedVolume", tr("Prompt Distracted Volume"), tr("Related alerts:\n\nPay Attention, Driver Distracted\nTouch Steering Wheel, Driver Unresponsive"), ""},
-    {"RefuseVolume", tr("Refuse Volume"), tr("Related alerts:\n\nopenpilot Unavailable"), ""},
-    {"WarningSoftVolume", tr("Warning Soft Volume"), tr("Related alerts:\n\nBRAKE!, Risk of Collision\nTAKE CONTROL IMMEDIATELY"), ""},
-    {"WarningImmediateVolume", tr("Warning Immediate Volume"), tr("Related alerts:\n\nDISENGAGE IMMEDIATELY, Driver Distracted\nDISENGAGE IMMEDIATELY, Driver Unresponsive"), ""},
+    {"AlertVolumeControl", tr("警報音量控制器"), tr("控制 openpilot 中每個聲音的音量級別."), "../frogpilot/assets/toggle_icons/icon_mute.png"},
+    {"DisengageVolume", tr("Disengage 音量"), tr("相關提醒:\n\nAdaptive Cruise Disabled\nParking Brake Engaged\nBrake Pedal Pressed\nSpeed too Low"), ""},
+    {"EngageVolume", tr("Engage 音量"), tr("相關提醒:\n\nNNFF Torque Controller loaded\nopenpilot engaged"), ""},
+    {"PromptVolume", tr("Prompt 音量"), tr("相關提醒:\n\nCar Detected in Blindspot\nSpeed too Low\nSteer Unavailable Below 'X'\nTake Control, Turn Exceeds Steering Limit"), ""},
+    {"PromptDistractedVolume", tr("Prompt Distracted 音量"), tr("相關提醒:\n\nPay Attention, Driver Distracted\nTouch Steering Wheel, Driver Unresponsive"), ""},
+    {"RefuseVolume", tr("Refuse 音量"), tr("相關提醒:\n\nopenpilot Unavailable"), ""},
+    {"WarningSoftVolume", tr("警告 音量"), tr("相關提醒:\n\nBRAKE!, Risk of Collision\nTAKE CONTROL IMMEDIATELY"), ""},
+    {"WarningImmediateVolume", tr("立即警告 音量"), tr("相關提醒:\n\nDISENGAGE IMMEDIATELY, Driver Distracted\nDISENGAGE IMMEDIATELY, Driver Unresponsive"), ""},
 
-    {"CustomAlerts", tr("Custom Alerts"), tr("Enable custom alerts for openpilot events."), "../frogpilot/assets/toggle_icons/icon_green_light.png"},
-    {"GoatScream", tr("Goat Scream Steering Saturated Alert"), tr("Enable the famed 'Goat Scream' that has brought both joy and anger to FrogPilot users all around the world!"), ""},
-    {"GreenLightAlert", tr("Green Light Alert"), tr("Get an alert when a traffic light changes from red to green."), ""},
-    {"LeadDepartingAlert", tr("Lead Departing Alert"), tr("Get an alert when the lead vehicle starts departing when at a standstill."), ""},
-    {"LoudBlindspotAlert", tr("Loud Blindspot Alert"), tr("Enable a louder alert for when a vehicle is detected in the blindspot when attempting to change lanes."), ""},
-    {"SpeedLimitChangedAlert", tr("Speed Limit Change Alert"), tr("Trigger an alert when the speed limit changes."), ""},
+    {"CustomAlerts", tr("自訂警報"), tr("為 openpilot 事件啟用自訂警報."), "../frogpilot/assets/toggle_icons/icon_green_light.png"},
+    {"GoatScream", tr("山羊尖叫轉向飽和警報"), tr("啟用著名的“山羊尖叫”，它給世界各地的 FrogPilot 用戶帶來了歡樂和憤怒!"), ""},
+    {"GreenLightAlert", tr("綠燈警報"), tr("當交通燈由紅變綠時收到警報."), ""},
+    {"LeadDepartingAlert", tr("前車遠離警報"), tr("當領頭車輛在靜止狀態下開始出發時收到警報."), ""},
+    {"LoudBlindspotAlert", tr("大聲盲點警報"), tr("當嘗試變換車道時在盲點偵測到車輛時，啟用更響亮的警報."), ""},
+    {"SpeedLimitChangedAlert", tr("限速變更警報"), tr("當速度限制改變時觸發警報."), ""},
   };
 
   for (const auto &[param, title, desc, icon] : soundsToggles) {
