@@ -54,10 +54,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     } else if (param == "VagSpeed") {
       FrogPilotParamManageControl *VagSpeedToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
       QObject::connect(VagSpeedToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
-        showToggles();
-        for (auto &[key, toggle] : toggles) {
-          toggle->setVisible(VagSpeedKeys.find(key.c_str()) != VagSpeedKeys.end());
-        }
+        showToggles(VagSpeedKeys);
       });
       hfopcontrolsToggle = VagSpeedToggle;
     } else if (param == "VagSpeedFactor") {
@@ -66,10 +63,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     } else if (param == "AutoACC") {
       FrogPilotParamManageControl *AutoACCToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
       QObject::connect(AutoACCToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
-        showToggles();
-        for (auto &[key, toggle] : toggles) {
-          toggle->setVisible(AutoACCKeys.find(key.c_str()) != AutoACCKeys.end());
-        }
+        showToggles(AutoACCKeys);
       });
       hfopcontrolsToggle = AutoACCToggle;
 
@@ -82,10 +76,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     } else if (param == "Roadtype") {
       FrogPilotParamManageControl *RoadToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
       QObject::connect(RoadToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
-        showToggles();
-        for (auto &[key, toggle] : toggles) {
-          toggle->setVisible(RoadKeys.find(key.c_str()) != RoadKeys.end());
-        }
+        showToggles(RoadKeys);
       });
       hfopcontrolsToggle = RoadToggle;
     } else if (param == "RoadtypeProfile") {
@@ -96,20 +87,14 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     } else if (param == "Navspeed") {
       FrogPilotParamManageControl *NavspeedToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
       QObject::connect(NavspeedToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
-        showToggles();
-        for (auto &[key, toggle] : toggles) {
-          toggle->setVisible(NavspeedKeys.find(key.c_str()) != NavspeedKeys.end());
-        }
+        showToggles(NavspeedKeys);
       });
       hfopcontrolsToggle = NavspeedToggle;
 
     } else if(param == "Dooropen") {
       FrogPilotParamManageControl *DooropenToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
       QObject::connect(DooropenToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
-        showToggles();
-        for (auto &[key, toggle] : toggles) {
-          toggle->setVisible(DooropenKeys.find(key.c_str()) != DooropenKeys.end());
-        }
+        showToggles(DooropenKeys);
       });
       hfopcontrolsToggle = DooropenToggle;
 
