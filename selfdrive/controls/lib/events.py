@@ -1061,8 +1061,8 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.WARNING: Alert(
       "速度太高",
       "Model uncertain at this speed",
-      AlertStatus.userPrompt, AlertSize.mid,
-      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.promptRepeat, 4.),
+      AlertStatus.userPrompt, AlertSize.none,
+      Priority.HIGH, VisualAlert.none, AudibleAlert.none, 4.),
     ET.NO_ENTRY: NoEntryAlert("降低速度恢復使用"),
   },
 
