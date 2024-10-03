@@ -16,9 +16,6 @@
 #include "selfdrive/ui/qt/widgets/ssh_keys.h"
 
 #include "selfdrive/frogpilot/ui/qt/offroad/frogpilot_settings.h"
-/////////////////////////////////////////////////////
-// #include "selfdrive/frogpilot/ui/qt/offroad/hfop_settings.h"
-/////////////////////////////////////////////////////
 
 TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
   // param, title, desc, icon
@@ -454,11 +451,6 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openParentToggle, [this]() {parentToggleOpen=true;});
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubParentToggle, [this]() {subParentToggleOpen=true;});
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubSubParentToggle, [this]() {subSubParentToggleOpen=true;});
-/////////////////////////////////////////////////////
-  // hfoppilotControls *hfoppilotControls = new hfoppilotControls(this);
-  // QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openParentToggle, [this]() {parentToggleOpen=true;});
-  // QObject::connect(hfoppilotControls, &hfoppilotControls::openParentToggle, this, [this]() {parentToggleOpen = true;});
-/////////////////////////////////////////////////////
 
   QList<QPair<QString, QWidget *>> panels = {
     {tr("設備資訊"), device},
@@ -466,9 +458,6 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     {tr("官方設定"), toggles},
     {tr("軟體資訊"), new SoftwarePanel(this)},
     {tr("FrogPilot"), frogpilotSettingsWindow},
-/////////////////////////////////////////////////////
-    // {tr("H F O P"), hfoppilotControls},
-/////////////////////////////////////////////////////
   };
 
   nav_btns = new QButtonGroup(this);

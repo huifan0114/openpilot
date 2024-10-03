@@ -67,7 +67,7 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
     {"DeleteModel", tr("刪除模型"), tr("從您的裝置中刪除選定的駕駛模型."), ""},
     {"DownloadModel", tr("下載模型"), tr("下載未下載的駕駛模型."), ""},
     {"DownloadAllModels", tr("下載所有型號"), tr("下載所有未下載的駕駛模型."), ""},
-    {"SelectModel", tr("選擇型號"), tr("選擇 openpilot 使用哪種型號驅動."), ""},
+    {"SelectModel", tr("選擇模型"), tr("選擇 openpilot 使用哪種模型驅動."), ""},
     {"ResetCalibrations", tr("重置模型校準"), tr("重置駕駛模型的校準設置."), ""},
   };
 

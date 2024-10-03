@@ -3,7 +3,6 @@
 #include <set>
 
 #include "selfdrive/frogpilot/ui/qt/offroad/frogpilot_settings.h"
-// #include "selfdrive/ui/qt/offroad/settings.h"
 
 class FrogPilotHFOPPanel : public FrogPilotListWidget {
   Q_OBJECT
@@ -16,9 +15,9 @@ signals:
 
 private:
   FrogPilotSettingsWindow *parent;
-  void hideToggles();
+
   // void showEvent(QShowEvent *event, const UIState &s);
-  void updateState(const UIState &s);
+
 
   std::set<QString> FuelpriceKeys = {"Fuelcosts"};
   std::set<QString> VagSpeedKeys = {"VagSpeedFactor"};
@@ -31,6 +30,9 @@ private:
 
   Params params;
   Params paramsMemory{"/dev/shm/params"};
-  bool started = false;
-  bool isRelease;
+  bool started;
+
+  void hideToggles();
+  void showToggles(const std::set<QString> &keys);
+  void updateState(const UIState &s);
 };

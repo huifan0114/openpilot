@@ -88,7 +88,7 @@ def manager_init() -> None:
     ("Disablestartstop", "1"),
     # ("Faststart", "0"),
     ("Fuelprice", "1"),
-    ("Fuelcosts", "330"),
+    ("Fuelcosts", "33"),
     ("Fuelcostsweek", "0"),
     ("Fuelconsumptionweek", "0"),
     ("GreenLightReminderstatus", "0"),

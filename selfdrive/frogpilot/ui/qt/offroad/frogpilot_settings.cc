@@ -74,6 +74,7 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
 /////////////////////////////////////////////////////
   FrogPilotHFOPPanel *frogPilotHFOPPanel = new FrogPilotHFOPPanel(this);
   QObject::connect(frogPilotHFOPPanel, &FrogPilotHFOPPanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
+  QObject::connect(frogPilotHFOPPanel, &frogPilotHFOPPanel::openSubParentToggle, this, &FrogPilotSettingsWindow::openSubParentToggle);
 /////////////////////////////////////////////////////
 
   std::vector<std::pair<QString, std::vector<QWidget*>>> panels = {
@@ -112,7 +113,7 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
   };
 
   std::vector<std::vector<QString>> buttonLabels = {
-    {tr("駕駛"), tr("視覺效果")},
+    {tr("個人化駕駛"), tr("介面")},
     {tr("管理")},
     {tr("油門/煞車"), tr("轉向")},
     {tr("管理")},
