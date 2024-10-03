@@ -146,16 +146,16 @@ void FrogPilotHFOPPanel::updateState(const UIState &s) {
   started = s.scene.started;
 }
 
-void FrogPilotHFOPPanel::showToggles(const std::set<QString> &keys) {
-  setUpdatesEnabled(false);
+// void FrogPilotHFOPPanel::showToggles(const std::set<QString> &keys) {
+//   setUpdatesEnabled(false);
 
-  for (auto &[key, toggle] : toggles) {
-    toggle->setVisible(keys.find(key) != keys.end());
-  }
+//   for (auto &[key, toggle] : toggles) {
+//     toggle->setVisible(keys.find(key) != keys.end());
+//   }
 
-  setUpdatesEnabled(true);
-  update();
-}
+//   setUpdatesEnabled(true);
+//   update();
+// }
 
 void FrogPilotHFOPPanel::hideToggles() {
   setUpdatesEnabled(false);
