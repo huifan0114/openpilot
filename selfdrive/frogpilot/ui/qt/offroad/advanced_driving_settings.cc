@@ -2,73 +2,73 @@
 
 FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
   const std::vector<std::tuple<QString, QString, QString, QString>> advancedToggles {
-    {"AdvancedLateralTune", tr("Advanced Lateral Tuning"), tr("Advanced settings that control how openpilot manages steering."), "../frogpilot/assets/toggle_icons/icon_advanced_lateral_tune.png"},
-    {"SteerFriction", steerFrictionStock != 0 ? QString(tr("Friction (Default: %1)")).arg(QString::number(steerFrictionStock, 'f', 2)) : tr("Friction"), tr("The resistance in steering. Higher values provide more stable steering but can make it feel heavy, while lower values allow lighter steering but may feel too sensitive."), ""},
-    {"SteerKP", steerKPStock != 0 ? QString(tr("Kp Factor (Default: %1)")).arg(QString::number(steerKPStock, 'f', 2)) : tr("Kp Factor"), tr("How aggressively the car corrects its steering. Higher values offer quicker corrections but may feel jerky, while lower values make steering smoother but slower to respond."), ""},
-    {"SteerLatAccel", steerLatAccelStock != 0 ? QString(tr("Lateral Accel (Default: %1)")).arg(QString::number(steerLatAccelStock, 'f', 2)) : tr("Lateral Accel"), tr("Adjust how fast the car can steer from side to side. Higher values allow quicker lane changes but can feel unstable, while lower values provide smoother steering but may feel sluggish."), ""},
-    {"SteerRatio", steerRatioStock != 0 ? QString(tr("Steer Ratio (Default: %1)")).arg(QString::number(steerRatioStock, 'f', 2)) : tr("Steer Ratio"), tr("Adjust how much openpilot needs to turn the wheel to steer. Higher values feel like driving a truck, more stable at high speeds, but harder to steer quickly at low speeds, while lower values feel like a go-kart, easier to steer in tight spots but more sensitive and less stable at high speeds."), ""},
+    {"AdvancedLateralTune", tr("進階橫向調整"), tr("控制 openpilot 如何管理轉向的高階設置."), "../frogpilot/assets/toggle_icons/icon_advanced_lateral_tune.png"},
+    {"SteerFriction", steerFrictionStock != 0 ? QString(tr("轉向阻力 (Default: %1)")).arg(QString::number(steerFrictionStock, 'f', 2)) : tr("轉向阻力"), tr("轉向時的阻力。較高的值提供更穩定的轉向，但可能會讓人感覺沉重，而較低的值允許更輕的轉向，但可能感覺太敏感."), ""},
+    {"SteerKP", steerKPStock != 0 ? QString(tr("校正速度 (Default: %1)")).arg(QString::number(steerKPStock, 'f', 2)) : tr("校正速度"), tr("汽車糾正轉向的正面程度。較高的值提供更快的校正，但可能會感覺不穩定，而較低的值使轉向更平穩，但響應較慢."), ""},
+    {"SteerLatAccel", steerLatAccelStock != 0 ? QString(tr("橫向加速 (Default: %1)")).arg(QString::number(steerLatAccelStock, 'f', 2)) : tr("橫向加速"), tr("調整汽車左右轉向的速度。較高的值可以更快地變換車道，但可能會感覺不穩定，而較低的值可以提供更平穩的轉向，但可能會感覺遲緩."), ""},
+    {"SteerRatio", steerRatioStock != 0 ? QString(tr("轉向比 (Default: %1)")).arg(QString::number(steerRatioStock, 'f', 2)) : tr("轉向比"), tr("調整 openpilot 需要轉動方向盤多少度才能轉向。較高的數值感覺像駕駛卡車，高速時較穩定，但低速時較難快速轉向，而較低的數值感覺像卡丁車，較容易在狹窄的地方轉向，但高速時較敏感且穩定性較差."), ""},
     {"TacoTune", tr("comma's 2022 Taco Bell Turn Hack"), tr("Use comma's hack they used to help handle left and right turns more precisely during their 2022 'Taco Bell' drive."), ""},
-    {"ForceAutoTune", tr("Force Auto Tune On"), tr("Forces comma's auto lateral tuning for unsupported vehicles."), ""},
-    {"ForceAutoTuneOff", tr("Force Auto Tune Off"), tr("Forces comma's auto lateral tuning off for supported vehicles."), ""},
-    {"TurnDesires", tr("Force Turn Desires Below Lane Change Speed"), tr("Force the model to use turn desires when driving below the minimum lane change speed to help make left and right turns more precisely."), ""},
+    {"ForceAutoTune", tr("強制自動橫向 On"), tr("強制逗號對不支援的車輛進行自動橫向調整."), ""},
+    {"ForceAutoTuneOff", tr("強制自動橫向 Off"), tr("強制逗號對受支援車輛的自動橫向調整."), ""},
+    {"TurnDesires", tr("轉彎預測"), tr("強制模型在低於最小變換車道速度時使用轉彎期望，以幫助更精確地進行左轉和右轉."), ""},
 
-    {"AdvancedLongitudinalTune", tr("Advanced Longitudinal Tuning"), tr("Advanced settings that control how openpilot manages speed and acceleration."), "../frogpilot/assets/toggle_icons/icon_advanced_longitudinal_tune.png"},
-    {"LeadDetectionThreshold", tr("Lead Detection Confidence"), tr("How sensitive openpilot is to detecting vehicles ahead. A lower value can help detect vehicles sooner and from farther away, but may occasionally mistake other objects for vehicles."), ""},
-    {"MaxDesiredAcceleration", tr("Maximum Acceleration Rate"), tr("Set a cap on how fast openpilot can accelerate to prevent high acceleration at low speeds."), ""},
+    {"AdvancedLongitudinalTune", tr("進階縱向調整"), tr("控制 openpilot 如何管理速度和加速度的高階設置."), "../frogpilot/assets/toggle_icons/icon_advanced_longitudinal_tune.png"},
+    {"LeadDetectionThreshold", tr("前車偵測敏感度"), tr("openpilot 對偵測前方車輛的敏感度如何。較低的值有助於更快、更遠地偵測到車輛，但有時可能會將其他物體誤認為車輛."), ""},
+    {"MaxDesiredAcceleration", tr("最大加速度"), tr("設定 openpilot 加速速度上限，以防止低速時出現高加速度."), ""},
 
-    {"AdvancedQOLDriving", tr("Advanced Quality of Life"), tr("Miscellaneous advanced features to improve your overall openpilot experience."), "../frogpilot/assets/toggle_icons/advanced_quality_of_life.png"},
-    {"ForceStandstill", tr("Force Keep openpilot in the Standstill State"), tr("Keep openpilot in the 'standstill' state until the gas pedal or 'resume' button is pressed."), ""},
-    {"ForceStops", tr("Force Stop for 'Detected' Stop Lights/Signs"), tr("Whenever openpilot 'detects' a potential stop light/stop sign, force a stop where it originally detected it to prevent running the potential red light/stop sign."), ""},
-    {"SetSpeedOffset", tr("Set Speed Offset"), tr("How much higher or lower the set speed should be compared to your current set speed. For example, if you prefer to drive 5 mph above the speed limit, this setting will automatically add that difference when you adjust your set speed."), ""},
+    {"AdvancedQOLDriving", tr("進階設定"), tr("各種高級功能可改善您的整體開放駕駛體驗."), "../frogpilot/assets/toggle_icons/advanced_quality_of_life.png"},
+    {"ForceStandstill", tr("強制保持 openpilot 處於靜止狀態"), tr("將 openpilot 保持在「靜止」狀態，直到按下油門踏板或「恢復」按鈕."), ""},
+    {"ForceStops", tr("「偵測到」停車燈/標誌時強制停車"), tr("每當 openpilot 「偵測到」潛在的停車燈/停車標誌時，請強制在最初偵測到的位置停車，以防止闖入潛在的紅燈/停車標誌."), ""},
+    {"SetSpeedOffset", tr("設定速度偏移"), tr("與目前設定速度相比，設定速度應高或低多少。例如，如果您希望以高於速度限制 5 英里/小時的速度行駛，則當您調整設定速度時，此設定會自動添加該差異."), ""},
 
-    {"CustomPersonalities", tr("Customize Driving Personalities"), tr("Customize the personality profiles to suit your preferences."), "../frogpilot/assets/toggle_icons/icon_advanced_personality.png"},
-    {"TrafficPersonalityProfile", tr("Traffic Personality"), tr("Customize the 'Traffic' personality profile, tailored for navigating through traffic."), "../frogpilot/assets/stock_theme/distance_icons/traffic.png"},
-    {"TrafficFollow", tr("Following Distance"), tr("The minimum following distance in 'Traffic Mode.' openpilot will adjust dynamically between this value and the 'Aggressive' profile distance based on your speed."), ""},
-    {"TrafficJerkAcceleration", tr("Acceleration Sensitivity"), tr("How sensitive openpilot is to changes in acceleration in 'Traffic Mode.' Higher values result in smoother, more gradual acceleration and deceleration, while lower values allow for faster changes that may feel more abrupt."), ""},
-    {"TrafficJerkDeceleration", tr("Deceleration Sensitivity"), tr("Controls how sensitive openpilot is to changes in deceleration in 'Traffic Mode.' Higher values result in smoother, more gradual braking, while lower values allow for quicker, more responsive braking that may feel abrupt."), ""},
-    {"TrafficJerkDanger", tr("Safety Distance Sensitivity"), tr("Adjusts how cautious openpilot is around other vehicles or obstacles in 'Traffic Mode.' Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time."), ""},
-    {"TrafficJerkSpeed", tr("Speed Increase Responsiveness"), tr("Controls how quickly openpilot adjusts speed in 'Traffic Mode.' Higher values ensure smoother, more gradual speed changes, while lower values enable quicker adjustments that might feel sharper or less smooth."), ""},
-    {"TrafficJerkSpeedDecrease", tr("Speed Decrease Responsiveness"), tr("Sets how quickly openpilot adjusts to decreasing speeds in 'Traffic Mode.' Higher values ensure smoother transitions when slowing down, while lower values allow for quicker, more responsive speed reductions that might feel sharper."), ""},
-    {"ResetTrafficPersonality", tr("Reset Settings"), tr("Restore the 'Traffic Mode' settings to their default values."), ""},
+    {"CustomPersonalities", tr("客製化駕駛個性"), tr("自訂個性檔案以滿足您的喜好."), "../frogpilot/assets/toggle_icons/icon_advanced_personality.png"},
+    {"TrafficPersonalityProfile", tr("塞車駕駛"), tr("自訂「塞車」個性檔案，專為塞車導航而定制."), "../frogpilot/assets/stock_theme/distance_icons/traffic.png"},
+    {"TrafficFollow", tr("跟隨距離"), tr("「塞車模式」下的最小跟隨距離。 openpilot 將根據您的速度在此值和「積極」設定檔距離之間動態調整."), ""},
+    {"TrafficJerkAcceleration", tr("加速靈敏度"), tr("openpilot 對「塞車模式」下加速度變化的敏感度如何。較高的值會導致更平滑、更漸進的加速和減速，而較低的值允許更快的變化，可能會感覺更突然."), ""},
+    {"TrafficJerkDeceleration", tr("減速度靈敏度"), tr("控制 openpilot 對「交通模式」中減速度變化的敏感度。較高的值會導致更平穩、更漸進的製動，而較低的值則允許更快、更靈敏的製動，但可能會感覺突然."), ""},
+    {"TrafficJerkDanger", tr("安全距離靈敏度"), tr("調整「塞車模式」下 openpilot 對其他車輛或障礙物的謹慎程度。較高的值會增加跟隨距離並優先考慮安全，從而導致更謹慎的駕駛，而較低的值允許更緊密的跟隨，但可能會減少反應時間."), ""},
+    {"TrafficJerkSpeed", tr("速度提高反應能力"), tr("控制 openpilot 在「塞車模式」下調整速度的速度。較高的值可確保更平滑、更漸進的速度變化，而較低的值可實現更快的調整，但可能會感覺更尖銳或不太平滑."), ""},
+    {"TrafficJerkSpeedDecrease", tr("速度降低反應能力"), tr("設定 openpilot 在「塞車模式」下調整速度降低的速度。較高的值可確保減速時過渡更平滑，而較低的值可實現更快、更靈敏的減速，可能會感覺更銳利."), ""},
+    {"ResetTrafficPersonality", tr("恢復設定"), tr("將“塞車模式”設定恢復為預設值."), ""},
 
-    {"AggressivePersonalityProfile", tr("Aggressive Personality"), tr("Customize the 'Aggressive' personality profile, designed for a more assertive driving style."), "../frogpilot/assets/stock_theme/distance_icons/aggressive.png"},
-    {"AggressiveFollow", tr("Following Distance"), tr("Set the following distance for 'Aggressive' mode. This determines roughly how many seconds you'll follow behind the car ahead.\n\nDefault: 1.25 seconds."), ""},
-    {"AggressiveJerkAcceleration", tr("Acceleration Sensitivity"), tr("Controls how sensitive openpilot is to acceleration changes in 'Aggressive' mode. Higher values make acceleration and deceleration smoother but slower, while lower values allow quicker changes that may feel jerky.\n\nDefault: 0.5."), ""},
-    {"AggressiveJerkDeceleration", tr("Deceleration Sensitivity"), tr("Controls how sensitive openpilot is to deceleration in 'Aggressive' mode. Higher values result in smoother braking, while lower values allow for more immediate braking that may feel abrupt.\n\nDefault: 0.5."), ""},
-    {"AggressiveJerkDanger", tr("Safety Distance Sensitivity"), tr("Adjusts how cautious openpilot is around vehicles or obstacles in 'Aggressive' mode. Higher values make it more cautious, while lower values allow for closer following, increasing the risk of sudden braking.\n\nDefault: 1.0."), ""},
-    {"AggressiveJerkSpeed", tr("Speed Increase Responsiveness"), tr("Controls how quickly openpilot adjusts speed in 'Aggressive' mode. Higher values result in smoother but slower speed changes, while lower values make speed adjustments quicker but potentially more abrupt.\n\nDefault: 0.5."), ""},
-    {"AggressiveJerkSpeedDecrease", tr("Speed Decrease Responsiveness"), tr("Sets how quickly openpilot adjusts to speed reductions in 'Aggressive' mode. Higher values ensure smoother transitions when slowing down, while lower values allow for quicker, more responsive speed decreases that may feel sharp.\n\nDefault: 0.5."), ""},
-    {"ResetAggressivePersonality", tr("Reset Settings"), tr("Restore the 'Aggressive' settings to their default values."), ""},
+    {"AggressivePersonalityProfile", tr("積極駕駛"), tr("客製化「積極」個性檔案，專為更自信的駕駛風格而設計."), "../frogpilot/assets/stock_theme/distance_icons/aggressive.png"},
+    {"AggressiveFollow", tr("跟隨距離"), tr("將跟隨距離設定為“積極” 模式. 這大致決定了您將跟隨前方車輛的秒數.\n\n預設: 1.25 秒數."), ""},
+    {"AggressiveJerkAcceleration", tr("加速靈敏度"), tr("控制 openpilot 對「積極​​」模式下加速度變化的敏感度。較高的值使加速和減速更平滑但較慢，而較低的值允許更快的變化，但可能會感覺不穩定.\n\n預設: 0.5."), ""},
+    {"AggressiveJerkDeceleration", tr("減速度靈敏度"), tr("控制 openpilot 在「積極」模式下對減速的敏感度。較高的值會導致更平穩的製動，而較低的值允許更立即的製動，但可能會感覺突然.\n\n預設: 0.5."), ""},
+    {"AggressiveJerkDanger", tr("安全距離靈敏度"), tr("調整 openpilot 在「積極」模式下對車輛或障礙物的謹慎程度。較高的值使其更加謹慎，而較低的值允許更緊密的跟隨，增加突然煞車的風險.\n\n預設: 1.0."), ""},
+    {"AggressiveJerkSpeed", tr("速度提高反應能力"), tr("控制 openpilot 在「積極」模式下調整速度的速度。較高的值會導致更平滑但較慢的速度變化，而較低的值會使速度調整更快但可能更突然.\n\n預設: 0.5."), ""},
+    {"AggressiveJerkSpeedDecrease", tr("速度降低反應能力"), tr("設定 openpilot 在「積極」模式下調整速度降低的速度。較高的數值可確保減速時過渡更平滑，而較低的數值可實現更快、更靈敏的速度降低（可能會讓人感覺急劇）.\n\n預設: 0.5."), ""},
+    {"ResetAggressivePersonality", tr("重新設定"), tr("將“激進”設定恢復為其預設值."), ""},
 
-    {"StandardPersonalityProfile", tr("Standard Personality"), tr("Customize the 'Standard' personality profile, optimized for balanced driving."), "../frogpilot/assets/stock_theme/distance_icons/standard.png"},
-    {"StandardFollow", tr("Following Distance"), tr("Set the following distance for 'Standard' mode. This determines roughly how many seconds you'll follow behind the car ahead.\n\nDefault: 1.45 seconds."), ""},
-    {"StandardJerkAcceleration", tr("Acceleration Sensitivity"), tr("Controls how sensitive openpilot is to acceleration changes in 'Standard' mode. Higher values make acceleration and deceleration smoother but slower, while lower values allow quicker changes that may feel jerky.\n\nDefault: 1.0."), ""},
-    {"StandardJerkDeceleration", tr("Deceleration Sensitivity"), tr("Controls how sensitive openpilot is to deceleration in 'Standard' mode. Higher values result in smoother braking, while lower values allow for quicker, more immediate braking that may feel abrupt.\n\nDefault: 1.0."), ""},
-    {"StandardJerkDanger", tr("Safety Distance Sensitivity"), tr("Adjusts how cautious openpilot is around vehicles or obstacles in 'Standard' mode. Higher values make it more cautious, while lower values allow for closer following, increasing the risk of sudden braking.\n\nDefault: 1.0."), ""},
-    {"StandardJerkSpeed", tr("Speed Increase Responsiveness"), tr("Controls how quickly openpilot adjusts speed in 'Standard' mode. Higher values result in smoother but slower speed changes, while lower values make speed adjustments quicker but potentially more abrupt.\n\nDefault: 1.0."), ""},
-    {"StandardJerkSpeedDecrease", tr("Speed Decrease Responsiveness"), tr("Sets how quickly openpilot adjusts to speed reductions in 'Standard' mode. Higher values ensure smoother transitions when slowing down, while lower values allow for quicker, more responsive speed decreases that may feel sharp.\n\nDefault: 1.0."), ""},
-    {"ResetStandardPersonality", tr("Reset Settings"), tr("Restore the 'Standard' settings to their default values."), ""},
+    {"StandardPersonalityProfile", tr("標準駕駛"), tr("客製化「標準」個性檔案，針對平衡駕駛進行最佳化."), "../frogpilot/assets/stock_theme/distance_icons/standard.png"},
+    {"StandardFollow", tr("跟隨距離"), tr("設定“標準”模式的跟隨距離。這大致決定了您將跟隨前方車輛的秒數.\n\n預設: 1.45 秒."), ""},
+    {"StandardJerkAcceleration", tr("加速靈敏度"), tr("控制 openpilot 對「標準」模式下加速度變化的敏感度。較高的值使加速和減速更平滑但較慢，而較低的值允許更快的變化，但可能會感覺不穩定.\n\n預設: 1.0."), ""},
+    {"StandardJerkDeceleration", tr("減速度靈敏度"), tr("控制 openpilot 在「標準」模式下對減速的敏感度。較高的值會導致更平穩的製動，而較低的值則允許更快、更立即的製動，但可能會感覺突然.\n\n預設: 1.0."), ""},
+    {"StandardJerkDanger", tr("安全距離靈敏度"), tr("調整「標準」模式下 openpilot 在車輛或障礙物周圍的謹慎程度。較高的值使其更加謹慎，而較低的值允許更緊密的跟隨，增加突然煞車的風險.\n\n預設: 1.0."), ""},
+    {"StandardJerkSpeed", tr("速度提高反應能力"), tr("控制 openpilot 在「標準」模式下調整速度的速度。較高的值會導致更平滑但較慢的速度變化，而較低的值會使速度調整更快但可能更突然.\n\n預設: 1.0."), ""},
+    {"StandardJerkSpeedDecrease", tr("速度降低反應能力"), tr("設定 openpilot 在「標準」模式下調整速度降低的速度。較高的數值可確保減速時過渡更平滑，而較低的數值可實現更快、更靈敏的速度降低（可能會讓人感覺急劇）.\n\n預設: 1.0."), ""},
+    {"ResetStandardPersonality", tr("重新設定"), tr("將“標準”設定恢復為預設值."), ""},
 
-    {"RelaxedPersonalityProfile", tr("Relaxed Personality"), tr("Customize the 'Relaxed' personality profile, ideal for a more laid-back driving style."), "../frogpilot/assets/stock_theme/distance_icons/relaxed.png"},
-    {"RelaxedFollow", tr("Following Distance"), tr("Set the following distance for 'Relaxed' mode. This determines roughly how many seconds you'll follow behind the car ahead.\n\nDefault: 1.75 seconds."), ""},
-    {"RelaxedJerkAcceleration", tr("Acceleration Sensitivity"), tr("Controls how sensitive openpilot is to acceleration changes in 'Relaxed' mode. Higher values make acceleration and deceleration smoother but slower, while lower values allow quicker changes that may feel jerky.\n\nDefault: 1.0."), ""},
-    {"RelaxedJerkDeceleration", tr("Deceleration Sensitivity"), tr("Controls how sensitive openpilot is to deceleration in 'Relaxed' mode. Higher values result in smoother braking, while lower values allow for quicker, more immediate braking that may feel abrupt.\n\nDefault: 1.0."), ""},
-    {"RelaxedJerkDanger", tr("Safety Distance Sensitivity"), tr("Adjusts how cautious openpilot is around vehicles or obstacles in 'Relaxed' mode. Higher values make it more cautious, while lower values allow for closer following, increasing the risk of sudden braking.\n\nDefault: 1.0."), ""},
-    {"RelaxedJerkSpeed", tr("Speed Increase Responsiveness"), tr("Controls how quickly openpilot adjusts speed in 'Relaxed' mode. Higher values result in smoother but slower speed changes, while lower values make speed adjustments quicker but potentially more abrupt.\n\nDefault: 1.0."), ""},
-    {"RelaxedJerkSpeedDecrease", tr("Speed Decrease Responsiveness"), tr("Sets how quickly openpilot adjusts to speed reductions in 'Relaxed' mode. Higher values ensure smoother transitions when slowing down, while lower values allow for quicker, more responsive speed decreases that may feel sharp.\n\nDefault: 1.0."), ""},
-    {"ResetRelaxedPersonality", tr("Reset Settings"), tr("Restore the 'Relaxed' settings to their default values."), ""},
+    {"RelaxedPersonalityProfile", tr("性格駕駛"), tr("客製化「輕鬆」個性檔案，非常適合更悠閒的駕駛風格."), "../frogpilot/assets/stock_theme/distance_icons/relaxed.png"},
+    {"RelaxedFollow", tr("跟隨距離"), tr("設定“放鬆”模式的跟隨距離。這大致決定了您將跟隨前方車輛的秒數.\n\n預設: 1.75 seconds."), ""},
+    {"RelaxedJerkAcceleration", tr("加速靈敏度"), tr("控制 openpilot 對「放鬆」模式下加速度變化的敏感度。較高的值使加速和減速更平滑但較慢，而較低的值允許更快的變化，但可能會感覺不穩定.\n\n預設: 1.0."), ""},
+    {"RelaxedJerkDeceleration", tr("減速度靈敏度"), tr("控制 openpilot 在「放鬆」模式下對減速的敏感度。較高的值會導致更平穩的製動，而較低的值則允許更快、更立即的製動，但可能會感覺突然.\n\n預設: 1.0."), ""},
+    {"RelaxedJerkDanger", tr("安全距離靈敏度"), tr("調整 openpilot 在「放鬆」模式下對車輛或障礙物的謹慎程度。較高的值使其更加謹慎，而較低的值允許更緊密的跟隨，增加突然煞車的風險.\n\n預設: 1.0."), ""},
+    {"RelaxedJerkSpeed", tr("速度提高反應能力"), tr("控制 openpilot 在「放鬆」模式下調整速度的速度。較高的值會導致更平滑但較慢的速度變化，而較低的值會使速度調整更快但可能更突然.\n\n預設: 1.0."), ""},
+    {"RelaxedJerkSpeedDecrease", tr("速度降低反應能力"), tr("設定 openpilot 在「輕鬆」模式下調整速度降低的速度。較高的數值可確保減速時過渡更平滑，而較低的數值可實現更快、更靈敏的速度降低（可能會讓人感覺急劇）.\n\n預設: 1.0."), ""},
+    {"ResetRelaxedPersonality", tr("重新設定"), tr("將“寬鬆”設定恢復為預設值."), ""},
 
-    {"ModelManagement", tr("Model Management"), tr("Manage the driving models used by openpilot."), "../frogpilot/assets/toggle_icons/icon_advanced_model.png"},
-    {"AutomaticallyUpdateModels", tr("Automatically Update and Download Models"), tr("Automatically download new or updated driving models."), ""},
-    {"ModelRandomizer", tr("Model Randomizer"), tr("A random model is selected and can be reviewed at the end of each drive if it's longer than 15 minutes to help find your preferred model."), ""},
-    {"ManageBlacklistedModels", tr("Manage Model Blacklist"), tr("Control which models are blacklisted and won't be used for future drives."), ""},
-    {"ResetScores", tr("Reset Model Scores"), tr("Clear the ratings you've given to the driving models."), ""},
-    {"ReviewScores", tr("Review Model Scores"), tr("View the ratings you've assigned to the driving models."), ""},
-    {"DeleteModel", tr("Delete Model"), tr("Remove the selected driving model from your device."), ""},
-    {"DownloadModel", tr("Download Model"), tr("Download undownloaded driving models."), ""},
-    {"DownloadAllModels", tr("Download All Models"), tr("Download all undownloaded driving models."), ""},
-    {"SelectModel", tr("Select Model"), tr("Select which model openpilot uses to drive."), ""},
-    {"ResetCalibrations", tr("Reset Model Calibrations"), tr("Reset calibration settings for the driving models."), ""},
+    {"ModelManagement", tr("模型管理"), tr("管理 openpilot 所使用的駕駛模型."), "../frogpilot/assets/toggle_icons/icon_advanced_model.png"},
+    {"AutomaticallyUpdateModels", tr("自動更新和下載模型"), tr("自動下載新的或更新的駕駛模型."), ""},
+    {"ModelRandomizer", tr("模型隨機產生器"), tr("隨機選擇一個型號，如果時間超過 15 分鐘，可以在每次駕駛結束時進行查看，以幫助找到您喜歡的型號."), ""},
+    {"ManageBlacklistedModels", tr("管理模型黑名單"), tr("控制哪些型號被列入黑名單並且不會用於未來的驅動器."), ""},
+    {"ResetScores", tr("重置模型分數"), tr("清除您對駕駛車型的評分."), ""},
+    {"ReviewScores", tr("查看模型分數"), tr("查看您為駕駛模型分配的評分."), ""},
+    {"DeleteModel", tr("刪除模型"), tr("從您的裝置中刪除選定的駕駛模型."), ""},
+    {"DownloadModel", tr("下載模型"), tr("下載未下載的駕駛模型."), ""},
+    {"DownloadAllModels", tr("下載所有型號"), tr("下載所有未下載的駕駛模型."), ""},
+    {"SelectModel", tr("選擇模型"), tr("選擇 openpilot 使用哪種模型驅動."), ""},
+    {"ResetCalibrations", tr("重置模型校準"), tr("重置駕駛模型的校準設置."), ""},
   };
 
   for (const auto &[param, title, desc, icon] : advancedToggles) {
@@ -143,7 +143,7 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
       });
       advancedDrivingToggle = advancedQOLToggle;
     } else if (param == "SetSpeedOffset") {
-      advancedDrivingToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr("mph"));
+      advancedDrivingToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr("英里/小時"));
 
     } else if (param == "CustomPersonalities") {
       FrogPilotParamManageControl *customPersonalitiesToggle = new FrogPilotParamManageControl(param, title, desc, icon);
@@ -152,7 +152,7 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
       });
       advancedDrivingToggle = customPersonalitiesToggle;
     } else if (param == "ResetTrafficPersonality" || param == "ResetAggressivePersonality" || param == "ResetStandardPersonality" || param == "ResetRelaxedPersonality") {
-      FrogPilotButtonsControl *profileBtn = new FrogPilotButtonsControl(title, desc, {tr("Reset")});
+      FrogPilotButtonsControl *profileBtn = new FrogPilotButtonsControl(title, desc, {tr("重設")});
       advancedDrivingToggle = profileBtn;
     } else if (param == "TrafficPersonalityProfile") {
       FrogPilotParamManageControl *trafficPersonalityToggle = new FrogPilotParamManageControl(param, title, desc, icon);
@@ -192,9 +192,9 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
                relaxedPersonalityKeys.find(param) != relaxedPersonalityKeys.end()) {
       if (param == "TrafficFollow" || param == "AggressiveFollow" || param == "StandardFollow" || param == "RelaxedFollow") {
         if (param == "TrafficFollow") {
-          advancedDrivingToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.5, 5, tr(" seconds"), std::map<int, QString>(), 0.01);
+          advancedDrivingToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.5, 5, tr(" 秒"), std::map<int, QString>(), 0.01);
         } else {
-          advancedDrivingToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 5, tr(" seconds"), std::map<int, QString>(), 0.01);
+          advancedDrivingToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 5, tr(" 秒"), std::map<int, QString>(), 0.01);
         }
       } else {
         advancedDrivingToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 500, "%");
@@ -226,7 +226,7 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
       });
       advancedDrivingToggle = modelRandomizerToggle;
     } else if (param == "ManageBlacklistedModels") {
-      FrogPilotButtonsControl *blacklistBtn = new FrogPilotButtonsControl(title, desc, {tr("ADD"), tr("REMOVE")});
+      FrogPilotButtonsControl *blacklistBtn = new FrogPilotButtonsControl(title, desc, {tr("增加"), tr("移除")});
       QObject::connect(blacklistBtn, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
         QStringList blacklistedModels = QString::fromStdString(params.get("BlacklistedModels")).split(",", QString::SkipEmptyParts);
         QMap<QString, QString> labelToModelMap;
@@ -244,11 +244,11 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
 
         if (id == 0) {
           if (selectableModels.size() == 1) {
-            FrogPilotConfirmationDialog::toggleAlert(tr("There's no more models to blacklist! The only available model is \"%1\"!").arg(selectableModels.first()), tr("OK"), this);
+            FrogPilotConfirmationDialog::toggleAlert(tr("沒有更多型號可列入黑名單！唯一可用的型號是 \"%1\"!").arg(selectableModels.first()), tr("確認"), this);
           } else {
-            QString selectedModel = MultiOptionDialog::getSelection(tr("Select a model to add to the blacklist"), selectableModels, "", this);
+            QString selectedModel = MultiOptionDialog::getSelection(tr("選擇要加入黑名單的型號"), selectableModels, "", this);
             if (!selectedModel.isEmpty()) {
-              if (ConfirmationDialog::confirm(tr("Are you sure you want to add the '%1' model to the blacklist?").arg(selectedModel), tr("Add"), this)) {
+              if (ConfirmationDialog::confirm(tr("您確定要新增 '%1' 型號加入黑名單?").arg(selectedModel), tr("添加"), this)) {
                 QString modelToAdd = labelToModelMap[selectedModel];
                 if (!blacklistedModels.contains(modelToAdd)) {
                   blacklistedModels.append(modelToAdd);
@@ -258,9 +258,9 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
             }
           }
         } else if (id == 1) {
-          QString selectedModel = MultiOptionDialog::getSelection(tr("Select a model to remove from the blacklist"), deletableModels, "", this);
+          QString selectedModel = MultiOptionDialog::getSelection(tr("選擇要從黑名單中刪除的型號"), deletableModels, "", this);
           if (!selectedModel.isEmpty()) {
-            if (ConfirmationDialog::confirm(tr("Are you sure you want to remove the '%1' model from the blacklist?").arg(selectedModel), tr("Remove"), this)) {
+            if (ConfirmationDialog::confirm(tr("您確定要刪除 '%1' 黑名單中的型號?").arg(selectedModel), tr("消除"), this)) {
               QString modelToRemove = labelToModelMap[selectedModel];
               if (blacklistedModels.contains(modelToRemove)) {
                 blacklistedModels.removeAll(modelToRemove);
@@ -273,9 +273,9 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
       });
       advancedDrivingToggle = blacklistBtn;
     } else if (param == "ResetScores") {
-      ButtonControl *resetCalibrationsBtn = new ButtonControl(title, tr("RESET"), desc);
+      ButtonControl *resetCalibrationsBtn = new ButtonControl(title, tr("重置"), desc);
       QObject::connect(resetCalibrationsBtn, &ButtonControl::clicked, [this]() {
-        if (FrogPilotConfirmationDialog::yesorno(tr("Reset all model scores?"), this)) {
+        if (FrogPilotConfirmationDialog::yesorno(tr("重置所有模型分數?"), this)) {
           for (const QString &model : availableModelNames) {
             QString cleanedModel = processModelName(model);
             params.remove(QString("%1Drives").arg(cleanedModel).toStdString());
@@ -288,7 +288,7 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
       });
       advancedDrivingToggle = reinterpret_cast<AbstractControl*>(resetCalibrationsBtn);
     } else if (param == "ReviewScores") {
-      ButtonControl *reviewScoresBtn = new ButtonControl(title, tr("VIEW"), desc);
+      ButtonControl *reviewScoresBtn = new ButtonControl(title, tr("查看"), desc);
       QObject::connect(reviewScoresBtn, &ButtonControl::clicked, [this]() {
         openSubSubParentToggle();
 
@@ -302,7 +302,7 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
       });
       advancedDrivingToggle = reinterpret_cast<AbstractControl*>(reviewScoresBtn);
     } else if (param == "DeleteModel") {
-      deleteModelBtn = new ButtonControl(title, tr("DELETE"), desc);
+      deleteModelBtn = new ButtonControl(title, tr("刪除"), desc);
       QObject::connect(deleteModelBtn, &ButtonControl::clicked, [this]() {
         QStringList deletableModels, existingModels = modelDir.entryList({"*.thneed"}, QDir::Files);
         QMap<QString, QString> labelToFileMap;
@@ -316,19 +316,19 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
           }
         }
 
-        QString selectedModel = MultiOptionDialog::getSelection(tr("Select a model to delete"), deletableModels, "", this);
+        QString selectedModel = MultiOptionDialog::getSelection(tr("選擇要刪除的模型"), deletableModels, "", this);
         if (!selectedModel.isEmpty()) {
-          if (ConfirmationDialog::confirm(tr("Are you sure you want to delete the '%1' model?").arg(selectedModel), tr("Delete"), this)) {
+          if (ConfirmationDialog::confirm(tr("您確定要刪除 '%1' 模型?").arg(selectedModel), tr("刪除"), this)) {
             std::thread([=]() {
               modelDeleting = true;
               modelsDownloaded = false;
               update();
 
               params.putBoolNonBlocking("ModelsDownloaded", false);
-              deleteModelBtn->setValue(tr("Deleting..."));
+              deleteModelBtn->setValue(tr("正在刪除..."));
 
               QFile::remove(modelDir.absoluteFilePath(labelToFileMap[selectedModel]));
-              deleteModelBtn->setValue(tr("Deleted!"));
+              deleteModelBtn->setValue(tr("已刪除!"));
 
               util::sleep_for(1000);
               deleteModelBtn->setValue("");
@@ -345,9 +345,9 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
       });
       advancedDrivingToggle = reinterpret_cast<AbstractControl*>(deleteModelBtn);
     } else if (param == "DownloadModel") {
-      downloadModelBtn = new ButtonControl(title, tr("DOWNLOAD"), desc);
+      downloadModelBtn = new ButtonControl(title, tr("下載"), desc);
       QObject::connect(downloadModelBtn, &ButtonControl::clicked, [this]() {
-        if (downloadModelBtn->text() == tr("CANCEL")) {
+        if (downloadModelBtn->text() == tr("取消")) {
           paramsMemory.remove("ModelToDownload");
           paramsMemory.putBool("CancelModelDownload", true);
           cancellingDownload = true;
@@ -366,7 +366,7 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
             }
           }
 
-          QString modelToDownload = MultiOptionDialog::getSelection(tr("Select a driving model to download"), downloadableModels, "", this);
+          QString modelToDownload = MultiOptionDialog::getSelection(tr("選擇要下載的駕駛模型"), downloadableModels, "", this);
           if (!modelToDownload.isEmpty()) {
             device()->resetInteractiveTimeout(300);
 
@@ -374,7 +374,7 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
             paramsMemory.put("ModelToDownload", labelToModelMap.value(modelToDownload).toStdString());
             paramsMemory.put("ModelDownloadProgress", "0%");
 
-            downloadModelBtn->setValue(tr("Downloading %1...").arg(modelToDownload.remove(QRegularExpression("[🗺️👀📡]")).trimmed()));
+            downloadModelBtn->setValue(tr("正在下載 %1...").arg(modelToDownload.remove(QRegularExpression("[🗺️👀📡]")).trimmed()));
 
             QTimer *progressTimer = new QTimer(this);
             progressTimer->setInterval(100);
@@ -436,9 +436,9 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
       });
       advancedDrivingToggle = reinterpret_cast<AbstractControl*>(downloadModelBtn);
     } else if (param == "DownloadAllModels") {
-      downloadAllModelsBtn = new ButtonControl(title, tr("DOWNLOAD"), desc);
+      downloadAllModelsBtn = new ButtonControl(title, tr("下載"), desc);
       QObject::connect(downloadAllModelsBtn, &ButtonControl::clicked, [this]() {
-        if (downloadAllModelsBtn->text() == tr("CANCEL")) {
+        if (downloadAllModelsBtn->text() == tr("取消")) {
           paramsMemory.remove("DownloadAllModels");
           paramsMemory.putBool("CancelModelDownload", true);
           cancellingDownload = true;
@@ -452,7 +452,7 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
       });
       advancedDrivingToggle = reinterpret_cast<AbstractControl*>(downloadAllModelsBtn);
     } else if (param == "SelectModel") {
-      selectModelBtn = new ButtonControl(title, tr("SELECT"), desc);
+      selectModelBtn = new ButtonControl(title, tr("選擇"), desc);
       QObject::connect(selectModelBtn, &ButtonControl::clicked, [this]() {
         QSet<QString> modelFilesBaseNames = QSet<QString>::fromList(modelDir.entryList({"*.thneed"}, QDir::Files).replaceInStrings(QRegExp("\\.thneed$"), ""));
         QStringList selectableModels;
@@ -463,7 +463,7 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
           }
         }
 
-        QString modelToSelect = MultiOptionDialog::getSelection(tr("Select a model - 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC"), selectableModels, "", this);
+        QString modelToSelect = MultiOptionDialog::getSelection(tr("選擇型號 - 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC"), selectableModels, "", this);
         if (!modelToSelect.isEmpty()) {
           selectModelBtn->setValue(modelToSelect);
           int modelIndex = availableModelNames.indexOf(modelToSelect);
@@ -472,21 +472,21 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
           params.putNonBlocking("ModelName", modelToSelect.toStdString());
 
           if (experimentalModels.contains(availableModels.at(modelIndex))) {
-            FrogPilotConfirmationDialog::toggleAlert(tr("WARNING: This is a very experimental model and may drive dangerously!"), tr("I understand the risks."), this);
+            FrogPilotConfirmationDialog::toggleAlert(tr("警告：這是一個非常實驗性的模型，可能會導致危險駕駛!"), tr("我了解風險."), this);
           }
 
           QString model = availableModelNames.at(modelIndex);
           QString part_model_param = processModelName(model);
 
           if (!params.checkKey(part_model_param.toStdString() + "CalibrationParams") || !params.checkKey(part_model_param.toStdString() + "LiveTorqueParameters")) {
-            if (FrogPilotConfirmationDialog::yesorno(tr("Start with a fresh calibration for the newly selected model?"), this)) {
+            if (FrogPilotConfirmationDialog::yesorno(tr("對新選擇的模型進行全新校準?"), this)) {
               params.remove("CalibrationParams");
               params.remove("LiveTorqueParameters");
             }
           }
 
           if (started) {
-            if (FrogPilotConfirmationDialog::toggle(tr("Reboot required to take effect."), tr("Reboot Now"), this)) {
+            if (FrogPilotConfirmationDialog::toggle(tr("需要重新啟動才能生效."), tr("馬上重啟"), this)) {
               Hardware::reboot();
             }
           }
@@ -495,11 +495,11 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
       selectModelBtn->setValue(QString::fromStdString(params.get("ModelName")));
       advancedDrivingToggle = reinterpret_cast<AbstractControl*>(selectModelBtn);
     } else if (param == "ResetCalibrations") {
-      FrogPilotButtonsControl *resetCalibrationsBtn = new FrogPilotButtonsControl(title, desc, {tr("RESET ALL"), tr("RESET ONE")});
+      FrogPilotButtonsControl *resetCalibrationsBtn = new FrogPilotButtonsControl(title, desc, {tr("全部重置"), tr("重置選擇")});
       QObject::connect(resetCalibrationsBtn, &FrogPilotButtonsControl::showDescriptionEvent, this, &FrogPilotAdvancedDrivingPanel::updateCalibrationDescription);
       QObject::connect(resetCalibrationsBtn, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
         if (id == 0) {
-          if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset all of your model calibrations?"), this)) {
+          if (FrogPilotConfirmationDialog::yesorno(tr("您確定要完全重設所有模型校準嗎?"), this)) {
             for (const QString &model : availableModelNames) {
               QString cleanedModel = processModelName(model);
               params.remove(QString("%1CalibrationParams").arg(cleanedModel).toStdString());
@@ -514,9 +514,9 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
             selectableModelLabels.append(availableModelNames[i]);
           }
 
-          QString modelToReset = MultiOptionDialog::getSelection(tr("Select a model to reset"), selectableModelLabels, "", this);
+          QString modelToReset = MultiOptionDialog::getSelection(tr("選擇要重置的型號"), selectableModelLabels, "", this);
           if (!modelToReset.isEmpty()) {
-            if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset this model's calibrations?"), this)) {
+            if (FrogPilotConfirmationDialog::yesorno(tr("您確定要完全重設該模型的校準嗎?"), this)) {
               QString cleanedModel = processModelName(modelToReset);
               params.remove(QString("%1CalibrationParams").arg(cleanedModel).toStdString());
               paramsStorage.remove(QString("%1CalibrationParams").arg(cleanedModel).toStdString());
@@ -553,7 +553,7 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
   QObject::connect(static_cast<ToggleControl*>(toggles["ModelRandomizer"]), &ToggleControl::toggleFlipped, [this](bool state) {
     modelRandomizer = state;
     if (state && !modelsDownloaded) {
-      if (FrogPilotConfirmationDialog::yesorno(tr("The 'Model Randomizer' only works with downloaded models. Do you want to download all the driving models?"), this)) {
+      if (FrogPilotConfirmationDialog::yesorno(tr("「模型隨機產生器」僅適用於下載的模型。您想下載所有駕駛模型嗎?"), this)) {
         startDownloadAllModels();
       }
     }
@@ -595,7 +595,7 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
   FrogPilotParamValueControl *trafficSpeedDecreaseToggle = static_cast<FrogPilotParamValueControl*>(toggles["TrafficJerkSpeedDecrease"]);
   FrogPilotButtonsControl *trafficResetButton = static_cast<FrogPilotButtonsControl*>(toggles["ResetTrafficPersonality"]);
   QObject::connect(trafficResetButton, &FrogPilotButtonsControl::buttonClicked, this, [=]() {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your settings for the 'Traffic Mode' personality?"), this)) {
+    if (FrogPilotConfirmationDialog::yesorno(tr("您確定要完全重置「塞車模式」個性設定嗎?"), this)) {
       params.putFloat("TrafficFollow", 0.5);
       params.putFloat("TrafficJerkAcceleration", 50);
       params.putFloat("TrafficJerkDeceleration", 50);
@@ -620,7 +620,7 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
   FrogPilotParamValueControl *aggressiveSpeedDecreaseToggle = static_cast<FrogPilotParamValueControl*>(toggles["AggressiveJerkSpeedDecrease"]);
   FrogPilotButtonsControl *aggressiveResetButton = static_cast<FrogPilotButtonsControl*>(toggles["ResetAggressivePersonality"]);
   QObject::connect(aggressiveResetButton, &FrogPilotButtonsControl::buttonClicked, this, [=]() {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your settings for the 'Aggressive' personality?"), this)) {
+    if (FrogPilotConfirmationDialog::yesorno(tr("您確定要完全重置「積極駕駛」個性的設定嗎?"), this)) {
       params.putFloat("AggressiveFollow", 1.25);
       params.putFloat("AggressiveJerkAcceleration", 50);
       params.putFloat("AggressiveJerkDeceleration", 50);
@@ -645,7 +645,7 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
   FrogPilotParamValueControl *standardSpeedDecreaseToggle = static_cast<FrogPilotParamValueControl*>(toggles["StandardJerkSpeedDecrease"]);
   FrogPilotButtonsControl *standardResetButton = static_cast<FrogPilotButtonsControl*>(toggles["ResetStandardPersonality"]);
   QObject::connect(standardResetButton, &FrogPilotButtonsControl::buttonClicked, this, [=]() {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your settings for the 'Standard' personality?"), this)) {
+    if (FrogPilotConfirmationDialog::yesorno(tr("您確定要完全重置“標準”個性設定嗎?"), this)) {
       params.putFloat("StandardFollow", 1.45);
       params.putFloat("StandardJerkAcceleration", 100);
       params.putFloat("StandardJerkDeceleration", 100);
@@ -670,7 +670,7 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
   FrogPilotParamValueControl *relaxedSpeedDecreaseToggle = static_cast<FrogPilotParamValueControl*>(toggles["RelaxedJerkSpeedDecrease"]);
   FrogPilotButtonsControl *relaxedResetButton = static_cast<FrogPilotButtonsControl*>(toggles["ResetRelaxedPersonality"]);
   QObject::connect(relaxedResetButton, &FrogPilotButtonsControl::buttonClicked, this, [=]() {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your settings for the 'Relaxed' personality?"), this)) {
+    if (FrogPilotConfirmationDialog::yesorno(tr("您確定要完全重置「輕鬆」個性的設定嗎?"), this)) {
       params.putFloat("RelaxedFollow", 1.75);
       params.putFloat("RelaxedJerkAcceleration", 100);
       params.putFloat("RelaxedJerkDeceleration", 100);
@@ -712,9 +712,9 @@ void FrogPilotAdvancedDrivingPanel::updateMetric() {
   FrogPilotParamValueControl *setSpeedOffsetToggle = static_cast<FrogPilotParamValueControl*>(toggles["SetSpeedOffset"]);
 
   if (isMetric) {
-    setSpeedOffsetToggle->updateControl(0, 150, tr("kph"));
+    setSpeedOffsetToggle->updateControl(0, 150, tr("公里/小時"));
   } else {
-    setSpeedOffsetToggle->updateControl(0, 99, tr("mph"));
+    setSpeedOffsetToggle->updateControl(0, 99, tr("英里/小時"));
   }
 }
 
@@ -738,9 +738,9 @@ void FrogPilotAdvancedDrivingPanel::updateCarToggles() {
   steerFrictionToggle->setTitle(QString(tr("Friction (Default: %1)")).arg(QString::number(steerFrictionStock, 'f', 2)));
   steerKPToggle->setTitle(QString(tr("Kp Factor (Default: %1)")).arg(QString::number(steerKPStock, 'f', 2)));
   steerKPToggle->updateControl(steerKPStock * 0.50, steerKPStock * 1.50);
-  steerLatAccelToggle->setTitle(QString(tr("Lateral Accel (Default: %1)")).arg(QString::number(steerLatAccelStock, 'f', 2)));
+  steerLatAccelToggle->setTitle(QString(tr("橫向加速 (Default: %1)")).arg(QString::number(steerLatAccelStock, 'f', 2)));
   steerLatAccelToggle->updateControl(steerLatAccelStock * 0.75, steerLatAccelStock * 1.25);
-  steerRatioToggle->setTitle(QString(tr("Steer Ratio (Default: %1)")).arg(QString::number(steerRatioStock, 'f', 2)));
+  steerRatioToggle->setTitle(QString(tr("轉向比 (Default: %1)")).arg(QString::number(steerRatioStock, 'f', 2)));
   steerRatioToggle->updateControl(steerRatioStock * 0.75, steerRatioStock * 1.25);
 
   hideToggles();
@@ -750,8 +750,8 @@ void FrogPilotAdvancedDrivingPanel::updateState(const UIState &s) {
   if (!isVisible()) return;
 
   if (modelManagementOpen) {
-    downloadAllModelsBtn->setText(modelDownloading && allModelsDownloading ? tr("CANCEL") : tr("DOWNLOAD"));
-    downloadModelBtn->setText(modelDownloading && !allModelsDownloading ? tr("CANCEL") : tr("DOWNLOAD"));
+    downloadAllModelsBtn->setText(modelDownloading && allModelsDownloading ? tr("取消") : tr("下載"));
+    downloadModelBtn->setText(modelDownloading && !allModelsDownloading ? tr("取消") : tr("下載"));
 
     deleteModelBtn->setEnabled(!modelDeleting && !modelDownloading);
     downloadAllModelsBtn->setEnabled(s.scene.online && !cancellingDownload && !modelDeleting && (!modelDownloading || allModelsDownloading) && !modelsDownloaded);
@@ -768,7 +768,7 @@ void FrogPilotAdvancedDrivingPanel::startDownloadAllModels() {
 
   paramsMemory.putBool("DownloadAllModels", true);
 
-  downloadAllModelsBtn->setValue(tr("Downloading models..."));
+  downloadAllModelsBtn->setValue(tr("下載模型..."));
 
   QTimer *progressTimer = new QTimer(this);
   progressTimer->setInterval(100);
@@ -816,8 +816,8 @@ void FrogPilotAdvancedDrivingPanel::updateCalibrationDescription() {
   QString part_model_param = processModelName(model);
 
   QString desc =
-      tr("openpilot requires the device to be mounted within 4° left or right and "
-         "within 5° up or 9° down. openpilot is continuously calibrating, resetting is rarely required.");
+      tr("openpilot 要求設備安裝在左側或右側 4° 以內，並且“「向上 5° 或向下 9° 以內."
+          "openpilot 持續校準，很少需要重置.");
   std::string calib_bytes = params.get(part_model_param.toStdString() + "CalibrationParams");
   if (!calib_bytes.empty()) {
     try {
@@ -827,9 +827,9 @@ void FrogPilotAdvancedDrivingPanel::updateCalibrationDescription() {
       if (calib.getCalStatus() != cereal::LiveCalibrationData::Status::UNCALIBRATED) {
         double pitch = calib.getRpyCalib()[1] * (180 / M_PI);
         double yaw = calib.getRpyCalib()[2] * (180 / M_PI);
-        desc += tr(" Your device is pointed %1° %2 and %3° %4.")
-                    .arg(QString::number(std::abs(pitch), 'g', 1), pitch > 0 ? tr("down") : tr("up"),
-                         QString::number(std::abs(yaw), 'g', 1), yaw > 0 ? tr("left") : tr("right"));
+        desc += tr(" 您的裝置已指向 %1° %2 和 %3° %4.")
+                    .arg(QString::number(std::abs(pitch), 'g', 1), pitch > 0 ? tr("下") : tr("上"),
+                         QString::number(std::abs(yaw), 'g', 1), yaw > 0 ? tr("左") : tr("右"));
       }
     } catch (kj::Exception) {
       qInfo() << "invalid CalibrationParams";

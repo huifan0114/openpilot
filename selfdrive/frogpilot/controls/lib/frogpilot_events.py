@@ -56,9 +56,18 @@ class FrogPilotEvents:
     if self.frogpilot_planner.frogpilot_vcruise.forcing_stop:
       self.events.add(EventName.forcingStop)
 
+##################################################################
+    autoacc_caraway = self.params.get_bool("AutoACCCarAway")
+    autoacc_greenlight = self.params.get_bool("AutoACCGreenLight")
+##################################################################
+
     if frogpilot_toggles.green_light_alert and not self.frogpilot_planner.tracking_lead and carState.standstill:
       if not self.frogpilot_planner.model_stopped and self.stopped_for_light:
         self.events.add(EventName.greenLight)
+##################################################################
+        if autoacc_greenlight:
+          self.params_memory.put_int("AutoACCGreenLightstatus", 1)
+##################################################################
       self.stopped_for_light = self.frogpilot_planner.cem.stop_light_detected
     else:
       self.stopped_for_light = False
@@ -69,6 +78,10 @@ class FrogPilotEvents:
 
     if self.frogpilot_planner.lead_departing:
       self.events.add(EventName.leadDeparting)
+##################################################################
+      if autoacc_caraway:
+        self.params_memory.put_int("AutoACCCarAwaystatus", 1)
+##################################################################
 
     if not self.openpilot_crashed_played and os.path.isfile(os.path.join(sentry.CRASHES_DIR, 'error.txt')):
       if frogpilot_toggles.random_events:

@@ -128,6 +128,7 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   QRect rightRect(size.width() / 2, 0, size.width() / 2, size.height());
 
   QRect hideSpeedRect(rect().center().x() - 175, 50, 350, 350);
+  QRect maxSpeedRect(7, 25, 225, 225);
   QRect speedLimitRect(7, 250, 225, 225);
 
   if (scene.speed_limit_changed && (leftRect.contains(pos) || rightRect.contains(pos))) {
@@ -137,15 +138,49 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
     return;
   }
 
-  if (hideSpeedRect.contains(pos) && scene.hide_speed_ui) {
-    scene.hide_speed = !scene.hide_speed;
-    params.putBoolNonBlocking("HideSpeed", scene.hide_speed);
+  if (maxSpeedRect.contains(pos) ) {
+    // scene.reverse_cruise = !scene.reverse_cruise;
+    // params.putBoolNonBlocking("ReverseCruise", scene.reverse_cruise);
+/////////////////////////////////////////////////////////////////////////////////
+    bool autoaccProfile = !params.getBool("AutoACC");
+    params.putBoolNonBlocking("AutoACC", autoaccProfile);
+/////////////////////////////////////////////////////////////////////////////////
+    updateFrogPilotToggles();
     return;
   }
 
-  if (speedLimitRect.contains(pos) && scene.show_slc_offset_ui) {
+  if (hideSpeedRect.contains(pos)) {
+    scene.hide_speed = !scene.hide_speed;
+    params.putBoolNonBlocking("HideSpeed", scene.hide_speed);
+/////////////////////////////////////////////////////////////////////////////////
+    int ScreenBrightnessOnroadpre = params.getInt("ScreenBrightnessOnroadpre");
+    if (ScreenBrightnessOnroadpre== 0) {
+      params.putInt("ScreenBrightnessOnroadpre", params.getInt("ScreenBrightnessOnroad"));
+      params.putInt("ScreenBrightnessOnroad", 0);
+    }else{
+      params.putInt("ScreenBrightnessOnroad", ScreenBrightnessOnroadpre);
+      params.putInt("ScreenBrightnessOnroadpre", 0);
+    }
+    updateFrogPilotToggles();
+/////////////////////////////////////////////////////////////////////////////////
+    return;
+  }
+
+  if (speedLimitRect.contains(pos)) {
     scene.show_slc_offset = !scene.show_slc_offset;
     params.putBoolNonBlocking("ShowSLCOffset", scene.show_slc_offset);
+/////////////////////////////////////////////////////////////////////////////////
+    bool Traffic_Mode = !params.getBool("TrafficMode");
+    params.putBoolNonBlocking("TrafficMode", Traffic_Mode);
+    // paramsMemory.putBoolNonBlocking("TrafficModeActive", false);
+
+    // if(Traffic_Mode == 1){
+    //   params.putBoolNonBlocking("speedreminderreset", false);
+    // } else{
+    //   params.putBoolNonBlocking("speedreminderreset", true);
+    // }
+    // updateFrogPilotToggles();
+/////////////////////////////////////////////////////////////////////////////////
     return;
   }
 

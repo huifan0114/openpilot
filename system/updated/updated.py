@@ -377,7 +377,7 @@ class Updater:
   def fetch_update(self) -> None:
     cloudlog.info("attempting git fetch inside staging overlay")
 
-    self.params.put("UpdaterState", "downloading...")
+    self.params.put("UpdaterState", "正在下載...")
 
     # TODO: cleanly interrupt this and invalidate old update
     set_consistent_flag(False)
@@ -406,7 +406,7 @@ class Updater:
       handle_agnos_update()
 
     # Create the finalized, ready-to-swap update
-    self.params.put("UpdaterState", "finalizing update...")
+    self.params.put("UpdaterState", "完成更新...")
     finalize_update()
     cloudlog.info("finalize success!")
 
@@ -479,7 +479,7 @@ def main() -> None:
         update_failed_count += 1
 
         # check for update
-        params.put("UpdaterState", "checking...")
+        params.put("UpdaterState", "確認中...")
         updater.check_for_update()
         params_memory.put_bool("ManualUpdateInitiated", False)
 

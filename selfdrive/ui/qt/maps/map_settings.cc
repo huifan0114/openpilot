@@ -58,11 +58,11 @@ MapSettings::MapSettings(bool closeable, QWidget *parent) : QFrame(parent) {
     heading->setContentsMargins(0, 0, 0, 0);
     heading->setSpacing(16);
     {
-      auto *title = new QLabel(tr("NAVIGATION"), this);
+      auto *title = new QLabel(tr("導航"), this);
       title->setStyleSheet("color: #FFFFFF; font-size: 54px; font-weight: 600;");
       heading->addWidget(title);
 
-      subtitle = new QLabel(tr("Manage at connect.comma.ai"), this);
+      subtitle = new QLabel(tr("在 connect.comma.ai 進行管理"), this);
       subtitle->setStyleSheet("color: #A0A0A0; font-size: 40px; font-weight: 300;");
       heading->addWidget(subtitle);
     }
@@ -230,11 +230,11 @@ void DestinationWidget::set(const QJsonObject &destination, bool current) {
     if (destination["label"] == NAV_FAVORITE_LABEL_HOME) {
       icon_pixmap = icons().home;
       subtitle_text = title_text + ", " + subtitle_text;
-      title_text = tr("Home");
+      title_text = tr("回家");
     } else if (destination["label"] == NAV_FAVORITE_LABEL_WORK) {
       icon_pixmap = icons().work;
       subtitle_text = title_text + ", " + subtitle_text;
-      title_text = tr("Work");
+      title_text = tr("上班");
     } else {
       icon_pixmap = icons().favorite;
     }
@@ -261,11 +261,11 @@ void DestinationWidget::unset(const QString &label, bool current) {
 
   if (label.isEmpty()) {
     icon->setPixmap(icons().directions);
-    title->setText(tr("No destination set"));
+    title->setText(tr("未設定目的地"));
   } else {
-    QString title_text = label == NAV_FAVORITE_LABEL_HOME ? tr("home") : tr("work");
+    QString title_text = label == NAV_FAVORITE_LABEL_HOME ? tr("回家") : tr("上班");
     icon->setPixmap(label == NAV_FAVORITE_LABEL_HOME ? icons().home : icons().work);
-    title->setText(tr("No %1 location set").arg(title_text));
+    title->setText(tr("尚未設定 %1 的位置").arg(title_text));
   }
 
   subtitle->setVisible(false);

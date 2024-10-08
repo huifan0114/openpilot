@@ -54,7 +54,7 @@ WifiManager::WifiManager(QObject *parent) : QObject(parent) {
   qDBusRegisterMetaType<IpConfig>();
 
   // Set tethering ssid as "weedle" + first 4 characters of a dongle id
-  tethering_ssid = "weedle";
+  tethering_ssid = "C3";
   if (auto dongle_id = getDongleId()) {
     tethering_ssid += "-" + dongle_id->left(4);
   }

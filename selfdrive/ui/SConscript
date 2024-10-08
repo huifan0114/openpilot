@@ -30,7 +30,10 @@ ui_sources = ["../frogpilot/navigation/ui/maps_settings.cc", "../frogpilot/navig
               "../frogpilot/ui/qt/offroad/frogpilot_settings.cc", "../frogpilot/ui/qt/offroad/longitudinal_settings.cc",
               "../frogpilot/ui/qt/offroad/lateral_settings.cc", "../frogpilot/ui/qt/offroad/sounds_settings.cc",
               "../frogpilot/ui/qt/offroad/theme_settings.cc", "../frogpilot/ui/qt/offroad/utilities.cc",
-              "../frogpilot/ui/qt/offroad/vehicle_settings.cc", "../frogpilot/ui/qt/offroad/visual_settings.cc"]
+              "../frogpilot/ui/qt/offroad/vehicle_settings.cc", "../frogpilot/ui/qt/offroad/visual_settings.cc",
+###########################
+              "../frogpilot/ui/qt/offroad/hfop_settings.cc"]
+###########################
 
 ui_lib = ui_env.Library("ui_lib", ui_sources, LIBS=base_libs)
 qt_util = qt_env.Library("qt_util", ["#selfdrive/ui/qt/api.cc", "#selfdrive/ui/qt/util.cc"], LIBS=base_libs)

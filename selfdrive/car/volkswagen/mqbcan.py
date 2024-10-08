@@ -112,7 +112,9 @@ def create_acc_accel_control(packer, bus, acc_type, acc_enabled, accel, acc_cont
     acc_hold_type = 0
 
   acc_07_values = {
-    "ACC_Anhalteweg": 0.3 if stopping else 20.46,  # Distance to stop (stopping coordinator handles terminal roll-out)
+#################調整起步#################
+    "ACC_Anhalteweg": 0.2 if stopping else 20.46,  # Distance to stop (stopping coordinator handles terminal roll-out)
+###################################################
     "ACC_Freilauf_Info": 2 if acc_enabled else 0,
     "ACC_Folgebeschl": 3.02,  # Not using secondary controller accel unless and until we understand its impact
     "ACC_Sollbeschleunigung_02": accel if acc_enabled else 3.01,
@@ -135,3 +137,12 @@ def create_acc_hud_control(packer, bus, acc_hud_status, set_speed, lead_distance
   }
 
   return packer.make_can_msg("ACC_02", bus, values)
+
+##########################################################
+def create_bcm_01_control(packer, bus, bcm_01_value):
+  values = bcm_01_value
+  values.update({
+    "BCM_Hybrid_StartStopp_Taste": 1,
+  })
+  return packer.make_can_msg("BCM_01", bus, values)
+##########################################################

@@ -75,6 +75,9 @@ struct FrogPilotPlan @0x80ae746ee2596b11 {
   unconfirmedSlcSpeedLimit @25 :Float32;
   vCruise @26 :Float32;
   vtscControllingCurve @27 :Bool;
+  #########################
+  speedover @28:Bool;
+  #############################
 }
 
 struct CustomReserved5 @0xa5cd762cd951a455 {

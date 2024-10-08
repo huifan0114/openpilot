@@ -225,6 +225,10 @@ class CarInterfaceBase(ABC):
     # FrogPilot variables
     self.params = Params()
     self.params_memory = Params("/dev/shm/params")
+    ##############################################
+    self.Dooropen_off_counter = 0
+    self.Dooropen_on_counter = 0
+    ##############################################
 
     eps_firmware = str(next((fw.fwVersion for fw in CP.carFw if fw.ecu == "eps"), ""))
 
@@ -418,7 +422,11 @@ class CarInterfaceBase(ABC):
     fp_ret.distanceLongPressed = self.frogpilot_distance_functions(frogpilot_toggles)
     fp_ret.ecoGear |= ret.gearShifter == GearShifter.eco
     fp_ret.sportGear |= ret.gearShifter == GearShifter.sport
-    fp_ret.trafficModeActive = self.traffic_mode_active
+####################################
+    traffic_mode_speed = self.params.get_int("TrafficModespeed")
+    traffic_mode = self.params.get_bool("TrafficMode")
+    fp_ret.trafficModeActive = traffic_mode and (self.traffic_mode_active or (ret.vEgo * 3.6 < traffic_mode_speed))
+####################################
 
     # copy back for next iteration
     if self.CS is not None:
@@ -433,6 +441,26 @@ class CarInterfaceBase(ABC):
 
     if cs_out.doorOpen:
       events.add(EventName.doorOpen)
+
+####################################
+    if self.params.get_bool("Dooropen"):
+      if cs_out.engineRpm > 0 and (cs_out.driverdoorOpen or cs_out.codriverdOpen or cs_out.lpassengerdoorOpen or cs_out.rpassengerdoorOpen or cs_out.luggagedoorOpen):
+        events.add(EventName.doorOpen1)
+        self.Dooropen_off_counter = self.Dooropen_off_counter + 1 if self.params.get_bool("Dooropen")  and not self.params.get_bool("Dooropenpre") else 0
+        if self.params.get_bool("Dooropen")  and not self.params.get_bool("Dooropenpre") and self.Dooropen_off_counter > 500:
+          self.params.put_bool("Dooropenpre", True)
+          self.params.put_bool("Dooropen",False)
+          self.params.put_bool("FrogPilotTogglesUpdated", True)
+          self.Dooropen_on_counter = 0
+    if self.params.get_bool("Dooropenpre"):
+      self.Dooropen_on_counter = self.Dooropen_on_counter + 1 if not self.params.get_bool("Dooropen")  and  self.params.get_bool("Dooropenpre") and not cs_out.driverdoorOpen  else 0
+    if not self.params.get_bool("Dooropen") and self.Dooropen_on_counter >2000 and (not cs_out.driverdoorOpen):
+      self.params.put_bool("Dooropenpre", False)
+      self.params.put_bool("Dooropen", True)
+      self.params.put_bool("FrogPilotTogglesUpdated", True)
+      self.Dooropen_off_counter = 0
+####################################
+
     if cs_out.seatbeltUnlatched:
       events.add(EventName.seatbeltNotLatched)
     if cs_out.gearShifter != GearShifter.drive and (extra_gears is None or
@@ -462,6 +490,9 @@ class CarInterfaceBase(ABC):
       events.add(EventName.steerOverride)
     if cs_out.brakePressed and cs_out.standstill:
       events.add(EventName.preEnableStandstill)
+      ################################################
+      self.params_memory.put_int("leadspeeddiffProfile", 0)
+      ################################################
     if cs_out.gasPressed:
       events.add(EventName.gasPressedOverride)
 
@@ -477,6 +508,15 @@ class CarInterfaceBase(ABC):
       # FrogPilot button presses
       if b.type == FrogPilotButtonType.lkas and b.pressed:
         self.always_on_lateral_disabled = not self.always_on_lateral_disabled
+
+###########################################################################
+    if not self.CP.pcmCruise and self.params_memory.get_bool("KeyResume") :
+      events.add(EventName.buttonEnable)
+    if self.params_memory.get_bool("KeyCancel"):
+        self.params_memory.put_bool("KeyResume",False)
+        events.add(EventName.buttonCancel)
+        self.params_memory.put_bool("KeyCancel",False)
+############################################################################
 
     # Handle permanent and temporary steering faults
     self.steering_unpressed = 0 if cs_out.steeringPressed else self.steering_unpressed + 1

@@ -2,25 +2,25 @@
 
 FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
   const std::vector<std::tuple<QString, QString, QString, QString>> lateralToggles {
-    {"AlwaysOnLateral", tr("Always on Lateral"), tr("openpilot's steering control stays active even when the brake or gas pedals are pressed.\n\nDeactivate only occurs with the 'Cruise Control' button."), "../frogpilot/assets/toggle_icons/icon_always_on_lateral.png"},
-    {"AlwaysOnLateralLKAS", tr("Control with LKAS Button"), tr("'Always on Lateral' gets turned on or off using the 'LKAS' button."), ""},
-    {"AlwaysOnLateralMain", tr("Enable with Cruise Control"), tr("'Always on Lateral' gets turned on by pressing the 'Cruise Control' button bypassing the requirement to enable openpilot first."), ""},
-    {"PauseAOLOnBrake", tr("Pause on Brake Below"), tr("'Always on Lateral' pauses when the brake pedal is pressed below the set speed."), ""},
-    {"HideAOLStatusBar", tr("Hide the Status Bar"), tr("The status bar for 'Always on Lateral' is hidden."), ""},
+    {"AlwaysOnLateral", tr("始終處於橫向狀態"), tr("即使踩下煞車或油門踏板，openpilot 的轉向控制仍保持活動狀態.\n\n僅使用「巡航控制」按鈕才能停用."), "../frogpilot/assets/toggle_icons/icon_always_on_lateral.png"},
+    {"AlwaysOnLateralLKAS", tr("使用 LKAS 按鈕控制"), tr("'使用“LKAS”按鈕開啟或關閉“始終開啟橫向”."), ""},
+    {"AlwaysOnLateralMain", tr("啟用巡航控制"), tr("'按下「巡航控制」按鈕即可開啟「始終開啟橫向」功能，繞過首先啟用 openpilot 的要求."), ""},
+    {"PauseAOLOnBrake", tr("踩下煞車暫停"), tr("'當踩下煞車踏板低於設定速度時，「始終處於橫向」會暫停."), ""},
+    {"HideAOLStatusBar", tr("隱藏狀態列"), tr("「永遠橫向」狀態列被隱藏."), ""},
 
-    {"LaneChangeCustomizations", tr("Lane Change Settings"), tr("How openpilot handles lane changes."), "../frogpilot/assets/toggle_icons/icon_lane.png"},
-    {"NudgelessLaneChange", tr("Hands-Free Lane Change"), tr("Lane changes are conducted without needing to touch the steering wheel upon turn signal activation."), ""},
-    {"LaneChangeTime", tr("Lane Change Delay"), tr("How long openpilot waits before changing lanes."), ""},
-    {"LaneDetectionWidth", tr("Lane Width Requirement"), tr("The minimum lane width for openpilot to detect a lane as a lane."), ""},
-    {"MinimumLaneChangeSpeed", tr("Minimum Speed for Lane Change"), tr("The minimum speed required for openpilot to perform a lane change."), ""},
-    {"OneLaneChange", tr("Single Lane Change Per Signal"), tr("Lane changes are limited to one per turn signal activation."), ""},
+    {"LaneChangeCustomizations", tr("變換車道設定"), tr("openpilot 如何處理變換車道."), "../frogpilot/assets/toggle_icons/icon_lane.png"},
+    {"NudgelessLaneChange", tr("免持變換車道"), tr("轉彎訊號啟動時無需觸碰方向盤即可進行變換車道."), ""},
+    {"LaneChangeTime", tr("變換車道延誤"), tr("openpilot 在變換車道之前等待多長時間."), ""},
+    {"LaneDetectionWidth", tr("車道寬度需求"), tr("openpilot 偵測車道為車道的最小車道寬度."), ""},
+    {"MinimumLaneChangeSpeed", tr("變換車道最低速度"), tr("openpilot 執行變換車道所需的最低速度."), ""},
+    {"OneLaneChange", tr("每個號誌單車道變更"), tr("每次轉彎號誌燈啟動時，車道變更僅限一次."), ""},
 
-    {"LateralTune", tr("Lateral Tuning"), tr("Settings that control how openpilot manages steering."), "../frogpilot/assets/toggle_icons/icon_lateral_tune.png"},
-    {"NNFF", tr("Neural Network Feedforward (NNFF)"), tr("Twilsonco's 'Neural Network FeedForward' for more precise steering control."), ""},
-    {"NNFFLite", tr("Smooth Curve Handling"), tr("Smoother steering when entering and exiting curves with Twilsonco's torque adjustments."), ""},
+    {"LateralTune", tr("橫向調整"), tr("控制 openpilot 如何管理轉向的設置."), "../frogpilot/assets/toggle_icons/icon_lateral_tune.png"},
+    {"NNFF", tr("神經網路前饋 (NNFF)"), tr("Twilsonco 的「神經網路前饋」可實現更精確的轉向控制."), ""},
+    {"NNFFLite", tr("平滑曲線處理"), tr("透過 Twilsonco 的扭矩調節，進入和退出彎道時轉向更加平穩."), ""},
 
-    {"QOLLateral", tr("Quality of Life Improvements"), tr("Miscellaneous lateral focused features to improve your overall openpilot experience."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
-    {"PauseLateralSpeed", tr("Pause Steering Below"), tr("Pauses steering control when driving below the set speed."), ""}
+    {"QOLLateral", tr("生活品質改善"), tr("各種橫向對焦功能可改善您的整體開放駕駛體驗."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
+    {"PauseLateralSpeed", tr("時速暫停轉向"), tr("當行駛速度低於設定速度時，暫停轉向控制。"), ""}
   };
 
   for (const auto &[param, title, desc, icon] : lateralToggles) {
@@ -39,7 +39,7 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
       });
       lateralToggle = aolToggle;
     } else if (param == "PauseAOLOnBrake") {
-      lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr("mph"));
+      lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr("英里/小時"));
 
     } else if (param == "LateralTune") {
       FrogPilotParamManageControl *lateralTuneToggle = new FrogPilotParamManageControl(param, title, desc, icon);
@@ -66,9 +66,9 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
     } else if (param == "PauseLateralSpeed") {
       std::vector<QString> pauseLateralToggles{"PauseLateralOnSignal"};
       std::vector<QString> pauseLateralToggleNames{"Turn Signal Only"};
-      lateralToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 0, 99, tr("mph"), std::map<int, QString>(), 1, pauseLateralToggles, pauseLateralToggleNames);
+      lateralToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 0, 99, tr("英里/小時"), std::map<int, QString>(), 1, pauseLateralToggles, pauseLateralToggleNames);
     } else if (param == "PauseLateralOnSignal") {
-      lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr("mph"));
+      lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr("英里/小時"));
 
     } else if (param == "LaneChangeCustomizations") {
       FrogPilotParamManageControl *laneChangeToggle = new FrogPilotParamManageControl(param, title, desc, icon);
@@ -85,7 +85,7 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
     } else if (param == "LaneDetectionWidth") {
       lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 100, tr(" feet"), std::map<int, QString>(), 0.1);
     } else if (param == "MinimumLaneChangeSpeed") {
-      lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr("mph"));
+      lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr("英里/小時"));
 
     } else {
       lateralToggle = new ParamControl(param, title, desc, icon);
@@ -129,11 +129,11 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
     QObject::connect(static_cast<ToggleControl*>(toggles[key.toStdString().c_str()]), &ToggleControl::toggleFlipped, [this, key](bool state) {
       if (started) {
         if (key == "AlwaysOnLateral" && state) {
-          if (FrogPilotConfirmationDialog::toggle(tr("Reboot required to take effect."), tr("Reboot Now"), this)) {
+          if (FrogPilotConfirmationDialog::toggle(tr("需要重新啟動才能生效."), tr("馬上重啟"), this)) {
             Hardware::reboot();
           }
         } else if (key != "AlwaysOnLateral") {
-          if (FrogPilotConfirmationDialog::toggle(tr("Reboot required to take effect."), tr("Reboot Now"), this)) {
+          if (FrogPilotConfirmationDialog::toggle(tr("需要重新啟動才能生效."), tr("馬上重啟"), this)) {
             Hardware::reboot();
           }
         }
@@ -185,15 +185,15 @@ void FrogPilotLateralPanel::updateMetric() {
   FrogPilotParamValueControl *pauseLateralToggle = static_cast<FrogPilotParamValueControl*>(toggles["PauseLateralSpeed"]);
 
   if (isMetric) {
-    minimumLaneChangeSpeedToggle->updateControl(0, 150, tr("kph"));
-    pauseAOLOnBrakeToggle->updateControl(0, 99, tr("kph"));
-    pauseLateralToggle->updateControl(0, 99, tr("kph"));
+    minimumLaneChangeSpeedToggle->updateControl(0, 150, tr("公里/小時"));
+    pauseAOLOnBrakeToggle->updateControl(0, 99, tr("公里/小時"));
+    pauseLateralToggle->updateControl(0, 99, tr("公里/小時"));
 
-    laneWidthToggle->updateControl(0, 30, tr(" meters"));
+    laneWidthToggle->updateControl(0, 30, tr(" 米"));
   } else {
-    minimumLaneChangeSpeedToggle->updateControl(0, 99, tr("mph"));
-    pauseAOLOnBrakeToggle->updateControl(0, 99, tr("mph"));
-    pauseLateralToggle->updateControl(0, 99, tr("mph"));
+    minimumLaneChangeSpeedToggle->updateControl(0, 99, tr("英里/小時"));
+    pauseAOLOnBrakeToggle->updateControl(0, 99, tr("公里/小時"));
+    pauseLateralToggle->updateControl(0, 99, tr("公里/小時"));
 
     laneWidthToggle->updateControl(0, 100, tr(" feet"));
   }

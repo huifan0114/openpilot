@@ -81,7 +81,7 @@ def time_checks(automatic_updates, deviceState, model_manager, now, screen_off, 
   if not is_url_pingable("https://github.com"):
     return
 
-  if automatic_updates and screen_off:
+  if automatic_updates:
     automatic_update_check(started, params)
 
   if time_validated:
