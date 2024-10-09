@@ -7,7 +7,7 @@
 
 #include "selfdrive/frogpilot/ui/qt/widgets/frogpilot_controls.h"
 
-inline QMap<QString, QString> TaiwanMap = {
+inline QMap<QString, QString> taiwanMap = {
   {"TW", "Taiwan"}
 };
 

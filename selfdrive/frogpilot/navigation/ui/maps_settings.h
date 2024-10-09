@@ -33,6 +33,7 @@ private:
 
   FrogPilotButtonsControl *selectMapsButton;
 
+  LabelControl *taiwanLabel;
   LabelControl *africaLabel;
   LabelControl *antarcticaLabel;
   LabelControl *asiaLabel;
@@ -51,6 +52,7 @@ private:
   LabelControl *territoriesLabel;
   LabelControl *westLabel;
 
+  MapSelectionControl *taiwanMaps;
   MapSelectionControl *africaMaps;
   MapSelectionControl *antarcticaMaps;
   MapSelectionControl *asiaMaps;
