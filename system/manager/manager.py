@@ -68,7 +68,7 @@ def manager_init() -> None:
     ("OpenpilotEnabledToggle", "1"),
     ("RecordFront", "0"),
     ("SshEnabled", "1"),
-    ("TetheringEnabled", "1"),
+    ("TetheringEnabled", "0"),
     ("LongitudinalPersonality", str(log.LongitudinalPersonality.standard)),
 
 ##############################################
