@@ -126,6 +126,10 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
   // hideToggles();
 }
 
+void FrogPilotDevicePanel::updateState(const UIState &s) {
+  started = s.scene.started;
+}
+
 void FrogPilotHFOPPanel::showToggles(const std::set<QString> &keys) {
   setUpdatesEnabled(false);
 

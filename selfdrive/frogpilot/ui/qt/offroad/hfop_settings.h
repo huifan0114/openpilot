@@ -27,10 +27,10 @@ private:
 
   Params params;
   Params paramsMemory{"/dev/shm/params"};
-  bool started = false;
-  bool isRelease;
+  bool started ;
 
   void hideToggles();
   void showToggles(const std::set<QString> &keys);
+  void updateState(const UIState &s);
 
 };
