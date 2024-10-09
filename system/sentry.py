@@ -61,6 +61,7 @@ def capture_fingerprint(candidate, params, blocked=False):
     "FrogPilot Visuals": ParamKeyType.FROGPILOT_VISUALS,
     "FrogPilot Other": ParamKeyType.FROGPILOT_OTHER,
     "FrogPilot Tracking": ParamKeyType.FROGPILOT_TRACKING,
+    "FrogPilot HFOP": ParamKeyType.FROGPILOT_HFOP,
   }
 
   matched_params = {label: {} for label in param_types}
