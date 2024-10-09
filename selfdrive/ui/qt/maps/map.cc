@@ -322,6 +322,9 @@ void MapWindow::updateState(const UIState &s) {
       {8, "mapbox://styles/mapbox/navigation-night-v1"},  // Mapbox Navigation Night
       {9, "mapbox://styles/mapbox/traffic-night-v2"},  // Mapbox Traffic Night
       {10, "mapbox://styles/mike854/clt0hm8mw01ok01p4blkr27jp"},  // mike854's (Satellite hybrid)
+      {11, "mapbox://styles/huifan/cm100vqzq02bf01pqaurkfe25"},
+      {12, "mapbox://styles/huifan/cm100wznt02kp01pwerct3ep8"},
+      {13, "mapbox://styles/huifan/cm21tzlrb006t01r494b8fn4r"},
     };
 
     std::unordered_map<int, std::string>::iterator it = styleUrls.find(map_style);

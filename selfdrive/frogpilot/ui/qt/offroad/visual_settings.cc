@@ -61,17 +61,20 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
       visualToggle = new FrogPilotButtonToggleControl(param, title, desc, mapToggles, mapToggleNames);
     } else if (param == "MapStyle") {
       QMap<int, QString> styleMap = {
-        {0, tr("Stock openpilot")},
-        {1, tr("Mapbox Streets")},
-        {2, tr("Mapbox Outdoors")},
-        {3, tr("Mapbox Light")},
-        {4, tr("Mapbox Dark")},
-        {5, tr("Mapbox Satellite")},
-        {6, tr("Mapbox Satellite Streets")},
-        {7, tr("Mapbox Navigation Day")},
-        {8, tr("Mapbox Navigation Night")},
-        {9, tr("Mapbox Traffic Night")},
-        {10, tr("mike854's (Satellite hybrid)")},
+        {0, tr("原始 openpilot")},
+        {1, tr("Mapbox 街道")},
+        {2, tr("Mapbox 戶外活動")},
+        {3, tr("Mapbox 白天")},
+        {4, tr("Mapbox 夜晚")},
+        {5, tr("Mapbox 衛星")},
+        {6, tr("Mapbox 衛星街道")},
+        {7, tr("Mapbox 導航(白天)")},
+        {8, tr("Mapbox 導航(夜晚)")},
+        {9, tr("Mapbox 交通(夜晚)")},
+        {10, tr("mike854's (衛星混合)")},
+        {11, tr("huifan's (街道)")},
+        {12, tr("huifan's 導航(白天)")},
+        {13, tr("huifan's 導航(夜晚)")},
       };
 
       QStringList styles = styleMap.values();
