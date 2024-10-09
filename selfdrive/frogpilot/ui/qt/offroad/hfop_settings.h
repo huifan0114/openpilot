@@ -23,7 +23,7 @@ private:
   std::set<QString> NavspeedKeys = {"NavReminder", "speedoverreminder", "speedreminderreset"};
   std::set<QString> DooropenKeys= {"DriverdoorOpen", "CodriverdoorOpen","LpassengerdoorOpen","RpassengerdoorOpen","LuggagedoorOpen"};
 
-  std::map<std::string, AbstractControl*> toggles;
+  std::map<QString, AbstractControl*> toggles;
 
   Params params;
   Params paramsMemory{"/dev/shm/params"};
