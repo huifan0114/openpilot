@@ -10,8 +10,8 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     {"RoadNameUI", tr("  道路名稱"), tr("目前道路名稱使用來自「OpenStreetMap」的資料顯示在螢幕底部'."), ""},
     {"RotatingWheel", tr("  旋轉方向盤"), tr("onroad UI 中的方向盤會隨著方向盤的移動而旋轉."), ""},
 
-    {"QOLVisuals", tr("Quality of Life Improvements"), tr("Misce各種視覺集中功能可改善您的整體開放駕駛體驗."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
-    {"BigMap", tr("更大的地圖顯示"), tr("道路使用者介面中的地圖尺寸更大，更易於導航閱讀."), ""},
+    {"QOLVisuals", tr("進階設定"), tr("整合各種視覺功能可改善您的駕駛體驗."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
+    {"BigMap", tr("全螢幕地圖顯示"), tr("道路使用者介面中的地圖尺寸更大，更易於導航閱讀."), ""},
     {"MapStyle", tr("地圖樣式"), tr("導航期間使用的地圖的自訂地圖樣式."), ""},
     {"StandbyMode", tr("螢幕待機模式"), tr("開車時超時後螢幕會關閉，但如果交戰狀態發生變化或發生重要警報，螢幕會自動喚醒."), ""},
     {"DriverCamera", tr("倒車時顯示駕駛員攝影機"), tr("車輛倒車時顯示駕駛攝影機畫面."), ""},
