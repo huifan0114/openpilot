@@ -74,6 +74,7 @@ def manager_init() -> None:
 ##############################################
     # Default hfop parameters
     ("AutoACC", "1"),
+    ("TrafficMode", "0"),
     ("AutoACCspeed", "20"),
     ("AutoACCCarAway", "1"),
     ("AutoACCCarAwaystatus", "0"),

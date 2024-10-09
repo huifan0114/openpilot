@@ -1,6 +1,6 @@
 #include "selfdrive/frogpilot/ui/qt/offroad/hfop_settings.h"
 
-FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent) {
+FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
 
   const std::vector<std::tuple<QString, QString, QString, QString>> hfopToggles {
     {"HFOPinf", "  訊息框", "主畫面左下方顯示訊息狀態.", "../assets/offroad/icon_custom.png"},
@@ -43,12 +43,9 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     AbstractControl *hfopcontrolsToggle;
 
     if (param == "Fuelprice") {
-      FrogPilotParamManageControl *FuelpriceToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
-      QObject::connect(FuelpriceToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
-        openParentToggle();
-        for (auto &[key, toggle] : toggles) {
-          toggle->setVisible(FuelpriceKeys.find(key.c_str()) != FuelpriceKeys.end());
-        }
+      FrogPilotParamManageControl *FuelpriceToggle = new FrogPilotParamManageControl(param, title, desc, icon);
+      QObject::connect(FuelpriceToggle, &FrogPilotParamManageControl::manageButtonClicked, [this]() {
+        showToggles(FuelpriceKeys);
       });
       hfopcontrolsToggle = FuelpriceToggle;
 
@@ -56,24 +53,18 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
       hfopcontrolsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 30.0, 36.0, "元", std::map<int, QString>(),0.1);
 
     } else if (param == "VagSpeed") {
-      FrogPilotParamManageControl *VagSpeedToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
-      QObject::connect(VagSpeedToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
-        openParentToggle();
-        for (auto &[key, toggle] : toggles) {
-          toggle->setVisible(VagSpeedKeys.find(key.c_str()) != VagSpeedKeys.end());
-        }
+      FrogPilotParamManageControl *VagSpeedToggle = new FrogPilotParamManageControl(param, title, desc, icon);
+      QObject::connect(VagSpeedToggle, &FrogPilotParamManageControl::manageButtonClicked, [this]() {
+        showToggles(VagSpeedKeys);
       });
       hfopcontrolsToggle = VagSpeedToggle;
     } else if (param == "VagSpeedFactor") {
       hfopcontrolsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 20, "公里");
 
     } else if (param == "AutoACC") {
-      FrogPilotParamManageControl *AutoACCToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
-      QObject::connect(AutoACCToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
-        openParentToggle();
-        for (auto &[key, toggle] : toggles) {
-          toggle->setVisible(AutoACCKeys.find(key.c_str()) != AutoACCKeys.end());
-        }
+      FrogPilotParamManageControl *AutoACCToggle = new FrogPilotParamManageControl(param, title, desc, icon);
+      QObject::connect(AutoACCToggle, &FrogPilotParamManageControl::manageButtonClicked, [this]() {
+        showToggles(AutoACCKeys);
       });
       hfopcontrolsToggle = AutoACCToggle;
 
@@ -84,12 +75,9 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
       hfopcontrolsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 60, "公里");
 
     } else if (param == "Roadtype") {
-      FrogPilotParamManageControl *RoadToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
-      QObject::connect(RoadToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
-        openParentToggle();
-        for (auto &[key, toggle] : toggles) {
-          toggle->setVisible(RoadKeys.find(key.c_str()) != RoadKeys.end());
-        }
+      FrogPilotParamManageControl *RoadToggle = new FrogPilotParamManageControl(param, title, desc, icon);
+      QObject::connect(RoadToggle, &FrogPilotParamManageControl::manageButtonClicked, [this]() {
+        showToggles(RoadKeys);
       });
       hfopcontrolsToggle = RoadToggle;
     } else if (param == "RoadtypeProfile") {
@@ -98,22 +86,16 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
       hfopcontrolsToggle = profileSelection;
 
     } else if (param == "Navspeed") {
-      FrogPilotParamManageControl *NavspeedToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
-      QObject::connect(NavspeedToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
-        openParentToggle();
-        for (auto &[key, toggle] : toggles) {
-          toggle->setVisible(NavspeedKeys.find(key.c_str()) != NavspeedKeys.end());
-        }
+      FrogPilotParamManageControl *NavspeedToggle = new FrogPilotParamManageControl(param, title, desc, icon);
+      QObject::connect(NavspeedToggle, &FrogPilotParamManageControl::manageButtonClicked, [this]() {
+        showToggles(NavspeedKeys);
       });
       hfopcontrolsToggle = NavspeedToggle;
 
     } else if(param == "Dooropen") {
-      FrogPilotParamManageControl *DooropenToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
-      QObject::connect(DooropenToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
-        openParentToggle();
-        for (auto &[key, toggle] : toggles) {
-          toggle->setVisible(DooropenKeys.find(key.c_str()) != DooropenKeys.end());
-        }
+      FrogPilotParamManageControl *DooropenToggle = new FrogPilotParamManageControl(param, title, desc, icon);
+      QObject::connect(DooropenToggle, &FrogPilotParamManageControl::manageButtonClicked, [this]() {
+        showToggles(DooropenKeys);
       });
       hfopcontrolsToggle = DooropenToggle;
 
@@ -123,19 +105,19 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
       hfopcontrolsToggle = new FrogPilotButtonToggleControl(param, title, desc, adjustablePersonalitiesToggles, adjustablePersonalitiesNames);
 
     } else {
-      hfopcontrolsToggle = new ParamControl(param, title, desc, icon, this);
+      hfopcontrolsToggle = new ParamControl(param, title, desc, icon);
     }
 
     addItem(hfopcontrolsToggle);
-    toggles[param.toStdString()] = hfopcontrolsToggle;
+    toggles[param] = hfopcontrolsToggle;
 
-    QObject::connect(static_cast<ToggleControl*>(hfopcontrolsToggle), &ToggleControl::toggleFlipped, &updateFrogPilotToggles);
-    QObject::connect(static_cast<FrogPilotParamValueControl*>(hfopcontrolsToggle), &FrogPilotParamValueControl::valueChanged, &updateFrogPilotToggles);
+    makeConnections(hfopcontrolsToggle);
+
+    if (FrogPilotParamManageControl *frogPilotManageToggle = qobject_cast<FrogPilotParamManageControl*>(hfopcontrolsToggle)) {
+      QObject::connect(frogPilotManageToggle, &FrogPilotParamManageControl::manageButtonClicked, this, &FrogPilotAdvancedVisualsPanel::openParentToggle);
+    }
+
     QObject::connect(hfopcontrolsToggle, &AbstractControl::showDescriptionEvent, [this]() {
-      update();
-    });
-
-    QObject::connect(static_cast<FrogPilotParamManageControl*>(hfopcontrolsToggle), &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
       update();
     });
   }
@@ -145,27 +127,34 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
   // hideToggles();
 }
 
-// void FrogPilotHFOPPanel::showEvent(QShowEvent *event, const UIState &s) {
-//   // hasOpenpilotLongitudinal = hasOpenpilotLongitudinal && !params.getBool("DisableOpenpilotLongitudinal");
-// }
-
-void FrogPilotHFOPPanel::updateState(const UIState &s) {
-  if (!isVisible()) return;
-
-  started = s.scene.started;
-}
-
-void FrogPilotHFOPPanel::hideToggles() {
+void FrogPilotAdvancedVisualsPanel::showToggles(const std::set<QString> &keys) {
+  setUpdatesEnabled(false);
 
   for (auto &[key, toggle] : toggles) {
-    bool subToggles = FuelpriceKeys.find(key.c_str()) != FuelpriceKeys.end() ||
-                      VagSpeedKeys.find(key.c_str()) != VagSpeedKeys.end() ||
-                      AutoACCKeys.find(key.c_str()) != AutoACCKeys.end() ||
-                      RoadKeys.find(key.c_str()) != RoadKeys.end() ||
-                      NavspeedKeys.find(key.c_str()) != NavspeedKeys.end() ||
-                      DooropenKeys.find(key.c_str()) != DooropenKeys.end() ;
-    toggle->setVisible(!subToggles);
+    toggle->setVisible(keys.find(key) != keys.end());
   }
 
+  setUpdatesEnabled(true);
+  update();
+}
+
+// void FrogPilotHFOPPanel::updateState(const UIState &s) {
+//   if (!isVisible()) return;
+
+//   started = s.scene.started;
+// }
+
+void FrogPilotHFOPPanel::hideToggles() {
+  setUpdatesEnabled(false);
+  for (auto &[key, toggle] : toggles) {
+    bool subToggles = FuelpriceKeys.find(key) != FuelpriceKeys.end() ||
+                      VagSpeedKeys.find(key) != VagSpeedKeys.end() ||
+                      AutoACCKeys.find(key) != AutoACCKeys.end() ||
+                      RoadKeys.find(key) != RoadKeys.end() ||
+                      NavspeedKeys.find(key) != NavspeedKeys.end() ||
+                      DooropenKeys.find(key) != DooropenKeys.end() ;
+    toggle->setVisible(!subToggles);
+  }
+  setUpdatesEnabled(true);
   update();
 }
