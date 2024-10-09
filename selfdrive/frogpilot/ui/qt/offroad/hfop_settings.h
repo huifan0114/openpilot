@@ -14,7 +14,7 @@ signals:
   void openParentToggle();
 
 private:
-  FrogPilotSettingsWindow *parent;
+  // FrogPilotSettingsWindow *parent;
 
   std::set<QString> FuelpriceKeys = {"Fuelcosts"};
   std::set<QString> VagSpeedKeys = {"VagSpeedFactor"};
