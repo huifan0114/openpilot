@@ -127,7 +127,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
   // hideToggles();
 }
 
-void FrogPilotAdvancedVisualsPanel::showToggles(const std::set<QString> &keys) {
+void FrogPilotHFOPPanel::showToggles(const std::set<QString> &keys) {
   setUpdatesEnabled(false);
 
   for (auto &[key, toggle] : toggles) {
