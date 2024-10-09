@@ -7,15 +7,15 @@
 #include "selfdrive/frogpilot/navigation/ui/maps_settings.h"
 
 FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent) {
-  std::vector<QString> scheduleOptions{tr("Manually"), tr("Weekly"), tr("Monthly")};
-  preferredSchedule = new ButtonParamControl("PreferredSchedule", tr("Maps Scheduler"),
-                                          tr("Choose the frequency for updating maps with the latest OpenStreetMap (OSM) changes. "
-                                             "Weekly updates begin at midnight every Sunday, while monthly updates start at midnight on the 1st of each month."),
+  std::vector<QString> scheduleOptions{tr("手動"), tr("每週"), tr("每月")};
+  preferredSchedule = new ButtonParamControl("PreferredSchedule", tr("地圖排程"),
+                                          tr("選擇使用最新 OpenStreetMap (OSM) 變更更新地圖的頻率. "
+                                             "每週更新從每週日午夜開始，每月更新從每月 1 日午夜開始."),
                                              "",
                                              scheduleOptions);
   addItem(preferredSchedule);
 
-  selectMapsButton = new FrogPilotButtonsControl(tr("Select Offline Maps"), tr("Select your maps to use with 'Curve Speed Control' and 'Speed Limit Controller'."), {tr("COUNTRIES"), tr("STATES")});
+  selectMapsButton = new FrogPilotButtonsControl(tr("選擇離線地圖"), tr("選擇要與“曲線速度控制”和“速度限制控制器”一起使用的地圖'."), {tr("國家"), tr("州")});
   QObject::connect(selectMapsButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
     if (id == 0) {
       countriesOpen = true;
@@ -25,9 +25,9 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPi
   });
   addItem(selectMapsButton);
 
-  downloadMapsButton = new ButtonControl(tr("Download Maps"), tr("DOWNLOAD"), tr("Download your selected maps to use with 'Curve Speed Control' and 'Speed Limit Controller'."));
+  downloadMapsButton = new ButtonControl(tr("下載地圖"), tr("下載"), tr("下載您選擇的地圖以與“曲線速度控制”和“速度限制控制器”一起使用."));
   QObject::connect(downloadMapsButton, &ButtonControl::clicked, [this] {
-    if (downloadMapsButton->text() == tr("CANCEL")) {
+    if (downloadMapsButton->text() == tr("取消")) {
       cancelDownload();
     } else {
       downloadMaps();
@@ -35,19 +35,19 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPi
   });
   addItem(downloadMapsButton);
 
-  addItem(mapsSize = new LabelControl(tr("Downloaded Maps Size"), calculateDirectorySize(mapsFolderPath)));
-  addItem(downloadStatus = new LabelControl(tr("Download Progress")));
-  addItem(downloadETA = new LabelControl(tr("Download Completion ETA")));
-  addItem(downloadTimeElapsed = new LabelControl(tr("Download Time Elapsed")));
-  addItem(lastMapsDownload = new LabelControl(tr("Maps Last Updated"), params.get("LastMapsUpdate").empty() ? "Never" : QString::fromStdString(params.get("LastMapsUpdate"))));
+  addItem(mapsSize = new LabelControl(tr("下載地圖的大小"), calculateDirectorySize(mapsFolderPath)));
+  addItem(downloadStatus = new LabelControl(tr("下載進度")));
+  addItem(downloadETA = new LabelControl(tr("下載完成預計時間")));
+  addItem(downloadTimeElapsed = new LabelControl(tr("下載已用時間")));
+  addItem(lastMapsDownload = new LabelControl(tr("地圖上次更新"), params.get("LastMapsUpdate").empty() ? "Never" : QString::fromStdString(params.get("LastMapsUpdate"))));
 
   downloadETA->setVisible(false);
   downloadStatus->setVisible(false);
   downloadTimeElapsed->setVisible(false);
 
-  removeMapsButton = new ButtonControl(tr("Remove Maps"), tr("REMOVE"), tr("Remove your downloaded maps to clear up storage space."));
+  removeMapsButton = new ButtonControl(tr("刪除地圖"), tr("刪除"), tr("刪除下載的地圖以清理儲存空間."));
   QObject::connect(removeMapsButton, &ButtonControl::clicked, [this] {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to delete all of your downloaded maps?"), this)) {
+    if (FrogPilotConfirmationDialog::yesorno(tr("您確定要刪除所有下載的地圖嗎?"), this)) {
       std::thread([this] {
         mapsSize->setText("0 MB");
         std::system("rm -rf /data/media/0/osm/offline");
@@ -125,7 +125,7 @@ void FrogPilotMapsPanel::updateState(const UIState &s) {
 }
 
 void FrogPilotMapsPanel::cancelDownload() {
-  if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to cancel the download?"), this)) {
+  if (FrogPilotConfirmationDialog::yesorno(tr("您確定要取消下載嗎?"), this)) {
     std::system("pkill mapd");
     resetDownloadState();
   }
@@ -213,7 +213,7 @@ void FrogPilotMapsPanel::updateDownloadStatusLabels() {
 }
 
 void FrogPilotMapsPanel::resetDownloadState() {
-  downloadMapsButton->setText(tr("DOWNLOAD"));
+  downloadMapsButton->setText(tr("下載"));
 
   downloadETA->setVisible(false);
   downloadStatus->setVisible(false);
@@ -228,8 +228,8 @@ void FrogPilotMapsPanel::resetDownloadState() {
 void FrogPilotMapsPanel::handleDownloadError() {
   std::system("pkill mapd");
 
-  downloadMapsButton->setText(tr("DOWNLOAD"));
-  downloadStatus->setText("Download error... Please try again!");
+  downloadMapsButton->setText(tr("下載"));
+  downloadStatus->setText("下載錯誤...請重試!");
 
   downloadETA->setVisible(false);
   downloadTimeElapsed->setVisible(false);
@@ -259,7 +259,7 @@ void FrogPilotMapsPanel::finalizeDownload() {
 
   resetDownloadLabels();
 
-  downloadMapsButton->setText(tr("DOWNLOAD"));
+  downloadMapsButton->setText(tr("下載"));
   lastMapsDownload->setText(formattedDate);
 
   downloadETA->setVisible(false);
@@ -273,10 +273,10 @@ void FrogPilotMapsPanel::finalizeDownload() {
 }
 
 void FrogPilotMapsPanel::resetDownloadLabels() {
-  downloadETA->setText("Calculating...");
-  downloadMapsButton->setText(tr("CANCEL"));
-  downloadStatus->setText("Calculating...");
-  downloadTimeElapsed->setText("Calculating...");
+  downloadETA->setText("計算...");
+  downloadMapsButton->setText(tr("取消"));
+  downloadStatus->setText("計算...");
+  downloadTimeElapsed->setText("計算...");
 }
 
 void FrogPilotMapsPanel::updateDownloadLabels(int downloadedFiles, int totalFiles, qint64 remainingTime, qint64 elapsedMilliseconds) {
