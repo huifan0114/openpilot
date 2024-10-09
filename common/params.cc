@@ -273,6 +273,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"navSharpleft", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_CONTROLS},
     {"ScreenBrightnessOnroadpre", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_CONTROLS},
     {"TrafficModespeed", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_CONTROLS},
+    {"TrafficMode", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_CONTROLS},
     {"MapSpeed", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_CONTROLS},
 /////////////////////////////////////////////
 

@@ -17,6 +17,7 @@
 #include "selfdrive/frogpilot/ui/qt/offroad/utilities.h"
 #include "selfdrive/frogpilot/ui/qt/offroad/vehicle_settings.h"
 #include "selfdrive/frogpilot/ui/qt/offroad/visual_settings.h"
+#include "selfdrive/frogpilot/ui/qt/offroad/hfop_settings.h"
 
 bool checkNNFFLogFileExists(const std::string &carFingerprint) {
   const std::filesystem::path latModelsPath("../car/torque_data/lat_models");
@@ -79,8 +80,8 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
   QObject::connect(frogpilotVisualsPanel, &FrogPilotVisualsPanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
 
 /////////////////////////////////////////////////////
-  FrogPilotHFOPPanel *frogPilotHFOPPanel = new FrogPilotHFOPPanel(this);
-  QObject::connect(frogPilotHFOPPanel, &FrogPilotHFOPPanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
+  FrogPilotHFOPPanel *frogpilotHFOPPanel = new FrogPilotHFOPPanel(this);
+  QObject::connect(frogpilotHFOPPanel, &FrogPilotHFOPPanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
 /////////////////////////////////////////////////////
 
   std::vector<std::pair<QString, std::vector<QWidget*>>> panels = {
@@ -92,7 +93,7 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
     {tr("主題與外觀"), {frogpilotVisualsPanel, frogpilotThemesPanel}},
     {tr("車輛控制"), {new FrogPilotVehiclesPanel(this)}},
     /////////////////////////////////////////////////////
-    {tr("H F O P"), {frogPilotHFOPPanel}}
+    {tr("H F O P"), {frogpilotHFOPPanel}}
 /////////////////////////////////////////////////////
   };
 
