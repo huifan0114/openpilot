@@ -10,8 +10,8 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
 
     {"LaneChangeCustomizations", tr("變換車道設定"), tr("設定變換車道方式."), "../frogpilot/assets/toggle_icons/icon_lane.png"},
     {"NudgelessLaneChange", tr("自動變換車道"), tr("方向燈訊號啟動時無需觸碰方向盤即可進行變換車道."), ""},
-    {"LaneChangeTime", tr("變換車道延誤"), tr("在變換車道之前的等待時間."), ""},
-    {"LaneDetectionWidth", tr("車道寬度需求"), tr("偵測車道寬度達標才進行換道."), ""},
+    {"LaneChangeTime", tr("延遲變換車道"), tr("在變換車道之前的等待時間."), ""},
+    {"LaneDetectionWidth", tr("車道寬度需求"), tr("偵測車道寬度符合才進行自動換道."), ""},
     {"MinimumLaneChangeSpeed", tr("變換車道最低速度"), tr("啟動自動變換車道所需的最低速度."), ""},
     {"OneLaneChange", tr("單次變換車道"), tr("每次方向燈啟動時，僅變換車道一次."), ""},
 
