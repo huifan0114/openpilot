@@ -2,14 +2,14 @@
 
 FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
   const std::vector<std::tuple<QString, QString, QString, QString>> lateralToggles {
-    {"AlwaysOnLateral", tr("始終處於橫向狀態"), tr("即使踩下煞車或油門踏板，openpilot 的轉向控制仍保持活動狀態.\n\n僅使用「巡航控制」按鈕才能停用."), "../frogpilot/assets/toggle_icons/icon_always_on_lateral.png"},
+    {"AlwaysOnLateral", tr("保持控制橫向狀態"), tr("即使踩下煞車或油門踏板，openpilot 的轉向控制仍保持活動狀態.\n\n僅使用「巡航控制」按鈕才能停用."), "../frogpilot/assets/toggle_icons/icon_always_on_lateral.png"},
     {"AlwaysOnLateralLKAS", tr("使用 LKAS 按鈕控制"), tr("'使用“LKAS”按鈕開啟或關閉“始終開啟橫向”."), ""},
     {"AlwaysOnLateralMain", tr("啟用巡航控制"), tr("'按下「巡航控制」按鈕即可開啟「始終開啟橫向」功能，繞過首先啟用 openpilot 的要求."), ""},
     {"PauseAOLOnBrake", tr("踩下煞車暫停"), tr("'當踩下煞車踏板低於設定速度時，「始終處於橫向」會暫停."), ""},
     {"HideAOLStatusBar", tr("隱藏狀態列"), tr("「永遠橫向」狀態列被隱藏."), ""},
 
     {"LaneChangeCustomizations", tr("變換車道設定"), tr("openpilot 如何處理變換車道."), "../frogpilot/assets/toggle_icons/icon_lane.png"},
-    {"NudgelessLaneChange", tr("免持變換車道"), tr("轉彎訊號啟動時無需觸碰方向盤即可進行變換車道."), ""},
+    {"NudgelessLaneChange", tr("自動變換車道"), tr("轉彎訊號啟動時無需觸碰方向盤即可進行變換車道."), ""},
     {"LaneChangeTime", tr("變換車道延誤"), tr("openpilot 在變換車道之前等待多長時間."), ""},
     {"LaneDetectionWidth", tr("車道寬度需求"), tr("openpilot 偵測車道為車道的最小車道寬度."), ""},
     {"MinimumLaneChangeSpeed", tr("變換車道最低速度"), tr("openpilot 執行變換車道所需的最低速度."), ""},
@@ -19,7 +19,7 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
     {"NNFF", tr("神經網路前饋 (NNFF)"), tr("Twilsonco 的「神經網路前饋」可實現更精確的轉向控制."), ""},
     {"NNFFLite", tr("平滑曲線處理"), tr("透過 Twilsonco 的扭矩調節，進入和退出彎道時轉向更加平穩."), ""},
 
-    {"QOLLateral", tr("生活品質改善"), tr("各種橫向對焦功能可改善您的整體開放駕駛體驗."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
+    {"QOLLateral", tr("橫行控制改善"), tr("各種橫向功能可改善您的整體駕駛體驗."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
     {"PauseLateralSpeed", tr("時速暫停轉向"), tr("當行駛速度低於設定速度時，暫停轉向控制。"), ""}
   };
 

@@ -33,7 +33,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
       visualToggle = customUIToggle;
     } else if (param == "CustomPaths") {
       std::vector<QString> pathToggles{"AccelerationPath", "AdjacentPath", "BlindSpotPath"};
-      std::vector<QString> pathToggleNames{tr("加速"), tr("Adjacent"), tr("盲點")};
+      std::vector<QString> pathToggleNames{tr("加速"), tr("左右車道"), tr("盲區")};
       customPathsBtn = new FrogPilotButtonToggleControl(param, title, desc, pathToggles, pathToggleNames);
       visualToggle = customPathsBtn;
     } else if (param == "PedalsOnUI") {

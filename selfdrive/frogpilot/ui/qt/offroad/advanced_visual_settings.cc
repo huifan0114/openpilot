@@ -2,7 +2,7 @@
 
 FrogPilotAdvancedVisualsPanel::FrogPilotAdvancedVisualsPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
   const std::vector<std::tuple<QString, QString, QString, QString>> advancedToggles {
-    {"AdvancedCustomUI", tr("進階 Onroad UI 小工具"), tr("Onroad UI 的進階使用者自訂."), "../frogpilot/assets/toggle_icons/icon_advanced_road.png"},
+    {"AdvancedCustomUI", tr("進階行車畫面工具"), tr("Onroad UI 的進階使用者自訂."), "../frogpilot/assets/toggle_icons/icon_advanced_road.png"},
     {"CameraView", tr("鏡頭角度"), tr("道路 UI 的攝影機視圖。這純粹是視覺上的變化，不會影響 openpilot 的駕駛方式."), ""},
     {"ShowStoppingPoint", tr("顯示停止點"), tr("在螢幕上顯示 openpilot 偵測到潛在紅燈/停車標誌的影像."), ""},
     {"HideLeadMarker", tr("隱藏引導標記"), tr("在螢幕上隱藏前方車輛的標記."), ""},
@@ -10,7 +10,7 @@ FrogPilotAdvancedVisualsPanel::FrogPilotAdvancedVisualsPanel(FrogPilotSettingsWi
     {"HideUIElements", tr("隱藏使用者介面元素"), tr("在道路畫面上隱藏選定的 UI 元素."), ""},
     {"WheelSpeed", tr("使用輪速"), tr("在道路使用者介面中使用車輪速度而不是叢集速度."), ""},
 
-    {"DeveloperUI", tr("開發者介面"), tr("顯示openpilot內部操作的詳細信息."), "../frogpilot/assets/toggle_icons/icon_advanced_device.png"},
+    {"DeveloperUI", tr("行車畫面設定"), tr("顯示openpilot內部操作的詳細信息."), "../frogpilot/assets/toggle_icons/icon_advanced_device.png"},
     {"BorderMetrics", tr("邊界指標"), tr("駕駛時在螢幕邊緣顯示性能指標."), ""},
     {"FPSCounter", tr("FPS顯示"), tr("駕駛時在螢幕底部顯示「每秒影格數」(FPS)."), ""},
     {"LateralMetrics", tr("橫向指標"), tr("駕駛時在螢幕頂部顯示與轉向控制相關的指標."), ""},
@@ -19,7 +19,7 @@ FrogPilotAdvancedVisualsPanel::FrogPilotAdvancedVisualsPanel(FrogPilotSettingsWi
     {"SidebarMetrics", tr("側邊欄"), tr("在側邊欄中顯示 CPU、GPU、RAM 使用情況、IP 位址和儲存空間等系統資訊."), ""},
     {"UseSI", tr("使用國際單位制"), tr("使用「國際單位制」(SI) 顯示測量值."), ""},
 
-    {"ModelUI", tr("使用者介面模型"), tr("自訂螢幕上的模型視覺化."), "../frogpilot/assets/toggle_icons/icon_advanced_calibration.png"},
+    {"ModelUI", tr("行車車道線設定"), tr("自訂螢幕上的模型視覺化."), "../frogpilot/assets/toggle_icons/icon_advanced_calibration.png"},
     {"LaneLinesWidth", tr("車道線寬度"), tr("顯示幕上顯示的車道線有多粗.\n\n預設符合MUTCD標準4英寸."), ""},
     {"PathEdgeWidth", tr("路徑邊緣寬度"), tr("代表不同模式和狀態的行駛路徑邊緣的寬度.\n\n預設為 20% 總路徑寬度.\n\nColor Guide:\n- Blue: Navigation\n- Light Blue: 'Always On Lateral'\n- Green: Default\n- Orange: 'Experimental Mode'\n- Red: 'Traffic Mode'\n- Yellow: 'Conditional Experimental Mode' Overridden"), ""},
     {"PathWidth", tr("路徑寬度"), tr("螢幕上顯示的行駛路徑有多寬.\n\n預設值（6.1 英尺/1.9 公尺）與 2019 年雷克薩斯 ES 350 的寬度相符."), ""},
