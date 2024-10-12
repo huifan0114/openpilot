@@ -2,20 +2,20 @@
 
 FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
   const std::vector<std::tuple<QString, QString, QString, QString>> visualToggles {
-    {"CustomUI", tr("自定義道路畫面"), tr("Custom定義自己喜歡的道路介面."), "../assets/offroad/icon_road.png"},
-    {"Compass", tr("  羅盤"), tr("將指南針加入道路使用者介面."), ""},
+    {"CustomUI", tr("自設道路畫面"), tr("定義自己喜歡的道路畫面."), "../assets/offroad/icon_road.png"},
+    {"Compass", tr("  羅盤"), tr("將指南針加入道路畫面."), ""},
     {"DynamicPathWidth", tr("  動態路徑寬度"), tr("根據目前接合狀態自動調整行駛路徑顯示的寬度:\n\nFully engaged = 100%\nAlways On Lateral Active = 75%\nFully disengaged = 50%"), ""},
-    {"PedalsOnUI", tr("  踏板"), tr("公路使用者介面中的踏板指示器可根據施加的壓力改變不透明度."), ""},
+    {"PedalsOnUI", tr("  踏板"), tr("公路畫面中顯示踏板指示器可根據施加的壓力改變不透明度."), ""},
     {"CustomPaths", tr("  路徑"), tr("預計的加速路徑、偵測到的車道以及盲點中的車輛."), ""},
-    {"RoadNameUI", tr("  道路名稱"), tr("目前道路名稱使用來自「OpenStreetMap」的資料顯示在螢幕底部'."), ""},
-    {"RotatingWheel", tr("  旋轉方向盤"), tr("onroad UI 中的方向盤會隨著方向盤的移動而旋轉."), ""},
+    {"RoadNameUI", tr("  道路名稱"), tr("將道路名稱顯示在螢幕底部'."), ""},
+    {"RotatingWheel", tr("  旋轉方向盤"), tr("行駛畫面中的方向盤，會隨著方向盤的移動而旋轉."), ""},
 
     {"QOLVisuals", tr("進階設定"), tr("整合各種視覺功能可改善您的駕駛體驗."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
-    {"BigMap", tr("全螢幕地圖顯示"), tr("道路使用者介面中的地圖尺寸更大，更易於導航閱讀."), ""},
-    {"MapStyle", tr("地圖樣式"), tr("導航期間使用的地圖的自訂地圖樣式."), ""},
-    {"StandbyMode", tr("螢幕待機模式"), tr("開車時超時後螢幕會關閉，但如果交戰狀態發生變化或發生重要警報，螢幕會自動喚醒."), ""},
+    {"BigMap", tr("全螢幕地圖顯示"), tr("行駛畫面中的導航地圖尺寸更大."), ""},
+    {"MapStyle", tr("地圖樣式"), tr("導航地圖使用的地圖樣式."), ""},
+    {"StandbyMode", tr("螢幕待機模式"), tr("行駛後螢幕會關閉，但如果狀態發生變化或發生重要警報，螢幕會自動喚醒."), ""},
     {"DriverCamera", tr("倒車時顯示駕駛員攝影機"), tr("車輛倒車時顯示駕駛攝影機畫面."), ""},
-    {"StoppedTimer", tr("停止計時器"), tr("道路使用者介面上的計時器可指示車輛停止了多長時間."), ""}
+    {"StoppedTimer", tr("停止計時器"), tr("行駛畫面的計時器可顯示車輛停止了多長時間."), ""}
   };
 
   for (const auto &[param, title, desc, icon] : visualToggles) {
