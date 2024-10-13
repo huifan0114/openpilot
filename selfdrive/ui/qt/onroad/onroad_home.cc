@@ -188,11 +188,10 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   if (roadtypeProfileRect.contains(pos) ) {
 /////////////////////////////////////////////////////////////////////////////////
     bool Auto_Roadtype = !params.getBool("AutoRoadtype");
-    if (Auto_Roadtype){
-      params.putBoolNonBlocking("AutoRoadtype", Auto_Roadtype);
-    }
     int roadtypeProfile = params.getInt("RoadtypeProfile");
-    if (!Auto_Roadtype){
+    if (Auto_Roadtype){
+      params.putBool("AutoRoadtype", Auto_Roadtype);
+    } else {
       roadtypeProfile = roadtypeProfile +1;
       if (roadtypeProfile > 4){
         roadtypeProfile = 0;
