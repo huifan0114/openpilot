@@ -196,8 +196,8 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
       roadtypeProfile = roadtypeProfile +1;
       if (roadtypeProfile > 4){
         roadtypeProfile = 0;
-        params.putInt ("RoadtypeProfile", roadtypeProfile);
       }
+      params.putInt ("RoadtypeProfile", roadtypeProfile);
     }
 /////////////////////////////////////////////////////////////////////////////////
     updateFrogPilotToggles();
