@@ -21,8 +21,8 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     {"AutoACCGreenLight", "  綠燈啟動", "啟用後當偵測到綠燈時會自動啟動ACC.", ""},
 
     {"Roadtype", "道路種類設定", "開啟後可依道路種類在特定條件下預設時速", "../assets/offroad/icon_road.png"},
-    {"AutoRoadtype", "自動道路種類設定", "開啟後可自動依道路種類在特定條件下預設時速", "../assets/offroad/icon_road.png"},
-    {"RoadtypeProfile", "道路種類設定", "開啟後可依道路種類在特定條件下預設時速", "../assets/offroad/icon_road.png"},
+    {"AutoRoadtype", "自動道路種類設定", "開啟後可自動依道路種類在特定條件下預設時速", ""},
+    {"RoadtypeProfile", "道路種類設定", "開啟後可依道路種類在特定條件下預設時速", ""},
 
     {"ChangeLaneReminder", "  變換車道語音", "開啟後在變換車道時會發出語音提醒.", "../assets/offroad/icon_warning.png"},
     {"Speeddistance", "車速調控跟車距離", "開啟後可依行車路線自動切換跟車距離， 1格 60公里 2格90公里 3格120公里.", "../assets/offroad/icon_distance.png"},
