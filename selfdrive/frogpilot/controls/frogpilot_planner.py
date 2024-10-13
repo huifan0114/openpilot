@@ -62,7 +62,9 @@ class FrogPilotPlanner:
     v_ego = max(carState.vEgo, 0)
 ############
     v_ego_kph = v_ego *3.6
-    if v_ego_kph < 10 :
+    if v_ego_kph == 0 :
+      self.params_memory.put_int("MapSpeed", 2)
+    elif v_ego_kph >= 1 and v_ego_kph < 10 :
       self.params_memory.put_int("MapSpeed", 0)
     elif v_ego_kph >= 10 and v_ego_kph < 30 :
       self.params_memory.put_int("MapSpeed", 1)
