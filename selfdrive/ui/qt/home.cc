@@ -78,27 +78,27 @@ void HomeWindow::updateState(const UIState &s) {
 }
 
 void HomeWindow::offroadTransition(bool offroad) {
-  body->setEnabled(false);
-  sidebar->setVisible(offroad);
-  if (offroad) {
-    slayout->setCurrentWidget(home);
-  } else {
-    showSidebar(params.getBool("Sidebar"));
-    slayout->setCurrentWidget(onroad);
-  }
-////////////////////////////////////////////////
-  // if (true) {
-  //   sidebar->setVisible(true);
-  //   slayout->setCurrentWidget(onroad);
+  // body->setEnabled(false);
+  // sidebar->setVisible(offroad);
+  // if (offroad) {
+  //   slayout->setCurrentWidget(home);
   // } else {
-  //   body->setEnabled(false);
-  //   sidebar->setVisible(offroad);
-  //   if (offroad) {
-  //     slayout->setCurrentWidget(home);
-  //   } else {
-  //     slayout->setCurrentWidget(onroad);
-  //   }
+  //   showSidebar(params.getBool("Sidebar"));
+  //   slayout->setCurrentWidget(onroad);
   // }
+////////////////////////////////////////////////
+  if (true) {
+    sidebar->setVisible(true);
+    slayout->setCurrentWidget(onroad);
+  } else {
+    body->setEnabled(false);
+    sidebar->setVisible(offroad);
+    if (offroad) {
+      slayout->setCurrentWidget(home);
+    } else {
+      slayout->setCurrentWidget(onroad);
+    }
+  }
 ////////////////////////////////////////////////
 }
 
