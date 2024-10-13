@@ -187,17 +187,18 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
 
   if (roadtypeProfileRect.contains(pos) ) {
 /////////////////////////////////////////////////////////////////////////////////
-    bool Auto_Roadtype = !params.getBool("AutoRoadtype");
+    bool Auto_Roadtype = params.getBool("AutoRoadtype");
     int roadtypeProfile = params.getInt("RoadtypeProfile");
     if (Auto_Roadtype){
-      params.putBool("AutoRoadtype", Auto_Roadtype);
+      Auto_Roadtype = !Auto_Roadtype;
+      params.putBoolNonBlocking("AutoRoadtype", Auto_Roadtype);
     } else {
       roadtypeProfile = roadtypeProfile +1;
       if (roadtypeProfile > 4){
         roadtypeProfile = 0;
+        params.putInt ("RoadtypeProfile", roadtypeProfile);
       }
     }
-    params.putInt ("RoadtypeProfile", roadtypeProfile);
 /////////////////////////////////////////////////////////////////////////////////
     updateFrogPilotToggles();
     return;
