@@ -196,6 +196,8 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
       roadtypeProfile = roadtypeProfile +1;
       if (roadtypeProfile > 4){
         roadtypeProfile = 0;
+        Auto_Roadtype = !Auto_Roadtype; // 當 roadtypeProfile = 0 時，啟用 Auto_Roadtype
+        params.putBoolNonBlocking("AutoRoadtype", Auto_Roadtype);
       }
       params.putInt ("RoadtypeProfile", roadtypeProfile);
     }
