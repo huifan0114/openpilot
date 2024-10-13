@@ -20,7 +20,7 @@ private:
   std::set<QString> TrafficModeKeys = {"TrafficModespeed"};
   std::set<QString> VagSpeedKeys = {"VagSpeedFactor"};
   std::set<QString> AutoACCKeys = {"AutoACCspeed", "AutoACCCarAway", "AutoACCGreenLight"};
-  std::set<QString> RoadKeys = {"RoadtypeProfile"};
+  std::set<QString> RoadKeys = {"AutoRoadtype","RoadtypeProfile"};
   std::set<QString> NavspeedKeys = {"NavReminder", "speedoverreminder", "speedreminderreset"};
   std::set<QString> DooropenKeys= {"DriverdoorOpen", "CodriverdoorOpen","LpassengerdoorOpen","RpassengerdoorOpen","LuggagedoorOpen"};
 
