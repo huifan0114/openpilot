@@ -419,6 +419,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
   }
 ///////////////////////////////////////////////
   HFOPinfProfile = params.getBool("HFOPinf");
+  AutoRoadtypeProfile = params.getBool("AutoRoadtype");
   if (HFOPinfProfile){
     leadspeed_diffProfile = paramsMemory.getInt("leadspeeddiffProfile");
     const QRect ci_rect(rect().left() + 20, rect().bottom() - 560, 220, 500);
@@ -433,7 +434,11 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
     }
 
     p.drawRoundedRect(ci_rect, 24, 24);
-    p.setPen(QPen(blackColor(), 6));
+    if (AutoRoadtypeProfile){
+      p.setPen(QPen(QColor(255, 165, 0), 6));
+    }else {
+      p.setPen(QPen(blackColor(), 6));
+    }
     p.drawRoundedRect(ci_rect.adjusted(9, 9, -9, -9), 16, 16);
 
     std::map<int, QString> roadprofileMap = {
@@ -442,11 +447,11 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
       {2, "一般平面"},
       {3, "快速道路"},
       {4, "高速公路"},
-      {5, "自動判斷"},
     };
     int roadProfile = params.getInt("RoadtypeProfile");
     QString roadprofile_text = roadprofileMap[roadProfile];
     p.setFont(InterFont(45, QFont::Normal));
+    p.setPen(QPen(blackColor(), 6));
     p.drawText(ci_rect.adjusted(20, 10, 0, 0), Qt::AlignTop | Qt::AlignJustify, roadprofile_text);
 
     std::map<int, QString> accelerationProfileMap = {
