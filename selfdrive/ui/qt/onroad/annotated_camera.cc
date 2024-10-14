@@ -419,7 +419,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
   }
 ///////////////////////////////////////////////
   HFOPinfProfile = params.getBool("HFOPinf");
-  AutoRoadtypeProfile = params.getBool("AutoRoadtype");
+
   if (HFOPinfProfile){
     leadspeed_diffProfile = paramsMemory.getInt("leadspeeddiffProfile");
     const QRect ci_rect(rect().left() + 20, rect().bottom() - 560, 220, 500);
@@ -433,6 +433,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
       p.setBrush(whiteColor());
     }
 
+    AutoRoadtypeProfile = params.getBool("AutoRoadtype");
     p.drawRoundedRect(ci_rect, 24, 24);
     if (AutoRoadtypeProfile){
       p.setPen(QPen(QColor(255, 165, 0), 6));
