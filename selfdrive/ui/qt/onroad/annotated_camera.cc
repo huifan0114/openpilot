@@ -1615,7 +1615,7 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
   bool auto_roadtype = params.getBool("AutoRoadtype");
   int roadProfile = params.getInt("RoadtypeProfile");
 
-  if (auto_roadtype){
+  if (auto_roadtype && roadProfile != 5 ){
     if (roadName.contains("街") ||roadName.contains("巷") || roadName.contains("弄")) {
       if (roadProfile != 1) {
         roadProfile = 1;
