@@ -179,6 +179,8 @@ private:
   bool autoaccProfile;
   bool fuelpriceProfile;
   bool HFOPinfProfile;
+  bool AutoRoadtypeProfile;
+
   float batteryVol;
   float tankvolumeProfile;
   float tankusedProfile;
