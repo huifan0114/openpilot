@@ -442,6 +442,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
       {2, "一般平面"},
       {3, "快速道路"},
       {4, "高速公路"},
+      {5, "自動判斷"},
     };
     int roadProfile = params.getInt("RoadtypeProfile");
     QString roadprofile_text = roadprofileMap[roadProfile];
