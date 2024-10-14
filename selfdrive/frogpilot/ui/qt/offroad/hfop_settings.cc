@@ -92,7 +92,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
       });
       hfopcontrolsToggle = RoadToggle;
     } else if (param == "RoadtypeProfile") {
-      std::vector<QString> profileOptions{tr("關閉"), tr("巷弄"),tr("平面"), tr("快速"), tr("高速")};
+      std::vector<QString> profileOptions{tr("關閉"), tr("巷弄"),tr("平"), tr("快"), tr("高"), tr("自動")};
       ButtonParamControl *profileSelection = new ButtonParamControl(param, title, desc, icon, profileOptions);
       hfopcontrolsToggle = profileSelection;
 
