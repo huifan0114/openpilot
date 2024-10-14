@@ -130,7 +130,8 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   QRect hideSpeedRect(rect().center().x() - 175, 50, 350, 350);
   QRect maxSpeedRect(7, 25, 225, 225);
   QRect speedLimitRect(7, 250, 225, 225);
-  QRect roadtypeProfileRect(20, 560, 220, 500);
+  QRect autoRoadtypeRect(20, 560, 225, 225);
+  QRect roadtypeProfileRect(20, 800, 225, 225);
 
   if (scene.speed_limit_changed && (leftRect.contains(pos) || rightRect.contains(pos))) {
     bool slcConfirmed = leftRect.contains(pos) ? !scene.right_hand_drive : scene.right_hand_drive;
@@ -185,6 +186,15 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
     return;
   }
 
+  if (autoRoadtypeRect.contains(pos) ) {
+/////////////////////////////////////////////////////////////////////////////////
+    bool Auto_Roadtype = !params.getBool("AutoRoadtype");
+    params.putBoolNonBlocking("AutoRoadtype", Auto_Roadtype);
+/////////////////////////////////////////////////////////////////////////////////
+    updateFrogPilotToggles();
+    return;
+  }
+
   if (roadtypeProfileRect.contains(pos) ) {
 /////////////////////////////////////////////////////////////////////////////////
     bool Auto_Roadtype = params.getBool("AutoRoadtype");
@@ -194,11 +204,7 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
       params.putBoolNonBlocking("AutoRoadtype", Auto_Roadtype);
     } else {
       roadtypeProfile = roadtypeProfile +1;
-      if (roadtypeProfile == 5){
-        Auto_Roadtype = !Auto_Roadtype; // 當 roadtypeProfile = 0 時，啟用 Auto_Roadtype
-        params.putBoolNonBlocking("AutoRoadtype", Auto_Roadtype);
-      }
-      if (roadtypeProfile > 5){
+      if (roadtypeProfile > 4){
         roadtypeProfile = 0;
       }
       params.putInt ("RoadtypeProfile", roadtypeProfile);
