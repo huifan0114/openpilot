@@ -254,7 +254,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       ButtonParamControl *fallbackSelection = new ButtonParamControl(param, title, desc, icon, fallbackOptions);
       longitudinalToggle = fallbackSelection;
     } else if (param == "SLCOverride") {
-      std::vector<QString> overrideOptions{tr("無"), tr("油門踏板壓機"), tr("巡航設定速度")};
+      std::vector<QString> overrideOptions{tr("無"), tr("手動設定"), tr("直接變更")};
       ButtonParamControl *overrideSelection = new ButtonParamControl(param, title, desc, icon, overrideOptions);
       longitudinalToggle = overrideSelection;
     } else if (param == "SLCPriority") {
