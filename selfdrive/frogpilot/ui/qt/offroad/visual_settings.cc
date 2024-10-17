@@ -2,20 +2,20 @@
 
 FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
   const std::vector<std::tuple<QString, QString, QString, QString>> visualToggles {
-    {"CustomUI", tr("Onroad UI Widgets"), tr("Custom FrogPilot widgets used in the onroad user interface."), "../assets/offroad/icon_road.png"},
-    {"Compass", tr("Compass"), tr("A compass in the onroad UI to show the current driving direction."), ""},
-    {"DynamicPathWidth", tr("Dynamic Path Width"), tr("Automatically adjust the width of the driving path display based on the current engagement state:\n\nFully engaged = 100%\nAlways On Lateral Active = 75%\nFully disengaged = 50%"), ""},
-    {"PedalsOnUI", tr("Gas/Brake Pedal Indicators"), tr("Pedal indicators in the onroad UI that change opacity based on the pressure applied."), ""},
-    {"CustomPaths", tr("Paths"), tr("Projected acceleration path, detected lanes, and vehicles in the blind spot."), ""},
-    {"RoadNameUI", tr("Road Name"), tr("The current road name is displayed at the bottom of the screen using data from 'OpenStreetMap'."), ""},
-    {"RotatingWheel", tr("Rotating Steering Wheel"), tr("The steering wheel in the onroad UI rotates along with your steering wheel movements."), ""},
+    {"CustomUI", tr("自設道路畫面"), tr("定義自己喜歡的道路畫面."), "../assets/offroad/icon_road.png"},
+    {"Compass", tr("  羅盤"), tr("將指南針加入道路畫面."), ""},
+    {"DynamicPathWidth", tr("  動態路徑寬度"), tr("根據目前接合狀態自動調整行駛路徑顯示的寬度:\n\nFully engaged = 100%\nAlways On Lateral Active = 75%\nFully disengaged = 50%"), ""},
+    {"PedalsOnUI", tr("  踏板"), tr("公路畫面中顯示踏板指示器可根據施加的壓力改變不透明度."), ""},
+    {"CustomPaths", tr("  路徑"), tr("預計的加速路徑、偵測到的車道以及盲點中的車輛."), ""},
+    {"RoadNameUI", tr("  道路名稱"), tr("將道路名稱顯示在螢幕底部'."), ""},
+    {"RotatingWheel", tr("  旋轉方向盤"), tr("行駛畫面中的方向盤，會隨著方向盤的移動而旋轉."), ""},
 
-    {"QOLVisuals", tr("Quality of Life Improvements"), tr("Miscellaneous visual focused features to improve your overall openpilot experience."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
-    {"BigMap", tr("Larger Map Display"), tr("A larger size of the map in the onroad UI for easier navigation readings."), ""},
-    {"MapStyle", tr("Map Style"), tr("Custom map styles for the map used during navigation."), ""},
-    {"StandbyMode", tr("Screen Standby Mode"), tr("The screen is turned off after it times out when driving, but it automatically wakes up if engagement state changes or important alerts occur."), ""},
-    {"DriverCamera", tr("Show Driver Camera When In Reverse"), tr("The driver camera feed is displayed when the vehicle is in reverse."), ""},
-    {"StoppedTimer", tr("Stopped Timer"), tr("A timer on the onroad UI to indicate how long the vehicle has been stopped."), ""}
+    {"QOLVisuals", tr("進階設定"), tr("整合各種視覺功能可改善您的駕駛體驗."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
+    {"BigMap", tr("全螢幕地圖顯示"), tr("行駛畫面中的導航地圖尺寸更大."), ""},
+    {"MapStyle", tr("地圖樣式"), tr("導航地圖使用的地圖樣式."), ""},
+    {"StandbyMode", tr("螢幕待機模式"), tr("行駛後螢幕會關閉，但如果狀態發生變化或發生重要警報，螢幕會自動喚醒."), ""},
+    {"DriverCamera", tr("倒車時顯示駕駛員攝影機"), tr("車輛倒車時顯示駕駛攝影機畫面."), ""},
+    {"StoppedTimer", tr("停止計時器"), tr("行駛畫面的計時器可顯示車輛停止了多長時間."), ""}
   };
 
   for (const auto &[param, title, desc, icon] : visualToggles) {
@@ -33,12 +33,12 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
       visualToggle = customUIToggle;
     } else if (param == "CustomPaths") {
       std::vector<QString> pathToggles{"AccelerationPath", "AdjacentPath", "BlindSpotPath"};
-      std::vector<QString> pathToggleNames{tr("Acceleration"), tr("Adjacent"), tr("Blind Spot")};
+      std::vector<QString> pathToggleNames{tr("加速"), tr("左右車道"), tr("盲區")};
       customPathsBtn = new FrogPilotButtonToggleControl(param, title, desc, pathToggles, pathToggleNames);
       visualToggle = customPathsBtn;
     } else if (param == "PedalsOnUI") {
       std::vector<QString> pedalsToggles{"DynamicPedalsOnUI", "StaticPedalsOnUI"};
-      std::vector<QString> pedalsToggleNames{tr("Dynamic"), tr("Static")};
+      std::vector<QString> pedalsToggleNames{tr("動態的"), tr("靜止的")};
       FrogPilotButtonToggleControl *pedalsToggle = new FrogPilotButtonToggleControl(param, title, desc, pedalsToggles, pedalsToggleNames, true);
       QObject::connect(pedalsToggle, &FrogPilotButtonToggleControl::buttonClicked, [this](int index) {
         if (index == 0) {
@@ -57,28 +57,31 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
       visualToggle = qolToggle;
     } else if (param == "BigMap") {
       std::vector<QString> mapToggles{"FullMap"};
-      std::vector<QString> mapToggleNames{tr("Full Map")};
+      std::vector<QString> mapToggleNames{tr("全螢幕")};
       visualToggle = new FrogPilotButtonToggleControl(param, title, desc, mapToggles, mapToggleNames);
     } else if (param == "MapStyle") {
       QMap<int, QString> styleMap = {
-        {0, tr("Stock openpilot")},
-        {1, tr("Mapbox Streets")},
-        {2, tr("Mapbox Outdoors")},
-        {3, tr("Mapbox Light")},
-        {4, tr("Mapbox Dark")},
-        {5, tr("Mapbox Satellite")},
-        {6, tr("Mapbox Satellite Streets")},
-        {7, tr("Mapbox Navigation Day")},
-        {8, tr("Mapbox Navigation Night")},
-        {9, tr("Mapbox Traffic Night")},
-        {10, tr("mike854's (Satellite hybrid)")},
+        {0, tr("原始 openpilot")},
+        {1, tr("Mapbox 街道")},
+        {2, tr("Mapbox 戶外活動")},
+        {3, tr("Mapbox 白天")},
+        {4, tr("Mapbox 夜晚")},
+        {5, tr("Mapbox 衛星")},
+        {6, tr("Mapbox 衛星街道")},
+        {7, tr("Mapbox 導航(白天)")},
+        {8, tr("Mapbox 導航(夜晚)")},
+        {9, tr("Mapbox 交通(夜晚)")},
+        {10, tr("mike854's (衛星混合)")},
+        {11, tr("huifan's (街道)")},
+        {12, tr("huifan's 導航(白天)")},
+        {13, tr("huifan's 導航(夜晚)")},
       };
 
       QStringList styles = styleMap.values();
-      ButtonControl *mapStyleButton = new ButtonControl(title, tr("SELECT"), desc);
+      ButtonControl *mapStyleButton = new ButtonControl(title, tr("選擇"), desc);
       QObject::connect(mapStyleButton, &ButtonControl::clicked, [=]() {
         QStringList styles = styleMap.values();
-        QString selection = MultiOptionDialog::getSelection(tr("Select a map style"), styles, "", this);
+        QString selection = MultiOptionDialog::getSelection(tr("選擇地圖樣式"), styles, "", this);
         if (!selection.isEmpty()) {
           int selectedStyle = styleMap.key(selection);
           params.putIntNonBlocking("MapStyle", selectedStyle);

@@ -78,6 +78,9 @@ private:
   ButtonControl *pair_device;
 
   // FrogPilot variables
+///////////////////////////////////
+  ButtonControl *fastinstallBtn;
+///////////////////////////////////
   ButtonControl *resetCalibBtn;
 };
 
@@ -119,6 +122,10 @@ private:
 
   QLabel *onroadLbl;
   LabelControl *versionLbl;
+///////////////////////////////////
+  ButtonControl *delLogBtn;
+  ButtonControl *fastinstallBtn;
+///////////////////////////////////
   ButtonControl *installBtn;
   ButtonControl *downloadBtn;
   ButtonControl *targetBranchBtn;

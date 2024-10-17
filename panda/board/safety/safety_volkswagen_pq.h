@@ -148,7 +148,9 @@ static void volkswagen_pq_rx_hook(const CANPacket_t *to_push) {
         // Exit controls on rising edge of Cancel, override Set/Resume if present simultaneously
         // Signal: GRA_ACC_01.GRA_Abbrechen
         if (GET_BIT(to_push, 9U)) {
-          controls_allowed = false;
+        //////////鍵盤控制////////////
+          controls_allowed = acc_main_on;
+        //////////////////////////////
         }
       }
     } else {

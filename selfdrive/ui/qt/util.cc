@@ -61,16 +61,16 @@ QString timeAgo(const QDateTime &date) {
 
   QString s;
   if (diff < 60) {
-    s = QObject::tr("now");
+    s = "剛剛";
   } else if (diff < 60 * 60) {
     int minutes = diff / 60;
-    s = QObject::tr("%n minute(s) ago", "", minutes);
+    s = QObject::tr("%n 分鐘前", "", minutes);
   } else if (diff < 60 * 60 * 24) {
     int hours = diff / (60 * 60);
-    s = QObject::tr("%n hour(s) ago", "", hours);
+    s = QObject::tr("%n 小時前", "", hours);
   } else if (diff < 3600 * 24 * 7) {
     int days = diff / (60 * 60 * 24);
-    s = QObject::tr("%n day(s) ago", "", days);
+    s = QObject::tr("%n 天前", "", days);
   } else {
     s = date.date().toString();
   }

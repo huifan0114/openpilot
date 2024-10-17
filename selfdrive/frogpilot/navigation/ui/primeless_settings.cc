@@ -1,18 +1,18 @@
 #include "selfdrive/frogpilot/navigation/ui/primeless_settings.h"
 
 FrogPilotPrimelessPanel::FrogPilotPrimelessPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent) {
-  addItem(ipLabel = new LabelControl(tr("Manage Your Settings At"), tr("Device Offline")));
+  addItem(ipLabel = new LabelControl(tr("管理您的設置"), tr("裝置離線")));
 
   std::vector<QString> searchOptions{tr("MapBox"), tr("Amap"), tr("Google")};
-  searchInput = new ButtonParamControl("SearchInput", tr("Destination Search Provider"),
-                                    tr("Select a search provider for destination queries in Navigate on Openpilot. Options include MapBox (recommended), Amap, and Google Maps."),
+  searchInput = new ButtonParamControl("SearchInput", tr("目的地搜尋方式"),
+                                    tr("在 Navigate on Openpilot 中為目的地查詢選擇搜尋提供者。選項包括 MapBox（建議）、Amap 和 Google 地圖."),
                                        "", searchOptions);
   addItem(searchInput);
 
   createMapboxKeyControl(publicMapboxKeyControl, tr("Public Mapbox Key"), "MapboxPublicKey", "pk.");
   createMapboxKeyControl(secretMapboxKeyControl, tr("Secret Mapbox Key"), "MapboxSecretKey", "sk.");
 
-  setupButton = new ButtonControl(tr("Mapbox Setup Instructions"), tr("VIEW"), tr("View the instructions to set up MapBox for 'Primeless Navigation'."), this);
+  setupButton = new ButtonControl(tr("Mapbox 設定說明"), tr("查看"), tr("查看為「Primeless 導航」設定 MapBox 的說明."), this);
   QObject::connect(setupButton, &ButtonControl::clicked, [this]() {
     displayMapboxInstructions(true);
     openMapBoxInstructions();
@@ -32,14 +32,14 @@ FrogPilotPrimelessPanel::FrogPilotPrimelessPanel(FrogPilotSettingsWindow *parent
 void FrogPilotPrimelessPanel::showEvent(QShowEvent *event) {
   WifiManager *wifi = new WifiManager(this);
   QString ipAddress = wifi->getIp4Address();
-  ipLabel->setText(ipAddress.isEmpty() ? tr("Device Offline") : QString("%1:8082").arg(ipAddress));
+  ipLabel->setText(ipAddress.isEmpty() ? tr("裝置離線") : QString("%1:8082").arg(ipAddress));
 
   mapboxPublicKeySet = !params.get("MapboxPublicKey").empty();
   mapboxSecretKeySet = !params.get("MapboxSecretKey").empty();
   setupCompleted = mapboxPublicKeySet && mapboxSecretKeySet;
 
-  publicMapboxKeyControl->setText(mapboxPublicKeySet ? tr("REMOVE") : tr("ADD"));
-  secretMapboxKeyControl->setText(mapboxSecretKeySet ? tr("REMOVE") : tr("ADD"));
+  publicMapboxKeyControl->setText(mapboxPublicKeySet ? tr("移除") : tr("增加"));
+  secretMapboxKeyControl->setText(mapboxSecretKeySet ? tr("移除") : tr("增加"));
 }
 
 void FrogPilotPrimelessPanel::updateState() {
@@ -56,11 +56,11 @@ void FrogPilotPrimelessPanel::updateState() {
 }
 
 void FrogPilotPrimelessPanel::createMapboxKeyControl(ButtonControl *&control, const QString &label, const std::string &paramKey, const QString &prefix) {
-  control = new ButtonControl(label, "", tr("Manage your %1.").arg(label));
+  control = new ButtonControl(label, "", tr("管理你的 %1.").arg(label));
 
   QObject::connect(control, &ButtonControl::clicked, [=] {
-    if (control->text() == tr("ADD")) {
-      QString key = InputDialog::getText(tr("Enter your %1").arg(label), this);
+    if (control->text() == tr("增加")) {
+      QString key = InputDialog::getText(tr("輸入您的 %1").arg(label), this);
 
       if (!key.startsWith(prefix)) {
         key = prefix + key;
@@ -68,11 +68,11 @@ void FrogPilotPrimelessPanel::createMapboxKeyControl(ButtonControl *&control, co
       if (key.length() >= 80) {
         params.putNonBlocking(paramKey, key.toStdString());
       } else {
-        FrogPilotConfirmationDialog::toggleAlert(tr("Inputted key is invalid or too short!"), tr("Okay"), this);
+        FrogPilotConfirmationDialog::toggleAlert(tr("輸入的金鑰無效或太短!"), tr("完成"), this);
       }
     } else {
-      if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to remove your %1?").arg(label), this)) {
-        control->setText(tr("ADD"));
+      if (FrogPilotConfirmationDialog::yesorno(tr("您確定要刪除您的 %1?").arg(label), this)) {
+        control->setText(tr("增加"));
 
         params.remove(paramKey);
 
@@ -81,7 +81,7 @@ void FrogPilotPrimelessPanel::createMapboxKeyControl(ButtonControl *&control, co
     }
   });
 
-  control->setText(params.get(paramKey).empty() ? tr("ADD") : tr("REMOVE"));
+  control->setText(params.get(paramKey).empty() ? tr("增加") : tr("移除"));
   addItem(control);
 }
 

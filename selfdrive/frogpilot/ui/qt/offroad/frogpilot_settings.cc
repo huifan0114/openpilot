@@ -17,6 +17,9 @@
 #include "selfdrive/frogpilot/ui/qt/offroad/utilities.h"
 #include "selfdrive/frogpilot/ui/qt/offroad/vehicle_settings.h"
 #include "selfdrive/frogpilot/ui/qt/offroad/visual_settings.h"
+////////////////////////////
+#include "selfdrive/frogpilot/ui/qt/offroad/hfop_settings.h"
+////////////////////////////
 
 bool checkNNFFLogFileExists(const std::string &carFingerprint) {
   const std::filesystem::path latModelsPath("../car/torque_data/lat_models");
@@ -78,14 +81,22 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
   FrogPilotVisualsPanel *frogpilotVisualsPanel = new FrogPilotVisualsPanel(this);
   QObject::connect(frogpilotVisualsPanel, &FrogPilotVisualsPanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
 
+/////////////////////////////////////////////////////
+  FrogPilotHFOPPanel *frogpilotHFOPPanel = new FrogPilotHFOPPanel(this);
+  QObject::connect(frogpilotHFOPPanel, &FrogPilotHFOPPanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
+/////////////////////////////////////////////////////
+
   std::vector<std::pair<QString, std::vector<QWidget*>>> panels = {
-    {tr("Advanced Settings"), {frogpilotAdvancedDrivingPanel, frogpilotAdvancedVisualsPanel}},
-    {tr("Alerts and Sounds"), {frogpilotSoundsPanel}},
-    {tr("Driving Controls"), {frogpilotLongitudinalPanel, frogpilotLateralPanel}},
-    {tr("Navigation"), {frogpilotMapsPanel, frogpilotPrimelessPanel}},
-    {tr("System Management"), {new FrogPilotDataPanel(this), frogpilotDevicePanel, new UtilitiesPanel(this)}},
-    {tr("Theme and Appearance"), {frogpilotVisualsPanel, frogpilotThemesPanel}},
-    {tr("Vehicle Controls"), {new FrogPilotVehiclesPanel(this)}}
+    {tr("進階設定"), {frogpilotAdvancedDrivingPanel, frogpilotAdvancedVisualsPanel}},
+    {tr("警報和聲音"), {frogpilotSoundsPanel}},
+    {tr("駕駛控制"), {frogpilotLongitudinalPanel, frogpilotLateralPanel}},
+    {tr("導航"), {frogpilotMapsPanel, frogpilotPrimelessPanel}},
+    {tr("系統管理"), {new FrogPilotDataPanel(this), frogpilotDevicePanel, new UtilitiesPanel(this)}},
+    {tr("主題與外觀"), {frogpilotVisualsPanel, frogpilotThemesPanel}},
+    {tr("車輛控制"), {new FrogPilotVehiclesPanel(this)}},
+    /////////////////////////////////////////////////////
+    {tr("H F O P"), {frogpilotHFOPPanel}}
+    /////////////////////////////////////////////////////
   };
 
   std::vector<QString> icons = {
@@ -96,30 +107,39 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
     "../frogpilot/assets/toggle_icons/icon_system.png",
     "../frogpilot/assets/toggle_icons/icon_display.png",
     "../frogpilot/assets/toggle_icons/icon_vehicle.png",
+    ////////////////////////////
+    "../frogpilot/assets/toggle_icons/icon_system.png",
+    ////////////////////////////
   };
 
   std::vector<QString> descriptions = {
-    tr("Advanced FrogPilot features for more experienced users."),
-    tr("Options to customize FrogPilot's sound alerts and notifications."),
-    tr("FrogPilot features that impact acceleration, braking, and steering."),
-    tr("Offline maps downloader and 'Navigate On openpilot (NOO)' settings."),
-    tr("Tools and system utilities used to maintain and troubleshoot FrogPilot."),
-    tr("Options for customizing FrogPilot's themes, UI appearance, and onroad widgets."),
-    tr("Vehicle-specific settings and configurations for supported makes and models.")
+    tr("適合更有經驗的使用者的高級 FrogPilot 功能."),
+    tr("自訂 FrogPilot 聲音警報和通知的選項."),
+    tr("FrogPilot 的功能不僅僅是衝擊加速、煞車和轉向."),
+    tr("離線地圖下載器和“Navigate On openpilot (NOO)”設置."),
+    tr("用於維護和排除 FrogPilot 故障的工具和系統實用程式."),
+    tr("用於自訂 FrogPilot 主題、UI 外觀和道路小部件的選項."),
+    tr("支援的品牌和型號的車輛特定設定和配置."),
+    ////////////////////////////
+    tr("HFOP 的功能.")
+    ////////////////////////////
   };
 
   std::vector<std::vector<QString>> buttonLabels = {
-    {tr("DRIVING"), tr("VISUALS")},
-    {tr("MANAGE")},
-    {tr("GAS / BRAKE"), tr("STEERING")},
-    {tr("OFFLINE MAPS"), tr("PRIMELESS NAVIGATION")},
-    {tr("DATA"), tr("DEVICE"), tr("UTILITIES")},
-    {tr("APPEARANCE"), tr("THEME")},
-    {tr("MANAGE")}
+    {tr("個人化駕駛"), tr("介面")},
+    {tr("管理")},
+    {tr("油門/煞車"), tr("轉向")},
+    {tr("管理")},
+    {tr("數據"), tr("裝置"), tr("公用")},
+    {tr("外觀"), tr("主題")},
+    {tr("管理")},
+    ////////////////////////////
+    {tr("管理")}
+    ////////////////////////////
   };
 
   for (size_t i = 0; i < panels.size(); ++i) {
-    addPanelControl(list, panels[i].first, descriptions[i], buttonLabels[i], icons[i], panels[i].second, panels[i].first == tr("Driving Controls"), panels[i].first == tr("Navigation"));
+    addPanelControl(list, panels[i].first, descriptions[i], buttonLabels[i], icons[i], panels[i].second, panels[i].first == tr("駕駛控制"), panels[i].first == tr("導航"));
   }
 
   frogpilotSettingsLayout->addWidget(new ScrollView(list, frogpilotSettingsWidget));

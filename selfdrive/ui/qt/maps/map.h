@@ -81,6 +81,10 @@ private:
 
   // FrogPilot variables
   Params params;
+  /////////////////////////
+  Params paramsMemory{"/dev/shm/params"};
+  /////////////////////////
+
 
   int previous_map_style;
 

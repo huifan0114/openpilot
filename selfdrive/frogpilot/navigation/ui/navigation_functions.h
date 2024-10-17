@@ -7,6 +7,12 @@
 
 #include "selfdrive/frogpilot/ui/qt/widgets/frogpilot_controls.h"
 
+///////////////////////////
+inline QMap<QString, QString> taiwanMap = {
+  {"TW", "Taiwan"}
+};
+///////////////////////////
+
 inline QMap<QString, QString> northeastMap = {
   {"CT", "Connecticut"}, {"ME", "Maine"}, {"MA", "Massachusetts"},
   {"NH", "New Hampshire"}, {"NJ", "New Jersey"}, {"NY", "New York"},
@@ -183,12 +189,12 @@ inline QString formatElapsedTime(qint64 elapsedMilliseconds) {
 
   QString formattedTime;
   if (hours > 0) {
-    formattedTime += QString::number(hours) + (hours == 1 ? " hour " : " hours ");
+    formattedTime += QString::number(hours) + (hours == 1 ? " 小時 " : " 小時 ");
   }
   if (minutes > 0) {
-    formattedTime += QString::number(minutes) + (minutes == 1 ? " minute " : " minutes ");
+    formattedTime += QString::number(minutes) + (minutes == 1 ? " 分 " : " 分 ");
   }
-  formattedTime += QString::number(seconds) + (seconds == 1 ? " second" : " seconds");
+  formattedTime += QString::number(seconds) + (seconds == 1 ? " 秒" : " 秒");
 
   return formattedTime;
 }

@@ -23,12 +23,12 @@ void Reset::doErase() {
   if (rm == 0 || fmt == 0) {
     std::system("sudo reboot");
   }
-  body->setText(tr("Reset failed. Reboot to try again."));
+  body->setText(tr("重置失敗。請重新啟動後再試。"));
   rebootBtn->show();
 }
 
 void Reset::startReset() {
-  body->setText(tr("Resetting device...\nThis may take up to a minute."));
+  body->setText(tr("設備重置中...\n可能需要幾分鐘的時間"));
   rejectBtn->hide();
   rebootBtn->hide();
   confirmBtn->hide();
@@ -38,7 +38,7 @@ void Reset::startReset() {
 }
 
 void Reset::confirm() {
-  const QString confirm_txt = tr("Are you sure you want to reset your device?");
+  const QString confirm_txt = tr("確定要重置設備嗎?");
   if (body->text() != confirm_txt) {
     body->setText(confirm_txt);
   } else {
@@ -51,13 +51,13 @@ Reset::Reset(ResetMode mode, QWidget *parent) : QWidget(parent) {
   main_layout->setContentsMargins(45, 220, 45, 45);
   main_layout->setSpacing(0);
 
-  QLabel *title = new QLabel(tr("System Reset"));
+  QLabel *title = new QLabel(tr("系統重置"));
   title->setStyleSheet("font-size: 90px; font-weight: 600;");
   main_layout->addWidget(title, 0, Qt::AlignTop | Qt::AlignLeft);
 
   main_layout->addSpacing(60);
 
-  body = new QLabel(tr("System reset triggered. Press confirm to erase all content and settings. Press cancel to resume boot."));
+  body = new QLabel(tr("按下確認以刪除所有內容及設定。按下取消來繼續開機。"));
   body->setWordWrap(true);
   body->setStyleSheet("font-size: 80px; font-weight: light;");
   main_layout->addWidget(body, 1, Qt::AlignTop | Qt::AlignLeft);
@@ -66,11 +66,11 @@ Reset::Reset(ResetMode mode, QWidget *parent) : QWidget(parent) {
   main_layout->addLayout(blayout);
   blayout->setSpacing(50);
 
-  rejectBtn = new QPushButton(tr("Cancel"));
+  rejectBtn = new QPushButton(tr("取消"));
   blayout->addWidget(rejectBtn);
   QObject::connect(rejectBtn, &QPushButton::clicked, QCoreApplication::instance(), &QCoreApplication::quit);
 
-  rebootBtn = new QPushButton(tr("Reboot"));
+  rebootBtn = new QPushButton(tr("重啟"));
   blayout->addWidget(rebootBtn);
 #ifdef __aarch64__
   QObject::connect(rebootBtn, &QPushButton::clicked, [=]{
@@ -78,7 +78,7 @@ Reset::Reset(ResetMode mode, QWidget *parent) : QWidget(parent) {
   });
 #endif
 
-  confirmBtn = new QPushButton(tr("Confirm"));
+  confirmBtn = new QPushButton(tr("確認"));
   confirmBtn->setStyleSheet(R"(
     QPushButton {
       background-color: #465BEA;
@@ -94,7 +94,7 @@ Reset::Reset(ResetMode mode, QWidget *parent) : QWidget(parent) {
   rejectBtn->setVisible(!recover);
   rebootBtn->setVisible(recover);
   if (recover) {
-    body->setText(tr("Unable to mount data partition. Partition may be corrupted. Press confirm to erase and reset your device."));
+    body->setText(tr("無法掛載資料分割區。分割區可能已經毀損。請確認是否要刪除並重新設定。"));
   }
 
   setStyleSheet(R"(

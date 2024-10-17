@@ -128,7 +128,14 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   QRect rightRect(size.width() / 2, 0, size.width() / 2, size.height());
 
   QRect hideSpeedRect(rect().center().x() - 175, 50, 350, 350);
+///////////////////////
+  QRect maxSpeedRect(7, 25, 225, 225);
+///////////////////////
   QRect speedLimitRect(7, 250, 225, 225);
+///////////////////////
+  QRect autoRoadtypeRect(20, 560, 225, 225);
+  QRect roadtypeProfileRect(20, 800, 225, 225);
+///////////////////////
 
   if (scene.speed_limit_changed && (leftRect.contains(pos) || rightRect.contains(pos))) {
     bool slcConfirmed = leftRect.contains(pos) ? !scene.right_hand_drive : scene.right_hand_drive;
@@ -137,17 +144,80 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
     return;
   }
 
-  if (hideSpeedRect.contains(pos) && scene.hide_speed_ui) {
-    scene.hide_speed = !scene.hide_speed;
-    params.putBoolNonBlocking("HideSpeed", scene.hide_speed);
+  if (maxSpeedRect.contains(pos) ) {
+    // scene.reverse_cruise = !scene.reverse_cruise;
+    // params.putBoolNonBlocking("ReverseCruise", scene.reverse_cruise);
+/////////////////////////////////////////////////////////////////////////////////
+    bool autoaccProfile = !params.getBool("AutoACC");
+    params.putBoolNonBlocking("AutoACC", autoaccProfile);
+/////////////////////////////////////////////////////////////////////////////////
+    updateFrogPilotToggles();
     return;
   }
 
-  if (speedLimitRect.contains(pos) && scene.show_slc_offset_ui) {
-    scene.show_slc_offset = !scene.show_slc_offset;
-    params.putBoolNonBlocking("ShowSLCOffset", scene.show_slc_offset);
+  if (hideSpeedRect.contains(pos)) {
+    scene.hide_speed = !scene.hide_speed;
+    params.putBoolNonBlocking("HideSpeed", scene.hide_speed);
+/////////////////////////////////////////////////////////////////////////////////
+    int ScreenBrightnessOnroadpre = params.getInt("ScreenBrightnessOnroadpre");
+    if (ScreenBrightnessOnroadpre== 0) {
+      params.putInt("ScreenBrightnessOnroadpre", params.getInt("ScreenBrightnessOnroad"));
+      params.putInt("ScreenBrightnessOnroad", 0);
+    }else{
+      params.putInt("ScreenBrightnessOnroad", ScreenBrightnessOnroadpre);
+      params.putInt("ScreenBrightnessOnroadpre", 0);
+    }
+    updateFrogPilotToggles();
+/////////////////////////////////////////////////////////////////////////////////
     return;
   }
+
+  if (speedLimitRect.contains(pos)) {
+    scene.show_slc_offset = !scene.show_slc_offset;
+    params.putBoolNonBlocking("ShowSLCOffset", scene.show_slc_offset);
+/////////////////////////////////////////////////////////////////////////////////
+    bool Traffic_Mode = !params.getBool("TrafficMode");
+    params.putBoolNonBlocking("TrafficMode", Traffic_Mode);
+    // paramsMemory.putBoolNonBlocking("TrafficModeActive", false);
+
+    // if(Traffic_Mode == 1){
+    //   params.putBoolNonBlocking("speedreminderreset", false);
+    // } else{
+    //   params.putBoolNonBlocking("speedreminderreset", true);
+    // }
+    // updateFrogPilotToggles();
+/////////////////////////////////////////////////////////////////////////////////
+    return;
+  }
+
+  if (autoRoadtypeRect.contains(pos) ) {
+/////////////////////////////////////////////////////////////////////////////////
+    bool Auto_Roadtype = !params.getBool("AutoRoadtype");
+    params.putBoolNonBlocking("AutoRoadtype", Auto_Roadtype);
+/////////////////////////////////////////////////////////////////////////////////
+    updateFrogPilotToggles();
+    return;
+  }
+
+  if (roadtypeProfileRect.contains(pos) ) {
+/////////////////////////////////////////////////////////////////////////////////
+    bool Auto_Roadtype = params.getBool("AutoRoadtype");
+    int roadtypeProfile = params.getInt("RoadtypeProfile");
+    if (Auto_Roadtype){
+      Auto_Roadtype = !Auto_Roadtype;
+      params.putBoolNonBlocking("AutoRoadtype", Auto_Roadtype);
+    } else {
+      roadtypeProfile = roadtypeProfile +1;
+      if (roadtypeProfile > 4){
+        roadtypeProfile = 0;
+      }
+      params.putInt ("RoadtypeProfile", roadtypeProfile);
+    }
+/////////////////////////////////////////////////////////////////////////////////
+    updateFrogPilotToggles();
+    return;
+  }
+
 
   if (scene.experimental_mode_via_screen && pos != timeoutPoint) {
     if (clickTimer.isActive()) {
