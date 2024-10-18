@@ -76,11 +76,6 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPi
   addItem(territoriesLabel = new LabelControl(tr("United States - Territories"), ""));
   addItem(territoriesMaps = new MapSelectionControl(territoriesMap));
 
-  ///////////////////////////////////
-  addItem(taiwanLabel = new LabelControl(tr("Taiwan"), ""));
-  addItem(taiwanMaps = new MapSelectionControl(taiwanMap, true));
-  ///////////////////////////////////
-
   addItem(africaLabel = new LabelControl(tr("Africa"), ""));
   addItem(africaMaps = new MapSelectionControl(africaMap, true));
 
@@ -319,9 +314,6 @@ void FrogPilotMapsPanel::displayMapButtons(bool visible) {
   removeMapsButton->setVisible(!visible && QDir(mapsFolderPath).exists());
   selectMapsButton->setVisible(!visible);
 
-  ///////////////////////////////////
-  taiwanMaps->setVisible(visible && countriesOpen);
-  ///////////////////////////////////
   africaMaps->setVisible(visible && countriesOpen);
   antarcticaMaps->setVisible(visible && countriesOpen);
   asiaMaps->setVisible(visible && countriesOpen);

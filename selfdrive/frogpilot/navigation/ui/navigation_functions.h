@@ -7,12 +7,6 @@
 
 #include "selfdrive/frogpilot/ui/qt/widgets/frogpilot_controls.h"
 
-///////////////////////////
-inline QMap<QString, QString> taiwanMap = {
-  {"TW", "Taiwan"}
-};
-///////////////////////////
-
 inline QMap<QString, QString> northeastMap = {
   {"CT", "Connecticut"}, {"ME", "Maine"}, {"MA", "Massachusetts"},
   {"NH", "New Hampshire"}, {"NJ", "New Jersey"}, {"NY", "New York"},
