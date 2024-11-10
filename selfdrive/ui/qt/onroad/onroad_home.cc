@@ -127,9 +127,13 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   QRect leftRect(0, 0, size.width() / 2, size.height());
   QRect rightRect(size.width() / 2, 0, size.width() / 2, size.height());
 
+///////////////////////
   QRect hideSpeedRect(rect().center().x() - 175, 50, 350, 350);
   QRect maxSpeedRect(7, 25, 225, 225);
   QRect speedLimitRect(7, 250, 225, 225);
+  QRect autoRoadtypeRect(20, 560, 225, 225);
+  QRect roadtypeProfileRect(20, 800, 225, 225);
+///////////////////////
 
   if (scene.speed_limit_changed && (leftRect.contains(pos) || rightRect.contains(pos))) {
     bool slcConfirmed = leftRect.contains(pos) ? !scene.right_hand_drive : scene.right_hand_drive;
@@ -174,16 +178,43 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
     params.putBoolNonBlocking("TrafficMode", Traffic_Mode);
     paramsMemory.putBoolNonBlocking("TrafficModeActive", Traffic_Mode);
 
-    if(Traffic_Mode == 1){
-      params.putBoolNonBlocking("speedreminderreset", false);
-    } else{
-      params.putBoolNonBlocking("speedreminderreset", true);
-    }
+    // if(Traffic_Mode == 1){
+    //   params.putBoolNonBlocking("speedreminderreset", false);
+    // } else{
+    //   params.putBoolNonBlocking("speedreminderreset", true);
+    // }
     updateFrogPilotToggles();
 /////////////////////////////////////////////////////////////////////////////////
     return;
   }
 
+  if (autoRoadtypeRect.contains(pos) ) {
+/////////////////////////////////////////////////////////////////////////////////
+    bool Auto_Roadtype = !params.getBool("AutoRoadtype");
+    params.putBoolNonBlocking("AutoRoadtype", Auto_Roadtype);
+/////////////////////////////////////////////////////////////////////////////////
+    updateFrogPilotToggles();
+    return;
+  }
+
+  if (roadtypeProfileRect.contains(pos) ) {
+/////////////////////////////////////////////////////////////////////////////////
+    bool Auto_Roadtype_set = params.getBool("AutoRoadtype");
+    int roadtypeProfile = params.getInt("RoadtypeProfile");
+    if (Auto_Roadtype_set){
+      Auto_Roadtype_set = !Auto_Roadtype_set;
+      params.putBoolNonBlocking("AutoRoadtype", Auto_Roadtype_set);
+    } else {
+      roadtypeProfile = roadtypeProfile +1;
+      if (roadtypeProfile > 4){
+        roadtypeProfile = 0;
+      }
+      params.putInt ("RoadtypeProfile", roadtypeProfile);
+    }
+/////////////////////////////////////////////////////////////////////////////////
+    updateFrogPilotToggles();
+    return;
+  }
   if (scene.experimental_mode_via_screen && pos != timeoutPoint) {
     if (clickTimer.isActive()) {
       clickTimer.stop();
