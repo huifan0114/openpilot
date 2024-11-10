@@ -54,7 +54,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
 
     {"DrivingPersonalities", tr("設定駕駛模式"), tr("管理個人的駕駛行為'."), "../frogpilot/assets/toggle_icons/icon_personality.png"},
     {"CustomPersonalities", tr("客製化設定"), tr("根據您的駕駛風格客製化駕駛個性檔案."), ""},
-    {"PersonalityInfo", tr("這些的作用"), tr("了解「自訂個性設定檔」中的所有數值對 openpilot 的駕駛行為有何影響."), ""}, 
+    {"PersonalityInfo", tr("這些的作用"), tr("了解「自訂個性設定檔」中的所有數值對 openpilot 的駕駛行為有何影響."), ""},
     {"TrafficPersonalityProfile", tr("塞車模式"), tr("設定塞車模式行為."), "../frogpilot/assets/other_images/traffic.png"},
     {"TrafficFollow", tr("跟隨距離"), tr("設定使用「塞車模式」時的最小跟隨距離。當在 0 到 %1 之間行駛時，您的跟隨距離將在此距離和「激進」設定檔中的跟隨距離之間動態調整.\n\n例如:\n\n塞車模式: 0.5s\n積極模式: 1.0s\n\n0%2 = 0.5s\n%3 = 0.75s\n%1 = 1.0s"), ""},
     {"TrafficJerkAcceleration", tr("加速/減速度 反應調整"), tr("自訂使用「塞車模式」時的加速反應."), ""},
@@ -733,10 +733,10 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
 
           if (!hasPCMCruise) {
             modifiedQolKeys.erase("ReverseCruise");
-          } else {
-            modifiedQolKeys.erase("CustomCruise");
-            modifiedQolKeys.erase("CustomCruiseLong");
-            modifiedQolKeys.erase("SetSpeedOffset");
+          // } else {
+            // modifiedQolKeys.erase("CustomCruise");
+            // modifiedQolKeys.erase("CustomCruiseLong");
+            // modifiedQolKeys.erase("SetSpeedOffset");
           }
 
           if (!isToyota && !isGM && !isHKGCanFd) {
