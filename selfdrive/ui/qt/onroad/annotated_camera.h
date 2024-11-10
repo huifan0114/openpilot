@@ -171,6 +171,7 @@ private:
 
   ////////////////////////////
   int leadspeed_diffProfile;
+  int AutoRoadtypeProfile;
   bool autoaccProfile;
   bool fuelpriceProfile;
   bool HFOPinfProfile;
