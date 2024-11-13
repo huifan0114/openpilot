@@ -251,6 +251,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"leadspeedProfile", PERSISTENT},
     {"leaddisProfile", PERSISTENT},
     {"leadspeeddiffProfile", PERSISTENT},
+    // {"leadtimeGap", PERSISTENT},
     {"speedoverreminder", PERSISTENT},
     {"speedreminderreset", PERSISTENT},
     {"ChangeLaneReminder", PERSISTENT},
