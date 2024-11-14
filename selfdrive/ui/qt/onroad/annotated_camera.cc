@@ -907,22 +907,28 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::ModelDataV
     paramsMemory.putInt("leadspeeddiffProfile", (v_rel * speedConversion));
     // paramsMemory.putInt("leadtimeGap", leadtimeGapScaledInt);
     if (v_ego > 50) {
-        if (leadtimeGapScaledInt > 2000) {
-            paramsMemory.putInt("StoppingDistance", 4);
-        } else {
+        if (leadtimeGapScaledInt > 3000) {
             paramsMemory.putInt("StoppingDistance", 5);
+        } else {
+            paramsMemory.putInt("StoppingDistance", 4);
         }
     } else if (v_ego >= 30) {  // 表示 30 <= v_ego <= 50
         if (leadtimeGapScaledInt > 2000) {
-            paramsMemory.putInt("StoppingDistance", 2);
-        } else {
             paramsMemory.putInt("StoppingDistance", 3);
+        } else {
+            paramsMemory.putInt("StoppingDistance", 2);
         }
-    } else {  // 表示 v_ego < 30
+    } else if (v_ego >= 10) {  // 表示 10 <= v_ego < 30
         if (leadtimeGapScaledInt > 2000) {
+            paramsMemory.putInt("StoppingDistance", 3);
+        } else {
+            paramsMemory.putInt("StoppingDistance", 2);
+        }
+    } else {  // 表示 v_ego < 10
+        if (leadtimeGapScaledInt > 1000) {
             paramsMemory.putInt("StoppingDistance", 1);
         } else {
-            paramsMemory.putInt("StoppingDistance", 2);
+            paramsMemory.putInt("StoppingDistance", 0);
         }
     }
 
