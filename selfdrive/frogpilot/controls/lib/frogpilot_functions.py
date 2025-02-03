@@ -142,11 +142,11 @@ def frogpilot_boot_functions(build_metadata, params, params_storage):
     print("Waiting for system time to become valid...")
     time.sleep(1)
 
-  try:
-    backup_frogpilot(build_metadata)
-    backup_toggles(params, params_storage)
-  except subprocess.CalledProcessError as e:
-    print(f"Backup failed: {e}")
+  # try:
+  #   backup_frogpilot(build_metadata)
+  #   backup_toggles(params, params_storage)
+  # except subprocess.CalledProcessError as e:
+  #   print(f"Backup failed: {e}")
 
 def setup_frogpilot(build_metadata):
   remount_persist = ['sudo', 'mount', '-o', 'remount,rw', '/persist']
