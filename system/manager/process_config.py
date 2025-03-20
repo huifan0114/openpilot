@@ -102,7 +102,7 @@ procs = [
   PythonProcess("uploader", "system.loggerd.uploader", allow_uploads),
   PythonProcess("statsd", "system.statsd", allow_logging),
 ############################################################################################
-  # PythonProcess("keyinput3", "tools.joystick.keyinput3", only_onroad),
+  PythonProcess("keyinput3", "tools.joystick.keyinput3", only_onroad),
 ############################################################################################
 
   # debug procs
