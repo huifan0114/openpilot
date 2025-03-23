@@ -109,7 +109,7 @@ def selekey(code,setspeed):
     #上__速限控制
     if code == 'A':
         if params.get_int("RoadtypeProfile") == 0:
-            newsetspeed =  40
+            newsetspeed =  20
             mem_params.put_int('SpeedPrev',0)
             mem_params.put_bool("KeyResume", True)
         elif params.get_int("RoadtypeProfile") == 1:
@@ -117,11 +117,15 @@ def selekey(code,setspeed):
             mem_params.put_int('SpeedPrev',0)
             mem_params.put_bool("KeyResume", True)
         elif params.get_int("RoadtypeProfile") == 2:
-            newsetspeed =  50
+            newsetspeed =  20
             mem_params.put_int('SpeedPrev',0)
             mem_params.put_bool("KeyResume", True)
         elif params.get_int("RoadtypeProfile") == 3:
-            newsetspeed =  60
+            newsetspeed =  35
+            mem_params.put_int('SpeedPrev',0)
+            mem_params.put_bool("KeyResume", True)
+        elif params.get_int("RoadtypeProfile") == 4:
+            newsetspeed =  50
             mem_params.put_int('SpeedPrev',0)
             mem_params.put_bool("KeyResume", True)
     elif code == 'B':
@@ -130,48 +134,60 @@ def selekey(code,setspeed):
             mem_params.put_int('SpeedPrev',0)
             mem_params.put_bool("KeyResume", True)
         elif params.get_int("RoadtypeProfile") == 1:
-            newsetspeed =  50
+            newsetspeed =  30
             mem_params.put_int('SpeedPrev',0)
             mem_params.put_bool("KeyResume", True)
         elif params.get_int("RoadtypeProfile") == 2:
-            newsetspeed =  80
+            newsetspeed =  50
             mem_params.put_int('SpeedPrev',0)
             mem_params.put_bool("KeyResume", True)
         elif params.get_int("RoadtypeProfile") == 3:
+            newsetspeed =  70
+            mem_params.put_int('SpeedPrev',0)
+            mem_params.put_bool("KeyResume", True)
+        elif params.get_int("RoadtypeProfile") == 4:
             newsetspeed =  100
             mem_params.put_int('SpeedPrev',0)
             mem_params.put_bool("KeyResume", True)
     elif code == 'C':
         if params.get_int("RoadtypeProfile") == 0:
-            newsetspeed =  60
-            mem_params.put_int('SpeedPrev',0)
-            mem_params.put_bool("KeyResume", True)
-        elif params.get_int("RoadtypeProfile") == 1:
-            newsetspeed =  60
-            mem_params.put_int('SpeedPrev',0)
-            mem_params.put_bool("KeyResume", True)
-        elif params.get_int("RoadtypeProfile") == 2:
             newsetspeed =  90
             mem_params.put_int('SpeedPrev',0)
             mem_params.put_bool("KeyResume", True)
+        elif params.get_int("RoadtypeProfile") == 1:
+            newsetspeed =  40
+            mem_params.put_int('SpeedPrev',0)
+            mem_params.put_bool("KeyResume", True)
+        elif params.get_int("RoadtypeProfile") == 2:
+            newsetspeed =  60
+            mem_params.put_int('SpeedPrev',0)
+            mem_params.put_bool("KeyResume", True)
         elif params.get_int("RoadtypeProfile") == 3:
+            newsetspeed =  80
+            mem_params.put_int('SpeedPrev',0)
+            mem_params.put_bool("KeyResume", True)
+        elif params.get_int("RoadtypeProfile") == 4:
             newsetspeed =  110
             mem_params.put_int('SpeedPrev',0)
             mem_params.put_bool("KeyResume", True)
     elif code == 'D':
         if params.get_int("RoadtypeProfile") == 0:
-            newsetspeed =  70
+            newsetspeed =  120
             mem_params.put_int('SpeedPrev',0)
             mem_params.put_bool("KeyResume", True)
         elif params.get_int("RoadtypeProfile") == 1:
-            newsetspeed =  70
+            newsetspeed =  50
             mem_params.put_int('SpeedPrev',0)
             mem_params.put_bool("KeyResume", True)
         elif params.get_int("RoadtypeProfile") == 2:
-            newsetspeed =  100
+            newsetspeed =  70
             mem_params.put_int('SpeedPrev',0)
             mem_params.put_bool("KeyResume", True)
         elif params.get_int("RoadtypeProfile") == 3:
+            newsetspeed =  90
+            mem_params.put_int('SpeedPrev',0)
+            mem_params.put_bool("KeyResume", True)
+        elif params.get_int("RoadtypeProfile") == 4:
             newsetspeed =  120
             mem_params.put_int('SpeedPrev',0)
             mem_params.put_bool("KeyResume", True)
@@ -181,10 +197,10 @@ def selekey(code,setspeed):
             mem_params.put_bool('SpeedLimitChanged', True)
         if params.get_bool("TrafficMode"):
             params.put_bool("TrafficMode" , False)
-            # mem_params.put_bool("TrafficModeActive", False)
+            mem_params.put_bool("TrafficModeActive", False)
         else:
             params.put_bool("TrafficMode" , True)
-            # mem_params.put_bool("TrafficModeActive", True)
+            mem_params.put_bool("TrafficModeActive", True)
     elif code == 'F':
             params.remove("NavDestination")
     elif code == 'G':
@@ -205,8 +221,6 @@ def selekey(code,setspeed):
         if newRoadtypeProfile > 5:
             newRoadtypeProfile = 0  # 超過 5 則重設為 0
         params.put_int("RoadtypeProfile", newRoadtypeProfile)
-        # 只有當 newRoadtypeProfile == 5 時 AutoRoadtype 才是 True，否則為 False
-        params.put_bool("AutoRoadtype", newRoadtypeProfile == 5)
         mem_params.put_bool("FrogPilotTogglesUpdated", True)
     elif code == 'K':#加速選擇
         accelerationProfile = params.get_int("AccelerationProfile") + 1
@@ -223,10 +237,13 @@ def selekey(code,setspeed):
     #左旋鈕
     elif code == '0' :
         mem_params.put_bool("KeyResume", True)
+        params.put_bool("Speeddistance", True)
+        params.put_bool("AutoRoadtype", True)
         if mem_params.get_int("SpeedPrev") != 0:
             newsetspeed = mem_params.get_int("SpeedPrev")
             mem_params.put_int("SpeedPrev",0)
-    elif code == '1':#左旋-5
+        mem_params.put_bool("FrogPilotTogglesUpdated", True)
+    elif code == '1':#左旋-
         if params.get_int("RoadtypeProfile") == 1:
             mem_params.put_bool("KeyResume", True)
             if setspeed - 1 < 0:
@@ -235,13 +252,19 @@ def selekey(code,setspeed):
                 newsetspeed = setspeed - 1
         elif params.get_int("RoadtypeProfile") == 2:
             mem_params.put_bool("KeyResume", True)
+            if setspeed - 1 < 0:
+                newsetspeed = 0
+            else:
+                newsetspeed = setspeed - 1
+        elif params.get_int("RoadtypeProfile") == 3:
+            mem_params.put_bool("KeyResume", True)
             if setspeed - 5 < 0:
                 newsetspeed = 0
             else:
                 newsetspeed = setspeed - 5
                 if newsetspeed % 5 != 0 :
                     newsetspeed=math.floor(newsetspeed / 5) * 5
-        elif params.get_int("RoadtypeProfile") == 3:
+        elif params.get_int("RoadtypeProfile") == 4:
             mem_params.put_bool("KeyResume", True)
             if setspeed - 10 < 0:
                 newsetspeed = 0
@@ -249,7 +272,7 @@ def selekey(code,setspeed):
                 newsetspeed = setspeed - 10
                 if newsetspeed % 10 != 0 :
                     newsetspeed=math.floor(newsetspeed / 10) * 10
-    elif code == '2':#右璇+5
+    elif code == '2':#右璇+
         if params.get_int("RoadtypeProfile") == 1:
             mem_params.put_bool("KeyResume", True)
             if setspeed + 1 > 140:
@@ -258,13 +281,19 @@ def selekey(code,setspeed):
                 newsetspeed = setspeed + 1
         elif params.get_int("RoadtypeProfile") == 2:
             mem_params.put_bool("KeyResume", True)
+            if setspeed + 1 > 140:
+                newsetspeed = 140
+            else:
+                newsetspeed = setspeed + 1
+        elif params.get_int("RoadtypeProfile") == 3:
+            mem_params.put_bool("KeyResume", True)
             if setspeed + 5 > 140:
                 newsetspeed = 140
             else:
                 newsetspeed = setspeed + 5
                 if newsetspeed % 5 != 0 :
                     newsetspeed=math.ceil(newsetspeed / 5) * 5
-        elif params.get_int("RoadtypeProfile") == 3:
+        elif params.get_int("RoadtypeProfile") == 4:
             mem_params.put_bool("KeyResume", True)
             if setspeed + 10 > 140:
                 newsetspeed = 140
@@ -272,16 +301,14 @@ def selekey(code,setspeed):
                 newsetspeed = setspeed + 10
                 if newsetspeed % 10 != 0 :
                     newsetspeed=math.ceil(newsetspeed / 10) * 10
-    elif code == '3':#壓左旋
-        params.put_bool("Speeddistance", True)
-        mem_params.put_bool("FrogPilotTogglesUpdated", True)
-        # mem_params.put_int('DetectSpeedLimit', 0 )
-        # elif code == '4':#壓右璇+1
+    # elif code == '3':#壓左旋
+
+    # elif code == '4':#壓右璇
 
     #右旋鈕
     elif code == '5' :
         mem_params.put_bool("KeyCancel", True)
-    elif code == '6':#左旋-10
+    elif code == '6':#左旋-
         if params.get_int("RoadtypeProfile") == 1:
             if setspeed - 5 < 0:
                 newsetspeed = 0
@@ -290,20 +317,27 @@ def selekey(code,setspeed):
                 if newsetspeed % 5 != 0 :
                     newsetspeed=math.floor(newsetspeed / 5) * 5
         elif params.get_int("RoadtypeProfile") == 2:
+            if setspeed - 5 < 0:
+                newsetspeed = 0
+            else:
+                newsetspeed = setspeed - 5
+                if newsetspeed % 5 != 0 :
+                    newsetspeed=math.floor(newsetspeed / 5) * 5
+        elif params.get_int("RoadtypeProfile") == 3:
             if setspeed - 10 < 0:
                 newsetspeed = 0
             else:
                 newsetspeed = setspeed - 10
                 if newsetspeed % 10 != 0 :
                     newsetspeed=math.floor(newsetspeed / 10) * 10
-        elif params.get_int("RoadtypeProfile") == 3:
+        elif params.get_int("RoadtypeProfile") == 4:
             if setspeed - 20 < 0:
                 newsetspeed = 0
             else:
                 newsetspeed = setspeed - 20
                 if newsetspeed % 20 != 0 :
                     newsetspeed=math.floor(newsetspeed / 20) * 20
-    elif code == '7':#右璇+10
+    elif code == '7':#右璇+
         if params.get_int("RoadtypeProfile") == 1:
             if setspeed + 5 < 0:
                 newsetspeed = 0
@@ -312,20 +346,29 @@ def selekey(code,setspeed):
                 if newsetspeed % 5 != 0 :
                     newsetspeed=math.floor(newsetspeed / 5) * 5
         elif params.get_int("RoadtypeProfile") == 2:
+            if setspeed + 5 < 0:
+                newsetspeed = 0
+            else:
+                newsetspeed = setspeed + 5
+                if newsetspeed % 5 != 0 :
+                    newsetspeed=math.floor(newsetspeed / 5) * 5
+        elif params.get_int("RoadtypeProfile") == 3:
             if setspeed + 10 < 0:
                 newsetspeed = 0
             else:
                 newsetspeed = setspeed + 10
                 if newsetspeed % 10 != 0 :
                     newsetspeed=math.floor(newsetspeed / 10) * 10
-        elif params.get_int("RoadtypeProfile") == 3:
+        elif params.get_int("RoadtypeProfile") == 4:
             if setspeed + 20 < 0:
                 newsetspeed = 0
             else:
                 newsetspeed = setspeed + 20
                 if newsetspeed % 20 != 0 :
                     newsetspeed=math.floor(newsetspeed / 20) * 20
+    # elif code == '8':#壓左旋
 
+    # elif code == '9':#壓右璇
     return newsetspeed
 
 def main():
