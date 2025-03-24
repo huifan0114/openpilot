@@ -218,7 +218,7 @@ def selekey(code,setspeed):
         # params.put_bool("KeyResume", True)
     elif code == 'J':#道路選擇
         newRoadtypeProfile = params.get_int("RoadtypeProfile") + 1
-        if newRoadtypeProfile > 5:
+        if newRoadtypeProfile > 4:
             newRoadtypeProfile = 0  # 超過 5 則重設為 0
         params.put_int("RoadtypeProfile", newRoadtypeProfile)
         params.put_bool("AutoRoadtype", False)
@@ -240,6 +240,7 @@ def selekey(code,setspeed):
         mem_params.put_bool("KeyResume", True)
         params.put_bool("Speeddistance", True)
         params.put_bool("AutoRoadtype", True)
+        params.put_bool("AutoACC", True)
         if mem_params.get_int("SpeedPrev") != 0:
             newsetspeed = mem_params.get_int("SpeedPrev")
             mem_params.put_int("SpeedPrev",0)
