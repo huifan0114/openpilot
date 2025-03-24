@@ -197,10 +197,10 @@ def selekey(code,setspeed):
             mem_params.put_bool('SpeedLimitChanged', True)
         if params.get_bool("TrafficMode"):
             params.put_bool("TrafficMode" , False)
-            mem_params.put_bool("TrafficModeActive", False)
+            #mem_params.put_bool("TrafficModeActive", False)
         else:
             params.put_bool("TrafficMode" , True)
-            mem_params.put_bool("TrafficModeActive", True)
+            #mem_params.put_bool("TrafficModeActive", True)
     elif code == 'F':
             params.remove("NavDestination")
     elif code == 'G':
@@ -221,6 +221,7 @@ def selekey(code,setspeed):
         if newRoadtypeProfile > 5:
             newRoadtypeProfile = 0  # 超過 5 則重設為 0
         params.put_int("RoadtypeProfile", newRoadtypeProfile)
+        params.put_bool("AutoRoadtype", False)
         mem_params.put_bool("FrogPilotTogglesUpdated", True)
     elif code == 'K':#加速選擇
         accelerationProfile = params.get_int("AccelerationProfile") + 1
