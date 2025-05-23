@@ -66,7 +66,7 @@ procs = [
   PythonProcess("timed", "system.timed", always_run, enabled=not PC),
 
 ############################################################################################
-  PythonProcess("dmonitoringmodeld", "selfdrive.modeld.dmonitoringmodeld", enable_dm, enabled=(not PC or WEBCAM)),
+ # PythonProcess("dmonitoringmodeld", "selfdrive.modeld.dmonitoringmodeld", enable_dm, enabled=(not PC or WEBCAM)),
 ############################################################################################
   NativeProcess("encoderd", "system/loggerd", ["./encoderd"], allow_logging),
   NativeProcess("stream_encoderd", "system/loggerd", ["./encoderd", "--stream"], notcar),
