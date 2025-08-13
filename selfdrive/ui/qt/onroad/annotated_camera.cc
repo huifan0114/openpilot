@@ -409,10 +409,35 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
       p.setFont(InterFont(66));
       drawText(p, rect().center().x(), 290, QString("%1 seconds").arg(seconds));
     } else {
-      p.setPen(QColor(255, 200, 150));  // 淡橘色
-      p.setFont(InterFont(176, QFont::Normal));
-      drawText(p, rect().center().x(), 210, speedStr);
+      QPainterPath textPath;
+
+      // 建立字型與座標
+      QFont bigFont = InterFont(176, QFont::Normal);
+      QString speedText = speedStr;
+      QPointF textPos(rect().center().x(), 210);
+
+      // 把字型轉成路徑（可用來描邊與填色）
+      textPath.addText(0, 0, bigFont, speedText);
+
+      // 將路徑移到指定位置（水平置中）
+      QRectF bounds = textPath.boundingRect();
+      textPath.translate(textPos.x() - bounds.width() / 2, textPos.y());
+
+      // 1. 描邊（白色外框，寬 6px）
+      QPen outlinePen(Qt::black, 6, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+      p.setPen(outlinePen);
+      p.setBrush(Qt::NoBrush);
+      p.drawPath(textPath);
+
+      // 2. 填色（淡橘色）
+      p.setPen(Qt::NoPen);
+      // p.setBrush(QColor(255, 200, 150));
+      p.setBrush(QColor(255, 0, 0));
+      p.drawPath(textPath);
+
+      // 單位（speedUnit）不描邊，維持原本顏色
       p.setFont(InterFont(66));
+      p.setPen(QColor(255, 200, 150));
       drawText(p, rect().center().x(), 290, speedUnit, 200);
     }
   }
