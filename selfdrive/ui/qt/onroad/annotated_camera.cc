@@ -424,14 +424,15 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
       textPath.translate(textPos.x() - bounds.width() / 2, textPos.y());
 
       // 1. 描邊（白色外框，寬 6px）
-      QPen outlinePen(Qt::white, 6, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+      QPen outlinePen(Qt::black, 6, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
       p.setPen(outlinePen);
       p.setBrush(Qt::NoBrush);
       p.drawPath(textPath);
 
       // 2. 填色（淡橘色）
       p.setPen(Qt::NoPen);
-      p.setBrush(QColor(255, 200, 150));
+      // p.setBrush(QColor(255, 200, 150));
+      p.setBrush(QColor(255, 0, 0));
       p.drawPath(textPath);
 
       // 單位（speedUnit）不描邊，維持原本顏色
