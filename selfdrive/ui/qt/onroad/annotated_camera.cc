@@ -409,9 +409,6 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
       p.setFont(InterFont(66));
       drawText(p, rect().center().x(), 290, QString("%1 seconds").arg(seconds));
     } else {
-      QTime sunset(18, 30);
-      QTime now = QTime::currentTime();
-
       QPainterPath textPath;
 
       // 建立字型與座標
@@ -426,34 +423,23 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
       QRectF bounds = textPath.boundingRect();
       textPath.translate(textPos.x() - bounds.width() / 2, textPos.y());
 
-      // 1. 描邊（寬 6px）
-      QPen outlinePen;
-      if (now < sunset) {
-        // 白天（黑色外框）
-        outlinePen = QPen(Qt::black, 6, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-      } else {
-        // 晚上（白色外框）
-        outlinePen = QPen(Qt::white, 6, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-      }
+      // 1. 描邊（白色外框，寬 6px）
+      QPen outlinePen(Qt::black, 6, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
       p.setPen(outlinePen);
       p.setBrush(Qt::NoBrush);
       p.drawPath(textPath);
 
-      // 2. 填色
+      // 2. 填色（淡橘色）
       p.setPen(Qt::NoPen);
-      if (now < sunset) {
-        // 白天（紅色填色）
-        p.setBrush(QColor(255, 0, 0));
-      } else {
-        // 晚上（黑色填色）
-        p.setBrush(Qt::black);
-      }
+      // p.setBrush(QColor(255, 200, 150));
+      p.setBrush(QColor(255, 0, 0));
       p.drawPath(textPath);
 
       // 單位（speedUnit）不描邊，維持原本顏色
       p.setFont(InterFont(66));
       p.setPen(QColor(255, 200, 150));
       drawText(p, rect().center().x(), 290, speedUnit, 200);
+    }
   }
 ///////////////////////////////////////////////
   HFOPinfProfile = params.getBool("HFOPinf");
