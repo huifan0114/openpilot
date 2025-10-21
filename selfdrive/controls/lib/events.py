@@ -159,7 +159,7 @@ class NoEntryAlert(Alert):
                visual_alert: car.CarControl.HUDControl.VisualAlert=VisualAlert.none):
     super().__init__(alert_text_1, alert_text_2, AlertStatus.normal,
                      AlertSize.mid, Priority.LOW, visual_alert,
-                     AudibleAlert.refuse, 3.)
+                     AudibleAlert.none, 3.)
 
 
 class SoftDisableAlert(Alert):
@@ -167,7 +167,7 @@ class SoftDisableAlert(Alert):
     super().__init__("TAKE CONTROL IMMEDIATELY", alert_text_2,
                      AlertStatus.userPrompt, AlertSize.full,
                      Priority.MID, VisualAlert.steerRequired,
-                     AudibleAlert.warningSoft, 2.),
+                     AudibleAlert.none, 2.),
 
 
 # less harsh version of SoftDisable, where the condition is user-triggered
@@ -182,7 +182,7 @@ class ImmediateDisableAlert(Alert):
     super().__init__("TAKE CONTROL IMMEDIATELY", alert_text_2,
                      AlertStatus.critical, AlertSize.full,
                      Priority.HIGHEST, VisualAlert.steerRequired,
-                     AudibleAlert.warningImmediate, 4.),
+                     AudibleAlert.none, 4.),
 
 
 class EngagementAlert(Alert):
@@ -249,7 +249,7 @@ def below_steer_speed_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.S
     f"Steer Unavailable Below {get_display_speed(CP.minSteerSpeed, metric)}",
     "",
     AlertStatus.userPrompt, AlertSize.small,
-    Priority.LOW, VisualAlert.steerRequired, AudibleAlert.prompt, 0.4)
+    Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, 0.4)
 
 
 def calibration_incomplete_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
@@ -351,7 +351,7 @@ def forcing_stop_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMas
     f"Forcing the car to stop in {model_length_msg}",
     "Press the gas pedal or 'Resume' button to override",
     FrogPilotAlertStatus.frogpilot, AlertSize.mid,
-    Priority.MID, VisualAlert.none, AudibleAlert.prompt, 1.)
+    Priority.MID, VisualAlert.none, AudibleAlert.none, 1.)
 
 
 def holiday_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
@@ -375,7 +375,7 @@ def holiday_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, 
     holiday_messages.get(frogpilot_toggles.current_holiday_theme),
     "",
     AlertStatus.normal, AlertSize.small,
-    Priority.LOWEST, VisualAlert.none, FrogPilotAudibleAlert.startup, 5.)
+    Priority.LOWEST, VisualAlert.none, FrogPilotAudibleAlert.none, 5.)
 
 
 def no_lane_available_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
@@ -396,13 +396,13 @@ def torque_nn_load_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
       "NNFF Torque Controller not available",
       "Donate logs to Twilsonco to get your car supported!",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 10.0)
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, 10.0)
   else:
     return Alert(
       "NNFF Torque Controller loaded",
       model_name,
       FrogPilotAlertStatus.frogpilot, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.engage, 5.0)
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, 5.0)
 
 
 EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
@@ -490,7 +490,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "BRAKE!",
       "Risk of Collision",
       AlertStatus.critical, AlertSize.full,
-      Priority.HIGHEST, VisualAlert.fcw, AudibleAlert.warningSoft, 2.),
+      Priority.HIGHEST, VisualAlert.fcw, AudibleAlert.none, 2.),
   },
 
   EventName.ldw: {
@@ -498,7 +498,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Lane Departure Detected",
       "",
       AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.ldw, AudibleAlert.prompt, 3.),
+      Priority.LOW, VisualAlert.ldw, AudibleAlert.none, 3.),
   },
 
   # ********** events only containing alerts that display while engaged **********
@@ -508,7 +508,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Steering Temporarily Unavailable",
       "",
       AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.prompt, 1.8),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, 1.8),
   },
 
   EventName.preDriverDistracted: {
@@ -524,7 +524,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Pay Attention",
       "Driver Distracted",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.MID, VisualAlert.steerRequired, AudibleAlert.promptDistracted, .1),
+      Priority.MID, VisualAlert.steerRequired, AudibleAlert.none, .1),
   },
 
   EventName.driverDistracted: {
@@ -532,7 +532,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "DISENGAGE IMMEDIATELY",
       "Driver Distracted",
       AlertStatus.critical, AlertSize.full,
-      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.warningImmediate, .1),
+      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.none, .1),
   },
 
   EventName.preDriverUnresponsive: {
@@ -548,7 +548,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Touch Steering Wheel",
       "Driver Unresponsive",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.MID, VisualAlert.steerRequired, AudibleAlert.promptDistracted, .1),
+      Priority.MID, VisualAlert.steerRequired, AudibleAlert.none, .1),
   },
 
   EventName.driverUnresponsive: {
@@ -556,7 +556,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "DISENGAGE IMMEDIATELY",
       "Driver Unresponsive",
       AlertStatus.critical, AlertSize.full,
-      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.warningImmediate, .1),
+      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.none, .1),
   },
 
   EventName.manualRestart: {
@@ -600,7 +600,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Car Detected in Blindspot",
       "",
       AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, .1),
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
   },
 
   EventName.laneChange: {
@@ -616,7 +616,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Take Control",
       "Turn Exceeds Steering Limit",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.promptRepeat, 2.),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, 2.),
   },
 
   # Thrown when the fan is driven at >50% but is not rotating
@@ -672,34 +672,34 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   # ********** events that affect controls state transitions **********
 
   EventName.pcmEnable: {
-    ET.ENABLE: EngagementAlert(AudibleAlert.engage),
+    ET.ENABLE: EngagementAlert(AudibleAlert.none),
   },
 
   EventName.buttonEnable: {
-    ET.ENABLE: EngagementAlert(AudibleAlert.engage),
+    ET.ENABLE: EngagementAlert(AudibleAlert.none),
   },
 
   EventName.pcmDisable: {
-    ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
+    ET.USER_DISABLE: EngagementAlert(AudibleAlert.none),
   },
 
   EventName.buttonCancel: {
-    ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
+    ET.USER_DISABLE: EngagementAlert(AudibleAlert.none),
     ET.NO_ENTRY: NoEntryAlert("Cancel Pressed"),
   },
 
   EventName.brakeHold: {
-    ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
+    ET.USER_DISABLE: EngagementAlert(AudibleAlert.none),
     ET.NO_ENTRY: NoEntryAlert("Brake Hold Active"),
   },
 
   EventName.parkBrake: {
-    ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
+    ET.USER_DISABLE: EngagementAlert(AudibleAlert.none),
     ET.NO_ENTRY: NoEntryAlert("Parking Brake Engaged"),
   },
 
   EventName.pedalPressed: {
-    ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
+    ET.USER_DISABLE: EngagementAlert(AudibleAlert.none),
     ET.NO_ENTRY: NoEntryAlert("Pedal Pressed",
                               visual_alert=VisualAlert.brakePressed),
   },
@@ -729,7 +729,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   EventName.wrongCarMode: {
-    ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
+    ET.USER_DISABLE: EngagementAlert(AudibleAlert.none),
     ET.NO_ENTRY: wrong_car_mode_alert,
   },
 
@@ -738,7 +738,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   EventName.wrongCruiseMode: {
-    ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
+    ET.USER_DISABLE: EngagementAlert(AudibleAlert.none),
     ET.NO_ENTRY: NoEntryAlert("Adaptive Cruise Disabled"),
   },
 
@@ -1007,7 +1007,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "openpilot Canceled",
       "Speed too low",
       AlertStatus.normal, AlertSize.mid,
-      Priority.HIGH, VisualAlert.none, AudibleAlert.disengage, 3.),
+      Priority.HIGH, VisualAlert.none, AudibleAlert.none, 3.),
   },
 
   # When the car is driving faster than most cars in the training data, the model outputs can be unpredictable.
@@ -1016,7 +1016,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Speed Too High",
       "Model uncertain at this speed",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.promptRepeat, 4.),
+      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.none, 4.),
     ET.NO_ENTRY: NoEntryAlert("Slow down to engage"),
   },
 
@@ -1059,7 +1059,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "JESUS TAKE THE WHEEL!!",
       "Turn Exceeds Steering Limit",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.goat, 2.),
+      Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.none, 2.),
   },
 
   FrogPilotEventName.greenLight: {
@@ -1067,7 +1067,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Light turned green",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
-      Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
+      Priority.MID, VisualAlert.none, AudibleAlert.none, 3.),
   },
 
   FrogPilotEventName.holidayActive: {
@@ -1079,7 +1079,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Car Detected in Blindspot",
       "",
       AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.warningSoft, .1),
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
   },
 
   FrogPilotEventName.leadDeparting: {
@@ -1087,7 +1087,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Lead departed",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
-      Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
+      Priority.MID, VisualAlert.none, AudibleAlert.none, 3.),
   },
 
   FrogPilotEventName.noLaneAvailable: {
@@ -1099,13 +1099,13 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "openpilot crashed",
       "Please post the 'Error Log' in the FrogPilot Discord!",
       AlertStatus.critical, AlertSize.mid,
-      Priority.HIGHEST, VisualAlert.none, AudibleAlert.prompt, .1),
+      Priority.HIGHEST, VisualAlert.none, AudibleAlert.none, .1),
 
     ET.NO_ENTRY: Alert(
       "openpilot crashed",
       "Please post the 'Error Log' in the FrogPilot Discord!",
       AlertStatus.critical, AlertSize.mid,
-      Priority.HIGHEST, VisualAlert.none, AudibleAlert.prompt, .1),
+      Priority.HIGHEST, VisualAlert.none, AudibleAlert.none, .1),
   },
 
   FrogPilotEventName.pedalInterceptorNoBrake: {
@@ -1113,7 +1113,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Braking Unavailable",
       "Shift to L",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.HIGH, VisualAlert.wrongGear, AudibleAlert.promptRepeat, 4.),
+      Priority.HIGH, VisualAlert.wrongGear, AudibleAlert.none, 4.),
   },
 
   FrogPilotEventName.speedLimitChanged: {
@@ -1121,7 +1121,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Speed limit changed",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, 3.),
   },
 
   FrogPilotEventName.thisIsFineSteerSaturated: {
@@ -1129,7 +1129,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "This is fine ☕",
       "Turn Exceeds Steering Limit",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.thisIsFine, 2.),
+      Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.none, 2.),
   },
 
   FrogPilotEventName.torqueNNLoad: {
@@ -1141,7 +1141,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Traffic Mode enabled",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, 3.),
   },
 
   FrogPilotEventName.trafficModeInactive: {
@@ -1149,7 +1149,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Traffic Mode Disabled",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, 3.),
   },
 
   FrogPilotEventName.turningLeft: {
@@ -1174,7 +1174,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "UwU u went a bit fast there!",
       "(⁄ ⁄•⁄ω⁄•⁄ ⁄)",
       FrogPilotAlertStatus.frogpilot, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.uwu, 4.),
+      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.none, 4.),
   },
 
   FrogPilotEventName.accel35: {
@@ -1182,7 +1182,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "I ain't giving you no tree-fiddy",
       "You damn Loch Ness Monsta!",
       FrogPilotAlertStatus.frogpilot, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.nessie, 4.),
+      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.none, 4.),
   },
 
   FrogPilotEventName.accel40: {
@@ -1190,7 +1190,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Great Scott!",
       "🚗💨",
       FrogPilotAlertStatus.frogpilot, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.doc, 4.),
+      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.none, 4.),
   },
 
   FrogPilotEventName.dejaVuCurve: {
@@ -1198,7 +1198,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "♬♪ Deja vu! ᕕ(⌐■_■)ᕗ ♪♬",
       "🏎️",
       FrogPilotAlertStatus.frogpilot, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.dejaVu, 4.),
+      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.none, 4.),
   },
 
   FrogPilotEventName.firefoxSteerSaturated: {
@@ -1206,7 +1206,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "IE Has Stopped Responding...",
       "Turn Exceeds Steering Limit",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.firefox, 4.),
+      Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.none, 4.),
   },
 
   FrogPilotEventName.hal9000: {
@@ -1214,7 +1214,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "I'm sorry Dave",
       "I'm afraid I can't do that...",
       AlertStatus.normal, AlertSize.mid,
-      Priority.HIGH, VisualAlert.none, FrogPilotAudibleAlert.hal9000, 4.),
+      Priority.HIGH, VisualAlert.none, FrogPilotAudibleAlert.none, 4.),
   },
 
   FrogPilotEventName.openpilotCrashedRandomEvent: {
@@ -1222,13 +1222,13 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "openpilot crashed 💩",
       "Please post the 'Error Log' in the FrogPilot Discord!",
       AlertStatus.normal, AlertSize.mid,
-      Priority.HIGHEST, VisualAlert.none, FrogPilotAudibleAlert.fart, 10.),
+      Priority.HIGHEST, VisualAlert.none, FrogPilotAudibleAlert.none, 10.),
 
     ET.NO_ENTRY: Alert(
       "openpilot crashed 💩",
       "Please post the 'Error Log' in the FrogPilot Discord!",
       AlertStatus.normal, AlertSize.mid,
-      Priority.HIGHEST, VisualAlert.none, FrogPilotAudibleAlert.fart, 10.),
+      Priority.HIGHEST, VisualAlert.none, FrogPilotAudibleAlert.none, 10.),
   },
 
   FrogPilotEventName.toBeContinued: {
@@ -1236,7 +1236,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "To be continued...",
       "⬅️",
       FrogPilotAlertStatus.frogpilot, AlertSize.mid,
-      Priority.MID, VisualAlert.none, FrogPilotAudibleAlert.continued, 7.),
+      Priority.MID, VisualAlert.none, FrogPilotAudibleAlert.none, 7.),
   },
 
   FrogPilotEventName.vCruise69: {
@@ -1244,7 +1244,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Lol 69",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
-      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.noice, 2.),
+      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.none, 2.),
   },
 
   FrogPilotEventName.yourFrogTriedToKillMe: {
@@ -1252,7 +1252,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Your Frog tried to kill me...",
       "👺",
       FrogPilotAlertStatus.frogpilot, AlertSize.mid,
-      Priority.MID, VisualAlert.none, FrogPilotAudibleAlert.angry, 5.),
+      Priority.MID, VisualAlert.none, FrogPilotAudibleAlert.none, 5.),
   },
 
   FrogPilotEventName.youveGotMail: {
@@ -1260,7 +1260,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "You've got mail! 📧",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
-      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.mail, 3.),
+      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.none, 3.),
   },
 }
 
