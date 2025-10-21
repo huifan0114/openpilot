@@ -23,5 +23,6 @@
     "system/**",
     "third_party/**",
     "tools/**",
-  ]
+  ],
+  "claudeCodeChat.permissions.yoloMode": true
 }
