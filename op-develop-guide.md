@@ -1,7 +1,7 @@
 # FrogPilot / openpilot 開發指南
 
-> **文件版本**: v1.2
-> **最後更新**: 2025-10-22
+> **文件版本**: v1.3
+> **最後更新**: 2025-10-23
 > **目的**: 整合所有架構研究成果，作為開發時的快速參考文件
 
 ---
@@ -67,21 +67,26 @@
    - [關機流程](#關機流程)
    - [電源監控](#電源監控)
    - [Comma 3 電池管理](#comma-3-電池管理)
-6. [FrogPilot 模式系統](#frogpilot-模式系統)
+6. [控制系統](#控制系統)
+   - [控制啟用/禁用架構](#控制啟用禁用架構)
+   - [油門與煞車的控制邏輯](#油門與煞車的控制邏輯)
+   - [Panda Safety 層](#panda-safety-層)
+   - [controlsd 狀態機](#controlsd-狀態機)
+7. [FrogPilot 模式系統](#frogpilot-模式系統)
    - [OpenPilot 縱向控制](#openpilot-縱向控制)
    - [實驗模式 (Experimental Mode)](#實驗模式-experimental-mode)
    - [輕鬆模式 (Relaxed Mode)](#輕鬆模式-relaxed-mode)
-7. [除錯與診斷](#除錯與診斷)
+8. [除錯與診斷](#除錯與診斷)
    - [查看 Process 錯誤](#查看-process-錯誤)
    - [卡 LOGO 診斷流程](#卡-logo-診斷流程)
    - [TMux 操作](#tmux-操作)
-8. [Git 工作流程](#git-工作流程)
+9. [Git 工作流程](#git-工作流程)
    - [分支管理](#分支管理)
    - [上游更新合併](#上游更新合併)
    - [回復與修復](#回復與修復)
-9. [API 快速參考](#api-快速參考)
-10. [開發流程與最佳實踐](#開發流程與最佳實踐)
-11. [實作案例](#實作案例)
+10. [API 快速參考](#api-快速參考)
+11. [開發流程與最佳實踐](#開發流程與最佳實踐)
+12. [實作案例](#實作案例)
 
 ---
 
@@ -935,6 +940,512 @@ else:
 - 11.8V = 接近放電極限（預設值）
 
 **說明**: 設定過低會導致電池過度放電，建議保持 11.8-12.0V 之間。
+
+---
+
+## 控制系統
+
+控制系統是 openpilot/FrogPilot 的核心，負責決定何時啟用/禁用駕駛輔助功能。系統採用**雙層架構**：硬體層（Panda Safety）和軟體層（controlsd 狀態機）。
+
+### 控制啟用/禁用架構
+
+#### 雙層架構概覽
+
+```
+┌─────────────────────────────────────────┐
+│   軟體層：controlsd.py 狀態機            │
+│   - enabled / disabled / overriding     │
+│   - 根據事件類型轉換狀態                 │
+│   - 處理 UI 交互、模式切換               │
+└─────────────┬───────────────────────────┘
+              │ 讀取 controls_allowed
+              ↓
+┌─────────────────────────────────────────┐
+│   硬體層：Panda Safety (safety.h)       │
+│   - controls_allowed 旗標               │
+│   - 硬體級安全檢查                       │
+│   - 最後防線，無法繞過                   │
+└─────────────┬───────────────────────────┘
+              │ 讀取 CAN 訊號
+              ↓
+┌─────────────────────────────────────────┐
+│   車輛 CAN Bus                          │
+│   - 油門/煞車踏板狀態                    │
+│   - ACC 狀態 (cruise_engaged)           │
+│   - 車速、轉向角度等                     │
+└─────────────────────────────────────────┘
+```
+
+**關鍵變數**：
+- `controls_allowed` (Panda): 硬體層控制旗標，`false` 時**強制禁止**所有控制指令
+- `state` (controlsd): 軟體層狀態機，決定 UI 顯示和邏輯行為
+
+---
+
+### 油門與煞車的控制邏輯
+
+#### 核心問題
+
+**現象**：
+- OP 控制啟動時踩油門 → 控制禁用 → 放掉油門 → **自動恢復**
+- OP 控制啟動時踩煞車 → 控制禁用 → 放掉煞車 → **無法自動恢復**
+
+**為什麼？**
+
+| 操作 | Panda 層影響 | 原廠 ACC 影響 | 恢復方式 |
+|------|-------------|--------------|---------|
+| **油門** | `get_longitudinal_allowed() = false` | **Cruise 保持啟用** | 自動（油門放開） |
+| **煞車** | ~~無直接影響（FrogPilot 已移除）~~ | **Cruise 關閉** (`cruise_engaged = false`) | 需重新按 SET/RESUME |
+
+---
+
+### Panda Safety 層
+
+#### 關鍵函數 1：`get_longitudinal_allowed()`
+
+**檔案**：`panda/board/safety.h:90-92`
+
+```c
+bool get_longitudinal_allowed(void) {
+  return controls_allowed && !gas_pressed_prev;
+}
+```
+
+**作用**：
+- 即使 `controls_allowed = true`，如果**油門踩下**，縱向控制仍被禁止
+- 橫向控制（轉向）不受影響
+- 這就是為什麼**油門只影響加速/減速，不影響轉向**
+
+**應用**：
+- 所有縱向控制檢查（油門、煞車、加速度指令）都必須通過此函數
+- 例如：`longitudinal_accel_checks()` 中會呼叫此函數
+
+---
+
+#### 關鍵函數 2：`generic_rx_checks()`
+
+**檔案**：`panda/board/safety.h:258-281`
+
+```c
+void generic_rx_checks(bool stock_ecu_detected) {
+  // exit controls on rising edge of gas press
+  if (gas_pressed && !gas_pressed_prev && !(alternative_experience & ALT_EXP_DISABLE_DISENGAGE_ON_GAS)) {
+    controls_allowed = false;  // ← 油門踩下會禁用（可透過旗標關閉）
+  }
+  gas_pressed_prev = gas_pressed;
+
+  // exit controls on rising edge of brake press
+  if (brake_pressed && (!brake_pressed_prev || vehicle_moving)) {
+    controls_allowed = controls_allowed;  // ← FrogPilot 已移除煞車禁用邏輯！
+  }
+  brake_pressed_prev = brake_pressed;
+
+  // exit controls on rising edge of regen paddle
+  if (regen_braking && (!regen_braking_prev || vehicle_moving)) {
+    controls_allowed = false;  // ← Regen 煞車仍會禁用
+  }
+  regen_braking_prev = regen_braking;
+  ...
+}
+```
+
+**重要發現**：
+- **FrogPilot 0.9.7 已將煞車邏輯改為 `controls_allowed = controls_allowed`（什麼都不做）**
+- 原始 openpilot：`controls_allowed = false`
+- 煞車不再直接禁用控制！
+
+**Git 歷史**：
+```bash
+# FrogPilot 0.9.7 commit 73821d94
+-    controls_allowed = false;
++    controls_allowed = controls_allowed;
+```
+
+---
+
+#### 關鍵函數 3：`pcm_cruise_check()`
+
+**檔案**：`panda/board/safety.h:700-709`
+
+```c
+void pcm_cruise_check(bool cruise_engaged) {
+  // Enter controls on rising edge of stock ACC, exit controls if stock ACC disengages
+  if (!cruise_engaged) {
+    controls_allowed = false;  // ← Cruise 關閉時禁用
+  }
+  if (cruise_engaged && !cruise_engaged_prev) {
+    controls_allowed = true;   // ← Cruise 開啟時啟用
+  }
+  cruise_engaged_prev = cruise_engaged;
+}
+```
+
+**作用**：
+- 這才是**真正控制 `controls_allowed` 的地方**
+- 當原廠 ACC 的 `cruise_engaged` 狀態改變時更新 `controls_allowed`
+- **煞車會讓原廠 ACC 關閉，從而觸發此函數**
+
+---
+
+#### VW 特定實作
+
+**檔案**：`panda/board/safety/safety_volkswagen_mqb.h:141-156`
+
+```c
+if (addr == MSG_TSK_06) {
+  // TSK_06 訊息包含 ACC 狀態
+  // Signal: TSK_06.TSK_Status
+  int acc_status = (GET_BYTE(to_push, 3) & 0x7U);
+  bool cruise_engaged = (acc_status == 3) || (acc_status == 4) || (acc_status == 5);
+  acc_main_on = cruise_engaged || (acc_status == 2);
+
+  if (!volkswagen_longitudinal) {
+    pcm_cruise_check(cruise_engaged);  // ← 使用原廠 ACC 時呼叫
+  }
+
+  if (!acc_main_on) {
+    controls_allowed = false;  // ← ACC 主開關關閉也會禁用
+  }
+}
+```
+
+**ACC 狀態值**：
+- `2` = ACC 待命（主開關開啟，未設定速度）
+- `3` = ACC 啟用（跟車中）
+- `4` = ACC 啟用（定速中）
+- `5` = ACC 啟用（其他狀態）
+
+**邏輯**：
+- 踩煞車 → 原廠 ACC `acc_status` 變為非 3/4/5
+- `cruise_engaged = false`
+- `pcm_cruise_check(false)` 被呼叫
+- `controls_allowed = false`
+
+---
+
+#### Alternative Experience 旗標
+
+**檔案**：`panda/board/safety_declarations.h:255-277`
+
+```c
+// 可透過 USB 命令設定的替代體驗旗標
+#define ALT_EXP_DISABLE_DISENGAGE_ON_GAS 1        // 禁用油門解除控制
+#define ALT_EXP_DISABLE_STOCK_AEB 2               // 禁用原廠 AEB
+#define ALT_EXP_RAISE_LONGITUDINAL_LIMITS_TO_ISO_MAX 8  // 提高縱向限制
+#define ALT_EXP_ALLOW_AEB 16                      // 允許 AEB 指令
+#define ALT_EXP_ALWAYS_ON_LATERAL 32              // Always On Lateral (AOL)
+
+int alternative_experience = 0;
+```
+
+**應用**：
+```c
+// 如果設定了 ALT_EXP_DISABLE_DISENGAGE_ON_GAS，油門不會禁用控制
+if (gas_pressed && !gas_pressed_prev &&
+    !(alternative_experience & ALT_EXP_DISABLE_DISENGAGE_ON_GAS)) {
+  controls_allowed = false;
+}
+```
+
+**對應 Python 參數**：
+- `DisengageOnAccelerator` (selfdrive/car/card.py:58)
+- `false` 時會設定 `ALT_EXP_DISABLE_DISENGAGE_ON_GAS`
+
+---
+
+### controlsd 狀態機
+
+#### 狀態定義
+
+**檔案**：`selfdrive/controls/controlsd.py:524-609`
+
+```python
+class State:
+  disabled = 0       # OP 完全禁用
+  preEnabled = 1     # 預啟用（準備中）
+  enabled = 2        # OP 完全啟用
+  softDisabling = 3  # 軟禁用（3秒倒數）
+  overriding = 4     # 駕駛者接管中（保持部分控制）
+```
+
+**狀態轉換圖**：
+```
+       ┌─────────────┐
+       │  disabled   │
+       └──────┬──────┘
+              │ ET.ENABLE
+              ↓
+       ┌─────────────┐
+   ┌──→│ preEnabled  │
+   │   └──────┬──────┘
+   │          │ 準備完成
+   │          ↓
+   │   ┌─────────────┐     ET.OVERRIDE_LONGITUDINAL
+   │   │   enabled   │────────────────────────────┐
+   │   └──────┬──────┘                            │
+   │          │ ET.SOFT_DISABLE                   ↓
+   │          ↓                            ┌─────────────┐
+   │   ┌─────────────┐                    │ overriding  │
+   │   │softDisabling│                    └──────┬──────┘
+   │   └──────┬──────┘                           │ 放掉油門
+   │          │ 3秒後                             │
+   └──────────┴──────────────────────────────────┘
+              ↓
+       ET.USER_DISABLE
+```
+
+---
+
+#### 油門邏輯（OVERRIDE 模式）
+
+**事件生成**：`selfdrive/car/interfaces.py:384-385`
+```python
+if cs_out.gasPressed:
+    events.add(EventName.gasPressedOverride)
+```
+
+**事件定義**：`selfdrive/controls/lib/events.py:715-721`
+```python
+EventName.gasPressedOverride: {
+    ET.OVERRIDE_LONGITUDINAL: Alert(
+        "", "",
+        AlertStatus.normal, AlertSize.none,
+        Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .1),
+},
+```
+
+**狀態轉換**：`selfdrive/controls/controlsd.py:577-586`
+```python
+# OVERRIDING 狀態
+elif self.state == State.overriding:
+    if self.contains_event_type(ET.SOFT_DISABLE):
+        self.state = State.softDisabling
+    elif not self.contains_event_type(ET.OVERRIDE_LATERAL, ET.OVERRIDE_LONGITUDINAL):
+        self.state = State.enabled  # ← 油門放掉自動恢復！
+    else:
+        self.current_alert_types += [ET.OVERRIDE_LATERAL, ET.OVERRIDE_LONGITUDINAL]
+```
+
+**流程**：
+```
+enabled 狀態
+  ↓
+油門踩下 → gasPressed = True
+  ↓
+events.add(gasPressedOverride)  # ET.OVERRIDE_LONGITUDINAL
+  ↓
+self.state = State.overriding
+  ↓
+油門放掉 → gasPressed = False
+  ↓
+gasPressedOverride 事件消失
+  ↓
+not self.contains_event_type(ET.OVERRIDE_*)  # True
+  ↓
+self.state = State.enabled  ← 自動恢復！
+```
+
+---
+
+#### 煞車邏輯（USER_DISABLE 模式）
+
+**事件生成**：`selfdrive/car/card.py:154-157`
+```python
+if (CS.gasPressed and not self.CS_prev.gasPressed and self.disengage_on_accelerator) or \
+   (CS.brakePressed and (not self.CS_prev.brakePressed or not CS.standstill)) or \
+   (CS.regenBraking and (not self.CS_prev.regenBraking or not CS.standstill)):
+    self.events.add(EventName.pedalPressed)
+```
+
+**事件定義**：`selfdrive/controls/lib/events.py:701-705`
+```python
+EventName.pedalPressed: {
+    ET.USER_DISABLE: EngagementAlert(AudibleAlert.none),
+    ET.NO_ENTRY: NoEntryAlert("Pedal Pressed",
+                              visual_alert=VisualAlert.brakePressed),
+},
+```
+
+**狀態轉換**：`selfdrive/controls/controlsd.py:588-602`
+```python
+# DISABLED 狀態
+elif self.state == State.disabled:
+    if self.contains_event_type(ET.ENABLE):  # ← 需要明確的 ENABLE 事件
+        if self.contains_event_type(ET.NO_ENTRY):
+            self.current_alert_types.append(ET.NO_ENTRY)
+        else:
+            # 進入 enabled / overriding / preEnabled
+            ...
+```
+
+**流程**：
+```
+enabled 狀態
+  ↓
+煞車踩下 → brakePressed = True
+  ↓
+原廠 ACC: cruise_engaged = false (CAN 訊息改變)
+  ↓
+Panda: pcm_cruise_check(false) → controls_allowed = false
+  ↓
+events.add(pedalPressed)  # ET.USER_DISABLE
+  ↓
+self.state = State.disabled
+  ↓
+煞車放掉 → brakePressed = False
+  ↓
+pedalPressed 事件消失，BUT cruise_engaged 仍是 false
+  ↓
+controls_allowed 仍是 false
+  ↓
+無法自動恢復！需要駕駛者按 SET/RESUME 重新啟用 ACC
+```
+
+---
+
+#### DisengageOnAccelerator 參數
+
+**檔案**：`selfdrive/car/card.py:58-61`
+
+```python
+self.disengage_on_accelerator = self.params.get_bool("DisengageOnAccelerator")
+self.CP.alternativeExperience = 0
+if not self.disengage_on_accelerator:
+    self.CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.DISABLE_DISENGAGE_ON_GAS
+```
+
+**作用**：
+- `DisengageOnAccelerator = True`：油門會產生 `pedalPressed` 事件（如煞車）
+- `DisengageOnAccelerator = False`：油門只產生 `gasPressedOverride` 事件
+
+**影響**：
+```python
+# card.py:154
+if (CS.gasPressed and not self.CS_prev.gasPressed and self.disengage_on_accelerator):
+    self.events.add(EventName.pedalPressed)  # ← 油門變得跟煞車一樣
+```
+
+---
+
+### 完整流程總結
+
+#### 🟢 油門踩下/放開完整流程
+
+```
+【硬體層】
+1. 油門踩下
+2. Panda 讀取 CAN → gas_pressed = true
+3. get_longitudinal_allowed() 返回 false
+   (controls_allowed 仍是 true，但縱向控制被禁)
+
+【軟體層】
+4. interfaces.py 檢測到 gasPressed
+5. events.add(gasPressedOverride)  # ET.OVERRIDE_LONGITUDINAL
+6. controlsd: state = State.overriding
+
+【使用者體驗】
+7. 轉向繼續工作（橫向控制）
+8. 無法控制油門/煞車（縱向控制禁用）
+9. 使用者自己控制加速
+
+【恢復】
+10. 油門放開
+11. gas_pressed = false
+12. get_longitudinal_allowed() 返回 true
+13. gasPressedOverride 事件消失
+14. controlsd: state = State.enabled  ← 自動恢復！
+```
+
+---
+
+#### 🔴 煞車踩下/放開完整流程
+
+```
+【車輛層】
+1. 煞車踩下
+2. 原廠 ACC 接收煞車信號 → 主動關閉 ACC
+
+【CAN 訊息】
+3. TSK_06.TSK_Status 改變
+4. acc_status 變為非 3/4/5
+5. cruise_engaged = false
+
+【硬體層】
+6. Panda 讀取 CAN → brake_pressed = true
+7. Panda 讀取 TSK_06 → cruise_engaged = false
+8. pcm_cruise_check(false) 被呼叫
+9. controls_allowed = false  ← 硬體層完全禁用！
+
+【軟體層】
+10. card.py 檢測到 brakePressed
+11. events.add(pedalPressed)  # ET.USER_DISABLE
+12. controlsd: state = State.disabled
+
+【使用者體驗】
+13. 所有控制（轉向+加速）全部關閉
+14. 使用者完全接管車輛
+
+【嘗試恢復】
+15. 煞車放開
+16. brake_pressed = false
+17. pedalPressed 事件消失
+18. BUT: cruise_engaged 仍是 false（原廠 ACC 未重啟）
+19. controls_allowed 仍是 false
+20. 無法自動恢復！
+
+【手動恢復】
+21. 駕駛者按下方向盤 SET 或 RESUME 按鈕
+22. 原廠 ACC 重新啟用 → cruise_engaged = true
+23. pcm_cruise_check(true) → controls_allowed = true
+24. 駕駛者再按 OP 啟用按鈕 → ET.ENABLE 事件
+25. controlsd: state = State.enabled  ← 恢復！
+```
+
+---
+
+### 關鍵檔案索引
+
+#### Panda Safety 層（C/C++）
+
+| 檔案 | 行號 | 說明 |
+|------|------|------|
+| `panda/board/safety.h` | 90-92 | `get_longitudinal_allowed()` - 油門影響縱向控制 |
+| `panda/board/safety.h` | 258-281 | `generic_rx_checks()` - 踏板檢測（FrogPilot 已修改煞車邏輯） |
+| `panda/board/safety.h` | 700-709 | `pcm_cruise_check()` - Cruise engaged 控制 `controls_allowed` |
+| `panda/board/safety.h` | 518-545 | 縱向控制檢查函數（都會呼叫 `get_longitudinal_allowed()`） |
+| `panda/board/safety_declarations.h` | 255-277 | Alternative Experience 旗標定義 |
+| `panda/board/safety/safety_volkswagen_mqb.h` | 141-156 | VW TSK_06 訊息解析（ACC 狀態） |
+
+#### openpilot 控制層（Python）
+
+| 檔案 | 行號 | 說明 |
+|------|------|------|
+| `selfdrive/controls/controlsd.py` | 524-609 | 完整狀態機邏輯 |
+| `selfdrive/controls/controlsd.py` | 577-586 | `overriding` 狀態（油門） |
+| `selfdrive/controls/controlsd.py` | 588-602 | `disabled` 狀態（煞車） |
+| `selfdrive/controls/lib/events.py` | 38-48 | 事件類型定義 (ET 類) |
+| `selfdrive/controls/lib/events.py` | 701-705 | `pedalPressed` 事件（USER_DISABLE） |
+| `selfdrive/controls/lib/events.py` | 715-721 | `gasPressedOverride` 事件（OVERRIDE_LONGITUDINAL） |
+| `selfdrive/car/interfaces.py` | 384-385 | `gasPressed` 檢測 |
+| `selfdrive/car/card.py` | 58-61 | `DisengageOnAccelerator` 參數設定 |
+| `selfdrive/car/card.py` | 154-157 | `brakePressed` 檢測 |
+
+---
+
+### 設計理念
+
+| 操作 | 語義 | 安全等級 | 恢復方式 |
+|------|------|---------|---------|
+| **油門** | 駕駛者想要加速（暫時接管） | 中等 | 自動（放掉油門） |
+| **煞車** | 緊急制動（明確禁用） | 最高 | 手動（重啟 ACC + OP） |
+| **Regen** | 能量回收煞車（類似煞車） | 高 | 手動 |
+| **ACC 關閉** | 駕駛者關閉巡航（明確禁用） | 最高 | 手動（重啟 ACC） |
+
+**核心原則**：
+1. **油門 = 臨時干預**：保持 OP 啟用狀態，只暫停縱向控制
+2. **煞車 = 緊急情況**：完全禁用 OP，需要駕駛者確認恢復
+3. **硬體優先**：Panda 的 `controls_allowed` 是最後防線
+4. **雙重保護**：硬體層 + 軟體層確保安全
 
 ---
 
