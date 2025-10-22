@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import datetime
 import os
+import signal
 import subprocess
+import sys
 import time
 from typing import NoReturn
 
@@ -46,17 +48,39 @@ def set_time(new_time):
     cloudlog.exception("timed.failed_setting_time")
 
 
+def save_time_to_param(params: Params):
+  """保存當前時間到 PARAMS（關機時調用）"""
+  if system_time_valid():
+    current_timestamp = time.time()
+    params.put("LastKnownGoodTime", str(current_timestamp))
+    cloudlog.info(f"Saved LastKnownGoodTime: {datetime.datetime.fromtimestamp(current_timestamp)}")
+
+
+def signal_handler(signum, frame):
+  """處理關機信號，保存時間後退出"""
+  cloudlog.info(f"Received signal {signum}, saving time before exit")
+  params = Params()
+  save_time_to_param(params)
+  sys.exit(0)
+
+
 def main() -> NoReturn:
   """
-    timed has two responsibilities:
+    timed has three responsibilities:
     - getting the current time
     - getting the current timezone
+    - persisting last known good time for recovery
 
     GPS directly gives time, and timezone is looked up from GPS position.
     AGNOS will also use NTP to update the time.
+    On shutdown, saves current time to recover on next boot if GPS unavailable.
   """
 
   params = Params()
+
+  # 註冊關機信號處理器
+  signal.signal(signal.SIGTERM, signal_handler)
+  signal.signal(signal.SIGINT, signal_handler)
 
   # Restore timezone from param
   tz = params.get("Timezone", encoding='utf8')
@@ -64,6 +88,18 @@ def main() -> NoReturn:
   if tz is not None:
     cloudlog.debug("Restoring timezone from param")
     set_timezone(tz)
+
+  # 如果系統時間無效，嘗試從 PARAMS 恢復
+  if not system_time_valid():
+    last_good_timestamp_str = params.get("LastKnownGoodTime", encoding='utf8')
+    if last_good_timestamp_str is not None:
+      try:
+        last_good_timestamp = float(last_good_timestamp_str)
+        last_good_time = datetime.datetime.fromtimestamp(last_good_timestamp)
+        cloudlog.info(f"Restoring system time from LastKnownGoodTime: {last_good_time}")
+        set_time(last_good_time)
+      except (ValueError, TypeError) as e:
+        cloudlog.error(f"Failed to parse LastKnownGoodTime: {e}")
 
   pm = messaging.PubMaster(['clocks'])
   sm = messaging.SubMaster(['liveLocationKalman'])
@@ -83,6 +119,10 @@ def main() -> NoReturn:
     # TODO: account for unixTimesatmpMillis being a (usually short) time in the past
     gps_time = datetime.datetime.fromtimestamp(llk.unixTimestampMillis / 1000.)
     set_time(gps_time)
+
+    # GPS 同步後立即保存時間（這是唯一的寫入時機）
+    params.put_nonblocking("LastKnownGoodTime", str(llk.unixTimestampMillis / 1000.))
+    cloudlog.debug(f"Saved time from GPS: {gps_time.isoformat()}")
 
     # set timezone
     pos = llk.positionGeodetic.value

@@ -1,6 +1,6 @@
 # FrogPilot / openpilot 開發指南
 
-> **文件版本**: v1.1
+> **文件版本**: v1.2
 > **最後更新**: 2025-10-22
 > **目的**: 整合所有架構研究成果，作為開發時的快速參考文件
 
@@ -1635,37 +1635,98 @@ git merge feature/my-feature
 
 ## 實作案例
 
-### 案例 1：新增持久化參數
+### 案例 1：時間持久化實作（已實作）
 
-**需求**: 保存最後已知的系統時間
+**需求**: 解決無 GPS 時日誌檔案時間錯誤的問題
 
-**步驟**:
+**問題**：無網路/GPS 時，系統時間預設為 2023/11/23，導致日誌檔案修改時間錯誤
 
-1. **定義參數** (`common/params.cc`):
+**解決方案**：
+- 開機時從 PARAMS 讀取上次已知的正確時間
+- GPS 同步時保存時間
+- 關機時保存當前時間
+
+**重要設計決策**：
+- ⚠️ **時間格式使用 Unix timestamp（float）**，不使用 isoformat
+- 原因：timed.py 內部統一使用 `fromtimestamp()` 處理數字型時間戳
+- 格式：`time.time()` 返回的 float 值（如 `1729584000.123456`）
+- 儲存：轉為字串 `str(timestamp)` 儲存到 PARAMS
+- 讀取：用 `float(timestamp_str)` 解析後用 `fromtimestamp()` 轉為 datetime
+
+**實作步驟**：
+
+1. **定義參數** (`common/params.cc:159`):
 ```cpp
 {"LastKnownGoodTime", PERSISTENT},
 ```
 
-2. **讀取參數** (`system/timed.py`):
+2. **開機時恢復時間** (`system/timed.py:92-102`):
 ```python
-params = Params()
-last_time_str = params.get("LastKnownGoodTime", encoding='utf8')
-if last_time_str:
-    last_time = datetime.fromisoformat(last_time_str)
+# 如果系統時間無效，嘗試從 PARAMS 恢復
+if not system_time_valid():
+    last_good_timestamp_str = params.get("LastKnownGoodTime", encoding='utf8')
+    if last_good_timestamp_str is not None:
+        try:
+            last_good_timestamp = float(last_good_timestamp_str)
+            last_good_time = datetime.datetime.fromtimestamp(last_good_timestamp)
+            cloudlog.info(f"Restoring system time from LastKnownGoodTime: {last_good_time}")
+            set_time(last_good_time)
+        except (ValueError, TypeError) as e:
+            cloudlog.error(f"Failed to parse LastKnownGoodTime: {e}")
 ```
 
-3. **寫入參數** (關機時):
+3. **GPS 同步時保存** (`system/timed.py:123-125`):
 ```python
-import signal
+# GPS 同步後立即保存時間（這是唯一的寫入時機）
+params.put_nonblocking("LastKnownGoodTime", str(llk.unixTimestampMillis / 1000.))
+cloudlog.debug(f"Saved time from GPS: {gps_time.isoformat()}")
+```
+注意：直接使用 GPS 原始 timestamp `llk.unixTimestampMillis / 1000.`，避免格式轉換
+
+4. **關機時保存** (`system/timed.py:51-64`):
+```python
+def save_time_to_param(params: Params):
+    """保存當前時間到 PARAMS（關機時調用）"""
+    if system_time_valid():
+        current_timestamp = time.time()
+        params.put("LastKnownGoodTime", str(current_timestamp))
+        cloudlog.info(f"Saved LastKnownGoodTime: {datetime.datetime.fromtimestamp(current_timestamp)}")
 
 def signal_handler(signum, frame):
-    if system_time_valid():
-        params.put("LastKnownGoodTime", datetime.now().isoformat())
+    """處理關機信號，保存時間後退出"""
+    cloudlog.info(f"Received signal {signum}, saving time before exit")
+    params = Params()
+    save_time_to_param(params)
     sys.exit(0)
 
+# 註冊信號處理器（在 main() 函數中）
 signal.signal(signal.SIGTERM, signal_handler)
 signal.signal(signal.SIGINT, signal_handler)
 ```
+
+5. **必要的 imports** (`system/timed.py:1-16`):
+```python
+import signal  # 新增
+import sys     # 新增
+import time    # 已存在
+```
+
+**優勢**：
+- ✅ 最小化寫入次數（GPS 同步 + 關機時）
+- ✅ 延長 Flash 壽命
+- ✅ 時間準確性高（直接使用數字型 timestamp）
+- ✅ 完全向後相容
+- ✅ 格式統一（與 timed.py 內部一致）
+
+**修改檔案**：
+- `common/params.cc` - 新增參數定義
+- `system/timed.py` - 實作時間持久化邏輯（3 個位置）
+
+**除錯提示**：
+- ❌ 不要使用 `.isoformat()` 儲存時間
+- ✅ 使用 `time.time()` 取得 timestamp
+- ✅ 使用 `str()` 轉換後儲存
+- ✅ 使用 `float()` 解析並用 `fromtimestamp()` 轉換
 
 ### 案例 2：發布自訂訊息
 
@@ -1801,6 +1862,7 @@ PERSIST_PATH = "/persist/"               # 持久化路徑
 
 | 日期 | 版本 | 變更內容 |
 |------|------|---------|
+| 2025-10-22 | v1.2 | 實作：時間持久化功能（`common/params.cc`, `system/timed.py`）|
 | 2025-10-22 | v1.1 | 新增：知識庫使用指南、FrogPilot 模式系統、除錯與診斷、Git 工作流程 |
 | 2025-10-22 | v1.0 | 初始版本，包含時間系統、PARAMS、電源管理研究成果 |
 
