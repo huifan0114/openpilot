@@ -191,12 +191,12 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
 
   if (!frogpilot_scene.map_open && !frogpilotPlan.getSpeedLimitChanged() && !(signalStyle == "static" && carState.getLeftBlinker()) && frogpilot_toggles.value("csc_status").toBool()) {
     if (frogpilotPlan.getCscTraining()) {
-      paintSmartControllerTraining(p, frogpilotPlan);
+      paintSmartControllerTraining(p, frogpilotPlan, frogpilot_scene);
     } else {
       glowTimer.invalidate();
 
       if (isCruiseSet && frogpilotPlan.getCscControllingSpeed()) {
-        paintCurveSpeedControl(p, frogpilotPlan);
+        paintCurveSpeedControl(p, frogpilotPlan, frogpilot_scene);
       }
     }
   } else {
@@ -467,17 +467,37 @@ void FrogPilotAnnotatedCameraWidget::paintCompass(QPainter &p, QJsonObject &frog
   p.restore();
 }
 
-void FrogPilotAnnotatedCameraWidget::paintCurveSpeedControl(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan) {
+void FrogPilotAnnotatedCameraWidget::paintCurveSpeedControl(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan, FrogPilotUIScene &frogpilot_scene) {
+  // 檢查 DM 圖標位置是否有效
+  if (dmIconPosition == QPoint(0, 0)) {
+    return;
+  }
+
   p.save();
 
-  QRect curveSpeedRect(QPoint(setSpeedRect.right() + UI_BORDER_SIZE, setSpeedRect.top()), QSize(defaultSize.width() * 1.25, defaultSize.width() * 1.25));
+  // 計算位置（使用 CEStatus 相同的邏輯）
+  QPoint curveSpeedPosition;
+  curveSpeedPosition.rx() = dmIconPosition.x();
+  curveSpeedPosition.ry() = dmIconPosition.y() - widget_size / 2;
+  curveSpeedPosition.rx() += (rightHandDM ? -img_size - widget_size : widget_size) / (frogpilot_scene.map_open ? 1.25 : 1);
 
+  // 圖標框（使用 widget_size 保持與 CEStatus 相同大小）
+  QRect curveSpeedRect(curveSpeedPosition, QSize(widget_size, widget_size));
+
+  // 繪製圖標背景框
+  p.setBrush(blackColor(166));
+  p.setPen(QPen(blueColor(), 10));
+  p.drawRoundedRect(curveSpeedRect, 24, 24);
+
+  // 繪製彎道圖標（根據彎道方向翻轉）
   QPixmap curveSpeedImage = frogpilotPlan.getRoadCurvature() < 0 ? curveSpeedIcon : curveSpeedIcon.transformed(QTransform().scale(-1, 1));
   QSize curveSpeedSize = curveSpeedImage.size();
   QPoint curveSpeedPoint(curveSpeedRect.x() + (curveSpeedRect.width()  - curveSpeedSize.width())  / 2, curveSpeedRect.y() + (curveSpeedRect.height() - curveSpeedSize.height()) / 2);
 
   p.setOpacity(1.0);
+  p.drawPixmap(curveSpeedPoint, curveSpeedImage);
 
+  // 速度文字框（在圖標下方）
   QRect cscRect(curveSpeedRect.topLeft() + QPoint(0, curveSpeedRect.height() + 10), QSize(curveSpeedRect.width(), 100));
 
   p.setBrush(blueColor(166));
@@ -487,8 +507,6 @@ void FrogPilotAnnotatedCameraWidget::paintCurveSpeedControl(QPainter &p, const c
   p.drawRoundedRect(cscRect, 24, 24);
   p.setPen(QPen(whiteColor(), 6));
   p.drawText(cscRect.adjusted(20, 0, 0, 0), Qt::AlignVCenter | Qt::AlignLeft, cscSpeedStr);
-
-  p.drawPixmap(curveSpeedPoint, curveSpeedImage);
 
   p.restore();
 }
@@ -770,14 +788,27 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
   p.restore();
 }
 
-void FrogPilotAnnotatedCameraWidget::paintSmartControllerTraining(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan) {
+void FrogPilotAnnotatedCameraWidget::paintSmartControllerTraining(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan, FrogPilotUIScene &frogpilot_scene) {
+  // 檢查 DM 圖標位置是否有效
+  if (dmIconPosition == QPoint(0, 0)) {
+    return;
+  }
+
   p.save();
 
   if (!glowTimer.isValid()) {
     glowTimer.start();
   }
 
-  QRect curveSpeedRect(QPoint(setSpeedRect.right() + UI_BORDER_SIZE, setSpeedRect.top()), QSize(defaultSize.width() * 1.25, defaultSize.width() * 1.25));
+  // 計算位置（使用 CEStatus 相同的邏輯）
+  QPoint curveSpeedPosition;
+  curveSpeedPosition.rx() = dmIconPosition.x();
+  curveSpeedPosition.ry() = dmIconPosition.y() - widget_size / 2;
+  curveSpeedPosition.rx() += (rightHandDM ? -img_size - widget_size : widget_size) / (frogpilot_scene.map_open ? 1.25 : 1);
+
+  // 圖標框（使用 widget_size 保持與 CEStatus 相同大小）
+  QRect curveSpeedRect(curveSpeedPosition, QSize(widget_size, widget_size));
+
   QPixmap curveSpeedImage = frogpilotPlan.getRoadCurvature() < 0 ? curveSpeedIcon : curveSpeedIcon.transformed(QTransform().scale(-1, 1));
 
   qreal phase = (glowTimer.elapsed() % 2000) / 2000.0 * 2 * M_PI;
@@ -790,14 +821,17 @@ void FrogPilotAnnotatedCameraWidget::paintSmartControllerTraining(QPainter &p, c
 
   p.setOpacity(1.0);
 
+  // 繪製發光邊框（訓練模式）
   p.setBrush(blackColor(166));
   p.setPen(QPen(glowColor, glowWidth));
   p.drawRoundedRect(curveSpeedRect, 24, 24);
 
+  // 繪製彎道圖標
   QSize curveSpeedSize = curveSpeedImage.size();
   QPoint curveSpeedPoint(curveSpeedRect.x() + (curveSpeedRect.width()  - curveSpeedSize.width())  / 2, curveSpeedRect.y() + (curveSpeedRect.height() - curveSpeedSize.height()) / 2);
   p.drawPixmap(curveSpeedPoint, curveSpeedImage);
 
+  // "Training..." 文字框
   QRect textRect(curveSpeedRect.topLeft() + QPoint(0, curveSpeedRect.height() + 10), QSize(curveSpeedRect.width(), 50));
   p.setBrush(blackColor(166));
   p.setPen(QPen(blackColor(), 10));
