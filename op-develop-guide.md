@@ -1,6 +1,6 @@
 # FrogPilot / openpilot 開發指南
 
-> **文件版本**: v1.4
+> **文件版本**: v1.5
 > **最後更新**: 2025-10-23
 > **目的**: 整合所有架構研究成果，作為開發時的快速參考文件
 
@@ -76,17 +76,22 @@
    - [OpenPilot 縱向控制](#openpilot-縱向控制)
    - [實驗模式 (Experimental Mode)](#實驗模式-experimental-mode)
    - [輕鬆模式 (Relaxed Mode)](#輕鬆模式-relaxed-mode)
-8. [除錯與診斷](#除錯與診斷)
+8. [FrogPilot 導航與地圖系統](#frogpilot-導航與地圖系統)
+   - [mapd 服務架構](#mapd-服務架構)
+   - [啟動流程](#啟動流程-1)
+   - [PARAMS 寫入機制](#params-寫入機制)
+   - [故障診斷](#故障診斷)
+9. [除錯與診斷](#除錯與診斷)
    - [查看 Process 錯誤](#查看-process-錯誤)
    - [卡 LOGO 診斷流程](#卡-logo-診斷流程)
    - [TMux 操作](#tmux-操作)
-9. [Git 工作流程](#git-工作流程)
+10. [Git 工作流程](#git-工作流程)
    - [分支管理](#分支管理)
    - [上游更新合併](#上游更新合併)
    - [回復與修復](#回復與修復)
-10. [API 快速參考](#api-快速參考)
-11. [開發流程與最佳實踐](#開發流程與最佳實踐)
-12. [實作案例](#實作案例)
+11. [API 快速參考](#api-快速參考)
+12. [開發流程與最佳實踐](#開發流程與最佳實踐)
+13. [實作案例](#實作案例)
 
 ---
 
@@ -1768,10 +1773,52 @@ ret.pcmCruise = not ret.openpilotLongitudinalControl
 
 **核心變數**：
 ```python
-# frogpilot/common/frogpilot_variables.py:633
+# frogpilot/common/frogpilot_variables.py:638
 toggle.conditional_experimental_mode = toggle.openpilot_longitudinal and \
     params.get_bool("ConditionalExperimental")
 ```
+
+### 啟動機制
+
+**初始化流程**：
+```
+system/manager 啟動
+    ↓
+啟動 selfdrive/controls/plannerd.py
+    ↓
+引入 frogpilot_planner.py
+    ↓
+FrogPilotPlanner.__init__() (line 23)
+    ↓
+self.cem = ConditionalExperimentalMode(self) (line 24)
+    ↓ 【實例始終被創建，無論開關狀態】
+每個循環週期調用 FrogPilotPlanner.update()
+```
+
+**呼叫邏輯** (`frogpilot_planner.py:62-66`)：
+```python
+if sm["controlsState"].enabled and frogpilot_toggles.conditional_experimental_mode:
+    self.cem.update(v_ego, sm, frogpilot_toggles)  # 開啟時完整更新
+else:
+    self.cem.curve_detected = False                 # 關閉時清除狀態
+    self.cem.stop_sign_and_light(v_ego, sm, PLANNER_TIME - 2)
+```
+
+### 關閉後行為
+
+| 項目 | 開關開啟 | 開關關閉 |
+|------|---------|---------|
+| **實例創建** | ✅ | ✅ |
+| **佔用記憶體** | ✅ | ✅ |
+| **主要邏輯** | ✅ 完整執行 | ❌ 不執行 |
+| **條件檢測** | ✅ 全部條件 | ❌ 不檢測 |
+| **stop_sign_and_light** | ✅ | ✅ 仍執行 |
+| **CPU 負載** | 較高 | 極低 |
+
+**關閉後仍執行的部分**：
+- `self.cem.stop_sign_and_light()` - 保持紅綠燈檢測狀態清除
+- 不會觸發實驗模式切換
+- CPU 負載極低（只清除標誌）
 
 ### 觸發條件
 
@@ -1882,6 +1929,211 @@ self.t_follow = get_T_FOLLOW(
     sm["controlsState"].personality
 )
 ```
+
+---
+
+## FrogPilot 導航與地圖系統
+
+FrogPilot 使用 OpenStreetMap (OSM) 離線地圖數據提供道路名稱、速限等資訊。
+
+### mapd 服務架構
+
+**核心組件**：
+- **mapd 二進制執行檔**：獨立程式，查詢 OSM 數據並寫入 PARAMS
+- **mapd.py 管理器**：下載、更新和監控 mapd 執行檔
+
+**程式位置**：
+- 管理器：`frogpilot/navigation/mapd.py`
+- 執行檔路徑：`/data/media/0/osm/mapd`
+- 離線地圖：`/data/media/0/osm/offline/`
+- 進程配置：`system/manager/process_config.py:119`
+
+### 啟動流程
+
+```
+system/manager 啟動
+    ↓
+讀取 process_config.py
+    ↓
+啟動 PythonProcess("mapd", "frogpilot.navigation.mapd", always_run)
+    ↓
+mapd.py 主循環 (mapd_thread)
+    ├─ 檢查 /data/media/0/osm/mapd 是否存在
+    ├─ 檢查版本（/data/media/0/osm/mapd_version）
+    ├─ 如需更新 → 從 GitHub 下載最新版本
+    └─ 設置執行權限
+    ↓
+subprocess.Popen("/data/media/0/osm/mapd")
+    ↓
+mapd 執行檔運行
+    ├─ 讀取 GPS 位置（liveLocationKalman）
+    ├─ 查詢 OSM 離線數據庫
+    └─ 寫入 params_memory
+        ├─ MapSpeedLimit（當前道路速限）
+        ├─ RoadName（道路名稱）
+        └─ NextMapSpeedLimit（下一個速限）
+    ↓
+如 mapd 崩潰 → mapd.py 自動重啟
+```
+
+### mapd.py 關鍵函數
+
+**下載函數** (`mapd.py:44-75`)：
+```python
+def download():
+    Path(MAPD_PATH).parent.mkdir(parents=True, exist_ok=True)
+
+    latest_version = get_latest_version()
+    urls = [
+        f"https://github.com/pfeiferj/openpilot-mapd/releases/download/{latest_version}/mapd",
+        f"https://gitlab.com/{RESOURCES_REPO}/-/raw/Mapd/{latest_version}"
+    ]
+
+    # 下載二進制檔
+    with urllib.request.urlopen(url) as response:
+        with tempfile.NamedTemporaryFile("wb", delete=False) as temp_file:
+            shutil.copyfileobj(response, temp_file)
+
+    # 設置執行權限
+    os.chmod(temp_file_path, os.stat(temp_file_path).st_mode | stat.S_IEXEC)
+    os.rename(temp_file_path, MAPD_PATH)
+```
+
+**啟動函數** (`mapd.py:123-141`)：
+```python
+def mapd_thread():
+    while True:
+        cleanup_temp_files()
+
+        # 確保 mapd 是最新版本
+        while not update_mapd():
+            time.sleep(60)
+            continue
+
+        # 啟動 mapd 執行檔
+        process = subprocess.Popen(str(MAPD_PATH))
+        process.wait()  # 等待執行檔運行
+```
+
+### PARAMS 寫入機制
+
+**參數定義** (`common/params.cc`)：
+```cpp
+{"MapSpeedLimit", CLEAR_ON_MANAGER_START},      // Line 396
+{"NextMapSpeedLimit", CLEAR_ON_MANAGER_START},  // Line 409
+{"RoadName", CLEAR_ON_MANAGER_START},           // Line 461
+```
+
+**寫入來源**：
+- ❌ 不是由 Python 代碼寫入
+- ❌ 不是由 FrogPilot C++ 代碼寫入
+- ✅ 由 **mapd 二進制執行檔** 直接寫入
+
+**數據流程**：
+```
+GPS (liveLocationKalman)
+    ↓
+mapd 執行檔
+    ↓
+OSM 離線數據庫查詢
+    ↓
+params_memory.put():
+  - MapSpeedLimit (float)
+  - RoadName (string)
+  - NextMapSpeedLimit (json)
+    ↓
+speed_limit_controller.py 讀取 (line 311, 313, 227)
+    ↓
+顯示在 UI
+```
+
+### 讀取這些參數的代碼
+
+**速限控制器** (`frogpilot/controls/lib/speed_limit_controller.py:307-333`)：
+```python
+def update_map_speed_limit(self, gps_position, v_ego):
+    # 讀取當前道路速限
+    self.map_speed_limit = params_memory.get_float("MapSpeedLimit")
+
+    # 讀取下一個速限（含位置）
+    next_map_speed_limit = json.loads(params_memory.get("NextMapSpeedLimit") or "{}")
+    self.next_speed_limit = next_map_speed_limit.get("speedlimit", 0)
+
+    # 計算距離並決定是否提前切換
+    if self.next_speed_limit:
+        distance_to_upcoming = calculate_distance_to_point(...)
+        if distance_to_upcoming < max_lookahead:
+            self.map_speed_limit = self.next_speed_limit
+```
+
+**速限填充器** (`frogpilot/system/speed_limit_filler.py:220-227`)：
+```python
+map_speed = params_memory.get_float("MapSpeedLimit")
+road_name = params_memory.get("RoadName", encoding="utf-8")
+```
+
+**UI 顯示** (`frogpilot/ui/qt/onroad/frogpilot_annotated_camera.cc`)：
+```cpp
+// Line 746: 顯示道路名稱
+QString roadName = QString::fromStdString(params_memory.get("RoadName"));
+
+// Line 860: 顯示地圖速限
+drawSource(mapDataRect, mapDataIcon, "Map Data",
+           frogpilotPlan.getSlcMapSpeedLimit() * speedConversion);
+```
+
+### 故障診斷
+
+**問題：MapSpeedLimit 沒有顯示**
+
+可能原因：
+1. **mapd 執行檔未運行**
+   ```bash
+   ps aux | grep mapd
+   ```
+
+2. **執行檔不存在或損壞**
+   ```bash
+   ls -lh /data/media/0/osm/mapd
+   cat /data/media/0/osm/mapd_version
+   ```
+
+3. **離線地圖數據未下載**
+   ```bash
+   ls -lh /data/media/0/osm/offline/
+   ```
+
+4. **OSM 數據中缺少速限標記**
+   - RoadName (`name` 標籤) 較常見
+   - MapSpeedLimit (`maxspeed` 標籤) 可能缺失
+   - 取決於地區的 OSM 數據完整度
+
+5. **GPS 定位不準確**
+   - GPS 訊號弱時無法匹配道路
+
+**檢查 PARAMS 值**：
+```bash
+# 檢查 MapSpeedLimit (float 8 bytes)
+cat /data/params/d/MapSpeedLimit | od -A n -t f8
+
+# 檢查 RoadName (string)
+cat /data/params/d/RoadName
+
+# 檢查 NextMapSpeedLimit (json)
+cat /data/params/d/NextMapSpeedLimit
+```
+
+### 相關檔案索引
+
+| 檔案 | 行數 | 說明 |
+|------|------|------|
+| `frogpilot/navigation/mapd.py` | 1-150 | mapd 管理器 |
+| `frogpilot/common/frogpilot_variables.py` | 71 | MAPD_PATH 定義 |
+| `system/manager/process_config.py` | 119 | 進程配置 |
+| `common/params.cc` | 396, 409, 461 | PARAMS 定義 |
+| `frogpilot/controls/lib/speed_limit_controller.py` | 307-333 | 速限更新邏輯 |
+| `frogpilot/system/speed_limit_filler.py` | 220, 227 | 讀取參數 |
+| `frogpilot/ui/qt/onroad/frogpilot_annotated_camera.cc` | 746, 860 | UI 顯示 |
 
 ---
 
@@ -2636,6 +2888,8 @@ PERSIST_PATH = "/persist/"               # 持久化路徑
 
 | 日期 | 版本 | 變更內容 |
 |------|------|---------|
+| 2025-10-23 | v1.5 | 新增：FrogPilot 導航與地圖系統（mapd 架構、MapSpeedLimit/RoadName PARAMS）、CEM 啟動機制與關閉行為分析 |
+| 2025-10-22 | v1.4 | 新增：控制系統詳細研究（煞車踏板修改、安全層邏輯、狀態機流程）|
 | 2025-10-22 | v1.2 | 實作：時間持久化功能（`common/params.cc`, `system/timed.py`）|
 | 2025-10-22 | v1.1 | 新增：知識庫使用指南、FrogPilot 模式系統、除錯與診斷、Git 工作流程 |
 | 2025-10-22 | v1.0 | 初始版本，包含時間系統、PARAMS、電源管理研究成果 |
