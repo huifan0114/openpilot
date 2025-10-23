@@ -1,6 +1,6 @@
 # FrogPilot / openpilot 開發指南
 
-> **文件版本**: v1.3
+> **文件版本**: v1.4
 > **最後更新**: 2025-10-23
 > **目的**: 整合所有架構研究成果，作為開發時的快速參考文件
 
@@ -1446,6 +1446,269 @@ if (CS.gasPressed and not self.CS_prev.gasPressed and self.disengage_on_accelera
 2. **煞車 = 緊急情況**：完全禁用 OP，需要駕駛者確認恢復
 3. **硬體優先**：Panda 的 `controls_allowed` 是最後防線
 4. **雙重保護**：硬體層 + 軟體層確保安全
+
+---
+
+### volkswagen_longitudinal 模式差異
+
+VW 車輛有兩種縱向控制模式，影響控制邏輯：
+
+#### 模式 1：使用原廠 ACC (`volkswagen_longitudinal = false`)
+
+**特徵**：
+- `ret.pcmCruise = True`
+- 使用原廠 ACC 系統控制油門/煞車
+- OP 只負責橫向控制（轉向）
+
+**控制邏輯**：
+```c
+// panda/board/safety/safety_volkswagen_mqb.h:149-151
+if (!volkswagen_longitudinal) {
+  pcm_cruise_check(cruise_engaged);  // ← 會呼叫此函數
+}
+```
+
+**行為**：
+- `pcm_cruise_check(cruise_engaged)` 會被呼叫
+- 當 `cruise_engaged = false` 時（煞車或 CANCEL），`controls_allowed = false`
+- 煞車會完全禁用 OP
+
+---
+
+#### 模式 2：使用 OP 縱向控制 (`volkswagen_longitudinal = true`)
+
+**特徵**：
+- `ret.pcmCruise = False`
+- `ret.openpilotLongitudinalControl = True`
+- OP 完全接管油門和煞車控制
+- 需要 Panda ALLOW_DEBUG 韌體
+
+**控制邏輯**：
+```c
+// panda/board/safety/safety_volkswagen_mqb.h:149-151
+if (!volkswagen_longitudinal) {
+  pcm_cruise_check(cruise_engaged);
+}
+// ← volkswagen_longitudinal = true 時，這段完全不執行！
+```
+
+**行為**：
+- **`pcm_cruise_check` 完全不會被呼叫**
+- 踩煞車時原廠 ACC 可能關閉，但 Panda 不會因為 `cruise_engaged = false` 禁用控制
+- 真正的禁用機制在其他地方
+
+---
+
+### 使用 OP 縱向控制時的煞車邏輯 (`volkswagen_longitudinal = true`)
+
+#### 硬體層（Panda）
+
+**1. `generic_rx_checks()`** (`panda/board/safety.h:265-269`)
+```c
+// exit controls on rising edge of brake press
+if (brake_pressed && (!brake_pressed_prev || vehicle_moving)) {
+  controls_allowed = controls_allowed;  // ← FrogPilot 修改：不做任何事
+}
+brake_pressed_prev = brake_pressed;
+```
+- **原始 openpilot**：`controls_allowed = false`（煞車會禁用）
+- **FrogPilot 修改**：改為 `controls_allowed = controls_allowed`（煞車不禁用）
+
+---
+
+**2. VW ACC 主開關檢查** (`panda/board/safety/safety_volkswagen_mqb.h:153-155`)
+```c
+if (!acc_main_on) {
+  controls_allowed = false;  // ← ACC 主開關關閉時禁用
+}
+```
+
+**`acc_main_on` 定義**（第 147 行）：
+```c
+acc_main_on = cruise_engaged || (acc_status == 2);
+```
+- `acc_status = 0/1`: ACC 關閉 → `acc_main_on = false`
+- `acc_status = 2`: ACC 待命（主開關開，未設定速度）→ `acc_main_on = true`
+- `acc_status = 3/4/5`: ACC 啟用中 → `acc_main_on = true`
+
+**重點**：
+- **踩煞車時，`acc_main_on` 通常保持 `true`**（只要 ACC 主開關還開著）
+- 只有關閉 ACC 主開關或按 CANCEL 時，`acc_main_on` 才變 `false`
+- 因此**煞車不會在硬體層禁用 `controls_allowed`**
+
+---
+
+**3. `get_longitudinal_allowed()`** (`panda/board/safety.h:90-92`)
+```c
+bool get_longitudinal_allowed(void) {
+  return controls_allowed && !gas_pressed_prev;  // ← 只檢查油門！
+}
+```
+
+**問題**：
+- 只檢查 `!gas_pressed_prev`
+- **不檢查 `!brake_pressed_prev`**
+- 因此踩煞車時，縱向控制指令**不會**被硬體層阻擋
+
+---
+
+#### 軟體層（openpilot）
+
+**1. 煞車事件生成** (`selfdrive/car/card.py:154-157`)
+```python
+if (CS.gasPressed and not self.CS_prev.gasPressed and self.disengage_on_accelerator) or \
+   (CS.brakePressed and (not self.CS_prev.brakePressed or not CS.standstill)) or \
+   (CS.regenBraking and (not self.CS_prev.regenBraking or not CS.standstill)):
+    self.events.add(EventName.pedalPressed)
+```
+- 煞車產生 `pedalPressed` 事件（`ET.USER_DISABLE`）
+
+**2. 油門事件生成** (`selfdrive/car/interfaces.py:384-385`)
+```python
+if cs_out.gasPressed:
+    events.add(EventName.gasPressedOverride)
+```
+- 油門產生 `gasPressedOverride` 事件（`ET.OVERRIDE_LONGITUDINAL`）
+
+**3. 狀態機處理** (`selfdrive/controls/controlsd.py`)
+
+**油門**：
+```python
+# overriding 狀態（577-586 行）
+elif self.state == State.overriding:
+    if not self.contains_event_type(ET.OVERRIDE_LATERAL, ET.OVERRIDE_LONGITUDINAL):
+        self.state = State.enabled  # ← 事件消失自動恢復
+```
+
+**煞車**：
+```python
+# disabled 狀態（588-602 行）
+elif self.state == State.disabled:
+    if self.contains_event_type(ET.ENABLE):  # ← 需要 ENABLE 事件
+        ...  # 進入 enabled
+```
+
+**差異**：
+- 油門：`OVERRIDE_LONGITUDINAL` → `overriding` 狀態 → 自動恢復
+- 煞車：`USER_DISABLE` → `disabled` 狀態 → 需手動恢復
+
+---
+
+### 使用 OP 縱向控制時的完整流程
+
+#### 🟢 油門踩下/放開
+
+```
+【硬體層】
+1. 油門踩下 → gas_pressed = true
+2. generic_rx_checks: 可能設 controls_allowed = false（如果沒有 ALT_EXP_DISABLE_DISENGAGE_ON_GAS）
+3. get_longitudinal_allowed() = false（因為 gas_pressed_prev = true）
+4. 縱向控制指令被硬體層阻擋
+
+【軟體層】
+5. interfaces.py → gasPressedOverride 事件
+6. ET.OVERRIDE_LONGITUDINAL → state = overriding
+7. 橫向控制繼續，縱向控制暫停
+
+【恢復】
+8. 油門放開 → gas_pressed = false
+9. gasPressedOverride 事件消失
+10. state = enabled ← 自動恢復
+```
+
+---
+
+#### 🔴 煞車踩下/放開
+
+```
+【硬體層】
+1. 煞車踩下 → brake_pressed = true
+2. generic_rx_checks:267 → controls_allowed = controls_allowed（FrogPilot 已改，不做事）
+3. get_longitudinal_allowed() = controls_allowed && !gas_pressed_prev
+   → 返回 true（因為沒檢查 brake_pressed_prev）
+4. 縱向控制指令「沒有」被硬體層阻擋！
+5. acc_main_on 保持 true（ACC 主開關還開著）
+6. controls_allowed 保持 true
+
+【軟體層】
+7. card.py → pedalPressed 事件
+8. ET.USER_DISABLE → state = disabled
+9. 所有控制（橫向+縱向）在軟體層禁用
+
+【嘗試恢復】
+10. 煞車放開 → brake_pressed = false
+11. pedalPressed 事件消失
+12. BUT: state 仍是 disabled
+13. 需要 ET.ENABLE 事件（手動按 SET/RESUME）
+14. 無法自動恢復
+```
+
+**關鍵問題**：
+1. 硬體層：`get_longitudinal_allowed()` 沒檢查 `brake_pressed_prev`
+2. 軟體層：煞車產生 `USER_DISABLE` 而非 `OVERRIDE_LONGITUDINAL`
+
+---
+
+#### ⚫ CANCEL 按鍵
+
+```
+【硬體層】
+1. CANCEL 按下（GRA_ACC_01.GRA_Abbrechen）
+2. safety_volkswagen_mqb.h:172 → controls_allowed = acc_main_on
+3. 如果 ACC 主開關仍開著，controls_allowed 保持 true
+4. 但按 CANCEL 通常會關閉 ACC → acc_main_on = false
+5. 第 153 行檢查：if (!acc_main_on) → controls_allowed = false
+
+【軟體層】
+6. state = disabled
+
+【結果】
+完全禁用，需手動重啟
+```
+
+---
+
+### 當前煞車與油門的核心差異
+
+| 比較項目 | 油門 | 煞車 |
+|---------|------|------|
+| **硬體層** | | |
+| `controls_allowed` 影響 | 可能設為 `false`（如果沒旗標） | 保持 `true`（FrogPilot 已改） |
+| `get_longitudinal_allowed()` | 檢查 `!gas_pressed_prev` ✅ | **不檢查** `!brake_pressed_prev` ❌ |
+| 縱向指令阻擋 | ✅ 被阻擋 | ❌ 不被阻擋 |
+| **軟體層** | | |
+| 事件類型 | `OVERRIDE_LONGITUDINAL` | `USER_DISABLE` |
+| 狀態機 | `overriding` | `disabled` |
+| 恢復方式 | ✅ 自動 | ❌ 需手動 |
+
+---
+
+### GRA_ACC_01 按鍵處理（FrogPilot 修改）
+
+**檔案**：`panda/board/safety/safety_volkswagen_mqb.h:169-173`
+
+```c
+// Always exit controls on rising edge of Cancel
+// Signal: GRA_ACC_01.GRA_Abbrechen
+if (GET_BIT(to_push, 13U)) {
+  controls_allowed = acc_main_on;  // ← FrogPilot 修改
+}
+```
+
+**原始 openpilot**：
+```c
+controls_allowed = false;  // 直接禁用
+```
+
+**FrogPilot 修改後**：
+- `controls_allowed = acc_main_on`
+- 只有當 ACC 主開關關閉（`acc_main_on = false`）時才真正禁用
+- 配合第 153-155 行的檢查確保禁用
+
+**設計理念**：
+- 讓 ACC 主開關狀態決定是否禁用
+- 按 CANCEL 通常會關閉 ACC，從而觸發禁用
+- 如果 ACC 主開關保持開啟，OP 可以繼續控制
 
 ---
 
