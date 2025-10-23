@@ -150,9 +150,8 @@ class Car:
 
     self.events.add_from_msg(CS.events)
 
-    # Disable on rising edge of accelerator or brake. Also disable on brake when speed > 0
+    # Disable on rising edge of accelerator or regen. Brake is handled separately in interfaces.py
     if (CS.gasPressed and not self.CS_prev.gasPressed and self.disengage_on_accelerator) or \
-      (CS.brakePressed and (not self.CS_prev.brakePressed or not CS.standstill)) or \
       (CS.regenBraking and (not self.CS_prev.regenBraking or not CS.standstill)):
       self.events.add(EventName.pedalPressed)
 
