@@ -1,6 +1,6 @@
 # FrogPilot / openpilot 開發指南
 
-> **文件版本**: v1.5
+> **文件版本**: v1.8
 > **最後更新**: 2025-10-23
 > **目的**: 整合所有架構研究成果，作為開發時的快速參考文件
 
@@ -81,17 +81,22 @@
    - [啟動流程](#啟動流程-1)
    - [PARAMS 寫入機制](#params-寫入機制)
    - [故障診斷](#故障診斷)
-9. [除錯與診斷](#除錯與診斷)
+9. [FrogPilot UI 系統](#frogpilot-ui-系統)
+   - [UI 架構概述](#ui-架構概述)
+   - [彎道圖標系統](#彎道圖標系統)
+   - [UI 位置計算系統](#ui-位置計算系統)
+   - [實作案例：移動彎道圖標](#實作案例移動彎道圖標)
+10. [除錯與診斷](#除錯與診斷)
    - [查看 Process 錯誤](#查看-process-錯誤)
    - [卡 LOGO 診斷流程](#卡-logo-診斷流程)
    - [TMux 操作](#tmux-操作)
-10. [Git 工作流程](#git-工作流程)
+11. [Git 工作流程](#git-工作流程)
    - [分支管理](#分支管理)
    - [上游更新合併](#上游更新合併)
    - [回復與修復](#回復與修復)
-11. [API 快速參考](#api-快速參考)
-12. [開發流程與最佳實踐](#開發流程與最佳實踐)
-13. [實作案例](#實作案例)
+12. [API 快速參考](#api-快速參考)
+13. [開發流程與最佳實踐](#開發流程與最佳實踐)
+14. [實作案例](#實作案例)
 
 ---
 
@@ -2015,6 +2020,54 @@ def mapd_thread():
         process.wait()  # 等待執行檔運行
 ```
 
+### mapd 執行檔與地圖資料
+
+**mapd 主執行檔**：
+- 位置：`/data/media/0/osm/mapd`
+- 類型：Go 語言編譯的二進制執行檔（約 9.3 MB）
+- 來源：從 GitHub `pfeiferj/openpilot-mapd` 下載
+- 版本檔：`/data/media/0/osm/mapd_version`
+
+**離線地圖資料**：
+- 位置：`/data/media/0/osm/offline/`
+- 結構：`{緯度}/{經度}/{地圖檔案}`
+- 檔案命名格式：`{緯度起點}_{經度起點}_{緯度終點}_{經度終點}`
+
+**範例（台灣地圖）**：
+```
+/data/media/0/osm/offline/
+├── 20/
+│   └── 120/
+│       └── 20.000000_120.000000_20.250000_120.250000
+├── 22/
+│   └── 120/
+│       └── 22.000000_120.000000_22.250000_120.250000
+└── 24/
+    └── 120/
+        └── 24.750000_121.250000_25.000000_121.500000  (台北地區)
+```
+
+**執行機制**：
+```
+mapd 主執行檔運行
+    ↓
+讀取 GPS 位置 (例如: 24.9°N, 121.4°E)
+    ↓
+計算對應地圖檔案 (24/120/24.750000_121.250000_...)
+    ↓
+載入該地圖檔案（資料檔，不是執行檔）
+    ↓
+查詢 OSM 資料：道路名稱、速限、幾何資訊等
+    ↓
+寫入 PARAMS
+```
+
+**日誌範例**：
+```json
+{"level":"info","filename":"/data/media/0/osm/offline/24/120/24.750000_121.250000_25.000000_121.500000","message":"Loading bounds file"}
+{"level":"info","message":"Starting main loop with stability improvements and distance smoothing"}
+```
+
 ### PARAMS 寫入機制
 
 **參數定義** (`common/params.cc`)：
@@ -2024,10 +2077,34 @@ def mapd_thread():
 {"RoadName", CLEAR_ON_MANAGER_START},           // Line 461
 ```
 
+**重要：這些 PARAMS 存在記憶體中**
+
+**存放位置**：
+- ✅ `/dev/shm/params/` （記憶體參數，params_memory）
+- ❌ **不在** `/data/params/d/` （持久化參數）
+- ⚠️ 重開機後會消失
+
+**正確的檢查方式**：
+```bash
+# 方法 1：直接查看記憶體參數目錄
+ls -la /dev/shm/params/d/
+cat /dev/shm/params/d/MapSpeedLimit
+cat /dev/shm/params/d/RoadName
+
+# 方法 2：使用 Python
+cd /data/openpilot
+python -c "
+from openpilot.frogpilot.common.frogpilot_variables import params_memory
+print('MapSpeedLimit:', params_memory.get('MapSpeedLimit', encoding='utf-8'))
+print('RoadName:', params_memory.get('RoadName', encoding='utf-8'))
+print('NextMapSpeedLimit:', params_memory.get('NextMapSpeedLimit', encoding='utf-8'))
+"
+```
+
 **寫入來源**：
 - ❌ 不是由 Python 代碼寫入
 - ❌ 不是由 FrogPilot C++ 代碼寫入
-- ✅ 由 **mapd 二進制執行檔** 直接寫入
+- ✅ 由 **mapd 二進制執行檔** 直接寫入到 params_memory
 
 **數據流程**：
 ```
@@ -2035,14 +2112,16 @@ GPS (liveLocationKalman)
     ↓
 mapd 執行檔
     ↓
-OSM 離線數據庫查詢
+載入離線地圖檔案
+    ↓
+OSM 資料解析
     ↓
 params_memory.put():
-  - MapSpeedLimit (float)
+  - MapSpeedLimit (float, m/s)
   - RoadName (string)
   - NextMapSpeedLimit (json)
     ↓
-speed_limit_controller.py 讀取 (line 311, 313, 227)
+speed_limit_controller.py 讀取
     ↓
 顯示在 UI
 ```
@@ -2082,6 +2161,60 @@ drawSource(mapDataRect, mapDataIcon, "Map Data",
            frogpilotPlan.getSlcMapSpeedLimit() * speedConversion);
 ```
 
+### 手動測試 mapd
+
+**1. 停止現有 mapd 進程**：
+```bash
+pkill -f mapd
+```
+
+**2. 直接執行 mapd**：
+```bash
+/data/media/0/osm/mapd
+```
+
+**預期輸出**：
+```json
+{"level":"info","filename":"/data/media/0/osm/offline/24/120/24.750000_121.250000_25.000000_121.500000","message":"Loading bounds file"}
+{"level":"info","message":"Starting main loop with stability improvements and distance smoothing"}
+```
+
+**說明**：
+- mapd 會持續運行（不會自動退出）
+- 按 `Ctrl+C` 可以停止
+- 如果沒有輸出或報錯，表示有問題
+
+**3. 背景執行並查看日誌**：
+```bash
+/data/media/0/osm/mapd > /tmp/mapd.log 2>&1 &
+tail -f /tmp/mapd.log
+```
+
+**4. 檢查 params_memory**：
+```bash
+# 開啟另一個 SSH 連線（不要關閉 mapd）
+cd /data/openpilot
+python -c "
+from openpilot.frogpilot.common.frogpilot_variables import params_memory
+import time
+
+for i in range(10):
+    print(f'--- Check {i+1} ---')
+    print('MapSpeedLimit:', params_memory.get('MapSpeedLimit', encoding='utf-8'))
+    print('RoadName:', params_memory.get('RoadName', encoding='utf-8'))
+    time.sleep(2)
+"
+```
+
+**5. 測試完成後重啟 mapd 服務**：
+```bash
+# 停止手動執行的 mapd
+pkill -f mapd
+
+# 讓 manager 重新啟動 mapd
+# 不需要額外操作，manager 會自動重啟
+```
+
 ### 故障診斷
 
 **問題：MapSpeedLimit 沒有顯示**
@@ -2090,37 +2223,80 @@ drawSource(mapDataRect, mapDataIcon, "Map Data",
 1. **mapd 執行檔未運行**
    ```bash
    ps aux | grep mapd
+   # 應該看到：/data/media/0/osm/mapd
    ```
 
 2. **執行檔不存在或損壞**
    ```bash
    ls -lh /data/media/0/osm/mapd
+   # 應該約 9.3 MB
+
    cat /data/media/0/osm/mapd_version
+   # 顯示版本號
+
+   # 檢查執行權限
+   file /data/media/0/osm/mapd
+   # 應該顯示：ELF 64-bit LSB executable
    ```
 
 3. **離線地圖數據未下載**
    ```bash
    ls -lh /data/media/0/osm/offline/
+   # 應該有對應地區的目錄（如 20/, 22/, 24/）
+
+   # 檢查台灣地圖
+   find /data/media/0/osm/offline/ -name "*.000000"
    ```
 
-4. **OSM 數據中缺少速限標記**
+4. **GPS 定位問題**
+   ```bash
+   cd /data/openpilot
+   python -c "
+   from cereal import messaging
+   import time
+
+   sm = messaging.SubMaster(['liveLocationKalman'])
+   for i in range(5):
+       sm.update(1000)
+       if sm.updated['liveLocationKalman']:
+           loc = sm['liveLocationKalman']
+           lat = loc.positionGeodetic.value[0]
+           lon = loc.positionGeodetic.value[1]
+           valid = loc.positionGeodetic.valid
+           print(f'GPS: lat={lat:.6f}, lon={lon:.6f}, valid={valid}')
+       else:
+           print('No GPS data')
+       time.sleep(1)
+   "
+   ```
+
+5. **OSM 數據中缺少速限標記**
    - RoadName (`name` 標籤) 較常見
    - MapSpeedLimit (`maxspeed` 標籤) 可能缺失
    - 取決於地區的 OSM 數據完整度
 
-5. **GPS 定位不準確**
-   - GPS 訊號弱時無法匹配道路
+6. **PARAMS 位置錯誤**
+   - ❌ 不要查看 `/data/params/d/`
+   - ✅ 應該查看 `/dev/shm/params/d/`
 
-**檢查 PARAMS 值**：
+**正確檢查 PARAMS 值**：
 ```bash
-# 檢查 MapSpeedLimit (float 8 bytes)
-cat /data/params/d/MapSpeedLimit | od -A n -t f8
+# 檢查 MapSpeedLimit
+cat /dev/shm/params/d/MapSpeedLimit | od -A n -t f8
 
-# 檢查 RoadName (string)
-cat /data/params/d/RoadName
+# 檢查 RoadName
+cat /dev/shm/params/d/RoadName
 
-# 檢查 NextMapSpeedLimit (json)
-cat /data/params/d/NextMapSpeedLimit
+# 檢查 NextMapSpeedLimit
+cat /dev/shm/params/d/NextMapSpeedLimit
+
+# 或使用 Python
+cd /data/openpilot
+python -c "
+from openpilot.frogpilot.common.frogpilot_variables import params_memory
+print('MapSpeedLimit:', params_memory.get_float('MapSpeedLimit'))
+print('RoadName:', params_memory.get('RoadName', encoding='utf-8'))
+"
 ```
 
 ### 相關檔案索引
@@ -2134,6 +2310,626 @@ cat /data/params/d/NextMapSpeedLimit
 | `frogpilot/controls/lib/speed_limit_controller.py` | 307-333 | 速限更新邏輯 |
 | `frogpilot/system/speed_limit_filler.py` | 220, 227 | 讀取參數 |
 | `frogpilot/ui/qt/onroad/frogpilot_annotated_camera.cc` | 746, 860 | UI 顯示 |
+
+---
+
+## 車輛速限識別系統 (Dashboard Speed Limit)
+
+部分車輛配備 **Traffic Sign Recognition (TSR)** 功能，使用攝影機辨識道路速限標誌，並透過 CAN bus 廣播給車內其他模組使用。FrogPilot 可以從 CAN bus 讀取這些資訊作為速限來源之一。
+
+### 系統概述
+
+**資料來源**：
+- 車輛原廠攝影機視覺辨識系統
+- 透過 CAN bus 廣播（通常在 Camera bus 或主 bus）
+- 即時辨識道路速限標誌
+
+**用途**：
+- 作為 Speed Limit Controller (SLC) 的速限來源之一
+- 補充或驗證地圖速限資料（MapSpeedLimit）
+- 提供更即時準確的速限資訊
+
+**資料流程**：
+```
+車輛攝影機辨識速限標誌
+    ↓
+CAN bus 廣播 (Camera bus/Main bus)
+    ↓
+carstate.py 讀取 CAN 訊息
+    ↓
+calculate_speed_limit() 解析並轉換單位
+    ↓
+fp_ret.dashboardSpeedLimit (m/s)
+    ↓
+speed_limit_filler.py 記錄（用於群眾外包資料收集）
+frogpilot_vcruise.py 使用（速限控制）
+```
+
+### 已實作車廠
+
+#### 1. Toyota（豐田）
+
+**實作位置**：`selfdrive/car/toyota/carstate.py`
+
+**CAN 訊息**：`RSA1` (Road Sign Assist) - Camera bus (bus 2)
+
+**實作代碼** (Lines 29-38, 223)：
+```python
+def calculate_speed_limit(cp_cam, frogpilot_toggles):
+  speed_limit_unit = cp_cam.vl["RSA1"]["TSGN1"]      # 單位：1=km/h, 36=mph
+  speed_limit_value = cp_cam.vl["RSA1"]["SPDVAL1"]  # 速限數值
+
+  if speed_limit_unit == 1 and not frogpilot_toggles.force_mph_dashboard:
+    return speed_limit_value * CV.KPH_TO_MS
+  elif speed_limit_unit == 36 or frogpilot_toggles.force_mph_dashboard:
+    return speed_limit_value * CV.MPH_TO_MS
+  else:
+    return 0
+
+# Line 223: 寫入 FrogPilotCarState
+fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam, frogpilot_toggles)
+```
+
+**CAN Parser 註冊** (Line 332-334)：
+```python
+def get_cam_can_parser(CP, FPCP):
+    messages = [
+      ("RSA1", 0),  # Road Sign Assist message
+      ("RSA2", 0),
+    ]
+```
+
+#### 2. Hyundai（現代）
+
+**實作位置**：`selfdrive/car/hyundai/carstate.py`
+
+**CAN 訊息**：
+- **CAN FD 車款**：`CLUSTER_SPEED_LIMIT` → `SPEED_LIMIT_1`
+- **傳統 CAN**：`LKAS12` → `CF_Lkas_TsrSpeed_Display_Clu`
+- **備用來源**：`Navi_HU` → `SpeedLim_Nav_Clu`（導航速限）
+
+**實作代碼** (Lines 20-38)：
+```python
+def calculate_speed_limit(CP, FPCP, cp, cp_cam):
+  if CP.carFingerprint in CANFD_CAR:
+    # CAN FD 車款
+    if CP.flags & HyundaiFlags.CANFD_HDA2:
+      speed_limit_bus = cp           # HDA2 從主 bus 讀取
+    else:
+      speed_limit_bus = cp_cam       # 其他從 camera bus 讀取
+    speed_limit = speed_limit_bus.vl["CLUSTER_SPEED_LIMIT"]["SPEED_LIMIT_1"]
+  else:
+    # 傳統 CAN 車款
+    if FPCP.fpFlags & HyundaiFrogPilotFlags.LKAS12:
+      speed_limit = cp_cam.vl["LKAS12"]["CF_Lkas_TsrSpeed_Display_Clu"]
+    else:
+      speed_limit = 0
+    # 如果沒有 TSR，嘗試從導航讀取
+    if speed_limit in (0, 255) and FPCP.fpFlags & HyundaiFrogPilotFlags.NAV_MSG:
+      speed_limit = cp.vl["Navi_HU"]["SpeedLim_Nav_Clu"]
+
+  if speed_limit not in (0, 255):
+    return speed_limit
+  else:
+    return 0
+
+# Lines 204, 306: 寫入 FrogPilotCarState
+fp_ret.dashboardSpeedLimit = calculate_speed_limit(self.CP, self.FPCP, cp, cp_cam) * speed_conv
+```
+
+**特點**：
+- 支援多種速限來源（TSR、儀表板、導航）
+- 區分 CAN FD 和傳統 CAN 架構
+- 透過 FrogPilotFlags 控制啟用哪種來源
+
+#### 3. Ford（福特）
+
+**實作位置**：`selfdrive/car/ford/carstate.py`
+
+**CAN 訊息**：`Traffic_RecognitnData` (Traffic Recognition Data) - Camera bus
+
+**實作代碼** (Lines 14-23, 126)：
+```python
+def calculate_speed_limit(cp_cam):
+  speed_limit_unit = cp_cam.vl["Traffic_RecognitnData"]["TsrVlUnitMsgTxt_D_Rq"]  # 單位
+  speed_limit_value = cp_cam.vl["Traffic_RecognitnData"]["TsrVLim1MsgTxt_D_Rq"]  # 速限值
+
+  if speed_limit_unit == 1:
+    return speed_limit_value * CV.KPH_TO_MS
+  elif speed_limit_unit == 2:
+    return speed_limit_value * CV.MPH_TO_MS
+  else:
+    return 0
+
+# Line 126: 只有 CAN FD 車款支援
+if self.CP.flags & FordFlags.CANFD:
+  fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam)
+```
+
+**CAN Parser 註冊** (Lines 189-192)：
+```python
+@staticmethod
+def get_cam_can_parser(CP, FPCP):
+    if CP.flags & FordFlags.CANFD:
+      messages += [
+        ("Traffic_RecognitnData", 1),
+      ]
+```
+
+**限制**：僅支援 CAN FD 車款
+
+### VW (Volkswagen) 車輛
+
+**DBC 定義**：`opendbc/vw_mqb.dbc`
+
+**CAN 訊息 ID 804 (ACC_04)** - Line 1411-1425：
+
+| 訊號名稱 | 位置 | 長度 | 說明 |
+|---------|------|------|------|
+| `ACC_Tempolimit` | Bit 51 | 5 bits | 速限值（編碼） |
+| `ACC_Texte_Sekundaeranz` | Bit 12 | 4 bits | 次要顯示狀態 |
+
+**速限值編碼** (Line 1706)：
+```
+0  = 無顯示
+1  = 5 km/h
+7  = 30 km/h
+11 = 50 km/h
+17 = 80 km/h
+21 = 100 km/h
+23 = 120 km/h
+31 = 速限結束
+```
+
+**狀態值** (Line 1698)：
+```
+7 = "Tempolimit_erkannt" (速限已識別)
+4 = "Tempolimit_voraus" (前方速限)
+```
+
+**目前狀態**：❌ **未實作**
+
+**問題分析**：
+1. `selfdrive/car/volkswagen/carstate.py` 沒有 `calculate_speed_limit()` 函數
+2. CAN parser 沒有訂閱 `ACC_04` 訊息
+3. 沒有設定 `fp_ret.dashboardSpeedLimit`
+4. VW 目前僅讀取 `ACC_02`、`ACC_06`、`ACC_10`，未讀取 `ACC_04`
+
+**可行性**：
+- ✅ DBC 已定義完整訊號
+- ✅ 其他車廠有參考實作
+- ✅ 訊息存在於 CAN bus（需實車驗證）
+- ⚠️ 需要確認車輛是否真的廣播此訊息
+
+### speed_limit_filler.py 功能
+
+**檔案位置**：`frogpilot/system/speed_limit_filler.py`
+
+**核心功能**：群眾外包速限資料收集和驗證系統
+
+**不是用來顯示速限，而是用來改善速限資料庫**
+
+#### 運作機制
+
+**1. 記錄速限資料** (Lines 201-252)：
+
+```python
+def log_speed_limit(self):
+    # 讀取當前位置
+    current_latitude = self.sm["liveLocationKalman"].positionGeodetic.value[0]
+    current_longitude = self.sm["liveLocationKalman"].positionGeodetic.value[1]
+
+    # 獲取速限來源（優先順序排序）
+    current_speed_source = self.get_speed_limit_source()
+    # 來源：Navigation API > Mapbox > Dashboard
+
+    # 讀取 mapd 提供的速限
+    map_speed = params_memory.get_float("MapSpeedLimit")
+    road_name = params_memory.get("RoadName", encoding="utf-8")
+
+    # 比對：如果 mapd 速限與其他來源差距 > 1，標記為可能錯誤
+    is_incorrect_limit = bool(map_speed > 0 and valid_sources and
+                             all(abs(map_speed - source) > 1 for source in valid_sources))
+
+    # 記錄到資料集
+    self.dataset_additions.append({
+      "bearing": ...,
+      "end_coordinates": {"latitude": current_latitude, "longitude": current_longitude},
+      "incorrect_limit": is_incorrect_limit,
+      "road_name": road_name,
+      "road_width": ...,
+      "source": source,  # "NOO" / "Mapbox" / "Dashboard"
+      "speed_limit": speed_limit,
+      "start_coordinates": self.previous_coordinates,
+    })
+```
+
+**速限來源優先順序** (Lines 84-93)：
+```python
+def get_speed_limit_source(self):
+    sources = [
+      (self.sm["frogpilotNavigation"].navigationSpeedLimit, "NOO"),     # 1. Navigation (OSM Overpass)
+      (self.sm["frogpilotPlan"].slcMapboxSpeedLimit, "Mapbox"),         # 2. Mapbox API
+      (self.sm["frogpilotCarState"].dashboardSpeedLimit, "Dashboard"),  # 3. 車輛 TSR
+    ]
+    for speed_limit, source in sources:
+      if speed_limit > 0:
+        return speed_limit, source
+    return None
+```
+
+**2. 處理和驗證資料** (Lines 300-322)：
+
+停車後，如果有 WiFi/Ethernet 連線：
+```python
+def process_speed_limits(self):
+    # 查詢 Overpass API (OpenStreetMap) 驗證速限
+    self.process_new_entries(dataset, filtered_dataset)
+
+    # 比對 OSM 資料庫與記錄的速限
+    # 如果 OSM 沒有 maxspeed 標籤，但我們有記錄 → 可能需要更新 OSM
+    # 如果 OSM maxspeed 與記錄不符 → 標記為需要審核
+```
+
+**3. 定期審查** (Lines 339-372)：
+
+每 7 天重新驗證：
+```python
+def vet_entries(self, filtered_dataset):
+    for entry in dataset_list:
+      last_vetted_time = datetime.fromisoformat(entry["last_vetted"])
+      if datetime.now(timezone.utc) - last_vetted_time < timedelta(days=7):
+        continue  # 還在有效期內
+
+      # 重新查詢 OSM，檢查速限是否已更新
+      current_maxspeed = self.cached_segments.get(entry["segment_id"])
+      if current_maxspeed is None or entry.get("incorrect_limit"):
+        # 保留記錄，OSM 仍未修正
+        vetted_entries.append(entry)
+```
+
+#### 資料儲存
+
+**PARAMS 儲存**：
+- `SpeedLimits`：待處理的原始記錄
+- `SpeedLimitsFiltered`：已驗證的速限資料
+- `OverpassRequests`：API 使用量統計
+
+**API 限制** (Lines 17-20)：
+```python
+MAX_ENTRIES = 1_000_000
+MAX_OVERPASS_DATA_BYTES = 1_073_741_824  # 1GB/天
+MAX_OVERPASS_REQUESTS = 10_000           # 10000 次/天
+```
+
+#### 使用情境
+
+```
+運行中：
+    車輛行駛
+    ↓
+    mapd 說：這裡速限 80 km/h
+    Dashboard/Mapbox/Navigation 說：這裡速限 100 km/h
+    ↓
+    記錄到 dataset_additions（標記為 incorrect_limit）
+
+停車後（有網路）：
+    查詢 OpenStreetMap Overpass API
+    ↓
+    OSM 資料庫顯示：maxspeed=100
+    ↓
+    確認 mapd 資料有誤
+    ↓
+    儲存到 SpeedLimitsFiltered
+    ↓
+    （未來可能）上傳到 FrogPilot 伺服器
+    ↓
+    改善全球 FrogPilot 使用者的速限資料品質
+```
+
+### 實作模式總結
+
+所有車廠實作都遵循相同模式：
+
+**步驟 1**：在 `carstate.py` 中定義 `calculate_speed_limit()` 函數
+```python
+def calculate_speed_limit(cp_cam):
+    speed_limit_unit = cp_cam.vl["MESSAGE_NAME"]["UNIT_SIGNAL"]
+    speed_limit_value = cp_cam.vl["MESSAGE_NAME"]["VALUE_SIGNAL"]
+
+    if speed_limit_unit == UNIT_KPH:
+        return speed_limit_value * CV.KPH_TO_MS
+    elif speed_limit_unit == UNIT_MPH:
+        return speed_limit_value * CV.MPH_TO_MS
+    else:
+        return 0
+```
+
+**步驟 2**：在 `update()` 函數中呼叫並寫入
+```python
+fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam)
+```
+
+**步驟 3**：在 `get_cam_can_parser()` 中註冊 CAN 訊息
+```python
+def get_cam_can_parser(CP, FPCP):
+    messages = [
+        ("MESSAGE_NAME", frequency),
+    ]
+    return CANParser(DBC[CP.carFingerprint]["pt"], messages, CANBUS.camera)
+```
+
+### 相關檔案索引
+
+| 檔案 | 行數 | 說明 |
+|------|------|------|
+| `selfdrive/car/toyota/carstate.py` | 29-38, 223, 332-334 | Toyota TSR 實作 |
+| `selfdrive/car/hyundai/carstate.py` | 20-38, 204, 306, 399-400 | Hyundai TSR 實作 |
+| `selfdrive/car/ford/carstate.py` | 14-23, 126, 189-192 | Ford TSR 實作 |
+| `selfdrive/car/volkswagen/carstate.py` | - | VW 未實作 |
+| `opendbc/vw_mqb.dbc` | 1411-1425, 1698, 1706 | VW ACC_04 訊息定義 |
+| `frogpilot/system/speed_limit_filler.py` | 1-406 | 速限資料收集系統 |
+| `frogpilot/controls/lib/frogpilot_vcruise.py` | - | 使用 dashboardSpeedLimit |
+| `cereal/custom.capnp` | - | FrogPilotCarState 定義 |
+
+---
+
+## FrogPilot UI 系統
+
+FrogPilot 使用 Qt 5.15.2 + QML 建構使用者介面，主要的 onroad 介面由 C++ 繪製。
+
+### UI 架構概述
+
+**技術棧**：
+- **框架**：Qt 5.15.2
+- **語言**：C++ (onroad 即時繪製), QML (設定介面)
+- **繪製**：QPainter（直接繪製到 OpenGL 紋理）
+
+**主要組件**：
+- **AnnotatedCameraWidget**: 基礎相機覆蓋層（openpilot）
+- **FrogPilotAnnotatedCameraWidget**: FrogPilot 擴充的覆蓋層
+
+### 主要繪製函數
+
+**位置**: `frogpilot/ui/qt/onroad/frogpilot_annotated_camera.cc`
+
+| 函數 | 功能 | 行數 |
+|------|------|------|
+| `paintEvent()` | 主繪製函數 | ~150-250 |
+| `paintCEMStatus()` | CEM 狀態圖標 | 329-375 |
+| `paintCurveSpeedControl()` | 彎道速度控制 | 470-512 |
+| `paintSmartControllerTraining()` | CSC 訓練模式 | 791-845 |
+| `paintCompass()` | 指南針 | 377-467 |
+| `paintRoadName()` | 道路名稱 | 745-771 |
+| `paintSpeedLimitSources()` | 速限來源 | 847-920 |
+
+---
+
+## 彎道圖標系統
+
+FrogPilot 有兩個獨立的彎道相關圖標系統。
+
+### 1. 彎道速度控制圖標（Curve Speed Control）
+
+**圖標資源**：
+```cpp
+// frogpilot_annotated_camera.cc:9
+curveSpeedIcon = loadPixmap("../../frogpilot/assets/other_images/curve_speed.png",
+                            {btn_size, btn_size});
+```
+
+**檔案資訊**：
+- **路徑**: `frogpilot/assets/other_images/curve_speed.png`
+- **大小**: 15KB
+- **格式**: PNG (200x200, RGBA)
+- **外觀**: 黃色菱形道路標誌，黑色彎道箭頭
+
+**顯示條件** (`frogpilot_annotated_camera.cc:192-204`)：
+```cpp
+if (!frogpilot_scene.map_open &&
+    !frogpilotPlan.getSpeedLimitChanged() &&
+    !(signalStyle == "static" && carState.getLeftBlinker()) &&
+    frogpilot_toggles.value("csc_status").toBool()) {
+
+    if (frogpilotPlan.getCscTraining()) {
+        paintSmartControllerTraining(p, frogpilotPlan, frogpilot_scene);
+    } else if (isCruiseSet && frogpilotPlan.getCscControllingSpeed()) {
+        paintCurveSpeedControl(p, frogpilotPlan, frogpilot_scene);
+    }
+}
+```
+
+**必要條件**：
+1. ✅ 地圖未開啟
+2. ✅ 速限未變化
+3. ✅ `csc_status` 設定開啟
+4. ✅ 定速已設定
+5. ✅ CSC 正在控制速度
+
+**速度計算** (`frogpilot_annotated_camera.cc:144`):
+```cpp
+cscSpeedStr = QString::number(
+    std::nearbyint(fmin(speed, frogpilotPlan.getCscSpeed() * speedConversion))
+) + speedUnit;
+```
+
+**視覺樣式**：
+- **圖標框**: 黑色半透明背景，藍色邊框（10px）
+- **速度框**: 藍色半透明背景，100px 高
+- **文字**: 白色，45pt 粗體，顯示目標速度
+- **方向**: 根據 `getRoadCurvature()` 自動翻轉（左轉/右轉）
+
+### 2. CEM 彎道偵測圖標
+
+**圖標資源**：
+```cpp
+// frogpilot_annotated_camera.cc:20
+loadGif("../../frogpilot/assets/other_images/curve_icon.gif",
+        cemCurveIcon, QSize(btn_size / 2, btn_size / 2), this);
+```
+
+**檔案資訊**：
+- **路徑**: `frogpilot/assets/other_images/curve_icon.gif`
+- **大小**: 486KB
+- **格式**: GIF 動畫
+- **外觀**: 藍色/白色彎道弧線符號
+
+**顯示條件** (`frogpilot_annotated_camera.cc:178-179, 364-365`)：
+```cpp
+if (frogpilot_toggles.value("cem_status").toBool()) {
+    paintCEMStatus(...);
+}
+
+// 在 paintCEMStatus 內部
+if (frogpilot_scene.conditional_status == 8) {
+    icon = cemCurveIcon;  // 偵測到彎道
+}
+```
+
+**CEStatus 圖標對照**：
+
+| conditional_status | 圖標 | 說明 |
+|-------------------|------|------|
+| 0 | 無 | 未啟用 |
+| 1 | chillModeIcon | 手動暫停 |
+| 2 | experimentalModeIcon | 手動啟用 |
+| 3, 4 | cemSpeedIcon | 低速觸發 |
+| 5, 7 | cemTurnIcon | 轉彎/方向燈 |
+| 6, 11, 12 | cemStopIcon | 紅綠燈/停止 |
+| **8** | **cemCurveIcon** | **偵測到彎道** |
+| 9, 10 | cemLeadIcon | 前車緩慢 |
+| 13 | experimentalModeIcon | SLC 實驗模式 |
+
+---
+
+## UI 位置計算系統
+
+### 主要錨點
+
+FrogPilot UI 使用多個錨點來定位元素：
+
+```cpp
+QPoint dmIconPosition;              // 駕駛監控圖標位置
+QPoint experimentalButtonPosition;  // 實驗模式按鈕位置
+QPoint cemStatusPosition;           // CEM 狀態位置
+QPoint compassPosition;             // 指南針位置
+QPoint lateralPausedPosition;       // 橫向暫停圖標位置
+QPoint longitudinalIconPosition;    // 縱向圖標位置
+```
+
+### CEStatus 位置計算邏輯
+
+**計算公式** (`frogpilot_annotated_camera.cc:336-338`):
+```cpp
+cemStatusPosition.rx() = dmIconPosition.x();
+cemStatusPosition.ry() = dmIconPosition.y() - widget_size / 2;
+cemStatusPosition.rx() += (rightHandDM ? -img_size - widget_size : widget_size) /
+                          (frogpilot_scene.map_open ? 1.25 : 1);
+```
+
+**邏輯說明**：
+1. **X 座標**：
+   - 基準：DM 圖標的 X 座標
+   - 左駕：向右偏移 `widget_size`
+   - 右駕：向左偏移 `img_size + widget_size`
+   - 地圖開啟時：偏移量除以 1.25（更靠近 DM 圖標）
+
+2. **Y 座標**：
+   - 基準：DM 圖標的 Y 座標
+   - 向上偏移：`widget_size / 2`
+
+**常數定義** (`frogpilot_annotated_camera.h:9`):
+```cpp
+const int widget_size = img_size + (UI_BORDER_SIZE / 2);
+```
+
+---
+
+## 訓練模式 vs 控制模式
+
+### Smart Controller Training（訓練模式）
+
+**觸發條件**：`getCscTraining() == true`
+
+**視覺特徵**：
+- **發光效果**：藍色邊框脈動（2 秒週期）
+- **文字顯示**：`"Training..."`
+- **文字框高度**：50px（較矮）
+
+**發光動畫** (`paintSmartControllerTraining`):
+```cpp
+qreal phase = (glowTimer.elapsed() % 2000) / 2000.0 * 2 * M_PI;
+qreal alphaFactor = 0.5 + 0.5 * sin(phase);
+
+QColor glowColor = blueColor();
+glowColor.setAlphaF(0.3 + 0.7 * alphaFactor);
+
+int glowWidth = 8 + static_cast<int>(2 * alphaFactor);
+p.setPen(QPen(glowColor, glowWidth));
+```
+
+### Curve Speed Control（控制模式）
+
+**觸發條件**：`getCscControllingSpeed() == true`
+
+**視覺特徵**：
+- **固定邊框**：藍色，10px 寬
+- **文字顯示**：目標速度（例如：`"80 km/h"`）
+- **文字框高度**：100px（較高）
+
+---
+
+## 實作案例：移動彎道圖標
+
+**需求**：將彎道速度控制圖標從最高時速右邊移到 CEStatus 位置
+
+**原因**：原位置在螢幕頂部，容易被後照鏡遮擋
+
+**修改檔案**：
+- `frogpilot/ui/qt/onroad/frogpilot_annotated_camera.h` (Line 70, 77)
+- `frogpilot/ui/qt/onroad/frogpilot_annotated_camera.cc` (Line 470-512, 791-845, 199)
+
+**修改前位置**（最高時速右邊）：
+```cpp
+QRect curveSpeedRect(
+    QPoint(setSpeedRect.right() + UI_BORDER_SIZE, setSpeedRect.top()),
+    QSize(defaultSize.width() * 1.25, defaultSize.width() * 1.25)
+);
+```
+
+**修改後位置**（CEStatus 位置）：
+```cpp
+QPoint curveSpeedPosition;
+curveSpeedPosition.rx() = dmIconPosition.x();
+curveSpeedPosition.ry() = dmIconPosition.y() - widget_size / 2;
+curveSpeedPosition.rx() += (rightHandDM ? -img_size - widget_size : widget_size) /
+                          (frogpilot_scene.map_open ? 1.25 : 1);
+
+QRect curveSpeedRect(curveSpeedPosition, QSize(widget_size, widget_size));
+```
+
+**效果**：
+- ✅ 圖標移至 DM 圖標旁邊
+- ✅ 不會被後照鏡遮擋
+- ✅ CEM 關閉時可用該位置
+- ✅ 保持所有原有功能（方向翻轉、速度顯示等）
+
+---
+
+## 相關檔案索引
+
+| 檔案 | 行數 | 說明 |
+|------|------|------|
+| `frogpilot/ui/qt/onroad/frogpilot_annotated_camera.h` | 67-81 | 繪製函數宣告 |
+| `frogpilot/ui/qt/onroad/frogpilot_annotated_camera.h` | 104, 119 | 圖標資源定義 |
+| `frogpilot/ui/qt/onroad/frogpilot_annotated_camera.cc` | 8-26 | 圖標載入 |
+| `frogpilot/ui/qt/onroad/frogpilot_annotated_camera.cc` | 144 | 彎道速度計算 |
+| `frogpilot/ui/qt/onroad/frogpilot_annotated_camera.cc` | 178-204 | 主繪製邏輯 |
+| `frogpilot/ui/qt/onroad/frogpilot_annotated_camera.cc` | 329-375 | CEStatus 繪製 |
+| `frogpilot/ui/qt/onroad/frogpilot_annotated_camera.cc` | 470-512 | 彎道速度控制繪製 |
+| `frogpilot/ui/qt/onroad/frogpilot_annotated_camera.cc` | 791-845 | 訓練模式繪製 |
+| `frogpilot/assets/other_images/curve_speed.png` | - | 彎道速度圖標（PNG）|
+| `frogpilot/assets/other_images/curve_icon.gif` | - | CEM 彎道圖標（GIF）|
 
 ---
 
@@ -2888,6 +3684,9 @@ PERSIST_PATH = "/persist/"               # 持久化路徑
 
 | 日期 | 版本 | 變更內容 |
 |------|------|---------|
+| 2025-10-23 | v1.8 | 新增：mapd 執行檔與地圖資料詳細說明、params_memory 位置說明、手動測試 mapd 流程、完整故障診斷 |
+| 2025-10-23 | v1.7 | 新增：車輛速限識別系統 (Dashboard Speed Limit)，包含 Toyota/Hyundai/Ford 實作、VW 未實作分析、speed_limit_filler.py 完整功能說明 |
+| 2025-10-23 | v1.6 | 新增：FrogPilot UI 系統（彎道圖標、位置計算、實作案例）；實作：移動彎道速度控制圖標到 CEStatus 位置 |
 | 2025-10-23 | v1.5 | 新增：FrogPilot 導航與地圖系統（mapd 架構、MapSpeedLimit/RoadName PARAMS）、CEM 啟動機制與關閉行為分析 |
 | 2025-10-22 | v1.4 | 新增：控制系統詳細研究（煞車踏板修改、安全層邏輯、狀態機流程）|
 | 2025-10-22 | v1.2 | 實作：時間持久化功能（`common/params.cc`, `system/timed.py`）|
