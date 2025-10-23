@@ -468,20 +468,16 @@ void FrogPilotAnnotatedCameraWidget::paintCompass(QPainter &p, QJsonObject &frog
 }
 
 void FrogPilotAnnotatedCameraWidget::paintCurveSpeedControl(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan, FrogPilotUIScene &frogpilot_scene) {
-  // 檢查 DM 圖標位置是否有效
-  if (dmIconPosition == QPoint(0, 0)) {
-    return;
-  }
-
   p.save();
 
-  // 計算位置（使用 CEStatus 相同的邏輯）
+  // 計算位置（固定在左下角）
+  // 速度文字框高度 100px + 間距 10px = 110px，所以圖標要再往上
+  int totalHeight = widget_size + 10 + 100;  // 圖標 + 間距 + 速度框
   QPoint curveSpeedPosition;
-  curveSpeedPosition.rx() = dmIconPosition.x();
-  curveSpeedPosition.ry() = dmIconPosition.y() - widget_size / 2;
-  curveSpeedPosition.rx() += (rightHandDM ? -img_size - widget_size : widget_size) / (frogpilot_scene.map_open ? 1.25 : 1);
+  curveSpeedPosition.setX(UI_BORDER_SIZE);                                    // 左邊邊緣
+  curveSpeedPosition.setY(rect().bottom() - totalHeight - UI_BORDER_SIZE);    // 底部往上
 
-  // 圖標框（使用 widget_size 保持與 CEStatus 相同大小）
+  // 圖標框
   QRect curveSpeedRect(curveSpeedPosition, QSize(widget_size, widget_size));
 
   // 繪製圖標背景框
@@ -789,24 +785,20 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
 }
 
 void FrogPilotAnnotatedCameraWidget::paintSmartControllerTraining(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan, FrogPilotUIScene &frogpilot_scene) {
-  // 檢查 DM 圖標位置是否有效
-  if (dmIconPosition == QPoint(0, 0)) {
-    return;
-  }
-
   p.save();
 
   if (!glowTimer.isValid()) {
     glowTimer.start();
   }
 
-  // 計算位置（使用 CEStatus 相同的邏輯）
+  // 計算位置（固定在左下角）
+  // "Training..." 文字框高度 50px + 間距 10px = 60px
+  int totalHeight = widget_size + 10 + 50;  // 圖標 + 間距 + 訓練文字框
   QPoint curveSpeedPosition;
-  curveSpeedPosition.rx() = dmIconPosition.x();
-  curveSpeedPosition.ry() = dmIconPosition.y() - widget_size / 2;
-  curveSpeedPosition.rx() += (rightHandDM ? -img_size - widget_size : widget_size) / (frogpilot_scene.map_open ? 1.25 : 1);
+  curveSpeedPosition.setX(UI_BORDER_SIZE);                                    // 左邊邊緣
+  curveSpeedPosition.setY(rect().bottom() - totalHeight - UI_BORDER_SIZE);    // 底部往上
 
-  // 圖標框（使用 widget_size 保持與 CEStatus 相同大小）
+  // 圖標框
   QRect curveSpeedRect(curveSpeedPosition, QSize(widget_size, widget_size));
 
   QPixmap curveSpeedImage = frogpilotPlan.getRoadCurvature() < 0 ? curveSpeedIcon : curveSpeedIcon.transformed(QTransform().scale(-1, 1));
