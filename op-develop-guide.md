@@ -1,6 +1,6 @@
 # FrogPilot / openpilot 開發指南
 
-> **文件版本**: v1.8
+> **文件版本**: v1.9
 > **最後更新**: 2025-10-23
 > **目的**: 整合所有架構研究成果，作為開發時的快速參考文件
 
@@ -1310,6 +1310,203 @@ controls_allowed 仍是 false
   ↓
 無法自動恢復！需要駕駛者按 SET/RESUME 重新啟用 ACC
 ```
+
+---
+
+### 煞車自動回復功能實作（已修正）
+
+**實作日期**：2025-10-23
+**修正日期**：2025-10-23
+**Git Commit**：59d37cca (初版), 待提交 (修正版)
+
+#### 功能需求
+
+**目標**：讓煞車行為更智慧、更安全
+- ✅ **行駛中踩煞車**（v_ego > 0.5 m/s）：放開後**自動回復** OP 控制
+- ✅ **靜止時踩煞車**（v_ego ≤ 0.5 m/s）：放開後**不自動回復**（更安全）
+
+**原因**：
+- 行駛中踩煞車通常是臨時減速，放開後希望繼續由 OP 控制
+- 靜止時踩煞車通常是要停車、下車等，需要明確操作重新啟動
+
+#### 實作方式
+
+**修改檔案**：
+1. `selfdrive/car/interfaces.py:386-389`
+2. `selfdrive/car/card.py:153-159`
+3. `panda/board/safety.h:91` (保持原有修改)
+
+**核心邏輯**：
+
+```
+踩煞車 (brakePressed = True)
+    ↓
+檢查車速 v_ego
+    ↓
+┌───────────────────┴───────────────────┐
+│                                       │
+v_ego > 0.5 m/s                    v_ego ≤ 0.5 m/s
+(行駛中)                            (靜止/慢速)
+│                                       │
+↓                                       ↓
+interfaces.py                       card.py
+gasPressedOverride                  pedalPressed
+(ET.OVERRIDE_LONGITUDINAL)          (ET.USER_DISABLE)
+│                                       │
+↓                                       ↓
+State: enabled → overriding         State: enabled → disabled
+│                                       │
+↓ (放開煞車)                          ↓ (放開煞車)
+State: overriding → enabled         State: disabled (保持)
+✅ 自動回復                          ❌ 需要按 SET/RESUME
+```
+
+#### 程式碼修改
+
+**1. interfaces.py (Line 386-389)**：
+```python
+if cs_out.gasPressed:
+    events.add(EventName.gasPressedOverride)
+# Brake override only when moving (v_ego > 0.5 m/s)
+# When stopped, brake should disable OP completely for safety
+if cs_out.brakePressed and cs_out.vEgo > 0.5:
+    events.add(EventName.gasPressedOverride)
+```
+
+**觸發條件**：
+- 煞車踩下 **且** 車速 > 0.5 m/s
+- 產生 `gasPressedOverride` 事件（跟油門一樣的行為）
+
+**2. card.py (Line 153-159)**：
+```python
+# Disable on rising edge of accelerator or regen
+# Brake: when moving (v_ego > 0.5 m/s) -> override mode (handled in interfaces.py)
+#        when stopped or slow (v_ego <= 0.5 m/s) -> disable completely (safety)
+if (CS.gasPressed and not self.CS_prev.gasPressed and self.disengage_on_accelerator) or \
+  (CS.regenBraking and (not self.CS_prev.regenBraking or not CS.standstill)) or \
+  (CS.brakePressed and CS.vEgo <= 0.5 and (not self.CS_prev.brakePressed or not CS.standstill)):
+    self.events.add(EventName.pedalPressed)
+```
+
+**煞車邏輯分解**：
+- `CS.brakePressed`：煞車踩下
+- `CS.vEgo <= 0.5`：車速 ≤ 0.5 m/s（**關鍵判斷**）
+- `not self.CS_prev.brakePressed`：煞車剛踩下（rising edge）
+- `or not CS.standstill`：或者車輛在移動中
+
+**3. safety.h (Line 91)** - 保持原有修改：
+```c
+bool get_longitudinal_allowed(void) {
+  return controls_allowed && !gas_pressed_prev && !brake_pressed_prev;
+}
+```
+
+**作用**：煞車踩下時禁止縱向控制（加速/減速指令）
+
+#### 測試情境
+
+**情境 1：高速公路 60 km/h 踩煞車**
+```
+v_ego = 16.67 m/s (> 0.5)
+  ↓ 踩煞車
+interfaces.py: gasPressedOverride ✅
+  ↓
+State: enabled → overriding
+  ↓ 放開煞車
+State: overriding → enabled
+✅ 自動回復控制
+```
+
+**情境 2：紅燈前減速到 1.8 km/h (0.5 m/s)**
+```
+v_ego = 0.5 m/s (邊界值)
+  ↓ 踩煞車
+card.py: pedalPressed ✅
+  ↓
+State: enabled → disabled
+  ↓ 放開煞車
+State: disabled (保持)
+❌ 需要按 SET/RESUME
+```
+
+**情境 3：完全靜止 (紅燈停車)**
+```
+v_ego = 0 m/s
+standstill = True
+  ↓ 踩煞車
+card.py: pedalPressed ✅
+  ↓
+State: enabled → disabled
+  ↓ 放開煞車
+需要按 SET/RESUME
+❌ 更安全
+```
+
+**情境 4：行駛中 30 km/h 踩煞車**
+```
+v_ego = 8.33 m/s (> 0.5)
+  ↓ 踩煞車
+interfaces.py: gasPressedOverride ✅
+  ↓
+State: enabled → overriding
+  ↓ 放開煞車
+State: overriding → enabled
+✅ 自動回復
+```
+
+#### 關鍵設計決策
+
+**為什麼選擇 0.5 m/s (1.8 km/h) 作為閾值？**
+
+1. **VW standstill 定義**：
+   ```python
+   # selfdrive/car/volkswagen/carstate.py:51
+   ret.standstill = ret.vEgoRaw == 0
+   ```
+   - 完全靜止判定為 `vEgoRaw == 0`
+   - 但實際上微小速度（如 0.1 m/s）也應視為停止
+
+2. **安全考量**：
+   - `< 0.5 m/s` = `< 1.8 km/h`：幾乎靜止
+   - 這個速度下踩煞車通常是要停車
+   - 自動回復容易造成誤觸
+
+3. **其他車廠參考**：
+   - Hyundai: `STANDSTILL_THRESHOLD = 12 * 0.03125 * CV.KPH_TO_MS` ≈ 0.1 m/s
+   - 我們使用 0.5 m/s 更保守
+
+#### 狀態機影響
+
+**OVERRIDE 模式** (gasPressedOverride)：
+```python
+# controlsd.py:577-586
+elif self.state == State.overriding:
+    if not self.contains_event_type(ET.OVERRIDE_LATERAL, ET.OVERRIDE_LONGITUDINAL):
+        self.state = State.enabled  # ← 自動恢復
+```
+
+**DISABLED 模式** (pedalPressed)：
+```python
+# controlsd.py:588-602
+elif self.state == State.disabled:
+    if self.contains_event_type(ET.ENABLE):  # ← 需要明確的 ENABLE 事件
+        # 進入 enabled
+```
+
+#### 測試結果
+
+- ✅ **2025-10-23 實車測試成功**
+- ✅ 行駛中煞車自動回復正常
+- ✅ 靜止時煞車不會誤觸回復
+
+#### 相關檔案索引
+
+| 檔案 | 行數 | 說明 |
+|------|------|------|
+| `selfdrive/car/interfaces.py` | 386-389 | 行駛中煞車 → OVERRIDE 事件 |
+| `selfdrive/car/card.py` | 153-159 | 靜止時煞車 → USER_DISABLE 事件 |
+| `panda/board/safety.h` | 91 | 煞車禁止縱向控制 |
+| `selfdrive/controls/controlsd.py` | 577-586, 588-602 | 狀態機邏輯 |
 
 ---
 
@@ -3684,6 +3881,7 @@ PERSIST_PATH = "/persist/"               # 持久化路徑
 
 | 日期 | 版本 | 變更內容 |
 |------|------|---------|
+| 2025-10-23 | v1.9 | 實作：煞車自動回復功能修正版（依車速判斷：> 0.5 m/s 自動回復，≤ 0.5 m/s 需重新啟動），包含完整邏輯說明、測試情境、設計決策 |
 | 2025-10-23 | v1.8 | 新增：mapd 執行檔與地圖資料詳細說明、params_memory 位置說明、手動測試 mapd 流程、完整故障診斷 |
 | 2025-10-23 | v1.7 | 新增：車輛速限識別系統 (Dashboard Speed Limit)，包含 Toyota/Hyundai/Ford 實作、VW 未實作分析、speed_limit_filler.py 完整功能說明 |
 | 2025-10-23 | v1.6 | 新增：FrogPilot UI 系統（彎道圖標、位置計算、實作案例）；實作：移動彎道速度控制圖標到 CEStatus 位置 |
