@@ -151,11 +151,11 @@ class Car:
     self.events.add_from_msg(CS.events)
 
     # Disable on rising edge of accelerator or regen
-    # Brake: when moving (v_ego > 0.5 m/s) -> override mode (can auto-resume)
-    #        when stopped (v_ego <= 0.5 m/s) -> disable completely (safety)
+    # Brake: when moving (v_ego > 0.5 m/s) -> override mode (handled in interfaces.py)
+    #        when stopped or slow (v_ego <= 0.5 m/s) -> disable completely (safety)
     if (CS.gasPressed and not self.CS_prev.gasPressed and self.disengage_on_accelerator) or \
       (CS.regenBraking and (not self.CS_prev.regenBraking or not CS.standstill)) or \
-      (CS.brakePressed and (not self.CS_prev.brakePressed or not CS.standstill) and CS.vEgo <= 0.5):
+      (CS.brakePressed and CS.vEgo <= 0.5 and (not self.CS_prev.brakePressed or not CS.standstill)):
       self.events.add(EventName.pedalPressed)
 
     CS.events = self.events.to_msg()
