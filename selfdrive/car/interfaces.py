@@ -383,7 +383,9 @@ class CarInterfaceBase(ABC):
       events.add(EventName.preEnableStandstill)
     if cs_out.gasPressed:
       events.add(EventName.gasPressedOverride)
-    if cs_out.brakePressed:
+    # Brake override only when moving (v_ego > 0.5 m/s)
+    # When stopped, brake should disable OP completely for safety
+    if cs_out.brakePressed and cs_out.vEgo > 0.5:
       events.add(EventName.gasPressedOverride)
 
     # Handle button presses
