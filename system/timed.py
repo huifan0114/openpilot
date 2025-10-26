@@ -89,17 +89,26 @@ def main() -> NoReturn:
     cloudlog.debug("Restoring timezone from param")
     set_timezone(tz)
 
-  # 如果系統時間無效，嘗試從 PARAMS 恢復
-  if not system_time_valid():
-    last_good_timestamp_str = params.get("LastKnownGoodTime", encoding='utf8')
-    if last_good_timestamp_str is not None:
-      try:
-        last_good_timestamp = float(last_good_timestamp_str)
+  # 嘗試從 PARAMS 恢復時間
+  # 無論 system_time_valid() 如何判斷,都檢查是否需要恢復
+  last_good_timestamp_str = params.get("LastKnownGoodTime", encoding='utf8')
+  if last_good_timestamp_str is not None:
+    try:
+      last_good_timestamp = float(last_good_timestamp_str)
+      current_timestamp = time.time()
+
+      # 如果系統時間明顯無效,或保存的時間比當前時間新很多
+      if not system_time_valid() or (last_good_timestamp > current_timestamp + 86400):
         last_good_time = datetime.datetime.fromtimestamp(last_good_timestamp)
         cloudlog.info(f"Restoring system time from LastKnownGoodTime: {last_good_time}")
+        cloudlog.info(f"Current time was: {datetime.datetime.now()}")
         set_time(last_good_time)
-      except (ValueError, TypeError) as e:
-        cloudlog.error(f"Failed to parse LastKnownGoodTime: {e}")
+      else:
+        cloudlog.debug(f"System time seems valid, not restoring from LastKnownGoodTime")
+    except (ValueError, TypeError) as e:
+      cloudlog.error(f"Failed to parse LastKnownGoodTime: {e}")
+  else:
+    cloudlog.warning("No LastKnownGoodTime available for time restoration")
 
   pm = messaging.PubMaster(['clocks'])
   sm = messaging.SubMaster(['liveLocationKalman'])
