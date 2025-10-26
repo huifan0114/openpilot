@@ -3679,20 +3679,34 @@ git merge feature/my-feature
 {"LastKnownGoodTime", PERSISTENT},
 ```
 
-2. **開機時恢復時間** (`system/timed.py:92-102`):
+2. **開機時恢復時間** (`system/timed.py:92-111`) - **已改進**:
 ```python
-# 如果系統時間無效，嘗試從 PARAMS 恢復
-if not system_time_valid():
-    last_good_timestamp_str = params.get("LastKnownGoodTime", encoding='utf8')
-    if last_good_timestamp_str is not None:
-        try:
-            last_good_timestamp = float(last_good_timestamp_str)
-            last_good_time = datetime.datetime.fromtimestamp(last_good_timestamp)
-            cloudlog.info(f"Restoring system time from LastKnownGoodTime: {last_good_time}")
-            set_time(last_good_time)
-        except (ValueError, TypeError) as e:
-            cloudlog.error(f"Failed to parse LastKnownGoodTime: {e}")
+# 嘗試從 PARAMS 恢復時間
+# 無論 system_time_valid() 如何判斷,都檢查是否需要恢復
+last_good_timestamp_str = params.get("LastKnownGoodTime", encoding='utf8')
+if last_good_timestamp_str is not None:
+  try:
+    last_good_timestamp = float(last_good_timestamp_str)
+    current_timestamp = time.time()
+
+    # 如果系統時間明顯無效,或保存的時間比當前時間新很多
+    if not system_time_valid() or (last_good_timestamp > current_timestamp + 86400):
+      last_good_time = datetime.datetime.fromtimestamp(last_good_timestamp)
+      cloudlog.info(f"Restoring system time from LastKnownGoodTime: {last_good_time}")
+      cloudlog.info(f"Current time was: {datetime.datetime.now()}")
+      set_time(last_good_time)
+    else:
+      cloudlog.debug(f"System time seems valid, not restoring from LastKnownGoodTime")
+  except (ValueError, TypeError) as e:
+    cloudlog.error(f"Failed to parse LastKnownGoodTime: {e}")
+else:
+  cloudlog.warning("No LastKnownGoodTime available for time restoration")
 ```
+
+**改進重點**:
+- 雙重檢查機制: `not system_time_valid()` **或** `last_good_timestamp > current_timestamp + 86400`
+- 防止 `system_time_valid()` 誤判 (systemd 檔案時間也錯誤時)
+- 檢查 LastKnownGoodTime 是否比當前時間新超過 1 天,如果是則系統時間肯定錯誤
 
 3. **GPS 同步時保存** (`system/timed.py:123-125`):
 ```python
@@ -3746,6 +3760,260 @@ import time    # 已存在
 - ✅ 使用 `time.time()` 取得 timestamp
 - ✅ 使用 `str()` 轉換後儲存
 - ✅ 使用 `float()` 解析並用 `fromtimestamp()` 轉換
+
+---
+
+## rlog 時間戳研究 (2025-10-26)
+
+### 問題發現
+
+在實際測試中發現,即使實作了永久時間保存機制,**rlog 檔案的 ctime 仍然可能是錯誤的**。
+
+**範例**:
+```bash
+stat /data/media/0/realdata/00000009--f5d34548e1--40/rlog
+
+Modify: 2023-11-22 05:52:05  # 錯誤的時間
+Change: 2023-11-22 05:52:05  # 錯誤的時間
+```
+
+但 `LastKnownGoodTime` 參數值是正確的:
+```python
+LastKnownGoodTime = 1761445422.4985726  # 2025-10-25
+```
+
+### 根本原因分析
+
+#### 1. 檔案系統時間 vs rlog 內部時間
+
+rlog 中有**多種時間欄位**,來源和意義都不同:
+
+| 時間欄位 | 位置 | 來源 | 是否可靠 |
+|---------|------|------|----------|
+| **檔案系統 ctime** | 檔案屬性 | loggerd 建立檔案時的系統時間 | ❌ 可能錯誤 |
+| **InitData.wallTimeNanos** | rlog 開頭 | logger_build_init_data() 時的系統時間 | ❌ 可能錯誤 |
+| **Clocks.wallTimeNanos** | 每秒廣播 | timed.py 的 `time.time_ns()` | ✅ GPS 同步後正確 |
+| **liveLocationKalman.unixTimestampMillis** | GPS 訊息 | GPS 衛星時間計算 | ✅ 永遠正確 |
+| **EncodeData.unixTimestampNanos** | 視訊幀 | encoder 執行時的 `timespec_get()` | ⚠️ 取決於執行時系統時間 |
+| **logMonoTime** | 每個 Event | `time.monotonic()` 單調時鐘 | ✅ 相對時間可靠 |
+
+#### 2. liveLocationKalman.unixTimestampMillis 的計算方式
+
+這是**最可靠的時間來源**,因為它不依賴系統時間:
+
+```python
+# system/qcomgpsd/qcomgpsd.py:350-353
+dt_timestamp = (datetime.datetime(1980, 1, 6, 0, 0, 0, 0, datetime.UTC) +
+                datetime.timedelta(weeks=report['w_GpsWeekNumber']) +
+                datetime.timedelta(seconds=(1e-3*report['q_GpsFixTimeMs'] - 18)))
+gps.unixTimestampMillis = dt_timestamp.timestamp()*1e3
+```
+
+**時間流程**:
+```
+1. GPS 硬體接收衛星訊號
+   ↓ (GPS Week Number + GPS Time of Week)
+
+2. qcomgpsd.py 計算 UNIX 時間戳
+   GPS_EPOCH (1980-01-06) + GPS_Week + GPS_Time - 18秒(閏秒)
+   ↓
+
+3. locationd.cc 接收並保存
+   this->unix_timestamp_millis = log.getUnixTimestampMillis()
+   ↓
+
+4. 發布到 liveLocationKalman
+   fix.setUnixTimestampMillis(this->unix_timestamp_millis)
+   ↓
+
+5. timed.py 讀取並同步系統時間
+   gps_time = datetime.fromtimestamp(llk.unixTimestampMillis / 1000.)
+   set_time(gps_time)
+```
+
+**關鍵**: GPS 時間戳是從衛星訊號**直接計算**的,完全獨立於系統時間!
+
+#### 3. 為什麼檔案 ctime 會錯誤?
+
+**競爭條件 (Race Condition)**:
+
+```
+T0: [manager 啟動所有進程 - 並行]
+  ├─ timed.py 啟動
+  └─ loggerd 啟動
+
+T1: [timed.py]
+    讀取 LastKnownGoodTime
+    檢查系統時間 (2023-11-22)
+    準備執行 set_time()...
+
+T2: [loggerd]
+    立即建立 segment 0
+    → rlog ctime = 2023-11-22 ✗ (系統時間還沒恢復!)
+
+T3: [timed.py]
+    set_time(2025-10-25) ✓
+    但 rlog 已經建立了...
+```
+
+**程式碼位置**:
+```cpp
+// system/loggerd/loggerd.cc:232-234
+LoggerdState s;
+// init logger
+logger_rotate(&s);  // ← 立即建立第一個 segment!
+```
+
+**結論**: loggerd 在 timed.py 恢復系統時間**之前**就建立了檔案。
+
+### 解決方案評估
+
+#### 方案 A: 讓 loggerd 等待時間有效 ❌
+```cpp
+// 等待系統時間有效後再建立檔案
+while (!system_time_valid()) {
+  util::sleep_for(100);
+}
+logger_rotate(&s);
+```
+**問題**: 會造成整個系統 lag,不可行。
+
+#### 方案 B: 在 manager_init() 恢復時間 ⚠️
+```python
+def manager_init():
+  # 在啟動進程前恢復時間
+  restore_time_from_params()
+  # 然後啟動所有進程
+```
+**問題**: 仍有微小的競爭條件風險。
+
+#### 方案 C: 接受初始 ctime 錯誤,用 GPS 時間推算 ✅ (採用)
+
+**理由**:
+1. `liveLocationKalman.unixTimestampMillis` 永遠是正確的 (來自 GPS 衛星)
+2. 檔案 ctime 只是元數據,不影響實際記錄內容
+3. 前幾個 segment (GPS 未 fix) ctime 錯誤可接受
+4. GPS fix 後的 segment,可用 `liveLocationKalman.unixTimestampMillis` 推算正確時間
+
+### 實際應用建議
+
+#### 讀取 rlog 真實時間的方法
+
+**方法 1: 使用 liveLocationKalman.unixTimestampMillis (最準確)**
+```python
+from tools.lib.logreader import LogReader
+from datetime import datetime
+
+lr = LogReader("rlog")
+for msg in lr:
+    if msg.which() == 'liveLocationKalman' and msg.liveLocationKalman.gpsOK:
+        unix_ts_millis = msg.liveLocationKalman.unixTimestampMillis
+        real_time = datetime.fromtimestamp(unix_ts_millis / 1000.)
+        print(f"GPS 時間: {real_time}")
+        break  # 第一個 GPS OK 的訊息
+```
+
+**方法 2: 使用 Clocks.wallTimeNanos (GPS 同步後)**
+```python
+for msg in lr:
+    if msg.which() == 'clocks' and msg.valid:
+        wall_time = msg.clocks.wallTimeNanos / 1e9
+        real_time = datetime.fromtimestamp(wall_time)
+        print(f"系統時間: {real_time}")
+```
+
+**方法 3: 使用檔案 ctime (可能錯誤)**
+```python
+import os
+ctime = os.path.getctime("rlog")
+file_time = datetime.fromtimestamp(ctime)
+print(f"檔案時間: {file_time}")  # 可能是 2023 年!
+```
+
+#### 檢查工具腳本
+
+```python
+#!/usr/bin/env python3
+"""檢查 rlog 的時間欄位"""
+from tools.lib.logreader import LogReader
+from datetime import datetime
+import os
+import sys
+
+def check_rlog_times(rlog_path):
+    print(f"檢查: {rlog_path}\n")
+
+    # 檔案系統時間
+    ctime = os.path.getctime(rlog_path)
+    print(f"=== 檔案系統 ctime ===")
+    print(f"{datetime.fromtimestamp(ctime)}\n")
+
+    lr = LogReader(rlog_path)
+    init_time = None
+    first_gps_time = None
+    first_clock_time = None
+
+    for msg in lr:
+        # InitData
+        if msg.which() == 'initData' and not init_time:
+            init_time = msg.initData.wallTimeNanos / 1e9
+            print(f"=== InitData.wallTimeNanos ===")
+            print(f"{datetime.fromtimestamp(init_time)}\n")
+
+        # liveLocationKalman
+        if msg.which() == 'liveLocationKalman' and not first_gps_time:
+            if msg.liveLocationKalman.gpsOK:
+                first_gps_time = msg.liveLocationKalman.unixTimestampMillis / 1000.
+                print(f"=== liveLocationKalman.unixTimestampMillis (GPS) ===")
+                print(f"{datetime.fromtimestamp(first_gps_time)}")
+                print(f"gpsOK: {msg.liveLocationKalman.gpsOK}\n")
+
+        # Clocks
+        if msg.which() == 'clocks' and not first_clock_time:
+            if msg.valid:
+                first_clock_time = msg.clocks.wallTimeNanos / 1e9
+                print(f"=== Clocks.wallTimeNanos ===")
+                print(f"{datetime.fromtimestamp(first_clock_time)}")
+                print(f"valid: {msg.valid}\n")
+
+        if init_time and first_gps_time and first_clock_time:
+            break
+
+    print("=== 建議 ===")
+    if first_gps_time:
+        print(f"✓ 使用 liveLocationKalman.unixTimestampMillis: {datetime.fromtimestamp(first_gps_time)}")
+    elif first_clock_time:
+        print(f"⚠ 使用 Clocks.wallTimeNanos: {datetime.fromtimestamp(first_clock_time)}")
+    else:
+        print(f"✗ GPS 未 fix,檔案 ctime 可能不準確")
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("用法: python check_rlog_time.py <rlog_path>")
+        sys.exit(1)
+    check_rlog_times(sys.argv[1])
+```
+
+### 總結
+
+**現況**:
+- ✅ 永久時間保存機制有效 (timed.py 改進後)
+- ✅ GPS 同步後系統時間正確
+- ✅ `liveLocationKalman.unixTimestampMillis` 永遠正確
+- ⚠️ 前幾個 segment 的檔案 ctime 可能錯誤 (GPS 未 fix 時)
+- ✅ 可用 GPS 時間推算正確記錄時間
+
+**最佳實踐**:
+1. 匯入/分析 rlog 時,**優先使用 `liveLocationKalman.unixTimestampMillis`**
+2. 不要依賴檔案系統的 ctime
+3. GPS 未 fix 的 segment,時間可能不準確 (但這通常只有開機後前幾個 segment)
+
+**相關程式碼**:
+- `system/qcomgpsd/qcomgpsd.py:350-353` - GPS 時間計算
+- `selfdrive/locationd/locationd.cc:376` - 接收 GPS 時間
+- `system/timed.py:92-111` - 時間恢復邏輯 (已改進)
+- `system/loggerd/logger.cc:16-21` - InitData.wallTimeNanos 設定
+- `system/loggerd/loggerd.cc:232-234` - loggerd 立即建立檔案
 
 ### 案例 2：發布自訂訊息
 
