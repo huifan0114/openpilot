@@ -242,7 +242,7 @@ class SpeedLimitController:
     self.update_map_speed_limit(gps_position, v_ego)
 
     limits = {
-      "Dashboard": dashboard_speed_limit,
+      "Dashboard": self.map_speed_limit,  # Dashboard 沒訊號,直接用 Map Data
       "Map Data": self.map_speed_limit,
       "Navigation": navigation_speed_limit
     }
