@@ -1969,6 +1969,675 @@ ret.pcmCruise = not ret.openpilotLongitudinalControl
 
 實驗模式啟用進階駕駛輔助功能，包含自動變道、紅綠燈辨識、彎道速度控制等。
 
+### 實驗模式縱向控制差異
+
+**前提說明**: 本節討論的是在 **OP Longitudinal Control (OP LONG) 已開啟** 的情況下，實驗模式開關對縱向控制行為的影響。如果 OP LONG 關閉，則使用車輛原廠 ACC，以下內容不適用。
+
+實驗模式對 OP LONG 的控制行為（加速/減速）有顯著影響，主要體現在初始速度設定和 MPC 求解模式的不同。
+
+#### 1. 初始巡航速度
+
+**位置**: `selfdrive/controls/lib/drive_helpers.py:13-17,151`
+
+```python
+V_CRUISE_MIN = 8                               # 最小定速 8 km/h
+V_CRUISE_MAX = 145                             # 最大定速 145 km/h
+V_CRUISE_UNSET = 255                           # 未設定標記
+V_CRUISE_INITIAL = 40                          # 普通模式初始速度 40 km/h
+V_CRUISE_INITIAL_EXPERIMENTAL_MODE = 105       # 實驗模式初始速度 105 km/h
+
+def initialize_v_cruise(v_ego, button_events, v_cruise_last, experimental_mode, frogpilot_toggles):
+    initial = (V_CRUISE_INITIAL_EXPERIMENTAL_MODE if experimental_mode and
+               not frogpilot_toggles.conditional_experimental_mode
+               else V_CRUISE_INITIAL)
+```
+
+**差異**:
+- **普通模式**: 啟動定速時，系統預設設定 **40 km/h**
+- **實驗模式**: 啟動定速時，系統預設設定 **105 km/h**
+- **FrogPilot CEM**: 如果啟用 `conditional_experimental_mode`，即使在實驗模式下也使用 40 km/h（由條件式實驗模式動態控制）
+
+#### 2. MPC 求解模式
+
+**重要前提**: 此處討論的是 **OP Longitudinal Control (OP LONG) 已開啟** 的情況下，實驗模式對 MPC 求解器的影響。
+
+**邏輯層次**:
+```
+OP LONG 關閉 → 使用車輛原廠 ACC (openpilot 不控制油門煞車)
+    └─ 實驗模式開關無影響
+
+OP LONG 開啟 → openpilot 控制油門煞車
+    ├─ 實驗模式關閉 → MPC 使用 'acc' 模式
+    └─ 實驗模式開啟 → MPC 使用 'blended' 模式
+```
+
+**位置**: `selfdrive/controls/lib/longitudinal_planner.py:105-107`
+
+```python
+def update(self, sm, classic_longitudinal, frogpilot_toggles):
+    mode = 'blended' if sm['controlsState'].experimentalMode else 'acc'
+    if classic_longitudinal:  # classic_longitudinal 表示使用 OP LONG
+        self.mpc.mode = mode
+```
+
+**兩種 MPC 模式** (都是 OP LONG 控制，只是演算法不同):
+- **`acc` 模式** (實驗模式關閉): OP LONG 使用傳統 ACC 演算法邏輯，只跟隨前車或維持設定速度
+- **`blended` 模式** (實驗模式開啟): OP LONG 融合駕駛模型預測，考慮道路曲率、紅綠燈、路口等因素
+
+**關鍵區別**:
+- 不是「車輛 ACC vs OP LONG」的區別
+- 而是「OP LONG 的兩種不同演算法模式」的區別
+
+#### 3. 加速度限制策略
+
+**位置**: `selfdrive/controls/lib/longitudinal_planner.py:129-136`
+
+```python
+if mode == 'acc':
+    # ACC 模式: 使用 FrogPilot 自訂加速度限制
+    accel_clip = [sm['frogpilotPlan'].minAcceleration,
+                  sm['frogpilotPlan'].maxAcceleration]
+
+    # 在彎道中限制加速
+    steer_angle_without_offset = (sm['carState'].steeringAngleDeg -
+                                   sm['liveParameters'].angleOffsetDeg)
+    if not sm['frogpilotPlan'].cscControllingSpeed:
+        accel_clip = limit_accel_in_turns(v_ego, steer_angle_without_offset,
+                                          accel_clip, self.CP)
+else:
+    # Blended 模式: 使用全範圍加速度限制
+    accel_clip = [ACCEL_MIN, ACCEL_MAX]
+```
+
+**差異**:
+- **ACC 模式** (`mode == 'acc'`):
+  - 最大加速度由個性化設定和速度決定（見下表）
+  - 在彎道中會額外限制加速度
+  - 受 FrogPilot 加速度配置影響
+
+- **Blended 模式** (`mode == 'blended'`):
+  - 使用全範圍限制 `[ACCEL_MIN=-3.5, ACCEL_MAX=2.0]`
+  - 更激進的加速能力
+  - 不受個性化設定限制（由模型直接控制）
+
+#### 4. 加速到定速速度的影響因素
+
+完整的加速行為由以下多個層級的因素共同決定：
+
+##### Level 1: 最大加速度基礎值
+
+**位置**: `selfdrive/controls/lib/longitudinal_planner.py:20-32`
+
+```python
+A_CRUISE_MAX_VALS = [1.6, 1.2, 0.8, 0.6]  # m/s²
+A_CRUISE_MAX_BP = [0., 10.0, 25., 40.]    # m/s
+
+def get_max_accel(v_ego):
+    return float(np.interp(v_ego, A_CRUISE_MAX_BP, A_CRUISE_MAX_VALS))
+```
+
+**基礎加速度表** (僅適用於 ACC 模式):
+
+| 速度 (m/s) | 速度 (km/h) | 最大加速度 (m/s²) |
+|-----------|------------|------------------|
+| 0         | 0          | 1.6              |
+| 10        | 36         | 1.2              |
+| 25        | 90         | 0.8              |
+| 40+       | 144+       | 0.6              |
+
+##### Level 2: FrogPilot 個性化設定
+
+**位置**: `frogpilot/controls/lib/frogpilot_acceleration.py:39-83`
+
+根據不同的 **加速檔位** (acceleration_profile) 和 **變速箱模式**:
+
+**加速度配置**:
+```python
+# Eco 模式
+A_CRUISE_MAX_BP_CUSTOM = [0.0, 5., 10., 15., 20., 25., 40.]  # m/s
+A_CRUISE_MAX_VALS_ECO = [2.0, 1.5, 1.0, 0.8, 0.6, 0.4, 0.2]   # m/s²
+
+# Sport 模式
+A_CRUISE_MAX_VALS_SPORT = [3.0, 2.5, 2.0, 1.5, 1.0, 0.8, 0.6]  # m/s²
+
+# ISO 15622:2018 標準
+get_max_allowed_accel = [4.0, 4.0, 2.0]  # 對應速度 [0, 5, 20] m/s
+```
+
+**減速度配置**:
+```python
+# CRUISE_MIN_ACCEL 來自 MPC (通常約 -1.2 m/s²)
+A_CRUISE_MIN_ECO = CRUISE_MIN_ACCEL / 2     # 約 -0.6 m/s²
+A_CRUISE_MIN_SPORT = CRUISE_MIN_ACCEL * 2   # 約 -2.4 m/s²
+```
+
+**個性化設定優先級**:
+1. **Traffic Mode**: 使用標準 `get_max_accel(v_ego)`
+2. **Eco/Sport Gear** (如果啟用 `map_acceleration`):
+   - Eco Gear → `A_CRUISE_MAX_VALS_ECO`
+   - Sport Gear + profile=2 → `A_CRUISE_MAX_VALS_SPORT`
+   - Sport Gear + profile≠2 → ISO 標準
+3. **Acceleration Profile** (一般情況):
+   - 0: Standard → `get_max_accel(v_ego)`
+   - 1: Eco → `A_CRUISE_MAX_VALS_ECO`
+   - 2: Sport → `A_CRUISE_MAX_VALS_SPORT`
+   - 3: Max → ISO 標準
+
+##### Level 3: Human-like 加速調整
+
+**位置**: `frogpilot/controls/lib/frogpilot_acceleration.py:63-65`
+
+如果啟用 `human_acceleration`:
+
+```python
+# 低速時降低加速度 (模擬人類平順起步)
+get_max_accel_low_speeds:
+    [0, CITY_SPEED_LIMIT/2, CITY_SPEED_LIMIT] → [max_accel/4, max_accel/2, max_accel]
+
+# 接近目標速度時漸降加速度 (避免超速衝刺)
+get_max_accel_ramp_off:
+    (v_cruise - v_ego) 從 [0, 1, 5] m/s → [0, 0.5, max_accel]
+```
+
+**效果**:
+- 速度低於城市限速一半時: 最大加速度降為 1/4
+- 速度達到城市限速時: 恢復到完整加速度
+- 接近目標速度 1 m/s 內: 加速度降為 0
+- 距離目標速度 5 m/s: 恢復到完整加速度
+
+##### Level 4: 彎道加速限制
+
+**位置**: `selfdrive/controls/lib/longitudinal_planner.py:38-53`
+
+```python
+def limit_accel_in_turns(v_ego, angle_steers, a_target, CP):
+    """根據橫向加速度限制縱向加速度"""
+    # 總加速度限制 (速度依賴)
+    _A_TOTAL_MAX_V = [1.7, 3.2]   # m/s²
+    _A_TOTAL_MAX_BP = [20., 40.]  # m/s
+
+    a_total_max = np.interp(v_ego, _A_TOTAL_MAX_BP, _A_TOTAL_MAX_V)
+
+    # 計算橫向加速度
+    a_y = v_ego² × angle_steers × DEG_TO_RAD / (steerRatio × wheelbase)
+
+    # 如果橫向加速度顯著 (> MINIMUM_LATERAL_ACCELERATION = 0.35 m/s²)
+    if abs(a_y) > 0.35:
+        # 計算剩餘可用縱向加速度: a_x = √(a_total² - a_y²)
+        a_x_allowed = sqrt(a_total_max² - a_y²)
+
+    return [a_target[0], min(a_target[1], a_x_allowed)]
+```
+
+**彎道限制表**:
+
+| 速度 (km/h) | 最大總加速度 (m/s²) | 橫向加速度 0.5 m/s² 時可用縱向加速度 |
+|------------|--------------------|---------------------------------|
+| 72         | 1.7                | 1.62                            |
+| 108        | 2.45               | 2.40                            |
+| 144+       | 3.2                | 3.16                            |
+
+**說明**:
+- 只在 **ACC 模式** 且 **非 CSC 控制** 時啟用
+- 使用向量合成原理: `a_total² = a_x² + a_y²`
+- 橫向加速度越大，可用縱向加速度越小
+- 保證總加速度不超過舒適度限制
+
+##### Level 5: Personality 跟車距離
+
+**位置**: `selfdrive/controls/lib/longitudinal_mpc_lib/long_mpc.py:86-104`
+
+```python
+def get_T_FOLLOW(personality):
+    if personality == log.LongitudinalPersonality.aggressive:
+        return 1.25  # 秒
+    elif personality == log.LongitudinalPersonality.standard:
+        return 1.45  # 秒
+    else:  # relaxed
+        return 1.75  # 秒
+```
+
+**影響**:
+- 跟車距離越短 (aggressive)，加速意願越強
+- 跟車距離越長 (relaxed)，保持更保守的加速
+
+##### Level 6: Personality Jerk 因子
+
+**位置**: `selfdrive/controls/lib/longitudinal_mpc_lib/long_mpc.py:62-83`
+
+```python
+def get_jerk_factor(personality, v_ego, v_lead, t_follow, jerk_tuning):
+    if personality == aggressive:
+        jerk_factor = 0.5   # 更激進的加速度變化
+    else:  # standard or relaxed
+        jerk_factor = 1.0   # 平順的加速度變化
+
+    # 根據速度和跟車情況進一步調整
+    # Jerk 越小，加速越激進；越大，加速越平順
+```
+
+##### Level 7: PID 控制器
+
+**位置**: `selfdrive/controls/lib/longcontrol.py:102-131`
+
+```python
+def update(self, active, CS, a_target, should_stop, accel_limits, frogpilot_toggles):
+    """縱向 PID 控制器"""
+    # 設定 PID 限制
+    self.pid.neg_limit = accel_limits[0]  # 最小加速度 (減速)
+    self.pid.pos_limit = accel_limits[1]  # 最大加速度 (加速)
+
+    if self.long_control_state == LongCtrlState.starting:
+        # 起步狀態: 使用固定起步加速度
+        output_accel = frogpilot_toggles.startAccel if not human_acceleration else a_target
+
+    elif self.long_control_state == LongCtrlState.pid:
+        # PID 狀態: 追蹤目標加速度
+        error = a_target - CS.aEgo
+        output_accel = self.pid.update(error, speed=CS.vEgo, feedforward=a_target)
+
+    # 最終輸出限制在 accel_limits 範圍內
+    self.last_output_accel = clip(output_accel, accel_limits[0], accel_limits[1])
+```
+
+**PID 參數來源**:
+- `CP.longitudinalTuning.kpBP`, `kpV`: 比例增益
+- `CP.longitudinalTuning.kiBP`, `kiV`: 積分增益
+- `CP.longitudinalTuning.kf`: 前饋增益
+- 這些參數在 `selfdrive/car/[manufacturer]/values.py` 中為每個車型定義
+
+##### Level 8: 車輛特定限制
+
+**位置**: `selfdrive/car/interfaces.py:123-124`
+
+```python
+@staticmethod
+def get_pid_accel_limits(CP, current_speed, cruise_speed):
+    return ACCEL_MIN, ACCEL_MAX  # 預設: -3.5, 2.0 m/s²
+```
+
+某些車廠會覆寫此方法提供特定限制，例如:
+- **Toyota**: 根據當前速度和目標速度動態調整
+- **Honda**: 考慮變速箱狀態
+- **GM**: 考慮 ACC 狀態
+
+#### 5. 實驗模式開關對比總結
+
+**前提**: 以下對比皆在 **OP LONG 已開啟** 的情況下進行
+
+| 項目 | OP LONG + 實驗模式關閉 (`acc`) | OP LONG + 實驗模式開啟 (`blended`) |
+|------|-------------------------------|----------------------------------|
+| **縱向控制權** | ✅ OP 控制油門煞車 | ✅ OP 控制油門煞車 |
+| **初始定速** | 40 km/h | 105 km/h (CEM 啟用時為 40) |
+| **MPC 模式** | `acc` (傳統 ACC 邏輯) | `blended` (融合模型預測) |
+| **加速度限制** | 個性化 + 速度表 + 彎道限制 | 全範圍 `[-3.5, 2.0]` |
+| **彎道加速限制** | ✅ 啟用 | ❌ 不啟用 |
+| **駕駛模型影響** | ❌ 僅跟車/定速 | ✅ 融合道路預測 |
+| **紅綠燈識別** | ❌ | ✅ |
+| **路口減速** | ❌ | ✅ |
+| **彎道預判減速** | ❌ | ✅ |
+| **控制平順度** | 較平順 (受個性化限制) | 較激進 (由模型主導) |
+
+**注意**: 如果 OP LONG 關閉，則使用車輛原廠 ACC，上述所有 OP 控制邏輯都不適用。
+
+#### 6. 加速流程完整圖示
+
+```
+使用者按下 SET 啟動定速
+    ↓
+┌─────────────────────────────────────┐
+│ 初始速度設定                          │
+│ - 實驗模式: 105 km/h                 │
+│ - 普通模式: 40 km/h                  │
+│ - CEM 啟用: 40 km/h (任何模式)        │
+└─────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────┐
+│ MPC 計算目標速度/加速度               │
+│ - ACC 模式: 跟車或維持速度            │
+│ - Blended 模式: 融合模型預測         │
+└─────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────┐
+│ Level 1: 基礎加速度限制               │
+│ 速度 0→40 m/s: 1.6→0.6 m/s²         │
+└─────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────┐
+│ Level 2: FrogPilot 個性化            │
+│ - Standard / Eco / Sport / ISO       │
+│ - Traffic Mode 優先                  │
+└─────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────┐
+│ Level 3: Human Acceleration (選用)   │
+│ - 低速時降低 → 1/4 加速度             │
+│ - 接近目標速度時漸降                  │
+└─────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────┐
+│ Level 4: 彎道限制 (僅 ACC 模式)      │
+│ a_x = √(a_total² - a_y²)            │
+└─────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────┐
+│ Level 5: Personality 跟車距離        │
+│ Aggressive(1.25s) / Relaxed(1.75s)  │
+└─────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────┐
+│ Level 6: Jerk 平順度控制             │
+│ Aggressive(0.5) / Standard(1.0)     │
+└─────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────┐
+│ Level 7: PID 控制器執行              │
+│ 追蹤目標加速度 a_target              │
+└─────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────┐
+│ Level 8: 車輛特定限制                │
+│ get_pid_accel_limits()              │
+└─────────────────────────────────────┘
+    ↓
+最終輸出加速度指令到 CAN
+```
+
+#### 7. 關鍵檔案位置
+
+| 檔案 | 功能 |
+|------|------|
+| `selfdrive/controls/lib/drive_helpers.py` | 初始速度、巡航速度管理 |
+| `selfdrive/controls/lib/longitudinal_planner.py` | MPC 整合、彎道限制、模式選擇 |
+| `selfdrive/controls/lib/longitudinal_mpc_lib/long_mpc.py` | MPC 求解器、T_FOLLOW、Jerk 計算 |
+| `frogpilot/controls/lib/frogpilot_acceleration.py` | FrogPilot 個性化加速度 |
+| `selfdrive/controls/lib/longcontrol.py` | PID 控制器、狀態機 |
+| `selfdrive/controls/controlsd.py` | 主控制循環 |
+| `selfdrive/car/interfaces.py` | 車輛介面基類 |
+| `selfdrive/car/[manufacturer]/values.py` | 車型特定參數 |
+
+---
+
+### FrogPilot 縱向控制參數完整對照表
+
+本節列出所有 FrogPilot UI 中可調整的縱向控制相關參數，說明每個參數控制的內部變數、程式位置、以及調整後的實際影響。
+
+#### 參數分類概覽
+
+FrogPilot 縱向控制參數分為以下幾大類：
+1. **基礎啟用**: 控制 OP LONG 的開關
+2. **個性化設定** (Personalities): Aggressive / Standard / Relaxed / Traffic 四種模式
+3. **加速度檔位**: Eco / Standard / Sport / Max 四種加速度配置
+4. **進階調整**: 起步/停止/Human-like 行為調整
+5. **速限控制器** (SLC): 自動速限跟隨
+6. **條件式實驗模式** (CEM): 智慧切換實驗模式
+7. **彎道速度控制器** (CSC): 彎道減速
+
+---
+
+#### 1. 基礎啟用參數
+
+| UI 參數名稱 | 預設值 | 程式變數 | 程式位置 | 功能說明 | 調高影響 | 調低影響 |
+|------------|-------|---------|---------|---------|---------|---------|
+| `ExperimentalLongitudinalEnabled` | 關閉 | `CP.openpilotLongitudinalControl` | `frogpilot_variables.py:562` | 啟用 OP LONG (油門煞車控制) | 啟用 OP 縱向控制 | 使用車輛原廠 ACC |
+| `DisableOpenpilotLongitudinal` | 關閉 | `toggle.disable_openpilot_long` | `frogpilot_variables.py:548` | 強制關閉 OP LONG | 即使車輛支援也關閉 | 按車輛支援狀態 |
+
+**說明**:
+- 必須先啟用 `ExperimentalLongitudinalEnabled` 才能使用以下所有縱向控制參數
+- `DisableOpenpilotLongitudinal` 用於臨時關閉 OP LONG（例如某些情況下需要使用原廠 ACC）
+
+---
+
+#### 2. 個性化設定 (Personalities)
+
+FrogPilot 提供四種駕駛個性，每種個性控制 **跟車距離 (T_FOLLOW)** 和 **Jerk 平順度**。
+
+##### 2.1 Aggressive (激進模式)
+
+| UI 參數名稱 | 預設值 | 範圍 | 程式變數 | 程式位置 | 功能說明 | 調高影響 | 調低影響 |
+|------------|-------|------|---------|---------|---------|---------|---------|
+| `AggressiveFollow` | 1.25s | 1.0-3.0s | `toggle.aggressive_follow` | `frogpilot_variables.py:672`<br>`frogpilot_following.py:50-55` | 跟車時間間距 | 跟車距離變遠，更保守 | 跟車距離變近，更激進 |
+| `AggressiveJerkAcceleration` | 50% | 25-200% | `toggle.aggressive_jerk_acceleration` | `frogpilot_variables.py:667`<br>`long_mpc.py:62-83` | 加速時的 Jerk 平順度 | 加速更平順溫和 | 加速更猛烈急促 |
+| `AggressiveJerkDeceleration` | 50% | 25-200% | `toggle.aggressive_jerk_deceleration` | `frogpilot_variables.py:668` | 減速時的 Jerk 平順度 | 煞車更平順溫和 | 煞車更猛烈急促 |
+| `AggressiveJerkDanger` | 100% | 25-200% | `toggle.aggressive_jerk_danger` | `frogpilot_variables.py:669` | 危險情況的 Jerk (通常不調整) | 緊急煞車更平順 | 緊急煞車更急促 |
+| `AggressiveJerkSpeed` | 50% | 25-200% | `toggle.aggressive_jerk_speed` | `frogpilot_variables.py:670` | 速度變化的 Jerk (加速時) | 速度變化更平順 | 速度變化更快速 |
+| `AggressiveJerkSpeedDecrease` | 50% | 25-200% | `toggle.aggressive_jerk_speed_decrease` | `frogpilot_variables.py:671` | 速度變化的 Jerk (減速時) | 速度變化更平順 | 速度變化更快速 |
+
+##### 2.2 Standard (標準模式)
+
+| UI 參數名稱 | 預設值 | 範圍 | 程式變數 | 程式位置 | 功能說明 | 調高影響 | 調低影響 |
+|------------|-------|------|---------|---------|---------|---------|---------|
+| `StandardFollow` | 1.45s | 1.0-3.0s | `toggle.standard_follow` | `frogpilot_variables.py:679` | 跟車時間間距 | 跟車距離變遠 | 跟車距離變近 |
+| `StandardJerkAcceleration` | 100% | 25-200% | `toggle.standard_jerk_acceleration` | `frogpilot_variables.py:674` | 加速時的 Jerk 平順度 | 加速更平順 | 加速更猛烈 |
+| `StandardJerkDeceleration` | 100% | 25-200% | `toggle.standard_jerk_deceleration` | `frogpilot_variables.py:675` | 減速時的 Jerk 平順度 | 煞車更平順 | 煞車更猛烈 |
+| `StandardJerkDanger` | 100% | 25-200% | `toggle.standard_jerk_danger` | `frogpilot_variables.py:676` | 危險情況的 Jerk | 緊急煞車更平順 | 緊急煞車更急促 |
+| `StandardJerkSpeed` | 100% | 25-200% | `toggle.standard_jerk_speed` | `frogpilot_variables.py:677` | 速度變化的 Jerk (加速時) | 速度變化更平順 | 速度變化更快速 |
+| `StandardJerkSpeedDecrease` | 100% | 25-200% | `toggle.standard_jerk_speed_decrease` | `frogpilot_variables.py:678` | 速度變化的 Jerk (減速時) | 速度變化更平順 | 速度變化更快速 |
+
+##### 2.3 Relaxed (輕鬆模式)
+
+| UI 參數名稱 | 預設值 | 範圍 | 程式變數 | 程式位置 | 功能說明 | 調高影響 | 調低影響 |
+|------------|-------|------|---------|---------|---------|---------|---------|
+| `RelaxedFollow` | 1.75s | 1.0-3.0s | `toggle.relaxed_follow` | `frogpilot_variables.py:686` | 跟車時間間距 | 跟車距離變遠 | 跟車距離變近 |
+| `RelaxedJerkAcceleration` | 100% | 25-200% | `toggle.relaxed_jerk_acceleration` | `frogpilot_variables.py:681` | 加速時的 Jerk 平順度 | 加速更平順 | 加速更猛烈 |
+| `RelaxedJerkDeceleration` | 100% | 25-200% | `toggle.relaxed_jerk_deceleration` | `frogpilot_variables.py:682` | 減速時的 Jerk 平順度 | 煞車更平順 | 煞車更猛烈 |
+| `RelaxedJerkDanger` | 100% | 25-200% | `toggle.relaxed_jerk_danger` | `frogpilot_variables.py:683` | 危險情況的 Jerk | 緊急煞車更平順 | 緊急煞車更急促 |
+| `RelaxedJerkSpeed` | 100% | 25-200% | `toggle.relaxed_jerk_speed` | `frogpilot_variables.py:684` | 速度變化的 Jerk (加速時) | 速度變化更平順 | 速度變化更快速 |
+| `RelaxedJerkSpeedDecrease` | 100% | 25-200% | `toggle.relaxed_jerk_speed_decrease` | `frogpilot_variables.py:685` | 速度變化的 Jerk (減速時) | 速度變化更平順 | 速度變化更快速 |
+
+##### 2.4 Traffic (塞車模式)
+
+| UI 參數名稱 | 預設值 | 範圍 | 程式變數 | 程式位置 | 功能說明 | 調高影響 | 調低影響 |
+|------------|-------|------|---------|---------|---------|---------|---------|
+| `TrafficFollow` | 0.5s | 0.5-3.0s | `toggle.traffic_follow` | `frogpilot_variables.py:690` | 跟車時間間距 | 跟車距離變遠 | 跟車距離變近 |
+| `TrafficJerkAcceleration` | 50% | 25-200% | `toggle.traffic_jerk_acceleration` | `frogpilot_variables.py:687` | 加速時的 Jerk 平順度 | 加速更平順 | 加速更猛烈 |
+| `TrafficJerkDeceleration` | 50% | 25-200% | `toggle.traffic_jerk_deceleration` | `frogpilot_variables.py:688` | 減速時的 Jerk 平順度 | 煞車更平順 | 煞車更猛烈 |
+| `TrafficJerkDanger` | 100% | 25-200% | `toggle.traffic_jerk_danger` | `frogpilot_variables.py:692` | 危險情況的 Jerk | 緊急煞車更平順 | 緊急煞車更急促 |
+| `TrafficJerkSpeed` | 50% | 25-200% | `toggle.traffic_jerk_speed` | `frogpilot_variables.py:689` | 速度變化的 Jerk (加速時) | 速度變化更平順 | 速度變化更快速 |
+| `TrafficJerkSpeedDecrease` | 50% | 25-200% | `toggle.traffic_jerk_speed_decrease` | `frogpilot_variables.py:691` | 速度變化的 Jerk (減速時) | 速度變化更平順 | 速度變化更快速 |
+
+**Jerk 參數說明**:
+- **Jerk**: 加速度的變化率 (m/s³)，數值越小越激進，越大越平順
+- **100% = 1.0**: 標準值，使用 openpilot 原始設定
+- **50% = 0.5**: 一半的 Jerk cost，加速更激進、快速
+- **200% = 2.0**: 兩倍的 Jerk cost，加速更平順、溫和
+- **Acceleration vs Speed Jerk**:
+  - `JerkAcceleration`: 控制加速度本身的變化 (a → a')
+  - `JerkSpeed`: 控制速度變化導致的 Jerk (v → v' → a')
+- **加速 vs 減速**:
+  - 系統根據 `carState.aEgo` 判斷當前是加速還是減速
+  - `aEgo >= 0` → 使用 Acceleration/Speed 參數
+  - `aEgo < 0` → 使用 Deceleration/SpeedDecrease 參數
+
+**T_FOLLOW (跟車距離) 說明**:
+- 計算公式: `desired_distance = v_ego * T_FOLLOW + STOP_DISTANCE`
+- 例如: 時速 100 km/h (27.8 m/s)，T_FOLLOW=1.45s → 距離 ≈ 40 公尺
+- Traffic 模式在低速時使用更短的跟車距離（塞車時更緊跟）
+- 在高速時會根據速度插值到正常跟車距離
+
+---
+
+#### 3. 加速度檔位配置
+
+| UI 參數名稱 | 預設值 | 程式變數 | 程式位置 | 功能說明 | 選項說明 |
+|------------|-------|---------|---------|---------|---------|
+| `AccelerationProfile` | Sport | `toggle.acceleration_profile` | `frogpilot_variables.py:816`<br>`frogpilot_acceleration.py:54-61` | 加速度檔位 | 0=Standard, 1=Eco, 2=Sport, 3=Max |
+| `DecelerationProfile` | Standard | `toggle.deceleration_profile` | `frogpilot_variables.py:817`<br>`frogpilot_acceleration.py:77-82` | 減速度檔位 | 0=Standard, 1=Eco, 2=Sport |
+
+**加速度檔位對照表** (`frogpilot_acceleration.py`):
+
+| 速度 (m/s) | 速度 (km/h) | Standard | Eco | Sport | Max (ISO) |
+|-----------|------------|----------|-----|-------|-----------|
+| 0         | 0          | 1.6      | 2.0 | 3.0   | 4.0       |
+| 5         | 18         | 1.4      | 1.5 | 2.5   | 4.0       |
+| 10        | 36         | 1.2      | 1.0 | 2.0   | 3.0       |
+| 15        | 54         | 1.0      | 0.8 | 1.5   | 2.5       |
+| 20        | 72         | 0.8      | 0.6 | 1.0   | 2.0       |
+| 25        | 90         | 0.8      | 0.4 | 0.8   | 2.0       |
+| 40        | 144        | 0.6      | 0.2 | 0.6   | 2.0       |
+
+**減速度配置**:
+- **Eco**: `CRUISE_MIN_ACCEL / 2` ≈ -0.6 m/s² (輕柔減速，滑行為主)
+- **Standard**: `CRUISE_MIN_ACCEL` ≈ -1.2 m/s² (標準減速)
+- **Sport**: `CRUISE_MIN_ACCEL * 2` ≈ -2.4 m/s² (積極減速)
+
+**Map Gears (變速箱映射)**:
+- `MapAcceleration`: 根據車輛變速箱檔位自動選擇 Eco/Sport 加速度
+- `MapDeceleration`: 根據車輛變速箱檔位自動選擇 Eco/Sport 減速度
+- 需要車輛支援變速箱狀態回報 (`ecoGear`, `sportGear`)
+
+---
+
+#### 4. Human-like 行為調整
+
+| UI 參數名稱 | 預設值 | 程式變數 | 程式位置 | 功能說明 | 啟用影響 |
+|------------|-------|---------|---------|---------|---------|
+| `HumanAcceleration` | 開啟 | `toggle.human_acceleration` | `frogpilot_variables.py:818`<br>`frogpilot_acceleration.py:63-65` | 模擬人類加速行為 | 低速時降低加速度，接近目標速度時漸降 |
+| `HumanFollowing` | 開啟 | `toggle.human_following` | `frogpilot_variables.py:819`<br>`frogpilot_following.py:76-95` | 模擬人類跟車行為 | 動態調整跟車距離和 Jerk |
+
+**HumanAcceleration 行為**:
+1. **低速平順起步**:
+   ```python
+   # 速度低於城市限速 (55 mph / 88 km/h) 時降低加速度
+   [0, CITY_SPEED_LIMIT/2, CITY_SPEED_LIMIT] → [max_accel/4, max_accel/2, max_accel]
+   ```
+   - 速度 < 44 km/h: 最大加速度降為 1/4
+   - 速度 44-88 km/h: 線性恢復到完整加速度
+
+2. **接近目標速度時減速**:
+   ```python
+   # 距離目標速度 (v_cruise - v_ego) 決定加速度
+   (v_cruise - v_ego) 從 [0, 1, 5] m/s → [0, 0.5, max_accel]
+   ```
+   - 距離 < 1 m/s (3.6 km/h): 加速度降為 0
+   - 距離 1-5 m/s: 線性恢復到完整加速度
+   - 距離 > 5 m/s: 使用完整加速度
+
+**HumanFollowing 行為**:
+1. **接近更快前車時**: 降低 Jerk 和 T_FOLLOW，更積極加速追上
+   ```python
+   accelerating_offset = clip(STOP_DISTANCE - v_ego, 1, distance_factor)
+   acceleration_jerk /= accelerating_offset
+   t_follow /= accelerating_offset
+   ```
+
+2. **接近更慢前車時**: 增加 T_FOLLOW，提早減速保持距離
+   ```python
+   braking_offset = clip(min(v_ego - v_lead, v_lead) - COMFORT_BRAKE, 1, distance_factor)
+   t_follow /= braking_offset + far_lead_offset
+   ```
+
+---
+
+#### 5. 進階調整參數
+
+需要啟用 `AdvancedLongitudinalTune` 才能調整以下參數:
+
+| UI 參數名稱 | 預設值 | 範圍 | 程式變數 | 程式位置 | 功能說明 | 調高影響 | 調低影響 |
+|------------|-------|------|---------|---------|---------|---------|---------|
+| `MaxDesiredAcceleration` | 2.0 m/s² | 0.1-4.0 | `toggle.max_desired_acceleration` | `frogpilot_variables.py:610`<br>`controlsd.py:670,672` | PID 控制器最大輸出 | 更高的加速上限 | 更保守的加速 |
+| `StartAccel` | 車型預設 | 0-4 m/s² | `toggle.startAccel` | `frogpilot_variables.py:611`<br>`longcontrol.py:122` | 起步時的固定加速度 | 起步更快速 | 起步更平順 |
+| `StopAccel` | 車型預設 | -4-0 m/s² | `toggle.stopAccel` | `frogpilot_variables.py:612`<br>`longcontrol.py:116` | 停止前的最小加速度 | (接近0) 煞車更輕柔 | (接近-4) 煞車更果斷 |
+| `StoppingDecelRate` | 車型預設 | 0.001-1 | `toggle.stoppingDecelRate` | `frogpilot_variables.py:613`<br>`longcontrol.py:118` | 停止時的減速率 | 煞車減速更快 | 煞車減速更慢 |
+| `VEgoStarting` | 車型預設 | 0.01-1 m/s | `toggle.vEgoStarting` | `frogpilot_variables.py:614`<br>`longcontrol.py:21,63` | 判定為"已起步"的速度 | 更高速度才認為起步 | 更低速度就認為起步 |
+| `VEgoStopping` | 車型預設 | 0.01-1 m/s | `toggle.vEgoStopping` | `frogpilot_variables.py:615`<br>`longcontrol.py:52,55` | 判定為"停止"的速度 | 更高速度就認為停止 | 更低速度才認為停止 |
+| `LongitudinalActuatorDelay` | 車型預設 | 0-1s | `toggle.longitudinalActuatorDelay` | `frogpilot_variables.py:609`<br>`longcontrol.py:146` | 縱向執行器延遲補償 | 補償更大延遲 | 補償更小延遲 |
+
+**特殊車型調整**:
+- **GM ExperimentalGMTune**: `StoppingDecelRate=0.3, VEgoStarting=0.15, VEgoStopping=0.15`
+- **Toyota FrogsGoMoosTweak**: `StoppingDecelRate=0.01, VEgoStarting=0.1, VEgoStopping=0.5`
+
+---
+
+#### 6. QOL (Quality of Life) 縱向控制參數
+
+| UI 參數名稱 | 預設值 | 程式變數 | 程式位置 | 功能說明 | 啟用影響 |
+|------------|-------|---------|---------|---------|---------|
+| `CustomCruise` | 1 km/h | `toggle.cruise_increase` | `frogpilot_variables.py:886` | 短按速度調整按鈕的增減量 | 自訂每次調整幅度 |
+| `CustomCruiseLong` | 5 km/h | `toggle.cruise_increase_long` | `frogpilot_variables.py:887` | 長按速度調整按鈕的增減量 | 自訂長按調整幅度 |
+| `SetSpeedOffset` | 0 km/h | `toggle.set_speed_offset` | `frogpilot_variables.py:894` | 定速設定速度偏移 | 自動在設定速度上加/減此值 |
+| `ReverseCruise` | 關閉 | `toggle.reverse_cruise_increase` | `frogpilot_variables.py:893` | 反轉定速調整方向 (Toyota PCM) | 上鍵減速、下鍵加速 |
+| `ForceStops` | 關閉 | `toggle.force_stops` | `frogpilot_variables.py:888` | 強制停止在停止線 | 即使前方無車也會停止 |
+| `IncreasedStoppedDistance` | 0 ft | `toggle.increase_stopped_distance` | `frogpilot_variables.py:889`<br>`frogpilot_planner.py:148` | 增加停止距離 | 停得離停止線/前車更遠 |
+
+---
+
+#### 7. 條件式實驗模式 (CEM) 參數
+
+詳見「條件式實驗模式 (CEM)」章節，這裡列出與縱向控制直接相關的參數:
+
+| UI 參數名稱 | 預設值 | 程式變數 | 程式位置 | 功能說明 |
+|------------|-------|---------|---------|---------|
+| `ConditionalExperimental` | 開啟 | `toggle.conditional_experimental_mode` | `frogpilot_variables.py:638` | 啟用條件式實驗模式 |
+| `CESpeed` | 0 mph | `toggle.conditional_limit` | `frogpilot_variables.py:644` | 速度低於此值自動啟用實驗模式 |
+| `CESpeedLead` | 0 mph | `toggle.conditional_limit_lead` | `frogpilot_variables.py:645` | 有前車且速度低於此值啟用實驗模式 |
+
+---
+
+#### 8. 速限控制器 (SLC) 參數
+
+| UI 參數名稱 | 預設值 | 程式變數 | 程式位置 | 功能說明 |
+|------------|-------|---------|---------|---------|
+| `SpeedLimitController` | 開啟 | `toggle.speed_limit_controller` | `frogpilot_variables.py:916` | 啟用速限控制器 |
+| `SetSpeedLimit` | 關閉 | `toggle.set_speed_limit` | `frogpilot_variables.py:920` | 自動設定定速為速限 |
+| `SLCLookaheadHigher` | 0s | `toggle.map_speed_lookahead_higher` | `frogpilot_variables.py:918` | 提前多久看到更高速限 |
+| `SLCLookaheadLower` | 0s | `toggle.map_speed_lookahead_lower` | `frogpilot_variables.py:919` | 提前多久看到更低速限 |
+| `SLCFallback` | Set Speed | `toggle.slc_fallback_*` | `frogpilot_variables.py:922-925` | 無速限時的備用方案 |
+
+**SLC Fallback 選項**:
+- 0: 使用當前設定速度
+- 1: 切換到實驗模式
+- 2: 使用上一個已知速限
+
+---
+
+#### 9. 彎道速度控制器 (CSC) 參數
+
+| UI 參數名稱 | 預設值 | 程式變數 | 程式位置 | 功能說明 |
+|------------|-------|---------|---------|---------|
+| `CurveSpeedController` | 開啟 | `toggle.curve_speed_controller` | `frogpilot_variables.py:655` | 啟用彎道速度控制器 |
+
+**功能**: 根據模型預測的道路曲率自動調整速度，在彎道前減速。
+
+---
+
+#### 10. 其他縱向控制相關參數
+
+| UI 參數名稱 | 預設值 | 程式變數 | 程式位置 | 功能說明 |
+|------------|-------|---------|---------|---------|
+| `LeadDetectionThreshold` | 50% | `toggle.lead_detection_probability` | `frogpilot_variables.py:820` | 前車偵測機率門檻 (降低會更早偵測前車) |
+| `TacoTune` | 關閉 | `toggle.taco_tune` | `frogpilot_variables.py:821`<br>`longitudinal_planner.py:92-96` | Taco 彎道速度調整 (根據曲率限制模型速度) |
+
+---
+
+### 參數調整建議與注意事項
+
+#### 新手建議
+1. **保持預設個性化設定**: Aggressive/Standard/Relaxed 的預設值已經過良好調校
+2. **優先調整 T_FOLLOW**: 如果覺得跟車太近/太遠，調整各個性的 Follow 參數即可
+3. **謹慎調整 Jerk**: Jerk 參數影響乘坐舒適度，過低會造成乘客不適
+
+#### 進階調整
+1. **加速度檔位**: 根據個人喜好選擇 Eco/Sport，不建議長期使用 Max (耗能且不舒適)
+2. **Human-like 功能**: 建議保持開啟，提供更自然的駕駛感受
+3. **進階參數**: 只有在遇到特定問題時才調整 (例如起步過慢、停止不順等)
+
+#### 安全注意事項
+⚠️ **警告**:
+- **不當調整可能影響行車安全**
+- T_FOLLOW 過小會導致跟車過近，緊急情況反應時間不足
+- 加速度過高會增加輪胎打滑風險
+- 減速度過低會導致煞車距離過長
+- 務必在安全環境下測試調整效果
+
+#### 測試建議
+1. **每次只調整一個參數**: 方便判斷影響
+2. **記錄調整前後數值**: 方便回復
+3. **選擇熟悉的道路測試**: 更容易感受差異
+4. **注意 rlog 記錄**: 可以事後分析加速度曲線
+
+---
+
 ### 條件式實驗模式 (CEM)
 
 **位置**: `frogpilot/controls/lib/conditional_experimental_mode.py`
@@ -3539,6 +4208,743 @@ while True:
 uint64_t mono_time = nanos_since_boot();
 uint64_t wall_time = nanos_since_epoch();
 double seconds = seconds_since_boot();
+```
+
+---
+
+## 如何記錄變數到 rlog
+
+### 概述
+
+openpilot 使用 **cereal** 訊息系統來記錄所有資料到 rlog 檔案。要記錄自訂變數,需要經過以下步驟:
+
+1. 在 `.capnp` 檔案中定義訊息結構
+2. 在 Python 程式中建立並發送訊息
+3. 重新編譯以生成 Python bindings
+
+---
+
+### 步驟 1: 定義訊息結構 (`.capnp` 檔案)
+
+訊息結構定義在 `cereal/` 目錄下的 `.capnp` 檔案中:
+
+- **`log.capnp`**: openpilot 核心訊息 (不建議修改)
+- **`car.capnp`**: 車輛相關訊息 (不建議修改)
+- **`custom.capnp`**: **FrogPilot 自訂訊息** (建議在此添加)
+
+#### 範例: 在 `custom.capnp` 中添加新欄位
+
+假設你想在 `FrogPilotPlan` 訊息中添加一個新的變數 `myCustomValue`:
+
+```capnp
+struct FrogPilotPlan @0xa1680744031fdb2d {
+  accelerationJerk @0 :Float32;
+  accelerationJerkStock @1 :Float32;
+  # ... 其他現有欄位 ...
+
+  # 添加你的新欄位
+  myCustomValue @35 :Float32;
+  myDebugInfo @36 :Text;
+}
+```
+
+**重要規則**:
+- **編號必須唯一**: `@N` 的編號不能與現有欄位重複
+- **編號必須遞增**: 新欄位的編號應該大於現有最大編號
+- **不要修改現有欄位**: 修改現有欄位會破壞向後相容性
+- **資料型別**: 常用型別包括 `Float32`, `Int32`, `Bool`, `Text`, `List(Type)`
+
+#### 建立全新的訊息結構
+
+如果要建立全新的訊息類型:
+
+```capnp
+struct MyCustomMessage @0x<unique_id> {
+  timestamp @0 :UInt64;
+  speed @1 :Float32;
+  acceleration @2 :Float32;
+  debugText @3 :Text;
+
+  # 巢狀結構
+  extraData @4 :ExtraData;
+
+  struct ExtraData {
+    value1 @0 :Float32;
+    value2 @0 :Int32;
+  }
+}
+```
+
+**如何生成唯一 ID**:
+```bash
+# 使用 capnp 工具生成唯一 ID
+capnp id
+# 輸出範例: @0x9a1b2c3d4e5f6789
+```
+
+---
+
+### 步驟 2: 在 Python 中發送訊息
+
+#### 2.1 初始化 Publisher
+
+首先需要建立 `PubMaster` 並指定要發送的訊息頻道:
+
+```python
+import cereal.messaging as messaging
+
+# 在 __init__ 中初始化
+self.pm = messaging.PubMaster(['frogpilotPlan', 'myCustomMessage'])
+```
+
+#### 2.2 建立並填充訊息
+
+在需要記錄資料的地方建立訊息並填充數值:
+
+```python
+# 建立新訊息
+frogpilot_plan_send = messaging.new_message('frogpilotPlan')
+frogpilot_plan_send.valid = True  # 設定訊息有效性
+frogpilotPlan = frogpilot_plan_send.frogpilotPlan
+
+# 填充現有欄位
+frogpilotPlan.accelerationJerk = 1.5
+frogpilotPlan.maxAcceleration = 2.0
+
+# 填充你的自訂欄位
+frogpilotPlan.myCustomValue = some_variable
+frogpilotPlan.myDebugInfo = f"Debug: {some_info}"
+
+# 發送訊息
+self.pm.send('frogpilotPlan', frogpilot_plan_send)
+```
+
+#### 2.3 完整範例
+
+以 `frogpilot_planner.py` 為例:
+
+```python
+# frogpilot/controls/frogpilot_planner.py
+
+class FrogPilotPlanner:
+  def __init__(self):
+    # ... 初始化代碼 ...
+    self.my_custom_value = 0.0  # 你要記錄的變數
+
+  def update(self, v_ego, sm, frogpilot_toggles):
+    # ... 更新邏輯 ...
+
+    # 計算你的自訂數值
+    self.my_custom_value = v_ego * 2.5  # 範例計算
+
+  def publish(self, theme_updated, toggles_updated, sm, pm, frogpilot_toggles):
+    frogpilot_plan_send = messaging.new_message("frogpilotPlan")
+    frogpilot_plan_send.valid = sm.all_checks(service_list=["carState", "controlsState"])
+    frogpilotPlan = frogpilot_plan_send.frogpilotPlan
+
+    # 填充現有欄位
+    frogpilotPlan.accelerationJerk = self.frogpilot_following.acceleration_jerk
+    frogpilotPlan.tFollow = self.frogpilot_following.t_follow
+
+    # 填充你的自訂欄位
+    frogpilotPlan.myCustomValue = self.my_custom_value
+    frogpilotPlan.myDebugInfo = f"Speed: {v_ego:.2f}"
+
+    # 發送訊息
+    pm.send("frogpilotPlan", frogpilot_plan_send)
+```
+
+---
+
+### 步驟 3: 在 `log.capnp` 中註冊訊息
+
+如果你建立了全新的訊息類型,需要在 `log.capnp` 的 `Event` union 中註冊:
+
+```capnp
+# cereal/log.capnp
+
+struct Event {
+  logMonoTime @0 :UInt64;
+  valid @1 :Bool = true;
+
+  union {
+    # ... 現有訊息類型 ...
+    frogpilotPlan @133 :Custom.FrogPilotPlan;
+
+    # 添加你的新訊息
+    myCustomMessage @200 :Custom.MyCustomMessage;
+  }
+}
+```
+
+---
+
+### 步驟 4: 重新編譯
+
+修改 `.capnp` 檔案後,必須重新編譯以生成 Python bindings:
+
+```bash
+cd /data/openpilot  # 或你的專案目錄
+
+# 重新編譯 cereal
+scons cereal/
+
+# 或完整編譯
+scons -j$(nproc)
+```
+
+**Windows 開發環境**:
+- 在 Windows 上開發時,修改 `.capnp` 檔案後需要在 C3 設備上重新編譯
+- 或使用 WSL/Docker 進行編譯
+
+---
+
+### 步驟 5: 驗證記錄
+
+#### 5.1 即時查看訊息
+
+使用 `cereal` 工具查看訊息是否正常發送:
+
+```bash
+# 查看特定訊息
+cereal peek frogpilotPlan
+
+# 查看所有訊息
+cereal peek --all
+```
+
+#### 5.2 檢查 rlog 檔案
+
+記錄完成後,可以從 rlog 檔案中讀取數值:
+
+```python
+from tools.lib.logreader import LogReader
+
+# 讀取 rlog 檔案
+lr = LogReader("/data/media/0/realdata/segment_path/rlog")
+
+# 遍歷訊息
+for msg in lr:
+    if msg.which() == 'frogpilotPlan':
+        print(f"myCustomValue: {msg.frogpilotPlan.myCustomValue}")
+        print(f"myDebugInfo: {msg.frogpilotPlan.myDebugInfo}")
+```
+
+---
+
+### 常見訊息類型和位置
+
+| 訊息名稱 | 定義位置 | 發送位置 | 頻率 | 用途 |
+|---------|---------|---------|-----|-----|
+| `carState` | `car.capnp` | 車輛介面 | 100Hz | 車輛狀態 (速度、轉向角等) |
+| `carControl` | `car.capnp` | `controlsd.py` | 100Hz | 控制指令 (油門、煞車、轉向) |
+| `controlsState` | `log.capnp` | `controlsd.py` | 100Hz | 控制系統狀態 |
+| `longitudinalPlan` | `log.capnp` | `longitudinal_planner.py` | 20Hz | 縱向規劃 (MPC 輸出) |
+| `frogpilotPlan` | `custom.capnp` | `frogpilot_planner.py` | 20Hz | FrogPilot 規劃資料 |
+| `frogpilotControlsState` | `custom.capnp` | `controlsd.py` | 100Hz | FrogPilot 控制狀態 |
+| `frogpilotCarState` | `custom.capnp` | 車輛介面 | 100Hz | FrogPilot 車輛狀態 |
+
+---
+
+### 最佳實踐
+
+#### 1. 選擇適當的訊息類型
+
+- **需要高頻記錄 (100Hz)**: 使用 `controlsState` 或 `carControl`
+- **中頻記錄 (20Hz)**: 使用 `frogpilotPlan` 或 `longitudinalPlan`
+- **低頻記錄 (1Hz)**: 建立新的訊息類型
+
+#### 2. 資料型別選擇
+
+```capnp
+# 浮點數
+Float32  # 單精度,節省空間,精度足夠大多數情況
+Float64  # 雙精度,只在需要高精度時使用
+
+# 整數
+Int32    # 有符號 32位元
+UInt32   # 無符號 32位元
+Int64    # 64位元整數,用於時間戳等
+
+# 布林值
+Bool     # true/false
+
+# 字串
+Text     # 字串,用於除錯訊息等
+
+# 列表
+List(Float32)  # 浮點數陣列
+List(Text)     # 字串陣列
+```
+
+#### 3. 命名慣例
+
+- **駝峰式命名**: `myCustomValue` (不是 `my_custom_value`)
+- **有意義的名稱**: `actualAcceleration` 優於 `accel1`
+- **避免縮寫**: `maximumSpeed` 優於 `maxSpd`
+
+#### 4. 效能考量
+
+```python
+# ✅ 好的做法: 每個週期發送一次完整訊息
+def publish(self, pm):
+    msg = messaging.new_message('myMessage')
+    msg.myMessage.value1 = self.value1
+    msg.myMessage.value2 = self.value2
+    pm.send('myMessage', msg)
+
+# ❌ 壞的做法: 不要在高頻迴圈中建立過大的訊息
+def update(self, pm):  # 這個函數可能每 10ms 呼叫一次
+    huge_list = [i for i in range(10000)]  # 避免
+    msg.myMessage.hugeData = huge_list
+```
+
+#### 5. 除錯技巧
+
+```python
+# 在程式中添加除錯輸出
+from openpilot.common.swaglog import cloudlog
+
+cloudlog.info(f"Publishing myCustomValue: {self.my_custom_value}")
+
+# 使用 valid 標誌標示訊息有效性
+frogpilot_plan_send.valid = self.data_is_valid
+
+# 在關鍵時刻記錄額外資訊
+if error_condition:
+    frogpilotPlan.myDebugInfo = f"ERROR: {error_message}"
+```
+
+---
+
+### cloudlog 記錄位置
+
+#### 什麼是 cloudlog?
+
+`cloudlog` 是 openpilot 的日誌系統，用於記錄除錯訊息、錯誤、警告等文字日誌。與 cereal 訊息系統不同，cloudlog 主要用於除錯和診斷。
+
+#### cloudlog 記錄到哪裡?
+
+cloudlog 訊息會同時記錄到 **三個地方**：
+
+##### 1. 終端輸出 (Console)
+
+根據環境變數 `LOGPRINT` 決定輸出等級：
+
+```bash
+# 設定輸出等級
+export LOGPRINT=debug    # 輸出所有等級 (DEBUG, INFO, WARNING, ERROR)
+export LOGPRINT=info     # 輸出 INFO 以上
+export LOGPRINT=warning  # 輸出 WARNING 以上 (預設)
+
+# 執行程式後可在終端看到日誌
+python selfdrive/controls/controlsd.py
+```
+
+##### 2. swaglog 檔案 (`/data/log/`)
+
+**位置**:
+- **裝置上**: `/data/log/swaglog.*`
+- **PC 上**: `~/.comma/log/swaglog.*`
+
+**特性**:
+- 每 60 秒或 256KB 輪替一個新檔案
+- 保留最近 2500 個檔案
+- 檔案命名: `swaglog.0000000001`, `swaglog.0000000002`, ...
+- 格式: 文字檔，可直接用 `cat` 或 `tail` 查看
+
+**查看方式**:
+```bash
+# 查看最新日誌
+tail -f /data/log/swaglog.*
+
+# 查看特定時間的日誌
+cat /data/log/swaglog.0000001234
+
+# 搜尋特定關鍵字
+grep "Publishing" /data/log/swaglog.*
+
+# 查看錯誤訊息
+grep "ERROR" /data/log/swaglog.*
+```
+
+##### 3. rlog 的 logMessage 訊息
+
+`logmessaged` 服務會將所有日誌發送到 cereal 訊息系統：
+
+**訊息類型**:
+- **`logMessage`**: 所有 INFO 等級以上的日誌
+- **`errorLogMessage`**: ERROR 等級的日誌
+
+**流程圖**:
+```
+程式中呼叫 cloudlog.info()
+         ↓
+透過 ZMQ IPC 發送到 logmessaged
+    (/tmp/logmessage)
+         ↓
+    logmessaged 服務
+         ↓
+   ┌─────┴─────┐
+   ↓           ↓
+寫入檔案    發送 cereal 訊息
+/data/log/   (logMessage)
+            ↓
+        記錄到 rlog
+```
+
+**從 rlog 讀取日誌**:
+```python
+from tools.lib.logreader import LogReader
+
+lr = LogReader("/data/media/0/realdata/segment_path/rlog")
+
+for msg in lr:
+    if msg.which() == 'logMessage':
+        print(msg.logMessage)
+    elif msg.which() == 'errorLogMessage':
+        print(f"ERROR: {msg.errorLogMessage}")
+```
+
+---
+
+#### cloudlog 使用方式
+
+##### 基本用法
+
+```python
+from openpilot.common.swaglog import cloudlog
+
+# DEBUG: 詳細除錯資訊
+cloudlog.debug("Variable x = %s", x)
+
+# INFO: 一般資訊
+cloudlog.info("System initialized successfully")
+
+# WARNING: 警告 (但不影響運行)
+cloudlog.warning("Speed exceeds recommended limit")
+
+# ERROR: 錯誤 (可能影響功能)
+cloudlog.error("Failed to read sensor data")
+
+# CRITICAL: 嚴重錯誤 (系統無法運行)
+cloudlog.critical("System crash imminent")
+
+# EXCEPTION: 記錄例外 (包含 stack trace)
+try:
+    risky_operation()
+except Exception as e:
+    cloudlog.exception("Operation failed")
+```
+
+##### 格式化輸出
+
+```python
+# 使用 f-string (Python 3.6+)
+cloudlog.info(f"Speed: {v_ego:.2f} m/s, Accel: {a_ego:.3f} m/s²")
+
+# 使用 % 格式化
+cloudlog.info("Speed: %.2f m/s, Accel: %.3f m/s²", v_ego, a_ego)
+
+# 使用 .format()
+cloudlog.info("Speed: {} m/s, Accel: {} m/s²".format(v_ego, a_ego))
+```
+
+##### 條件式日誌
+
+```python
+# 只在除錯模式記錄
+if debug_mode:
+    cloudlog.debug("Detailed state: %s", state_dict)
+
+# 只在錯誤發生時記錄
+if error_detected:
+    cloudlog.error("Error code: %d, details: %s", error_code, error_msg)
+
+# 定期記錄 (避免日誌過多)
+if self.frame % 100 == 0:  # 每 100 個週期記錄一次
+    cloudlog.info("Still running, speed: %.2f", v_ego)
+```
+
+##### timestamp 功能
+
+openpilot 特有的 `timestamp` 方法，用於效能分析：
+
+```python
+# 記錄時間戳 (用於效能分析)
+cloudlog.timestamp("Function A started")
+some_heavy_function()
+cloudlog.timestamp("Function A completed")
+
+# 這些 timestamp 會出現在日誌中，可用來計算執行時間
+```
+
+---
+
+#### cloudlog vs cereal 訊息
+
+| 特性 | cloudlog | cereal 訊息 |
+|------|---------|-----------|
+| **用途** | 除錯、錯誤記錄、系統訊息 | 結構化資料記錄 |
+| **資料型別** | 文字字串 | 結構化數值 (Float, Int, Bool 等) |
+| **效能影響** | 較低 (只寫入檔案和 IPC) | 極低 (二進位格式) |
+| **適合場景** | 診斷問題、追蹤執行流程 | 記錄感測器資料、控制參數 |
+| **查看方式** | `tail`, `grep`, `cat` | `cereal peek`, LogReader |
+| **記錄頻率** | 低頻 (事件驅動) | 高頻 (週期性) |
+| **檔案大小** | 較小 | 較大 |
+
+**使用建議**:
+- **使用 cloudlog**: 記錄狀態變化、錯誤、警告、初始化訊息
+- **使用 cereal**: 記錄連續變化的數值、感測器資料、控制輸出
+
+**範例**:
+```python
+# ✅ 適合用 cloudlog
+cloudlog.info("System started")
+cloudlog.warning("GPS signal weak")
+cloudlog.error("Failed to initialize camera")
+
+# ✅ 適合用 cereal
+frogpilotPlan.myCustomValue = current_speed  # 連續變化的數值
+frogpilotPlan.accelerationJerk = jerk_value  # 控制參數
+
+# ❌ 不建議
+cloudlog.info(f"Speed: {v_ego}")  # 每 10ms 記錄一次會造成日誌爆炸
+```
+
+---
+
+#### 實際應用範例
+
+##### 範例 1: 追蹤函數執行
+
+```python
+def my_complex_function(self, param1, param2):
+    cloudlog.info("Starting complex function with params: %s, %s", param1, param2)
+
+    try:
+        result = self.do_calculation(param1)
+        cloudlog.debug("Calculation result: %s", result)
+
+        if result > threshold:
+            cloudlog.warning("Result exceeds threshold: %.2f > %.2f", result, threshold)
+
+        return result
+
+    except Exception as e:
+        cloudlog.exception("Complex function failed")
+        return None
+```
+
+##### 範例 2: 狀態轉換記錄
+
+```python
+def update_state(self, new_state):
+    if self.state != new_state:
+        cloudlog.info("State transition: %s -> %s", self.state, new_state)
+        self.state = new_state
+```
+
+##### 範例 3: 效能監控
+
+```python
+def update(self, sm):
+    cloudlog.timestamp("Update started")
+
+    self.process_sensor_data(sm)
+    cloudlog.timestamp("Sensor processing done")
+
+    self.run_mpc()
+    cloudlog.timestamp("MPC completed")
+
+    self.publish_results()
+    cloudlog.timestamp("Results published")
+```
+
+##### 範例 4: 條件式除錯
+
+```python
+class MyController:
+    def __init__(self):
+        self.debug_counter = 0
+
+    def update(self, v_ego):
+        # 只在特定條件下記錄詳細資訊
+        if abs(v_ego - self.target_speed) > 5.0:
+            cloudlog.warning("Large speed error: current=%.2f, target=%.2f",
+                           v_ego, self.target_speed)
+
+        # 定期記錄健康狀態
+        self.debug_counter += 1
+        if self.debug_counter % 1000 == 0:
+            cloudlog.info("Controller health check: errors=%d", self.error_count)
+```
+
+---
+
+#### 查看日誌的實用指令
+
+```bash
+# 即時查看最新日誌
+tail -f /data/log/swaglog.* | grep --line-buffered "ERROR\|WARNING"
+
+# 查看特定進程的日誌
+grep "controlsd" /data/log/swaglog.* | tail -20
+
+# 統計錯誤數量
+grep -c "ERROR" /data/log/swaglog.*
+
+# 查看特定時間範圍的日誌 (根據檔案編號)
+cat /data/log/swaglog.{0000001200..0000001250}
+
+# 搜尋特定關鍵字並顯示前後文
+grep -B 2 -A 2 "Failed to initialize" /data/log/swaglog.*
+
+# 只看 ERROR 等級並去重
+grep "ERROR" /data/log/swaglog.* | sort | uniq
+
+# 結合 Python 分析日誌
+python << EOF
+import re
+errors = {}
+for line in open('/data/log/swaglog.0000001234'):
+    if 'ERROR' in line:
+        match = re.search(r'ERROR: (.*)', line)
+        if match:
+            err_msg = match.group(1)
+            errors[err_msg] = errors.get(err_msg, 0) + 1
+
+for msg, count in sorted(errors.items(), key=lambda x: x[1], reverse=True):
+    print(f"{count:4d}x {msg}")
+EOF
+```
+
+---
+
+### 總結
+
+- **cloudlog 記錄位置**:
+  1. 終端輸出 (根據 `LOGPRINT` 環境變數)
+  2. `/data/log/swaglog.*` 檔案
+  3. rlog 的 `logMessage` 和 `errorLogMessage` 訊息
+
+- **適用場景**:
+  - 記錄系統事件、狀態變化
+  - 除錯和診斷問題
+  - 記錄錯誤和警告
+
+- **與 cereal 的區別**:
+  - cloudlog: 文字日誌，低頻，事件驅動
+  - cereal: 結構化資料，高頻，週期性
+
+- **最佳實踐**:
+  - 選擇適當的日誌等級
+  - 避免在高頻迴圈中使用 cloudlog
+  - 使用條件式記錄避免日誌爆炸
+  - 結合 cloudlog 和 cereal 達到最佳除錯效果
+
+---
+
+### 完整範例: 添加新的除錯變數
+
+假設你想記錄縱向控制的內部狀態用於除錯:
+
+#### 1. 修改 `custom.capnp`
+
+```capnp
+struct FrogPilotPlan @0xa1680744031fdb2d {
+  # ... 現有欄位 ...
+  vCruise @34 :Float32;
+
+  # 新增除錯欄位
+  pidError @35 :Float32;
+  pidOutput @36 :Float32;
+  pidIntegrator @37 :Float32;
+  controlState @38 :Text;
+}
+```
+
+#### 2. 修改 `frogpilot_planner.py`
+
+```python
+class FrogPilotPlanner:
+  def __init__(self):
+    self.pid_error = 0.0
+    self.pid_output = 0.0
+    self.pid_integrator = 0.0
+    self.control_state = "unknown"
+
+  def update(self, sm):
+    # 從 longitudinalPlan 取得 PID 資訊
+    if 'longitudinalPlan' in sm:
+        self.pid_error = sm['longitudinalPlan'].aTarget - sm['carState'].aEgo
+        # ... 其他計算 ...
+
+  def publish(self, pm, sm):
+    frogpilot_plan_send = messaging.new_message("frogpilotPlan")
+    frogpilotPlan = frogpilot_plan_send.frogpilotPlan
+
+    # 填充除錯資訊
+    frogpilotPlan.pidError = self.pid_error
+    frogpilotPlan.pidOutput = self.pid_output
+    frogpilotPlan.pidIntegrator = self.pid_integrator
+    frogpilotPlan.controlState = self.control_state
+
+    pm.send("frogpilotPlan", frogpilot_plan_send)
+```
+
+#### 3. 重新編譯
+
+```bash
+cd /data/openpilot
+scons cereal/
+```
+
+#### 4. 測試並查看
+
+```bash
+# 即時查看
+cereal peek frogpilotPlan | grep -E "pidError|pidOutput"
+
+# 事後分析
+python << EOF
+from tools.lib.logreader import LogReader
+lr = LogReader("/data/media/0/realdata/.../rlog")
+for msg in lr:
+    if msg.which() == 'frogpilotPlan':
+        print(f"PID Error: {msg.frogpilotPlan.pidError:.3f}, "
+              f"Output: {msg.frogpilotPlan.pidOutput:.3f}")
+EOF
+```
+
+---
+
+### 常見問題
+
+#### Q1: 修改 `.capnp` 後沒有效果?
+**A**: 確認已重新編譯 `scons cereal/`，並重新啟動 openpilot
+
+#### Q2: 出現 "AttributeError: 'FrogPilotPlan' has no attribute 'myField'"?
+**A**: 檢查:
+1. `.capnp` 檔案中是否正確定義欄位
+2. 是否重新編譯
+3. 欄位名稱是否拼寫正確 (區分大小寫)
+
+#### Q3: rlog 檔案太大?
+**A**:
+- 避免記錄大型陣列或字串
+- 降低訊息發送頻率
+- 只在需要時記錄除錯資訊
+
+#### Q4: 如何只在特定條件下記錄?
+**A**:
+```python
+def publish(self, pm):
+    # 只在除錯模式或出錯時記錄詳細資訊
+    if self.debug_mode or self.error_detected:
+        frogpilotPlan.myDebugInfo = detailed_info
+    else:
+        frogpilotPlan.myDebugInfo = ""
 ```
 
 ---
