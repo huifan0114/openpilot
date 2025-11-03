@@ -526,6 +526,33 @@ class Controls:
 
     self.v_cruise_helper.update_v_cruise(CS, self.enabled, self.is_metric, self.sm['frogpilotPlan'].speedLimitChanged, self.frogpilot_toggles)
 
+    # SLC: Auto set MAX SPEED when speed limit changes
+    if (self.frogpilot_toggles.speed_limit_controller and
+        self.enabled and
+        self.sm['frogpilotPlan'].speedLimitChanged):
+
+      map_speed_limit = self.sm['frogpilotPlan'].slcMapSpeedLimit
+      slc_offset = self.sm['frogpilotPlan'].slcSpeedLimitOffset
+
+      if map_speed_limit > 0:  # Valid speed limit detected
+        new_speed_ms = map_speed_limit + slc_offset  # m/s
+        new_speed_kph = new_speed_ms * CV.MS_TO_KPH  # Convert to km/h
+        current_speed_kph = self.v_cruise_helper.v_cruise_kph
+
+        # Bidirectional 60 km/h difference check
+        diff = abs(new_speed_kph - current_speed_kph)
+
+        if diff <= 60:
+          # Auto set MAX SPEED
+          self.v_cruise_helper.v_cruise_kph = new_speed_kph
+          cloudlog.info(f"SLC: Auto set MAX SPEED to {new_speed_kph:.1f} km/h "
+                       f"(MapData={map_speed_limit*CV.MS_TO_KPH:.1f}, "
+                       f"offset={slc_offset*CV.MS_TO_KPH:.1f}, diff={diff:.1f})")
+        else:
+          cloudlog.warning(f"SLC: Ignored speed limit "
+                          f"(new={new_speed_kph:.1f}, current={current_speed_kph:.1f}, "
+                          f"diff={diff:.1f} > 60)")
+
     # decrement the soft disable timer at every step, as it's reset on
     # entrance in SOFT_DISABLING state
     self.soft_disable_timer = max(0, self.soft_disable_timer - 1)

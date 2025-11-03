@@ -839,53 +839,43 @@ void FrogPilotAnnotatedCameraWidget::paintSmartControllerTraining(QPainter &p, c
 void FrogPilotAnnotatedCameraWidget::paintSpeedLimitSources(QPainter &p, const cereal::FrogPilotCarState::Reader &frogpilotCarState, const cereal::FrogPilotNavigation::Reader &frogpilotNavigation, const cereal::FrogPilotPlan::Reader &frogpilotPlan) {
   p.save();
 
-  std::function<void(QRect&, QPixmap&, const QString&, const double)> drawSource = [&](QRect &rect, QPixmap &icon, QString title, double speedLimitValue) {
-    if (QString::fromUtf8(frogpilotPlan.getSlcSpeedLimitSource().cStr()) == "Mapbox" && title == "Navigation") {
-      speedLimitValue = frogpilotPlan.getSlcMapboxSpeedLimit() * speedConversion;
+  // Draw upcoming speed limit sign (same style as main speed limit sign, different color)
+  float upcomingSpeedLimit = frogpilotPlan.getSlcNextSpeedLimit() * speedConversion;
 
-      title = "Mapbox";
-    }
+  if (upcomingSpeedLimit > 0) {
+    const int upcoming_sign_size = viennaSpeedLimit ? 140 : 150;
+    QRect upcomingRect(speedLimitRect.x() + (speedLimitRect.width() - upcoming_sign_size) / 2,
+                       speedLimitRect.y() + speedLimitRect.height() + UI_BORDER_SIZE,
+                       upcoming_sign_size, upcoming_sign_size);
 
-    if (QString::fromUtf8(frogpilotPlan.getSlcSpeedLimitSource().cStr()) == title && speedLimitValue != 0) {
-      p.setBrush(redColor(166));
-      p.setFont(InterFont(35, QFont::Bold));
-      p.setPen(QPen(redColor(), 10));
+    QString upcomingStr = QString::number(std::nearbyint(upcomingSpeedLimit));
+
+    if (viennaSpeedLimit) {
+      // EU (Vienna style) - Circle with blue border
+      p.setPen(Qt::NoPen);
+      p.setBrush(whiteColor());
+      p.drawEllipse(upcomingRect);
+      p.setPen(QPen(QColor(0x00, 0x7A, 0xFF), 16));  // Blue border instead of red
+      p.drawEllipse(upcomingRect.adjusted(12, 12, -12, -12));
+
+      p.setPen(blackColor());
+      p.setFont(InterFont((upcomingStr.size() >= 3) ? 50 : 60, QFont::Bold));
+      p.drawText(upcomingRect, Qt::AlignCenter, upcomingStr);
     } else {
-      p.setBrush(blackColor(166));
-      p.setFont(InterFont(35, QFont::DemiBold));
-      p.setPen(QPen(blackColor(), 10));
+      // US (MUTCD style) - Rectangle with blue border
+      p.setPen(Qt::NoPen);
+      p.setBrush(whiteColor());
+      p.drawRoundedRect(upcomingRect, 20, 20);
+      p.setPen(QPen(QColor(0x00, 0x7A, 0xFF), 5));  // Blue border instead of black
+      p.drawRoundedRect(upcomingRect.adjusted(7, 7, -7, -7), 14, 14);
+
+      p.setPen(blackColor());
+      p.setFont(InterFont(24, QFont::DemiBold));
+      p.drawText(upcomingRect.adjusted(0, 18, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("NEXT"));
+      p.setFont(InterFont(60, QFont::Bold));
+      p.drawText(upcomingRect.adjusted(0, 45, 0, 0), Qt::AlignTop | Qt::AlignHCenter, upcomingStr);
     }
-
-    QRect iconRect(rect.x() + 20, rect.y() + (rect.height() - img_size / 4) / 2, img_size / 4, img_size / 4);
-    QPixmap scaledIcon = icon.scaled(iconRect.size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-    QString speedText;
-    if (speedLimitValue != 0) {
-      speedText = QString::number(std::nearbyint(speedLimitValue)) + speedUnit;
-    } else {
-      speedText = "N/A";
-    }
-
-    QString fullText = tr(title.toUtf8().constData()) + " - " + speedText;
-
-    p.setOpacity(1.0);
-    p.drawRoundedRect(rect, 24, 24);
-    p.drawPixmap(iconRect, scaledIcon);
-
-    p.setPen(QPen(whiteColor(), 6));
-    QRect textRect(iconRect.right() + 10, rect.y(), rect.width() - iconRect.width() - 30, rect.height());
-    p.drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, fullText);
-  };
-
-  QRect dashboardRect(speedLimitRect.x() - signMargin, speedLimitRect.y() + speedLimitRect.height() + UI_BORDER_SIZE, 450, 60);
-  QRect mapDataRect(dashboardRect.x(), dashboardRect.y() + dashboardRect.height() + UI_BORDER_SIZE / 2, 450, 60);
-  QRect navigationRect(mapDataRect.x(), mapDataRect.y() + mapDataRect.height() + UI_BORDER_SIZE / 2, 450, 60);
-  QRect nextLimitRect(navigationRect.x(), navigationRect.y() + navigationRect.height() + UI_BORDER_SIZE / 2, 450, 60);
-
-  drawSource(dashboardRect, dashboardIcon, "Dashboard", frogpilotCarState.getDashboardSpeedLimit() * speedConversion);
-  drawSource(mapDataRect, mapDataIcon, "Map Data", frogpilotPlan.getSlcMapSpeedLimit() * speedConversion);
-  drawSource(navigationRect, navigationIcon, "Navigation", frogpilotNavigation.getNavigationSpeedLimit() * speedConversion);
-  drawSource(nextLimitRect, nextMapsIcon, "Upcoming", frogpilotPlan.getSlcNextSpeedLimit() * speedConversion);
+  }
 
   p.restore();
 }
