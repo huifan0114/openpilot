@@ -34,7 +34,7 @@ params_memory = Params("/dev/shm/params")
 GearShifter = car.CarState.GearShifter
 SafetyModel = car.CarParams.SafetyModel
 
-CITY_SPEED_LIMIT = 25                     # 55mph is typically the minimum speed for highways
+CITY_SPEED_LIMIT = 15                     # 55mph is typically the minimum speed for highways
 CRUISING_SPEED = 5                        # Roughly the speed cars go when not touching the gas while in drive
 DEFAULT_LATERAL_ACCELERATION = 2.0        # m/s^2, typical lateral acceleration when taking curves
 EARTH_RADIUS = 6378137                    # Radius of the Earth in meters
