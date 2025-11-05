@@ -73,9 +73,8 @@ void AnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState
 
   auto speed_limit_sign = nav_instruction.getSpeedLimitSign();
   if (frogpilot_toggles.value("show_speed_limits").toBool() || frogpilot_toggles.value("speed_limit_controller").toBool()) {
-    // Use Map Data directly (not selected source)
-    speedLimit = frogpilotPlan.getSlcMapSpeedLimit();
-    if (speedLimit > 0 && !frogpilot_toggles.value("show_speed_limit_offset").toBool()) {
+    speedLimit = frogpilotPlan.getSlcOverriddenSpeed() != 0 ? frogpilotPlan.getSlcOverriddenSpeed() : frogpilotPlan.getSlcSpeedLimit();
+    if (frogpilotPlan.getSlcOverriddenSpeed() == 0 && !frogpilot_toggles.value("show_speed_limit_offset").toBool()) {
       speedLimit += frogpilotPlan.getSlcSpeedLimitOffset();
     }
   } else {

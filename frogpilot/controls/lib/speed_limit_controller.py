@@ -308,13 +308,10 @@ class SpeedLimitController:
     if not gps_position:
       return
 
-    # Round to nearest 10 (fix mile-to-km conversion issues)
-    raw_speed_limit = params_memory.get_float("MapSpeedLimit")
-    self.map_speed_limit = round(raw_speed_limit * CV.MS_TO_KPH / 10) * 10 * CV.KPH_TO_MS if raw_speed_limit > 0 else 0
+    self.map_speed_limit = params_memory.get_float("MapSpeedLimit")
 
     next_map_speed_limit = json.loads(params_memory.get("NextMapSpeedLimit") or "{}")
-    raw_next_speed = next_map_speed_limit.get("speedlimit", 0)
-    self.next_speed_limit = round(raw_next_speed * CV.MS_TO_KPH / 10) * 10 * CV.KPH_TO_MS if raw_next_speed > 0 else 0
+    self.next_speed_limit = next_map_speed_limit.get("speedlimit", 0)
 
     if self.next_speed_limit:
       current_latitude = gps_position.get("latitude")
