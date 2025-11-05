@@ -422,29 +422,11 @@ WARNING: SLC: Ignored speed limit (new=50.0, current=120.0, diff=70.0 > 60)
 
 ---
 
-## Debug Log
-
-本實作使用統一的 Debug Log 系統記錄 SLC 事件。
-
-**Log 輸出**: `/data/frogpilot_debug.log` (可用 FTP 下載查看)
-
-**Log 範例**:
-```
-[14:23:15] SLC: Event - Map=80 Offset=10 CurrentMAX=120
-[14:23:15] SLC: SET MAX=90 (diff=30)
-[14:25:30] SLC: IGNORED new=50 (diff=70>60)
-```
-
-**詳細說明**: 參見 [`docs/14-debug-log-system.md`](14-debug-log-system.md)
-
----
-
 ## 後續維護
 
 ### 相關檔案
-- `frogpilot/controls/lib/speed_limit_controller.py` - SLC 核心邏輯 (修改速限四捨五入)
+- `frogpilot/controls/lib/speed_limit_controller.py` - SLC 核心邏輯 (未修改,保留變化檢測)
 - `frogpilot/controls/frogpilot_planner.py` - 發布 cereal 訊息 (未修改)
-- `frogpilot/common/frogpilot_debug_logger.py` - 統一 debug log 系統 (新增)
 - `docs/08-speed-limit-nav.md` - 速限系統研究文檔
 
 ### 未來可選清理
