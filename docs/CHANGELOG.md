@@ -2,6 +2,7 @@
 
 | 日期 | 版本 | 變更內容 |
 |------|------|---------|
+| 2025-11-05 | v3.2 | **✅ 更新**：Debug Log 自動循環機制改為建立新檔案（不再覆蓋）- 達到 500KB 時重新命名為 `frogpilot_debug.log.YYYYMMDD_HHMMSS`，保留最多 5 個舊檔案，避免資料遺失 - 更新 `frogpilot/common/frogpilot_debug_logger.py` |
 | 2025-11-05 | v3.1 | **✅ 新增**：統一 Debug Log 系統（`frogpilot/common/frogpilot_debug_logger.py`）- 輸出到 `/data/frogpilot_debug.log` 純文字檔,可用 FTP 下載查看,所有我們的修改都應使用此 logger 而非 cloudlog - 詳見 `docs/14-debug-log-system.md` |
 | 2025-11-05 | v3.0 | **✅ 實作**：SLC 簡化 - 只用 Map Data,自動設定 MAX SPEED,60km/h 差距檢查,UI 簡化只顯示 Upcoming 標誌,Map Data 速限四捨五入到 10 的倍數,無速限時保持上次值 - 修改 5 個檔案 - 詳見 `docs/13-slc-simplification.md` |
 | 2025-11-02 | v2.8 | **新增**：速限控制修正 - VW Dashboard 無訊號問題解決方案（修改 `speed_limit_controller.py:245` 使 Dashboard 直接使用 Map Data） |
