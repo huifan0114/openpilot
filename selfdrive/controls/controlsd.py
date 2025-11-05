@@ -18,6 +18,13 @@ from openpilot.common.params import Params
 from openpilot.common.realtime import config_realtime_process, Priority, Ratekeeper, DT_CTRL
 from openpilot.common.swaglog import cloudlog
 
+# FrogPilot debug logger
+try:
+  from openpilot.frogpilot.common.frogpilot_debug_logger import write_debug_log
+except ImportError:
+  def write_debug_log(module, message):
+    pass  # Fallback if logger not available
+
 from openpilot.selfdrive.car.car_helpers import get_car_interface, get_startup_event
 from openpilot.selfdrive.car.gm.values import CC_ONLY_CAR, GMFlags
 from openpilot.selfdrive.controls.lib.alertmanager import AlertManager, set_offroad_alert
@@ -534,6 +541,9 @@ class Controls:
       map_speed_limit = self.sm['frogpilotPlan'].slcMapSpeedLimit
       slc_offset = self.sm['frogpilotPlan'].slcSpeedLimitOffset
 
+      # Debug log
+      write_debug_log("SLC", f"Event - Map={map_speed_limit*CV.MS_TO_KPH:.0f} Offset={slc_offset*CV.MS_TO_KPH:.0f} CurrentMAX={self.v_cruise_helper.v_cruise_kph:.0f}")
+
       if map_speed_limit > 0:  # Valid speed limit detected
         new_speed_ms = map_speed_limit + slc_offset  # m/s
         new_speed_kph = new_speed_ms * CV.MS_TO_KPH  # Convert to km/h
@@ -545,13 +555,9 @@ class Controls:
         if diff <= 60:
           # Auto set MAX SPEED
           self.v_cruise_helper.v_cruise_kph = new_speed_kph
-          cloudlog.info(f"SLC: Auto set MAX SPEED to {new_speed_kph:.1f} km/h "
-                       f"(MapData={map_speed_limit*CV.MS_TO_KPH:.1f}, "
-                       f"offset={slc_offset*CV.MS_TO_KPH:.1f}, diff={diff:.1f})")
+          write_debug_log("SLC", f"SET MAX={new_speed_kph:.0f} (diff={diff:.0f})")
         else:
-          cloudlog.warning(f"SLC: Ignored speed limit "
-                          f"(new={new_speed_kph:.1f}, current={current_speed_kph:.1f}, "
-                          f"diff={diff:.1f} > 60)")
+          write_debug_log("SLC", f"IGNORED new={new_speed_kph:.0f} (diff={diff:.0f}>60)")
 
     # decrement the soft disable timer at every step, as it's reset on
     # entrance in SOFT_DISABLING state

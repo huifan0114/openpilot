@@ -2,6 +2,8 @@
 
 | 日期 | 版本 | 變更內容 |
 |------|------|---------|
+| 2025-11-05 | v3.1 | **✅ 新增**：統一 Debug Log 系統（`frogpilot/common/frogpilot_debug_logger.py`）- 輸出到 `/data/frogpilot_debug.log` 純文字檔,可用 FTP 下載查看,所有我們的修改都應使用此 logger 而非 cloudlog - 詳見 `docs/14-debug-log-system.md` |
+| 2025-11-05 | v3.0 | **✅ 實作**：SLC 簡化 - 只用 Map Data,自動設定 MAX SPEED,60km/h 差距檢查,UI 簡化只顯示 Upcoming 標誌,Map Data 速限四捨五入到 10 的倍數,無速限時保持上次值 - 修改 5 個檔案 - 詳見 `docs/13-slc-simplification.md` |
 | 2025-11-02 | v2.8 | **新增**：速限控制修正 - VW Dashboard 無訊號問題解決方案（修改 `speed_limit_controller.py:245` 使 Dashboard 直接使用 Map Data） |
 | 2025-11-02 | v2.7 | **✅ 研究**：ForceStops 停車機制深度分析（動態 v_cruise 降低策略、為什麼不需要實驗模式、與傳統路徑規劃停車的對比） |
 | 2025-11-02 | v2.6 | **✅ 研究**：定速控制系統架構完整分析（VCruiseHelper vs FrogPilotVCruise 關係釐清、單向資料流、進程分離、職責分工） |

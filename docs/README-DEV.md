@@ -1,7 +1,7 @@
 # FrogPilot / openpilot 開發知識庫
 
-> **版本**: v2.8
-> **最後更新**: 2025-11-02
+> **版本**: v3.1
+> **最後更新**: 2025-11-05
 > **目的**: 整合所有架構研究成果，作為開發時的快速參考
 
 ---
@@ -65,6 +65,13 @@
 | [11-git-workflow.md](11-git-workflow.md) | Git 工作流程、分支管理、合併上游 | Git 操作 |
 | [12-api-reference.md](12-api-reference.md) | API 快速參考、rlog 使用、實作案例 | 查詢 API 用法 |
 
+### 實作記錄
+
+| 文件 | 內容 | 適用場景 |
+|------|------|---------|
+| [13-slc-simplification.md](13-slc-simplification.md) | SLC 簡化實作記錄 (Map Data, 自動設定 MAX SPEED) | 了解 SLC 修改內容 |
+| [14-debug-log-system.md](14-debug-log-system.md) | 統一 Debug Log 系統使用說明 | **所有修改都要用此 logger** |
+
 ### 變更紀錄
 
 | 文件 | 內容 |
@@ -83,6 +90,7 @@
 - **修改速限控制**: 看 [08-speed-limit-nav.md](08-speed-limit-nav.md) - SLC 章節
 - **新增進程**: 看 [03-process-management.md](03-process-management.md) - 進程管理章節
 - **記錄變數到 rlog**: 看 [12-api-reference.md](12-api-reference.md) - rlog 章節
+- **記錄 debug log**: 看 [14-debug-log-system.md](14-debug-log-system.md) - **所有修改都用此 logger**
 - **Process 錯誤**: 看 [10-debug-tools.md](10-debug-tools.md) - 除錯章節
 - **修改 UI**: 看 [09-ui-system.md](09-ui-system.md) - UI 系統
 - **實驗模式**: 看 [07-frogpilot-features.md](07-frogpilot-features.md) - 實驗模式章節
