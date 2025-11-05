@@ -159,12 +159,10 @@ scp comma@<your-comma-ip>:/data/frogpilot_debug.log F:\logs\
 
 ```python
 import os
-import shutil
 from datetime import datetime
 
 DEBUG_LOG_FILE = "/data/frogpilot_debug.log"
 MAX_LOG_SIZE = 500000  # 500KB
-MAX_ARCHIVED_LOGS = 5  # 保留最多 5 個舊 log 檔
 
 def write_debug_log(module: str, message: str) -> None:
     """
@@ -185,37 +183,6 @@ def write_debug_log(module: str, message: str) -> None:
     except Exception:
         # 靜默失敗,不影響主程序
         pass
-
-def _rotate_log() -> None:
-    """
-    循環 log 檔案 (建立新檔案而非覆蓋)
-    - 將現有檔案重新命名為 frogpilot_debug.log.YYYYMMDD_HHMMSS
-    - 開始新的空白 log 檔
-    - 保留最多 5 個舊檔案
-    """
-    try:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        archived_file = f"{DEBUG_LOG_FILE}.{timestamp}"
-        shutil.move(DEBUG_LOG_FILE, archived_file)
-        _cleanup_old_logs()
-    except Exception:
-        pass
-
-def _cleanup_old_logs() -> None:
-    """清理舊的 archived log 檔案,只保留最新 5 個"""
-    try:
-        log_dir = os.path.dirname(DEBUG_LOG_FILE)
-        log_basename = os.path.basename(DEBUG_LOG_FILE)
-        archived_logs = []
-        for filename in os.listdir(log_dir):
-            if filename.startswith(log_basename + "."):
-                archived_logs.append(os.path.join(log_dir, filename))
-        archived_logs.sort(key=os.path.getmtime)
-        if len(archived_logs) > MAX_ARCHIVED_LOGS:
-            for old_log in archived_logs[:-MAX_ARCHIVED_LOGS]:
-                os.remove(old_log)
-    except Exception:
-        pass
 ```
 
 ### 效能考量
@@ -229,9 +196,7 @@ def _cleanup_old_logs() -> None:
    - 不影響主程序運行
 
 3. **自動循環**
-   - 檔案超過 500KB 自動建立新檔案
-   - 舊檔案重新命名為 `frogpilot_debug.log.YYYYMMDD_HHMMSS`
-   - 保留最多 5 個舊檔案 (自動刪除更舊的)
+   - 檔案超過 500KB 自動保留最新 500 行
    - 避免無限增長
 
 4. **簡潔格式**
@@ -365,19 +330,9 @@ tmux a
 
 **不會發生**: Logger 會自動控制大小 (500KB max)
 
-**自動循環機制**:
-- 達到 500KB 時自動建立新檔案
-- 舊檔案重新命名為 `frogpilot_debug.log.20251105_142315` (時間戳記格式)
-- 最多保留 5 個舊檔案
-- 超過 5 個時自動刪除最舊的
-
-如果需要手動清除:
+如果真的太大,手動清除:
 ```bash
-# 刪除當前 log
 rm /data/frogpilot_debug.log
-
-# 刪除所有 archived logs
-rm /data/frogpilot_debug.log.*
 ```
 
 ---
@@ -388,9 +343,8 @@ rm /data/frogpilot_debug.log.*
 |-----|------|------|
 | 2025-11-05 | 1.0 | 初始版本,建立統一 logger |
 | 2025-11-05 | 1.1 | 加入 SLC 使用範例 |
-| 2025-11-05 | 1.2 | 更新 log rotation 機制 - 改為建立新檔案而非覆蓋,保留最多 5 個舊檔案 |
 
 ---
 
-**文檔版本**: 1.2
+**文檔版本**: 1.1
 **最後更新**: 2025-11-05
