@@ -98,8 +98,8 @@ class FrogPilotVCruise:
       self.tracked_model_length = self.frogpilot_planner.model_length
 
       targets = [self.braking_target, self.csc_target, v_cruise]
-      if frogpilot_toggles.speed_limit_controller:
-        targets.append(max(self.slc.overridden_speed, self.slc_target + self.slc_offset) - v_ego_diff)
+      #if frogpilot_toggles.speed_limit_controller:
+        #targets.append(max(self.slc.overridden_speed, self.slc_target + self.slc_offset) - v_ego_diff)
 
       v_cruise = min([target if target > CRUISING_SPEED else v_cruise for target in targets])
 
