@@ -15,8 +15,8 @@ from aiohttp import web, ClientSession
 class StreamRequestBody:
     sdp: str
     cameras: list[str]
-    test_sounds: list[str]
-    push_uids: list[str]
+    bridge_services_in: list[str] = dataclasses.field(default_factory=list)
+    bridge_services_out: list[str] = dataclasses.field(default_factory=list)
 
 
 # 靜態文件目錄
@@ -46,8 +46,8 @@ async def offer(request: web.Request):
         body = StreamRequestBody(
             sdp=params["sdp"],
             cameras=[],  # Data Channel only，不需要視訊
-            test_sounds=[],  # 不需要聲音
-            push_uids=["modelV2", "liveCalibration", "carState", "controlsState", "selfdriveState"]
+            bridge_services_in=[],  # 不需要測試聲音
+            bridge_services_out=["modelV2", "liveCalibration", "carState", "controlsState", "selfdriveState"]
         )
 
         # 轉發到 webrtcd (port 5001)
