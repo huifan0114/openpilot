@@ -1,4 +1,5 @@
 import os
+import operator
 
 from cereal import car
 from openpilot.common.params import Params
@@ -62,6 +63,13 @@ def run_tinygrad_modeld(started, params, CP: car.CarParams, classic_model, tinyg
 
 def enable_dm(started, params, CP: car.CarParams, classic_model, tinygrad_model, frogpilot_toggles) -> bool:
   return driverview(started, params, CP, classic_model, tinygrad_model, frogpilot_toggles) and not (True and True)
+
+# 邏輯組合函數（支援多條件 OR/AND 運算）
+def or_(*fns):
+  return lambda *args: operator.or_(*(fn(*args) for fn in fns))
+
+def and_(*fns):
+  return lambda *args: operator.and_(*(fn(*args) for fn in fns))
 
 
 procs = [
