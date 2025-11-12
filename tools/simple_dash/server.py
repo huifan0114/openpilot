@@ -1,23 +1,12 @@
 #!/usr/bin/env python3
 """
 AR HUD Dashboard Server
-使用 bodyteleop 代理模式轉發 WebRTC 請求到 webrtcd
+提供靜態文件服務（模仿 DASHY 架構）
+前端直接連接 webrtcd，不需要後端代理
 """
 
-import json
-import dataclasses
-import traceback
 from pathlib import Path
-from aiohttp import web, ClientSession
-
-
-# WebRTC 流請求結構
-@dataclasses.dataclass
-class StreamRequestBody:
-    sdp: str
-    cameras: list[str]
-    bridge_services_in: list[str] = dataclasses.field(default_factory=list)
-    bridge_services_out: list[str] = dataclasses.field(default_factory=list)
+from aiohttp import web
 
 
 # 靜態文件目錄
@@ -29,81 +18,16 @@ async def index(request: web.Request):
     return web.FileResponse(STATIC_DIR / "index.html")
 
 
-async def offer(request: web.Request):
-    """
-    處理 WebRTC SDP offer，轉發到 webrtcd
-
-    接收的 cereal 訊息:
-    - modelV2: 車道模型 (車道線、路徑)
-    - liveCalibration: 相機校正
-    - carState: 車輛狀態 (速度等)
-    - controlsState: 控制狀態 (cruise 等)
-    - selfdriveState: 自駕狀態
-    """
-    try:
-        params = await request.json()
-
-        # 構建請求體
-        body = StreamRequestBody(
-            sdp=params["sdp"],
-            cameras=[],  # Data Channel only，不需要視訊
-            bridge_services_in=[],  # 不需要測試聲音
-            bridge_services_out=["modelV2", "liveCalibration", "carState", "controlsState", "selfdriveState"]
-        )
-
-        # 轉發到 webrtcd (port 5001)
-        async with ClientSession() as session:
-            async with session.post(
-                "http://localhost:5001/stream",
-                data=json.dumps(dataclasses.asdict(body)),
-                headers={"Content-Type": "application/json"}
-            ) as resp:
-                # 檢查 HTTP 狀態
-                print(f"[DEBUG] webrtcd response status: {resp.status}")
-
-                # 讀取原始文本
-                text = await resp.text()
-                print(f"[DEBUG] webrtcd raw response: {text[:200]}...")  # 只顯示前 200 字符
-
-                # 解析 JSON
-                answer = json.loads(text)
-                print(f"[DEBUG] answer keys: {list(answer.keys())}")
-                print(f"[DEBUG] answer['sdp'] length: {len(answer.get('sdp', ''))}")
-                print(f"[DEBUG] answer['type']: {answer.get('type')}")
-
-                # 確保 type 欄位存在且是字符串
-                if 'type' not in answer:
-                    print(f"[ERROR] Missing 'type' field!")
-                    print(f"[ERROR] Full response keys: {list(answer.keys())}")
-                    return web.json_response({"error": "Missing 'type' field in webrtcd response"}, status=500)
-
-                # 明確構造回應（確保類型正確）
-                response_data = {
-                    "sdp": str(answer["sdp"]),
-                    "type": str(answer["type"])
-                }
-                print(f"[DEBUG] Sending response with keys: {list(response_data.keys())}")
-
-                return web.json_response(response_data)
-
-    except Exception as e:
-        error_details = {
-            "error": str(e),
-            "error_type": type(e).__name__,
-            "traceback": traceback.format_exc()
-        }
-        print(f"[ERROR] Exception in offer handler:")
-        print(f"[ERROR] {error_details['traceback']}")
-        return web.json_response(error_details, status=500)
+# 移除 offer 函數 - 前端直接連接 webrtcd (模仿 DASHY 架構)
 
 
 def create_app():
     """創建 aiohttp 應用"""
     app = web.Application()
 
-    # 路由
+    # 路由（只提供靜態文件服務，模仿 DASHY）
     app.router.add_get('/', index)
-    app.router.add_post('/offer', offer)
+    # 移除 /offer - 前端直接連接 webrtcd (port 5001)
     app.router.add_static('/static/', path=STATIC_DIR, name='static')
 
     return app

@@ -7,11 +7,25 @@ export let pc = null;
 export let dc = null;
 
 /**
- * 發送 SDP offer 到後端
+ * 發送 SDP offer 到 webrtcd（模仿 DASHY，直接連接）
  */
 function offerRtcRequest(sdp, type) {
-  return fetch('/offer', {
-    body: JSON.stringify({ sdp: sdp, type: type }),
+  // 構建 webrtcd 的請求格式
+  const body = {
+    sdp: sdp,
+    cameras: [],  // Data Channel only
+    bridge_services_in: [],  // 不需要測試聲音
+    bridge_services_out: ["modelV2", "liveCalibration", "carState", "controlsState", "selfdriveState"]
+  };
+
+  // 直接連接 webrtcd（模仿 DASHY 架構）
+  const host = window.location.hostname || 'localhost';
+  const url = `http://${host}:5001/stream`;
+
+  console.log(`[DEBUG] Connecting directly to webrtcd: ${url}`);
+
+  return fetch(url, {
+    body: JSON.stringify(body),
     headers: { 'Content-Type': 'application/json' },
     method: 'POST'
   });
