@@ -57,8 +57,33 @@ async def offer(request: web.Request):
                 data=json.dumps(dataclasses.asdict(body)),
                 headers={"Content-Type": "application/json"}
             ) as resp:
-                answer = await resp.json()
-                return web.json_response(answer)
+                # 檢查 HTTP 狀態
+                print(f"[DEBUG] webrtcd response status: {resp.status}")
+
+                # 讀取原始文本
+                text = await resp.text()
+                print(f"[DEBUG] webrtcd raw response: {text[:200]}...")  # 只顯示前 200 字符
+
+                # 解析 JSON
+                answer = json.loads(text)
+                print(f"[DEBUG] answer keys: {list(answer.keys())}")
+                print(f"[DEBUG] answer['sdp'] length: {len(answer.get('sdp', ''))}")
+                print(f"[DEBUG] answer['type']: {answer.get('type')}")
+
+                # 確保 type 欄位存在且是字符串
+                if 'type' not in answer:
+                    print(f"[ERROR] Missing 'type' field!")
+                    print(f"[ERROR] Full response keys: {list(answer.keys())}")
+                    return web.json_response({"error": "Missing 'type' field in webrtcd response"}, status=500)
+
+                # 明確構造回應（確保類型正確）
+                response_data = {
+                    "sdp": str(answer["sdp"]),
+                    "type": str(answer["type"])
+                }
+                print(f"[DEBUG] Sending response with keys: {list(response_data.keys())}")
+
+                return web.json_response(response_data)
 
     except Exception as e:
         print(f"Error handling offer: {e}")
