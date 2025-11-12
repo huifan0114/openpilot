@@ -244,7 +244,28 @@ async def get_schema(request: 'web.Request'):
 
 @middleware
 async def cors_middleware(request, handler):
-    response = await handler(request)
+    try:
+        response = await handler(request)
+    except web.HTTPException as e:
+        # HTTP 異常（如 404, 500 等）也要加 CORS 標頭
+        e.headers['Access-Control-Allow-Origin'] = '*'
+        e.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        e.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        raise
+    except Exception as e:
+        # 其他異常，構造帶 CORS 標頭的 500 回應
+        import traceback
+        response = web.json_response({
+            'error': str(e),
+            'error_type': type(e).__name__,
+            'traceback': traceback.format_exc()
+        }, status=500)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        return response
+
+    # 正常回應也加 CORS 標頭
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
