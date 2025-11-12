@@ -79,6 +79,14 @@ function launch {
     agnos_init
   fi
 
+  # Set executable permission for mapd
+  if [ -f "${BASEDIR}/selfdrive/mapd" ]; then
+    chmod +x "${BASEDIR}/selfdrive/mapd"
+    echo "✅ MAPD executable permission set"
+  else
+    echo "⚠️  MAPD binary not found at ${BASEDIR}/selfdrive/mapd"
+  fi
+
   # write tmux scrollback to a file
   tmux capture-pane -pq -S-1000 > /tmp/launch_log
 
