@@ -73,13 +73,45 @@ function negotiate() {
       return offerRtcRequest(offer.sdp, offer.type);
     })
     .then(function(response) {
+      console.log(`[DEBUG] Offer response status: ${response.status}`);
+
+      // 檢查是否為錯誤回應
+      if (!response.ok) {
+        return response.json().then(errorData => {
+          console.error('[ERROR] Server returned error:');
+          console.error('[ERROR] Status:', response.status);
+          console.error('[ERROR] Error type:', errorData.error_type);
+          console.error('[ERROR] Error message:', errorData.error);
+          console.error('[ERROR] Traceback:');
+          console.error(errorData.traceback);
+          throw new Error(`Server error: ${errorData.error}`);
+        });
+      }
+
       return response.json();
     })
     .then(function(answer) {
+      console.log('[DEBUG] Received answer from server');
+      console.log('[DEBUG] Answer keys:', Object.keys(answer));
+      console.log('[DEBUG] SDP length:', answer.sdp ? answer.sdp.length : 0);
+      console.log('[DEBUG] Type:', answer.type);
+
+      // 驗證 answer 格式
+      if (!answer.sdp || !answer.type) {
+        console.error('[ERROR] Invalid answer format:', answer);
+        throw new Error(`Invalid answer: missing ${!answer.sdp ? 'sdp' : 'type'} field`);
+      }
+
+      console.log('[DEBUG] Setting remote description...');
       return pc.setRemoteDescription(answer);
     })
     .catch(function(e) {
-      console.error('Negotiation failed:', e);
+      console.error('[ERROR] Negotiation failed:', e);
+      console.error('[ERROR] Error name:', e.name);
+      console.error('[ERROR] Error message:', e.message);
+      if (e.stack) {
+        console.error('[ERROR] Stack trace:', e.stack);
+      }
       throw e;
     });
 }

@@ -6,6 +6,7 @@ AR HUD Dashboard Server
 
 import json
 import dataclasses
+import traceback
 from pathlib import Path
 from aiohttp import web, ClientSession
 
@@ -86,8 +87,14 @@ async def offer(request: web.Request):
                 return web.json_response(response_data)
 
     except Exception as e:
-        print(f"Error handling offer: {e}")
-        return web.json_response({"error": str(e)}, status=500)
+        error_details = {
+            "error": str(e),
+            "error_type": type(e).__name__,
+            "traceback": traceback.format_exc()
+        }
+        print(f"[ERROR] Exception in offer handler:")
+        print(f"[ERROR] {error_details['traceback']}")
+        return web.json_response(error_details, status=500)
 
 
 def create_app():
