@@ -2458,8 +2458,8 @@ struct Event {
     navModel @104 :NavModelData;
 
     # *********** mapd ***********
-    mapdExtendedOut @143 :Custom.MapdExtendedOut;
-    mapdIn @144 :Custom.MapdIn;
-    mapdOut @145 :Custom.MapdOut;
+    mapdExtendedOut @131 :Custom.MapdExtendedOut;
+    mapdIn @132 :Custom.MapdIn;
+    mapdOut @133 :Custom.MapdOut;
   }
 }
