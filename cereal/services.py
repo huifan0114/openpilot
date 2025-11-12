@@ -104,6 +104,9 @@ _services: dict[str, tuple] = {
   "frogpilotOnroadEvents": (True, 1., 1),
   "frogpilotPlan": (True, 20., 5),
   "frogpilotRadarState": (True, 20., 5),
+
+  # mapd
+  "mapdOut": (True, 20., 20),
 }
 SERVICE_LIST = {name: Service(*vals) for
                 idx, (name, vals) in enumerate(_services.items())}

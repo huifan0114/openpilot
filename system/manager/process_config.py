@@ -109,9 +109,10 @@ procs = [
   PythonProcess("statsd", "system.statsd", allow_logging),
 
   # debug procs
-  NativeProcess("bridge", "cereal/messaging", ["./bridge"], notcar),
-  PythonProcess("webrtcd", "system.webrtc.webrtcd", notcar),
+  NativeProcess("bridge", "cereal/messaging", ["./bridge"], or_(notcar, only_onroad)),
+  PythonProcess("webrtcd", "system.webrtc.webrtcd", or_(notcar, only_onroad)),
   PythonProcess("webjoystick", "tools.bodyteleop.web", notcar),
+  PythonProcess("simple_dash", "tools.simple_dash.server", only_onroad),
 
   # FrogPilot processes
   NativeProcess("classic_modeld", "frogpilot/classic_modeld", ["./classic_modeld"], run_classic_modeld),

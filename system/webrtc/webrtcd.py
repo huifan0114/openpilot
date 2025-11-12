@@ -14,6 +14,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 import capnp
 from aiohttp import web
+from aiohttp.web import middleware
 if TYPE_CHECKING:
   from aiortc.rtcdatachannel import RTCDataChannel
 
@@ -241,6 +242,26 @@ async def get_schema(request: 'web.Request'):
   return web.json_response(schema_dict)
 
 
+@middleware
+async def cors_middleware(request, handler):
+    response = await handler(request)
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    return response
+
+async def handle_cors_preflight(request):
+    if request.method == 'OPTIONS':
+        headers = {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            'Access-Control-Max-Age': '86400',
+        }
+        return web.Response(status=200, headers=headers)
+    return await request.app['handler'](request)
+
+
 async def on_shutdown(app: 'web.Application'):
   for session in app['streams'].values():
     session.stop()
@@ -253,13 +274,14 @@ def webrtcd_thread(host: str, port: int, debug: bool):
   logging.getLogger("WebRTCStream").setLevel(logging_level)
   logging.getLogger("webrtcd").setLevel(logging_level)
 
-  app = web.Application()
+  app = web.Application(middlewares=[cors_middleware])
 
   app['streams'] = dict()
   app['debug'] = debug
   app.on_shutdown.append(on_shutdown)
   app.router.add_post("/stream", get_stream)
   app.router.add_get("/schema", get_schema)
+  app.router.add_route('OPTIONS', '/{tail:.*}', handle_cors_preflight)
 
   web.run_app(app, host=host, port=port)
 

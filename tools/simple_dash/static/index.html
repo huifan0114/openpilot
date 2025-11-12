@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>AR HUD</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="manifest" href="/static/manifest.json">
+</head>
+<body>
+  <!-- Canvas 容器 (可調整位置/大小 + 四角校正) -->
+  <div id="canvasContainer">
+    <canvas id="canvas"></canvas>
+
+    <!-- 四角調整控制點 -->
+    <div class="keystone-controls hidden">
+      <div class="corner-handle top-left" data-corner="tl"></div>
+      <div class="corner-handle top-right" data-corner="tr"></div>
+      <div class="corner-handle bottom-left" data-corner="bl"></div>
+      <div class="corner-handle bottom-right" data-corner="br"></div>
+
+      <!-- 輔助網格 -->
+      <svg class="keystone-grid">
+        <line x1="33.33%" y1="0" x2="33.33%" y2="100%" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="5,5" />
+        <line x1="66.66%" y1="0" x2="66.66%" y2="100%" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="5,5" />
+        <line x1="0" y1="33.33%" x2="100%" y2="33.33%" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="5,5" />
+        <line x1="0" y1="66.66%" x2="100%" y2="66.66%" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="5,5" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- 狀態指示器 -->
+  <div id="statusIndicator">
+    <div class="status-dot"></div>
+    <span id="statusText">連接中...</span>
+  </div>
+
+  <!-- 控制面板 -->
+  <div id="controlPanel">
+    <div class="button-row">
+      <button id="arModeToggle" class="control-btn">AR Mode</button>
+      <button id="hudToggle" class="control-btn">HUD Mirror</button>
+      <button id="keystoneToggle" class="control-btn">四角調整</button>
+      <button id="fullscreenToggle" class="control-btn">Fullscreen</button>
+      <button id="resetPosition" class="control-btn">Reset</button>
+    </div>
+
+    <!-- 亮度控制 -->
+    <div class="slider-container">
+      <label>亮度</label>
+      <input type="range" id="brightnessSlider" min="50" max="200" value="100">
+      <span id="brightnessValue">100%</span>
+    </div>
+
+    <!-- 縮放控制 -->
+    <div class="slider-container">
+      <label>縮放</label>
+      <input type="range" id="scaleSlider" min="50" max="150" value="100">
+      <span id="scaleValue">100%</span>
+    </div>
+
+    <!-- 說明文字 -->
+    <div class="hint-text">
+      <p>📱 單指拖曳移動 | 🤏 雙指縮放大小</p>
+    </div>
+  </div>
+
+  <!-- Wake Lock 防止休眠 -->
+  <script>
+    if ('wakeLock' in navigator) {
+      let wakeLock = null;
+      const requestWakeLock = async () => {
+        try {
+          wakeLock = await navigator.wakeLock.request('screen');
+          console.log('Wake Lock activated');
+        } catch (err) {
+          console.error('Wake Lock error:', err);
+        }
+      };
+      requestWakeLock();
+
+      // 重新取得 (切換 app 時會失效)
+      document.addEventListener('visibilitychange', () => {
+        if (wakeLock !== null && document.visibilityState === 'visible') {
+          requestWakeLock();
+        }
+      });
+    }
+
+    // 隱藏地址欄
+    window.addEventListener('load', () => {
+      setTimeout(() => window.scrollTo(0, 1), 100);
+    });
+  </script>
+
+  <!-- 載入模組 -->
+  <script src="/static/js/webrtc.js" type="module"></script>
+  <script src="/static/js/renderers.js" type="module"></script>
+  <script src="/static/js/ar-controls.js" type="module"></script>
+  <script src="/static/js/main.js" type="module"></script>
+</body>
+</html>
