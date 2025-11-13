@@ -47,7 +47,6 @@ void AnnotatedCameraWidget::resizeEvent(QResizeEvent *event) {
 void AnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState &fs) {
   const int SET_SPEED_NA = 255;
   const SubMaster &sm = *(s.sm);
-  const SubMaster &fpsm = *(fs.sm);
   const QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
 
   const bool cs_alive = sm.alive("controlsState");
