@@ -15,7 +15,13 @@ function offerRtcRequest(sdp, type) {
     sdp: sdp,
     cameras: [],  // Data Channel only
     bridge_services_in: [],  // 不需要測試聲音
-    bridge_services_out: ["modelV2", "liveCalibration", "carState", "controlsState"]  // 移除 selfdriveState (FrogPilot 中不存在)
+    bridge_services_out: [
+      "modelV2", "frogpilotModelV2",          // 模型資料 (openpilot + FrogPilot)
+      "liveCalibration",                      // 相機校正
+      "carState", "frogpilotCarState",        // 車輛狀態
+      "controlsState", "frogpilotControlsState",  // 控制狀態
+      "frogpilotPlan"                         // FrogPilot 路徑規劃
+    ]
   };
 
   // 直接連接 webrtcd（模仿 DASHY 架構）

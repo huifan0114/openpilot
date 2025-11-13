@@ -42,7 +42,7 @@ class CerealOutgoingMessageProxy:
 
     return msg_dict
 
-  def update(self):
+  async def update(self):
     # this is blocking in async context...
     self.sm.update(0)
     for service, updated in self.sm.updated.items():
@@ -53,7 +53,10 @@ class CerealOutgoingMessageProxy:
       outgoing_msg = {"type": service, "logMonoTime": mono_time, "valid": valid, "data": msg_dict}
       encoded_msg = json.dumps(outgoing_msg).encode()
       for channel in self.channels:
-        channel.send(encoded_msg)
+        if isinstance(channel, web.WebSocketResponse):
+          await channel.send_bytes(encoded_msg)
+        else:
+          channel.send(encoded_msg)
 
 
 class CerealIncomingMessageProxy:
@@ -94,7 +97,7 @@ class CerealProxyRunner:
 
     while True:
       try:
-        self.proxy.update()
+        await self.proxy.update()
       except InvalidStateError:
         self.logger.warning("Cereal outgoing proxy invalid state (connection closed)")
         break
