@@ -27,10 +27,7 @@ export class DashboardUI {
 
       // 速限標誌
       speedLimitCard: document.getElementById('speed-limit-card'),
-      mutcdSign: document.getElementById('mutcd-sign'),
       mutcdValue: document.getElementById('mutcd-value'),
-      viennaSign: document.getElementById('vienna-sign'),
-      viennaValue: document.getElementById('vienna-value'),
 
       // 即將到來的速限
       upcomingLimitCard: document.getElementById('upcoming-limit-card'),
@@ -70,7 +67,6 @@ export class DashboardUI {
       isMetric: true,
       hasLead: false,
       vEgo: 0,
-      isViennaSign: false,
       cachedRadarState: null,
       cachedFrogpilotPlan: null
     };
@@ -208,32 +204,12 @@ export class DashboardUI {
     // 使用 mapdSpeedLimit (原始 MAPD 速限) 而非 slcSpeedLimit
     const speedLimit = frogpilotPlan.mapdSpeedLimit || 0;
 
-    // 永遠顯示速限卡片，沒有數據時顯示 --
+    // 永遠顯示速限，沒有數據時顯示 --
     if (speedLimit <= 0) {
-      if (this.state.isViennaSign) {
-        this.elements.viennaSign.classList.remove('hidden');
-        this.elements.mutcdSign.classList.add('hidden');
-        this.elements.viennaValue.textContent = '--';
-      } else {
-        this.elements.mutcdSign.classList.remove('hidden');
-        this.elements.viennaSign.classList.add('hidden');
-        this.elements.mutcdValue.textContent = '--';
-      }
+      this.elements.mutcdValue.textContent = '--';
     } else {
       const speedLimitConverted = speedLimit * this.units.speedConversion;
-      const speedLimitStr = Math.round(speedLimitConverted).toString();
-
-      if (this.state.isViennaSign) {
-        // Vienna 歐式圓形標誌
-        this.elements.mutcdSign.classList.add('hidden');
-        this.elements.viennaSign.classList.remove('hidden');
-        this.elements.viennaValue.textContent = speedLimitStr;
-      } else {
-        // MUTCD 美式方形標誌
-        this.elements.viennaSign.classList.add('hidden');
-        this.elements.mutcdSign.classList.remove('hidden');
-        this.elements.mutcdValue.textContent = speedLimitStr;
-      }
+      this.elements.mutcdValue.textContent = Math.round(speedLimitConverted).toString();
     }
 
     // 即將到來的速限 - 永遠顯示，數值和距離分別處理
