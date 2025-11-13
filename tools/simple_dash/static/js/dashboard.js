@@ -48,9 +48,8 @@ export class DashboardUI {
       cemCard: document.getElementById('cem-card'),
       cemIcon: document.getElementById('cem-icon'),
 
-      // 踏板
-      brakePedal: document.getElementById('brake-pedal'),
-      gasPedal: document.getElementById('gas-pedal'),
+      // 加減速度
+      accelerationValue: document.getElementById('acceleration-value'),
 
       // 道路名稱
       roadNameCard: document.getElementById('road-name-card'),
@@ -206,42 +205,55 @@ export class DashboardUI {
   // ========== 速限標誌更新 ==========
 
   updateSpeedLimit(frogpilotPlan) {
-    const speedLimit = frogpilotPlan.slcSpeedLimit || 0;
+    // 使用 mapdSpeedLimit (原始 MAPD 速限) 而非 slcSpeedLimit
+    const speedLimit = frogpilotPlan.mapdSpeedLimit || 0;
 
+    // 永遠顯示速限卡片，沒有數據時顯示 --
     if (speedLimit <= 0) {
-      this.elements.speedLimitCard.classList.add('hidden');
-      return;
-    }
-
-    this.elements.speedLimitCard.classList.remove('hidden');
-
-    const speedLimitConverted = speedLimit * this.units.speedConversion;
-    const speedLimitStr = Math.round(speedLimitConverted).toString();
-
-    if (this.state.isViennaSign) {
-      // Vienna 歐式圓形標誌
-      this.elements.mutcdSign.classList.add('hidden');
-      this.elements.viennaSign.classList.remove('hidden');
-      this.elements.viennaValue.textContent = speedLimitStr;
+      if (this.state.isViennaSign) {
+        this.elements.viennaSign.classList.remove('hidden');
+        this.elements.mutcdSign.classList.add('hidden');
+        this.elements.viennaValue.textContent = '--';
+      } else {
+        this.elements.mutcdSign.classList.remove('hidden');
+        this.elements.viennaSign.classList.add('hidden');
+        this.elements.mutcdValue.textContent = '--';
+      }
     } else {
-      // MUTCD 美式方形標誌
-      this.elements.viennaSign.classList.add('hidden');
-      this.elements.mutcdSign.classList.remove('hidden');
-      this.elements.mutcdValue.textContent = speedLimitStr;
+      const speedLimitConverted = speedLimit * this.units.speedConversion;
+      const speedLimitStr = Math.round(speedLimitConverted).toString();
+
+      if (this.state.isViennaSign) {
+        // Vienna 歐式圓形標誌
+        this.elements.mutcdSign.classList.add('hidden');
+        this.elements.viennaSign.classList.remove('hidden');
+        this.elements.viennaValue.textContent = speedLimitStr;
+      } else {
+        // MUTCD 美式方形標誌
+        this.elements.viennaSign.classList.add('hidden');
+        this.elements.mutcdSign.classList.remove('hidden');
+        this.elements.mutcdValue.textContent = speedLimitStr;
+      }
     }
 
-    // 即將到來的速限
+    // 即將到來的速限 - 永遠顯示，數值和距離分別處理
     const upcomingLimit = frogpilotPlan.slcNextSpeedLimit || 0;
     const upcomingDistance = frogpilotPlan.slcNextSpeedLimitDistance || 0;
 
-    if (upcomingLimit > 0 && upcomingDistance > 0) {
-      this.elements.upcomingLimitCard.classList.remove('hidden');
+    // 速限數值
+    if (upcomingLimit > 0) {
       const upcomingConverted = upcomingLimit * this.units.speedConversion;
-      const distanceConverted = upcomingDistance * this.units.distanceConversion;
       this.elements.upcomingValue.textContent = Math.round(upcomingConverted);
+    } else {
+      this.elements.upcomingValue.textContent = '--';
+    }
+
+    // 距離
+    if (upcomingDistance > 0) {
+      const distanceConverted = upcomingDistance * this.units.distanceConversion;
       this.elements.upcomingDistance.textContent = `${Math.round(distanceConverted)} ${this.units.distance}`;
     } else {
-      this.elements.upcomingLimitCard.classList.add('hidden');
+      this.elements.upcomingDistance.textContent = `-- ${this.units.distance}`;
     }
   }
 
@@ -253,12 +265,7 @@ export class DashboardUI {
     const cscSpeed = frogpilotPlan.cscSpeed || 0;
     const roadCurvature = frogpilotPlan.roadCurvature || 0;
 
-    if (!cscControlling && !cscTraining) {
-      this.elements.cscCard.classList.add('hidden');
-      return;
-    }
-
-    this.elements.cscCard.classList.remove('hidden');
+    // 永遠顯示 CSC 卡片
 
     // 彎道方向 (負值 = 左彎，正值 = 右彎)
     if (roadCurvature < 0) {
@@ -267,9 +274,13 @@ export class DashboardUI {
       this.elements.cscIcon.classList.add('flip');
     }
 
-    // 速度顯示
-    const cscSpeedConverted = cscSpeed * this.units.speedConversion;
-    this.elements.cscSpeed.textContent = Math.round(cscSpeedConverted);
+    // 速度顯示 - 沒有數據或未控制時顯示 --
+    if (cscSpeed > 0 && (cscControlling || cscTraining)) {
+      const cscSpeedConverted = cscSpeed * this.units.speedConversion;
+      this.elements.cscSpeed.textContent = Math.round(cscSpeedConverted);
+    } else {
+      this.elements.cscSpeed.textContent = '--';
+    }
 
     // 訓練模式
     if (cscTraining) {
@@ -315,29 +326,31 @@ export class DashboardUI {
     this.elements.cemIcon.textContent = icon;
   }
 
-  // ========== 踏板更新 ==========
+  // ========== 加減速度更新 ==========
 
-  updatePedals(aEgo, brakeLights) {
-    // 煞車踏板 (加速度 < -0.25 或煞車燈亮起)
-    if (aEgo < -0.25 || brakeLights) {
-      this.elements.brakePedal.classList.add('active');
-      // 動態透明度
-      const brakeOpacity = Math.min(1.0, Math.abs(aEgo) * 2);
-      this.elements.brakePedal.style.opacity = Math.max(0.3, brakeOpacity);
-    } else {
-      this.elements.brakePedal.classList.remove('active');
-      this.elements.brakePedal.style.opacity = 0.3;
+  updateAcceleration(aEgo) {
+    if (aEgo === undefined || aEgo === null) {
+      this.elements.accelerationValue.textContent = '--';
+      this.elements.accelerationValue.className = 'value-medium neutral';
+      return;
     }
 
-    // 油門踏板 (加速度 > 0.25)
+    // 顯示加速度數值 (保留 2 位小數)
+    this.elements.accelerationValue.textContent = aEgo.toFixed(2);
+
+    // 移除所有顏色類別
+    this.elements.accelerationValue.classList.remove('positive', 'negative', 'neutral');
+
+    // 根據加速度值設定顏色
     if (aEgo > 0.25) {
-      this.elements.gasPedal.classList.add('active');
-      // 動態透明度
-      const gasOpacity = Math.min(1.0, aEgo * 2);
-      this.elements.gasPedal.style.opacity = Math.max(0.3, gasOpacity);
+      // 加速 (綠色)
+      this.elements.accelerationValue.classList.add('positive');
+    } else if (aEgo < -0.25) {
+      // 煞車 (紅色)
+      this.elements.accelerationValue.classList.add('negative');
     } else {
-      this.elements.gasPedal.classList.remove('active');
-      this.elements.gasPedal.style.opacity = 0.3;
+      // 中性 (灰色)
+      this.elements.accelerationValue.classList.add('neutral');
     }
   }
 

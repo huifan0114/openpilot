@@ -457,54 +457,37 @@ body {
   50% { opacity: 0.3; }
 }
 
-/* ===== 右下角: 煞車/油門踏板 ===== */
-#bottom-right-pedals {
+/* ===== 右下角: 加減速度 ===== */
+#bottom-right-acceleration {
   position: absolute;
   bottom: var(--spacing-lg);
   right: var(--spacing-lg);
-  display: flex;
-  gap: var(--spacing-sm);
   z-index: 100;
 }
 
-.pedal {
-  width: 100px;
-  height: 100px;
-  background: var(--bg-card);
-  border-radius: var(--card-radius);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-xs);
-  transition: all var(--transition-fast);
-  opacity: 0.3;
+#acceleration-card {
+  width: 180px;
+  text-align: center;
+  border: 2px solid rgba(255, 255, 255, 0.15);
 }
 
-.pedal.active {
-  opacity: 1;
-  transform: scale(1.05);
+#acceleration-value {
+  margin: var(--spacing-xs) 0;
+  font-weight: 700;
+  transition: color var(--transition-fast);
 }
 
-#brake-pedal.active {
-  border-color: var(--status-danger);
-  box-shadow: 0 0 20px rgba(255, 68, 68, 0.4);
+/* 加速度顏色編碼 */
+#acceleration-value.positive {
+  color: var(--status-safe);
 }
 
-#gas-pedal.active {
-  border-color: var(--status-safe);
-  box-shadow: 0 0 20px rgba(128, 216, 166, 0.4);
+#acceleration-value.negative {
+  color: var(--status-danger);
 }
 
-.pedal-icon {
-  font-size: 40px;
-}
-
-.pedal-label {
-  font-size: 14px;
-  color: var(--text-secondary);
-  font-weight: 500;
+#acceleration-value.neutral {
+  color: var(--text-dim);
 }
 
 /* ===== 底部中央: 道路名稱 + 停車計時器 ===== */
@@ -666,13 +649,8 @@ body {
     width: 120px;
   }
 
-  .pedal {
-    width: 80px;
-    height: 80px;
-  }
-
-  .pedal-icon {
-    font-size: 32px;
+  #acceleration-card {
+    width: 140px;
   }
 
   /* 隱藏次要元素 */
@@ -696,7 +674,7 @@ body {
   }
 
   #bottom-left-info,
-  #bottom-right-pedals {
+  #bottom-right-acceleration {
     display: none;
   }
 }

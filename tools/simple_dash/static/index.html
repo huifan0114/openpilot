@@ -21,7 +21,7 @@
         <div id="max-speed-unit" class="label-tiny">km/h</div>
       </div>
 
-      <div id="speed-limit-card" class="card hidden">
+      <div id="speed-limit-card" class="card">
         <!-- MUTCD (美式方形) -->
         <div id="mutcd-sign" class="speed-sign hidden">
           <div class="sign-border">
@@ -40,7 +40,7 @@
       </div>
 
       <!-- 即將到來的速限 -->
-      <div id="upcoming-limit-card" class="card hidden">
+      <div id="upcoming-limit-card" class="card">
         <div class="label-small">即將到來</div>
         <div id="upcoming-value" class="value-medium">--</div>
         <div id="upcoming-distance" class="label-tiny">-- 米</div>
@@ -104,7 +104,7 @@
         <div id="current-speed-unit" class="label-small">km/h</div>
       </div>
 
-      <div id="csc-card" class="card hidden">
+      <div id="csc-card" class="card">
         <div class="csc-icon-container">
           <div id="csc-icon" class="csc-curve-icon">↪️</div>
         </div>
@@ -114,15 +114,12 @@
       </div>
     </div>
 
-    <!-- 右下角: 煞車/油門踏板 -->
-    <div id="bottom-right-pedals">
-      <div id="brake-pedal" class="pedal">
-        <div class="pedal-icon brake-icon">🔴</div>
-        <div class="pedal-label">煞車</div>
-      </div>
-      <div id="gas-pedal" class="pedal">
-        <div class="pedal-icon gas-icon">🟢</div>
-        <div class="pedal-label">油門</div>
+    <!-- 右下角: 加減速度 -->
+    <div id="bottom-right-acceleration">
+      <div id="acceleration-card" class="card small-card">
+        <div class="label-small">加減速度</div>
+        <div id="acceleration-value" class="value-medium neutral">--</div>
+        <div class="label-tiny">m/s²</div>
       </div>
     </div>
 

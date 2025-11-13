@@ -43,16 +43,9 @@ function handleMessage(msgType, msgData) {
       if (msgData.vEgo !== undefined) {
         dashboard.updateCurrentSpeed(msgData.vEgo);
       }
-      // 更新踏板 (需要加速度)
+      // 更新加減速度
       if (msgData.aEgo !== undefined) {
-        dashboard.updatePedals(msgData.aEgo, stateManager.frogpilotCarState?.brakeLights || false);
-      }
-      break;
-
-    case 'frogpilotCarState':
-      // 更新踏板 (煞車燈狀態)
-      if (msgData.brakeLights !== undefined && stateManager.carState) {
-        dashboard.updatePedals(stateManager.carState.aEgo || 0, msgData.brakeLights);
+        dashboard.updateAcceleration(msgData.aEgo);
       }
       break;
 
