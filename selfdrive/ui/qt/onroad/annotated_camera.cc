@@ -51,12 +51,8 @@ void AnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState
   const QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
 
   const bool cs_alive = sm.alive("controlsState");
-  const bool nav_alive = sm.alive("navInstruction") && sm["navInstruction"].getValid();
   const auto cs = sm["controlsState"].getControlsState();
   const auto car_state = sm["carState"].getCarState();
-  const auto nav_instruction = sm["navInstruction"].getNavInstruction();
-
-  const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
 
   // Handle older routes where vCruiseCluster is not set
   float v_cruise = cs.getVCruiseCluster() == 0.0 ? cs.getVCruise() : cs.getVCruiseCluster();
