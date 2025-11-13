@@ -2456,10 +2456,5 @@ struct Event {
     sensorEventsDEPRECATED @11 :List(SensorEventData);
     lateralPlanDEPRECATED @64 :LateralPlan;
     navModel @104 :NavModelData;
-
-    # *********** mapd ***********
-    mapdExtendedOut @131 :Custom.MapdExtendedOut;
-    mapdIn @132 :Custom.MapdIn;
-    mapdOut @133 :Custom.MapdOut;
   }
 }
