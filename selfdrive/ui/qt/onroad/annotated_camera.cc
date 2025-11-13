@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 
+#include "common/params.h"
 #include "common/swaglog.h"
 #include "selfdrive/ui/qt/onroad/buttons.h"
 #include "selfdrive/ui/qt/util.h"
@@ -71,8 +72,8 @@ void AnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState
   speed = cs_alive ? std::max<float>(0.0, v_ego) : 0.0;
   speed *= s.scene.is_metric ? MS_TO_KPH : MS_TO_MPH;
 
-  // MAPD speed limit from params_memory (m/s -> km/h + 10 offset, round up to nearest 10)
-  float speedLimitMs = params_memory.getFloat("MapSpeedLimit");  // m/s
+  // MAPD speed limit from Params (m/s -> km/h + 10 offset, round up to nearest 10)
+  float speedLimitMs = Params().getFloat("MapSpeedLimit");  // m/s
   if (s.scene.is_metric) {
     float speedLimitKph = speedLimitMs * MS_TO_KPH + 10;  // +10 km/h offset
     speedLimit = std::ceil(speedLimitKph / 10.0) * 10.0;  // Round up to nearest 10
@@ -220,14 +221,13 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
     p.drawText(sign_rect, Qt::AlignCenter, speedLimitStr);
   }
 
-  // UPCOMING Speed Limit Sign (Blue Border) - from frogpilotPlan
-  auto frogpilotPlan = sm["frogpilotPlan"].getFrogpilotPlan();
+  // UPCOMING Speed Limit Sign (Blue Border) - from frogpilotPlan parameter
   float upcomingSpeedLimitMs = frogpilotPlan.getSlcNextSpeedLimit();  // m/s
   float upcomingDistance = frogpilotPlan.getSlcNextSpeedLimitDistance();  // meters
 
   // Apply same processing as main speed limit: +10 km/h offset, round up to nearest 10
   float upcomingSpeedLimit = 0;
-  if (s.scene.is_metric) {
+  if (is_metric) {
     float upcomingSpeedKph = upcomingSpeedLimitMs * MS_TO_KPH + 10;  // +10 km/h offset
     upcomingSpeedLimit = std::ceil(upcomingSpeedKph / 10.0) * 10.0;  // Round up to nearest 10
   } else {
