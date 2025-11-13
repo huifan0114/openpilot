@@ -29,7 +29,20 @@ class ConditionalExperimentalMode:
 
       params_memory.put_int("CEStatus", self.status_value if self.experimental_mode else 0)
     else:
-      self.experimental_mode = self.status_value == 2 or sm["carState"].standstill and self.experimental_mode and self.frogpilot_planner.model_stopped
+      # 檢查是否為紅綠燈/model stop 觸發模式 (status_value 11: model stop, 12: forcing stop)
+      traffic_light_mode = self.status_value in {11, 12}
+
+      # 檢查前車距離和速度：距離超過 7m 且前車速度 > 1 m/s，表示前車真的在駛離
+      # 使用速度條件避免 dRel 不穩定或前車短暫移動造成誤判
+      lead_far_away = self.frogpilot_planner.tracking_lead and self.frogpilot_planner.lead_one.dRel > 7.0 and self.frogpilot_planner.lead_one.vLead > 1.0
+
+      # 如果是紅綠燈模式且前車已經駛離（距離 > 7m 且速度 > 1 m/s），解除 experimental_mode
+      if traffic_light_mode and lead_far_away:
+        self.experimental_mode = False
+      else:
+        # 原邏輯：status_value == 2 (手動) 或 standstill 時保持
+        self.experimental_mode = self.status_value == 2 or sm["carState"].standstill and self.experimental_mode and self.frogpilot_planner.model_stopped
+
       self.stop_light_detected &= self.status_value not in {1, 2}
       self.stop_light_filter.x = 0
 
