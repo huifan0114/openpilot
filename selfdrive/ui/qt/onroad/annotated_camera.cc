@@ -71,24 +71,23 @@ void AnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState
   speed = cs_alive ? std::max<float>(0.0, v_ego) : 0.0;
   speed *= s.scene.is_metric ? MS_TO_KPH : MS_TO_MPH;
 
-  auto speed_limit_sign = nav_instruction.getSpeedLimitSign();
-  if (frogpilot_toggles.value("show_speed_limits").toBool() || frogpilot_toggles.value("speed_limit_controller").toBool()) {
-    speedLimit = frogpilotPlan.getSlcOverriddenSpeed() != 0 ? frogpilotPlan.getSlcOverriddenSpeed() : frogpilotPlan.getSlcSpeedLimit();
-    if (frogpilotPlan.getSlcOverriddenSpeed() == 0 && !frogpilot_toggles.value("show_speed_limit_offset").toBool()) {
-      speedLimit += frogpilotPlan.getSlcSpeedLimitOffset();
-    }
+  // MAPD speed limit from params_memory (m/s -> km/h + 10 offset, round up to nearest 10)
+  float speedLimitMs = params_memory.getFloat("MapSpeedLimit");  // m/s
+  if (s.scene.is_metric) {
+    float speedLimitKph = speedLimitMs * MS_TO_KPH + 10;  // +10 km/h offset
+    speedLimit = std::ceil(speedLimitKph / 10.0) * 10.0;  // Round up to nearest 10
   } else {
-    speedLimit = nav_alive ? nav_instruction.getSpeedLimit() : 0.0;
+    // mph mode: convert to km/h, process, then convert to mph
+    float speedLimitKph = speedLimitMs * MS_TO_KPH + 10;
+    speedLimitKph = std::ceil(speedLimitKph / 10.0) * 10.0;
+    speedLimit = speedLimitKph * KM_TO_MILE;
   }
-  speedLimit *= (s.scene.is_metric ? MS_TO_KPH : MS_TO_MPH);
 
-  has_us_speed_limit = (nav_alive && speed_limit_sign == cereal::NavInstruction::SpeedLimitSign::MUTCD);
-  has_us_speed_limit |= frogpilot_toggles.value("show_speed_limits").toBool() || frogpilot_toggles.value("speed_limit_controller").toBool();
+  // MAPD speed limit sign display (always show if > 0)
+  has_us_speed_limit = speedLimit > 0;
   has_us_speed_limit &= !frogpilot_toggles.value("speed_limit_vienna").toBool();
-  has_us_speed_limit &= !frogpilot_toggles.value("hide_speed_limit").toBool() || frogpilotPlan.getSpeedLimitChanged();
-  has_eu_speed_limit = (nav_alive && speed_limit_sign == cereal::NavInstruction::SpeedLimitSign::VIENNA);
-  has_eu_speed_limit |= (frogpilot_toggles.value("show_speed_limits").toBool() || frogpilot_toggles.value("speed_limit_controller").toBool()) && frogpilot_toggles.value("speed_limit_vienna").toBool();
-  has_eu_speed_limit &= !frogpilot_toggles.value("hide_speed_limit").toBool() || frogpilotPlan.getSpeedLimitChanged();
+  has_eu_speed_limit = speedLimit > 0;
+  has_eu_speed_limit &= frogpilot_toggles.value("speed_limit_vienna").toBool();
   is_metric = s.scene.is_metric;
   speedUnit =  s.scene.is_metric ? tr("km/h") : tr("mph");
   hideBottomIcons = (cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE);
@@ -192,7 +191,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
   }
 
   const QRect sign_rect = set_speed_rect.adjusted(sign_margin, default_size.height(), -sign_margin, -sign_margin);
-  // US/Canada (MUTCD style) sign
+  // US/Canada (MUTCD style) sign - MAPD simplified
   if (has_us_speed_limit) {
     p.setPen(Qt::NoPen);
     p.setBrush(whiteColor());
@@ -200,26 +199,15 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
     p.setPen(QPen(blackColor(), 6));
     p.drawRoundedRect(sign_rect.adjusted(9, 9, -9, -9), 16, 16);
 
-    p.save();
-    p.setOpacity(frogpilotPlan.getSlcOverriddenSpeed() == 0 ? 1.0 : 0.25);
-    if (frogpilotPlan.getSlcOverriddenSpeed() == 0 && frogpilot_toggles.value("show_speed_limit_offset").toBool()) {
-      p.setFont(InterFont(28, QFont::DemiBold));
-      p.drawText(sign_rect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("LIMIT"));
-      p.setFont(InterFont(70, QFont::Bold));
-      p.drawText(sign_rect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, speedLimitStr);
-      p.setFont(InterFont(50, QFont::DemiBold));
-      p.drawText(sign_rect.adjusted(0, 120, 0, 0), Qt::AlignTop | Qt::AlignHCenter, frogpilot_nvg->speedLimitOffsetStr);
-    } else {
-      p.setFont(InterFont(28, QFont::DemiBold));
-      p.drawText(sign_rect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("SPEED"));
-      p.drawText(sign_rect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("LIMIT"));
-      p.setFont(InterFont(70, QFont::Bold));
-      p.drawText(sign_rect.adjusted(0, 85, 0, 0), Qt::AlignTop | Qt::AlignHCenter, speedLimitStr);
-    }
-    p.restore();
+    p.setPen(blackColor());
+    p.setFont(InterFont(28, QFont::DemiBold));
+    p.drawText(sign_rect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("SPEED"));
+    p.drawText(sign_rect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("LIMIT"));
+    p.setFont(InterFont(70, QFont::Bold));
+    p.drawText(sign_rect.adjusted(0, 85, 0, 0), Qt::AlignTop | Qt::AlignHCenter, speedLimitStr);
   }
 
-  // EU (Vienna style) sign
+  // EU (Vienna style) sign - MAPD simplified
   if (has_eu_speed_limit) {
     p.setPen(Qt::NoPen);
     p.setBrush(whiteColor());
@@ -227,19 +215,78 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
     p.setPen(QPen(Qt::red, 20));
     p.drawEllipse(sign_rect.adjusted(16, 16, -16, -16));
 
-    p.save();
-    p.setOpacity(frogpilotPlan.getSlcOverriddenSpeed() == 0 ? 1.0 : 0.25);
     p.setPen(blackColor());
-    if (frogpilot_toggles.value("show_speed_limit_offset").toBool()) {
-      p.setFont(InterFont((speedLimitStr.size() >= 3) ? 60 : 70, QFont::Bold));
-      p.drawText(sign_rect.adjusted(0, -25, 0, 0), Qt::AlignCenter, speedLimitStr);
-      p.setFont(InterFont(40, QFont::DemiBold));
-      p.drawText(sign_rect.adjusted(0, 100, 0, 0), Qt::AlignTop | Qt::AlignHCenter, frogpilot_nvg->speedLimitOffsetStr);
-    } else {
-      p.setFont(InterFont((speedLimitStr.size() >= 3) ? 60 : 70, QFont::Bold));
-      p.drawText(sign_rect, Qt::AlignCenter, speedLimitStr);
-    }
-    p.restore();
+    p.setFont(InterFont((speedLimitStr.size() >= 3) ? 60 : 70, QFont::Bold));
+    p.drawText(sign_rect, Qt::AlignCenter, speedLimitStr);
+  }
+
+  // UPCOMING Speed Limit Sign (Blue Border) - from frogpilotPlan
+  auto frogpilotPlan = sm["frogpilotPlan"].getFrogpilotPlan();
+  float upcomingSpeedLimitMs = frogpilotPlan.getSlcNextSpeedLimit();  // m/s
+  float upcomingDistance = frogpilotPlan.getSlcNextSpeedLimitDistance();  // meters
+
+  // Apply same processing as main speed limit: +10 km/h offset, round up to nearest 10
+  float upcomingSpeedLimit = 0;
+  if (s.scene.is_metric) {
+    float upcomingSpeedKph = upcomingSpeedLimitMs * MS_TO_KPH + 10;  // +10 km/h offset
+    upcomingSpeedLimit = std::ceil(upcomingSpeedKph / 10.0) * 10.0;  // Round up to nearest 10
+  } else {
+    float upcomingSpeedKph = upcomingSpeedLimitMs * MS_TO_KPH + 10;
+    upcomingSpeedKph = std::ceil(upcomingSpeedKph / 10.0) * 10.0;
+    upcomingSpeedLimit = upcomingSpeedKph * KM_TO_MILE;
+  }
+
+  if (upcomingSpeedLimit > 0 && upcomingDistance > 0) {
+      const int upcoming_sign_size = has_eu_speed_limit ? 120 : 130;
+      const int distance_label_height = 30;
+      QRect upcomingRect(sign_rect.x() + (sign_rect.width() - upcoming_sign_size) / 2,
+                         sign_rect.y() + sign_rect.height() + 8,
+                         upcoming_sign_size, upcoming_sign_size);
+      QRect distanceRect(upcomingRect.x(), upcomingRect.y() + upcomingRect.height() + 5,
+                         upcoming_sign_size, distance_label_height);
+
+      QString upcomingStr = QString::number(std::nearbyint(upcomingSpeedLimit));
+      QString distanceStr;
+      if (upcomingDistance >= 1000) {
+        distanceStr = QString::number(upcomingDistance / 1000.0, 'f', 1) + " km";
+      } else {
+        distanceStr = QString::number(std::nearbyint(upcomingDistance)) + " m";
+      }
+
+      if (has_eu_speed_limit) {
+        // Vienna style - Circle with BLUE border
+        p.setPen(Qt::NoPen);
+        p.setBrush(whiteColor());
+        p.drawEllipse(upcomingRect);
+        p.setPen(QPen(QColor(0x00, 0x7A, 0xFF), 12));  // Blue border
+        p.drawEllipse(upcomingRect.adjusted(8, 8, -8, -8));
+
+        p.setPen(blackColor());
+        p.setFont(InterFont((upcomingStr.size() >= 3) ? 45 : 55, QFont::Bold));
+        p.drawText(upcomingRect, Qt::AlignCenter, upcomingStr);
+      } else {
+        // MUTCD style - Rectangle with BLUE border
+        p.setPen(Qt::NoPen);
+        p.setBrush(whiteColor());
+        p.drawRoundedRect(upcomingRect, 16, 16);
+        p.setPen(QPen(QColor(0x00, 0x7A, 0xFF), 4));
+        p.drawRoundedRect(upcomingRect.adjusted(6, 6, -6, -6), 12, 12);
+
+        p.setPen(blackColor());
+        p.setFont(InterFont(20, QFont::DemiBold));
+        p.drawText(upcomingRect.adjusted(0, 15, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("NEXT"));
+        p.setFont(InterFont(50, QFont::Bold));
+        p.drawText(upcomingRect.adjusted(0, 40, 0, 0), Qt::AlignTop | Qt::AlignHCenter, upcomingStr);
+      }
+
+      // Draw distance label
+      p.setPen(Qt::NoPen);
+      p.setBrush(blackColor(180));
+      p.drawRoundedRect(distanceRect, 10, 10);
+
+      p.setPen(QPen(whiteColor(), 4));
+      p.setFont(InterFont(18, QFont::DemiBold));
+      p.drawText(distanceRect, Qt::AlignCenter, distanceStr);
   }
 
   // current speed

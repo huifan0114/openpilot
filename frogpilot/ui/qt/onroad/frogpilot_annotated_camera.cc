@@ -228,9 +228,8 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
     paintRadarTracks(p, model, s, frogpilot_scene, sm, fpsm);
   }
 
-  if (frogpilot_toggles.value("road_name_ui").toBool()) {
-    paintRoadName(p);
-  }
+  // Road name display (always show if RoadName available, no toggle check)
+  paintRoadName(p);
 
   if (!bigMapOpen && (mutcdSpeedLimit || viennaSpeedLimit) && frogpilot_toggles.value("speed_limit_sources").toBool()) {
     paintSpeedLimitSources(p, frogpilotCarState, frogpilotNavigation, frogpilotPlan);

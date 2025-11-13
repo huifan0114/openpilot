@@ -5,6 +5,7 @@ from cereal import car, log
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.numpy_fast import clip, interp
 from openpilot.common.realtime import DT_CTRL, DT_MDL
+from openpilot.frogpilot.common.frogpilot_variables import params_memory
 from openpilot.selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
 
 # WARNING: this value was determined based on the model's training distribution,
@@ -50,17 +51,40 @@ class VCruiseHelper:
     self.button_timers = {ButtonType.decelCruise: 0, ButtonType.accelCruise: 0}
     self.button_change_states = {btn: {"standstill": False, "enabled": False} for btn in self.button_timers}
 
+    # MAPD speed limit tracking
+    self.previous_mapd_speed_limit = 0  # m/s
+
   @property
   def v_cruise_initialized(self):
     return self.v_cruise_kph != V_CRUISE_UNSET
 
-  def update_v_cruise(self, CS, enabled, is_metric, speed_limit_changed, frogpilot_toggles):
+  def update_v_cruise(self, CS, enabled, is_metric):
     self.v_cruise_kph_last = self.v_cruise_kph
 
     if CS.cruiseState.available:
       if not self.CP.pcmCruise:
+        # MAPD automatic cruise control (from params_memory)
+        if enabled:
+          mapd_speed_limit_ms = params_memory.get_float("MapSpeedLimit")  # m/s
+
+          if mapd_speed_limit_ms > 0:
+            speed_changed = abs(mapd_speed_limit_ms - self.previous_mapd_speed_limit) >= 1
+            first_time = self.previous_mapd_speed_limit == 0
+
+            if speed_changed or first_time:
+              # Convert to km/h, add 10 km/h offset, round up to nearest 10
+              speed_kph_with_offset = mapd_speed_limit_ms * CV.MS_TO_KPH + 10
+              new_speed_kph = math.ceil(speed_kph_with_offset / 10) * 10
+              current_speed_kph = self.v_cruise_kph
+
+              # 60 km/h difference check
+              diff = abs(new_speed_kph - current_speed_kph)
+              if diff <= 60:
+                self.v_cruise_kph = new_speed_kph
+                self.previous_mapd_speed_limit = mapd_speed_limit_ms
+
         # if stock cruise is completely disabled, then we can use our own set speed logic
-        self._update_v_cruise_non_pcm(CS, enabled, is_metric, speed_limit_changed, frogpilot_toggles)
+        self._update_v_cruise_non_pcm(CS, enabled, is_metric)
         self.v_cruise_cluster_kph = self.v_cruise_kph
         self.update_button_timers(CS, enabled)
       else:
@@ -73,7 +97,7 @@ class VCruiseHelper:
       self.v_cruise_kph = V_CRUISE_UNSET
       self.v_cruise_cluster_kph = V_CRUISE_UNSET
 
-  def _update_v_cruise_non_pcm(self, CS, enabled, is_metric, speed_limit_changed, frogpilot_toggles):
+  def _update_v_cruise_non_pcm(self, CS, enabled, is_metric):
     # handle button presses. TODO: this should be in state_control, but a decelCruise press
     # would have the effect of both enabling and changing speed is checked after the state transition
 
@@ -103,10 +127,6 @@ class VCruiseHelper:
     if button_type is None:
       return
 
-    # Don't adjust speed when pressing to confirm/deny speed limits
-    if speed_limit_changed:
-      return
-
     # Don't adjust speed when pressing resume to exit standstill
     cruise_standstill = self.button_change_states[button_type]["standstill"] or CS.cruiseState.standstill
     if button_type == ButtonType.accelCruise and cruise_standstill:
@@ -117,17 +137,13 @@ class VCruiseHelper:
     # if not self.button_change_states[button_type]["enabled"]:
     #   return
 
-    v_cruise_delta_interval = frogpilot_toggles.cruise_increase_long if long_press else frogpilot_toggles.cruise_increase
+    # Use standard increment values (simplified from FrogPilot toggles)
+    v_cruise_delta_interval = 5 if long_press else 1
     v_cruise_delta = v_cruise_delta * v_cruise_delta_interval
     if v_cruise_delta_interval % 5 == 0 and self.v_cruise_kph % v_cruise_delta != 0:  # partial interval
       self.v_cruise_kph = CRUISE_NEAREST_FUNC[button_type](self.v_cruise_kph / v_cruise_delta) * v_cruise_delta
     else:
       self.v_cruise_kph += v_cruise_delta * CRUISE_INTERVAL_SIGN[button_type]
-
-    v_cruise_offset = (frogpilot_toggles.set_speed_offset * CRUISE_INTERVAL_SIGN[button_type]) if long_press else 0
-    if v_cruise_offset < 0:
-      v_cruise_offset = frogpilot_toggles.set_speed_offset - v_cruise_delta
-    self.v_cruise_kph += v_cruise_offset
 
     # If set is pressed while overriding, clip cruise speed to minimum of vEgo
     if CS.gasPressed and button_type in (ButtonType.decelCruise, ButtonType.setCruise):
@@ -147,25 +163,21 @@ class VCruiseHelper:
         self.button_timers[b.type.raw] = 1 if b.pressed else 0
         self.button_change_states[b.type.raw] = {"standstill": CS.cruiseState.standstill, "enabled": enabled}
 
-  def initialize_v_cruise(self, CS, experimental_mode: bool, desired_speed_limit, frogpilot_toggles) -> None:
+  def initialize_v_cruise(self, CS, experimental_mode: bool) -> None:
     # initializing is handled by the PCM
     if self.CP.pcmCruise:
       return
 
-    initial = V_CRUISE_INITIAL_EXPERIMENTAL_MODE if experimental_mode and not frogpilot_toggles.conditional_experimental_mode else V_CRUISE_INITIAL
+    initial = V_CRUISE_INITIAL_EXPERIMENTAL_MODE if experimental_mode else V_CRUISE_INITIAL
 
     # 250kph or above probably means we never had a set speed
     if any(b.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for b in CS.buttonEvents) and self.v_cruise_kph_last < 250:
       self.v_cruise_kph = self.v_cruise_kph_last
     else:
-      if desired_speed_limit != 0 and frogpilot_toggles.set_speed_limit:
-        self.v_cruise_kph = int(round(desired_speed_limit * CV.MS_TO_KPH))
-      else:
-        # Use current speed, but use initial (40 kph) as minimum
-        # This ensures safe initialization when using gas pedal to resume control
-        #current_speed_kph = CS.vEgo * CV.MS_TO_KPH
-        # Always use at least 'initial' speed to ensure safe minimum cruise speed
-        self.v_cruise_kph = int(round(clip(max(self.v_cruise_kph_last, initial), initial, V_CRUISE_MAX)))
+      # Use current speed, but use initial (40 kph) as minimum
+      # This ensures safe initialization when using gas pedal to resume control
+      # Always use at least 'initial' speed to ensure safe minimum cruise speed
+      self.v_cruise_kph = int(round(clip(max(self.v_cruise_kph_last, initial), initial, V_CRUISE_MAX)))
 
     self.v_cruise_cluster_kph = self.v_cruise_kph
 
