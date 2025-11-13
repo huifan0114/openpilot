@@ -20,7 +20,8 @@ function offerRtcRequest(sdp, type) {
       "liveCalibration",                      // 相機校正
       "carState", "frogpilotCarState",        // 車輛狀態
       "controlsState", "frogpilotControlsState",  // 控制狀態
-      "frogpilotPlan"                         // FrogPilot 路徑規劃
+      "frogpilotPlan",                        // FrogPilot 路徑規劃
+      "radarState", "frogpilotRadarState"     // 雷達狀態 (前車資訊)
     ]
   };
 

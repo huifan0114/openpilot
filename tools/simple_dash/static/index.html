@@ -6,66 +6,144 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>AR HUD</title>
+  <title>FrogPilot Dashboard</title>
   <link rel="stylesheet" href="/static/css/style.css">
   <link rel="manifest" href="/static/manifest.json">
 </head>
 <body>
-  <!-- Canvas 容器 (可調整位置/大小 + 四角校正) -->
-  <div id="canvasContainer">
-    <canvas id="canvas"></canvas>
+  <div id="dashboard">
 
-    <!-- 四角調整控制點 -->
-    <div class="keystone-controls hidden">
-      <div class="corner-handle top-left" data-corner="tl"></div>
-      <div class="corner-handle top-right" data-corner="tr"></div>
-      <div class="corner-handle bottom-left" data-corner="bl"></div>
-      <div class="corner-handle bottom-right" data-corner="br"></div>
+    <!-- 左上角: MAX 速度 + 速限 -->
+    <div id="top-left-controls">
+      <div id="max-speed-card" class="card">
+        <div class="label-small">MAX</div>
+        <div id="max-speed-value" class="value-large">--</div>
+        <div id="max-speed-unit" class="label-tiny">km/h</div>
+      </div>
 
-      <!-- 輔助網格 -->
-      <svg class="keystone-grid">
-        <line x1="33.33%" y1="0" x2="33.33%" y2="100%" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="5,5" />
-        <line x1="66.66%" y1="0" x2="66.66%" y2="100%" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="5,5" />
-        <line x1="0" y1="33.33%" x2="100%" y2="33.33%" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="5,5" />
-        <line x1="0" y1="66.66%" x2="100%" y2="66.66%" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="5,5" />
-      </svg>
-    </div>
-  </div>
+      <div id="speed-limit-card" class="card hidden">
+        <!-- MUTCD (美式方形) -->
+        <div id="mutcd-sign" class="speed-sign hidden">
+          <div class="sign-border">
+            <div class="sign-label">SPEED</div>
+            <div class="sign-label">LIMIT</div>
+            <div id="mutcd-value" class="sign-value">--</div>
+          </div>
+        </div>
 
-  <!-- 狀態指示器 -->
-  <div id="statusIndicator">
-    <div class="status-dot"></div>
-    <span id="statusText">連接中...</span>
-  </div>
+        <!-- Vienna (歐式圓形) -->
+        <div id="vienna-sign" class="speed-sign hidden">
+          <div id="vienna-circle">
+            <div id="vienna-value" class="sign-value">--</div>
+          </div>
+        </div>
+      </div>
 
-  <!-- 控制面板 -->
-  <div id="controlPanel">
-    <div class="button-row">
-      <button id="arModeToggle" class="control-btn">AR Mode</button>
-      <button id="hudToggle" class="control-btn">HUD Mirror</button>
-      <button id="keystoneToggle" class="control-btn">四角調整</button>
-      <button id="fullscreenToggle" class="control-btn">Fullscreen</button>
-      <button id="resetPosition" class="control-btn">Reset</button>
-    </div>
-
-    <!-- 亮度控制 -->
-    <div class="slider-container">
-      <label>亮度</label>
-      <input type="range" id="brightnessSlider" min="50" max="200" value="100">
-      <span id="brightnessValue">100%</span>
+      <!-- 即將到來的速限 -->
+      <div id="upcoming-limit-card" class="card hidden">
+        <div class="label-small">即將到來</div>
+        <div id="upcoming-value" class="value-medium">--</div>
+        <div id="upcoming-distance" class="label-tiny">-- 米</div>
+      </div>
     </div>
 
-    <!-- 縮放控制 -->
-    <div class="slider-container">
-      <label>縮放</label>
-      <input type="range" id="scaleSlider" min="50" max="150" value="100">
-      <span id="scaleValue">100%</span>
+    <!-- 右上角: CEM + 指南針 -->
+    <div id="top-right-status">
+      <div id="cem-card" class="card icon-card hidden">
+        <div id="cem-icon" class="cem-icon"></div>
+      </div>
+
+      <div id="compass-card" class="card hidden">
+        <canvas id="compass-canvas" width="120" height="120"></canvas>
+      </div>
     </div>
 
-    <!-- 說明文字 -->
-    <div class="hint-text">
-      <p>📱 單指拖曳移動 | 🤏 雙指縮放大小</p>
+    <!-- 中央: 前車資訊卡片 (主要顯示) -->
+    <div id="center-lead-info">
+      <div id="lead-card" class="card lead-info-card">
+
+        <!-- 無前車狀態 -->
+        <div id="no-lead-state">
+          <div class="no-lead-icon">🚗</div>
+          <div class="no-lead-text">無前車</div>
+        </div>
+
+        <!-- 有前車狀態 -->
+        <div id="has-lead-state" class="hidden">
+          <!-- 距離區塊 -->
+          <div class="info-section">
+            <div class="info-label">前車距離</div>
+            <div id="lead-distance" class="info-value-large">-- 米</div>
+            <div id="desired-distance" class="info-sublabel">(期望: -- 米)</div>
+          </div>
+
+          <!-- 分隔線 -->
+          <div class="divider"></div>
+
+          <!-- 速度 + 時間區塊 -->
+          <div class="info-section">
+            <div class="info-row">
+              <div class="info-col">
+                <div class="info-label">前車速度</div>
+                <div id="lead-speed" class="info-value-large">-- km/h</div>
+              </div>
+              <div class="info-col">
+                <div class="info-label">跟車時間</div>
+                <div id="follow-time" class="info-value-large">-- 秒</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- 左下角: 當前速度 + CSC -->
+    <div id="bottom-left-info">
+      <div id="current-speed-card" class="card small-card">
+        <div id="current-speed-value" class="value-medium">--</div>
+        <div id="current-speed-unit" class="label-small">km/h</div>
+      </div>
+
+      <div id="csc-card" class="card hidden">
+        <div class="csc-icon-container">
+          <div id="csc-icon" class="csc-curve-icon">↪️</div>
+        </div>
+        <div id="csc-speed" class="value-medium">--</div>
+        <div id="csc-speed-unit" class="label-tiny">km/h</div>
+        <div id="csc-training" class="training-label hidden">Training...</div>
+      </div>
+    </div>
+
+    <!-- 右下角: 煞車/油門踏板 -->
+    <div id="bottom-right-pedals">
+      <div id="brake-pedal" class="pedal">
+        <div class="pedal-icon brake-icon">🔴</div>
+        <div class="pedal-label">煞車</div>
+      </div>
+      <div id="gas-pedal" class="pedal">
+        <div class="pedal-icon gas-icon">🟢</div>
+        <div class="pedal-label">油門</div>
+      </div>
+    </div>
+
+    <!-- 底部中央: 道路名稱 -->
+    <div id="bottom-center-road">
+      <div id="road-name-card" class="card hidden">
+        <div id="road-name-text">--</div>
+      </div>
+
+      <div id="standstill-timer-card" class="card hidden">
+        <div id="standstill-minutes" class="timer-value">--</div>
+        <div id="standstill-seconds" class="timer-sublabel">--</div>
+      </div>
+    </div>
+
+    <!-- 狀態指示器 (右上角小點) -->
+    <div id="status-indicator">
+      <div class="status-dot"></div>
+      <span id="status-text">連接中...</span>
+    </div>
+
   </div>
 
   <!-- Wake Lock 防止休眠 -->
@@ -98,8 +176,7 @@
 
   <!-- 載入模組 -->
   <script src="/static/js/webrtc.js" type="module"></script>
-  <script src="/static/js/renderers.js" type="module"></script>
-  <script src="/static/js/ar-controls.js" type="module"></script>
+  <script src="/static/js/dashboard.js" type="module"></script>
   <script src="/static/js/main.js" type="module"></script>
 </body>
 </html>
