@@ -14,10 +14,51 @@ class FrogPilotVCruise:
     self.csc = CurveSpeedController(self)
     self.slc = SpeedLimitController()
 
+    # Progressive speed controller - dynamic step-by-step acceleration
+    self.progressive_target = 0
+    self.progressive_enabled = False
+
     self.forcing_stop = False
     self.override_force_stop = False
 
     self.override_force_stop_timer = 0
+
+  def update_progressive_speed(self, v_ego, v_cruise_final):
+    """
+    漸進式速度控制：避免一次性大幅加速
+    當目標速度與當前速度差距大時，分段逐步提升目標速度
+    例如：時速 20 km/h 要加速到 60 km/h 時，會分成 30, 40, 50, 60 逐步進行
+
+    :param v_ego: 當前速度 (m/s)
+    :param v_cruise_final: 最終目標速度 (m/s)
+    :return: 當前階段目標速度 (m/s)
+    """
+    from openpilot.common.conversions import Conversions as CV
+
+    STEP_SIZE = 10 * CV.KPH_TO_MS  # 每次增加 10 km/h
+    APPROACH_THRESHOLD = 2 * CV.KPH_TO_MS  # 接近閾值 2 km/h
+    MIN_STEP_TRIGGER = 20 * CV.KPH_TO_MS  # 最小觸發差距 20 km/h
+
+    speed_diff = v_cruise_final - v_ego
+
+    # 如果速度差距小於觸發閾值，直接使用最終目標
+    if speed_diff <= MIN_STEP_TRIGGER:
+      self.progressive_enabled = False
+      return v_cruise_final
+
+    # 初始化或重新設定漸進目標（當目標速度降低時也重置）
+    if not self.progressive_enabled or self.progressive_target > v_cruise_final:
+      self.progressive_enabled = True
+      self.progressive_target = v_ego + STEP_SIZE
+
+    # 如果接近當前漸進目標，增加下一個步進
+    if v_ego >= (self.progressive_target - APPROACH_THRESHOLD):
+      self.progressive_target = min(self.progressive_target + STEP_SIZE, v_cruise_final)
+
+    # 確保不超過最終目標
+    self.progressive_target = min(self.progressive_target, v_cruise_final)
+
+    return self.progressive_target
 
   def update(self, gps_position, now, time_validated, v_cruise, v_ego, sm, frogpilot_toggles):
     force_stop = self.frogpilot_planner.cem.stop_light_detected and sm["controlsState"].enabled and frogpilot_toggles.force_stops
@@ -101,6 +142,10 @@ class FrogPilotVCruise:
       #if frogpilot_toggles.speed_limit_controller:
         #targets.append(max(self.slc.overridden_speed, self.slc_target + self.slc_offset) - v_ego_diff)
 
-      v_cruise = min([target if target > CRUISING_SPEED else v_cruise for target in targets])
+      v_cruise_base = min([target if target > CRUISING_SPEED else v_cruise for target in targets])
+
+      # Apply progressive acceleration control
+      # This prevents sudden large accelerations by stepping up speed gradually (10 km/h increments)
+      v_cruise = self.update_progressive_speed(v_ego, v_cruise_base)
 
     return v_cruise
