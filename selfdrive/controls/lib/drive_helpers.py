@@ -57,32 +57,35 @@ class VCruiseHelper:
   def v_cruise_initialized(self):
     return self.v_cruise_kph != V_CRUISE_UNSET
 
-  def update_v_cruise(self, CS, enabled, is_metric):
+  def update_v_cruise(self, CS, enabled, is_metric, sm):
     self.v_cruise_kph_last = self.v_cruise_kph
 
     if CS.cruiseState.available:
       if not self.CP.pcmCruise:
-        # MAPD automatic cruise control (from params_memory)
+        # MAPD automatic cruise control - only adjust when speed limit actually changes
         if enabled:
-          # Local import to avoid circular dependency
-          from openpilot.frogpilot.common.frogpilot_variables import params_memory
-          mapd_speed_limit_ms = params_memory.get_float("MapSpeedLimit")  # m/s
+          # Read MAPD speed limit from cereal (unified data source)
+          mapd_speed_limit_ms = sm['frogpilotPlan'].mapdSpeedLimit  # m/s
 
+          # Only update cruise speed when MAPD speed limit actually changes
           if mapd_speed_limit_ms > 0:
             speed_changed = abs(mapd_speed_limit_ms - self.previous_mapd_speed_limit) >= 1
             first_time = self.previous_mapd_speed_limit == 0
 
-            if speed_changed or first_time:
-              # Convert to km/h, add 10 km/h offset, round up to nearest 10
-              speed_kph_with_offset = mapd_speed_limit_ms * CV.MS_TO_KPH + 10
-              new_speed_kph = math.ceil(speed_kph_with_offset / 10) * 10
+            # Skip adjustment on first_time to avoid interfering with curve speed control
+            if speed_changed and not first_time:
+              # Convert to km/h, round up to nearest 10 (MAPD already includes offset)
+              speed_kph = mapd_speed_limit_ms * CV.MS_TO_KPH
+              new_speed_kph = math.ceil(speed_kph / 10) * 10
               current_speed_kph = self.v_cruise_kph
 
-              # 60 km/h difference check
+              # Only adjust if difference is within 60 km/h
               diff = abs(new_speed_kph - current_speed_kph)
               if diff <= 60:
                 self.v_cruise_kph = new_speed_kph
-                self.previous_mapd_speed_limit = mapd_speed_limit_ms
+
+            # Always track the current MAPD speed limit
+            self.previous_mapd_speed_limit = mapd_speed_limit_ms
 
         # if stock cruise is completely disabled, then we can use our own set speed logic
         self._update_v_cruise_non_pcm(CS, enabled, is_metric)
@@ -139,9 +142,9 @@ class VCruiseHelper:
     #   return
 
     # Use standard increment values (simplified from FrogPilot toggles)
-    v_cruise_delta_interval = 5 if long_press else 1
+    v_cruise_delta_interval = 10 if long_press else 10
     v_cruise_delta = v_cruise_delta * v_cruise_delta_interval
-    if v_cruise_delta_interval % 5 == 0 and self.v_cruise_kph % v_cruise_delta != 0:  # partial interval
+    if v_cruise_delta_interval % 10 == 0 and self.v_cruise_kph % v_cruise_delta != 0:  # partial interval
       self.v_cruise_kph = CRUISE_NEAREST_FUNC[button_type](self.v_cruise_kph / v_cruise_delta) * v_cruise_delta
     else:
       self.v_cruise_kph += v_cruise_delta * CRUISE_INTERVAL_SIGN[button_type]
