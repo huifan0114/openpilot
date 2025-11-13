@@ -5,7 +5,6 @@ from cereal import car, log
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.numpy_fast import clip, interp
 from openpilot.common.realtime import DT_CTRL, DT_MDL
-from openpilot.frogpilot.common.frogpilot_variables import params_memory
 from openpilot.selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
 
 # WARNING: this value was determined based on the model's training distribution,
@@ -65,6 +64,8 @@ class VCruiseHelper:
       if not self.CP.pcmCruise:
         # MAPD automatic cruise control (from params_memory)
         if enabled:
+          # Local import to avoid circular dependency
+          from openpilot.frogpilot.common.frogpilot_variables import params_memory
           mapd_speed_limit_ms = params_memory.get_float("MapSpeedLimit")  # m/s
 
           if mapd_speed_limit_ms > 0:
