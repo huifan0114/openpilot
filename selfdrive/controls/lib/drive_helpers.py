@@ -12,7 +12,7 @@ from openpilot.selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_G
 # V_CRUISE's are in kph
 V_CRUISE_MIN = 0
 V_CRUISE_MAX = 120
-V_CRUISE_UNSET = 255
+V_CRUISE_UNSET = 40
 V_CRUISE_INITIAL = 40
 V_CRUISE_INITIAL_EXPERIMENTAL_MODE = 40
 IMPERIAL_INCREMENT = round(CV.MPH_TO_KPH, 1)  # round here to avoid rounding errors incrementing set speed
@@ -44,8 +44,8 @@ CRUISE_INTERVAL_SIGN = {
 class VCruiseHelper:
   def __init__(self, CP):
     self.CP = CP
-    self.v_cruise_kph = V_CRUISE_INITIAL
-    self.v_cruise_cluster_kph = V_CRUISE_INITIAL
+    self.v_cruise_kph = V_CRUISE_UNSET
+    self.v_cruise_cluster_kph = V_CRUISE_UNSET
     self.v_cruise_kph_last = 0
     self.button_timers = {ButtonType.decelCruise: 0, ButtonType.accelCruise: 0}
     self.button_change_states = {btn: {"standstill": False, "enabled": False} for btn in self.button_timers}
