@@ -16,12 +16,9 @@ function offerRtcRequest(sdp, type) {
     cameras: [],  // Data Channel only
     bridge_services_in: [],  // 不需要測試聲音
     bridge_services_out: [
-      "modelV2", "frogpilotModelV2",          // 模型資料 (openpilot + FrogPilot)
-      "liveCalibration",                      // 相機校正
-      "carState", "frogpilotCarState",        // 車輛狀態
-      "controlsState", "frogpilotControlsState",  // 控制狀態
-      "frogpilotPlan",                        // FrogPilot 路徑規劃
-      "radarState", "frogpilotRadarState"     // 雷達狀態 (前車資訊)
+      "carState",               // 基本車輛狀態 (vEgo, aEgo, vCruise 等)
+      "frogpilotPlan",          // FrogPilot 路徑規劃 (速限, 彎道控制, CEM 等)
+      "radarState"              // 雷達狀態 (前車資訊)
     ]
   };
 

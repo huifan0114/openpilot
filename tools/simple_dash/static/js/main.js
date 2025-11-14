@@ -9,19 +9,9 @@ import { DashboardUI } from './dashboard.js';
 // ==================== 狀態管理 ====================
 
 const stateManager = {
-  // openpilot 原始服務
-  modelV2: null,
-  liveCalibration: null,
-  carState: null,
-  controlsState: null,
-  radarState: null,
-
-  // FrogPilot 特有服務
-  frogpilotModelV2: null,
-  frogpilotCarState: null,
-  frogpilotControlsState: null,
-  frogpilotPlan: null,
-  frogpilotRadarState: null
+  carState: null,          // 基本車輛狀態 (vEgo, aEgo, vCruise 等)
+  radarState: null,        // 雷達狀態 (前車資訊)
+  frogpilotPlan: null      // FrogPilot 路徑規劃 (速限, 彎道控制等)
 };
 
 // ==================== 初始化 Dashboard ====================
@@ -47,17 +37,10 @@ function handleMessage(msgType, msgData) {
       if (msgData.aEgo !== undefined) {
         dashboard.updateAcceleration(msgData.aEgo);
       }
-      break;
-
-    case 'controlsState':
       // 更新 MAX 速度
-      if (msgData.vCruise !== undefined || msgData.vCruiseCluster !== undefined) {
-        const vCruise = msgData.vCruiseCluster || msgData.vCruise;
+      if (msgData.cruiseState) {
+        const vCruise = msgData.cruiseState.speed || msgData.vEgoCluster || 0;
         dashboard.updateMaxSpeed(vCruise);
-      }
-      // 更新 CEM (需要配合 frogpilotPlan)
-      if (stateManager.frogpilotPlan) {
-        dashboard.updateCEM(stateManager.frogpilotPlan, msgData);
       }
       break;
 
@@ -66,10 +49,6 @@ function handleMessage(msgType, msgData) {
       dashboard.updateSpeedLimit(msgData);
       // 更新 CSC 彎道控制
       dashboard.updateCSC(msgData);
-      // 更新 CEM 狀態
-      if (stateManager.controlsState) {
-        dashboard.updateCEM(msgData, stateManager.controlsState);
-      }
       // 更新前車資訊 (需要配合 radarState)
       if (stateManager.radarState) {
         dashboard.updateLeadInfo(stateManager.radarState, msgData);
@@ -78,11 +57,6 @@ function handleMessage(msgType, msgData) {
 
     case 'radarState':
       // 更新前車資訊
-      dashboard.updateLeadInfo(msgData, stateManager.frogpilotPlan);
-      break;
-
-    case 'frogpilotRadarState':
-      // 如果有 FrogPilot 版本的雷達狀態，優先使用
       dashboard.updateLeadInfo(msgData, stateManager.frogpilotPlan);
       break;
 
@@ -134,12 +108,10 @@ async function init() {
 
     console.log('✓ FrogPilot Dashboard initialized');
     console.log('');
-    console.log('訂閱的服務:');
-    console.log('- carState, frogpilotCarState');
-    console.log('- controlsState, frogpilotControlsState');
-    console.log('- radarState, frogpilotRadarState');
-    console.log('- frogpilotPlan');
-    console.log('- modelV2, frogpilotModelV2, liveCalibration');
+    console.log('訂閱的服務（最小化訂閱，減少系統負擔）:');
+    console.log('- carState (基本車輛狀態: 速度, 加速度, cruise 等)');
+    console.log('- frogpilotPlan (FrogPilot 路徑規劃: 速限, 彎道控制等)');
+    console.log('- radarState (雷達狀態: 前車資訊)');
 
   } catch (error) {
     console.error('❌ Failed to initialize:', error);

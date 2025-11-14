@@ -270,9 +270,9 @@ export class DashboardUI {
 
   // ========== CEM 狀態更新 ==========
 
-  updateCEM(frogpilotPlan, controlsState) {
+  updateCEM(frogpilotPlan) {
     const conditionalStatus = frogpilotPlan.ceStatus || 0;
-    const experimentalMode = controlsState?.experimentalMode || false;
+    const experimentalMode = frogpilotPlan.experimentalMode || false;
 
     if (!experimentalMode && conditionalStatus === 0) {
       this.elements.cemCard.classList.add('hidden');
