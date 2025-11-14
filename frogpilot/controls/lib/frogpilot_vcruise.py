@@ -34,25 +34,43 @@ class FrogPilotVCruise:
     :return: 當前階段目標速度 (m/s)
     """
     from openpilot.common.conversions import Conversions as CV
+    import math
 
     STEP_SIZE = 10 * CV.KPH_TO_MS  # 每次增加 10 km/h
-    APPROACH_THRESHOLD = 2 * CV.KPH_TO_MS  # 接近閾值 1 km/h
-    MIN_STEP_TRIGGER = 20 * CV.KPH_TO_MS  # 最小觸發差距 10 km/h
+    APPROACH_THRESHOLD = 1 * CV.KPH_TO_MS  # 接近閾值 1 km/h
+    MIN_STEP_TRIGGER = 10 * CV.KPH_TO_MS  # 最小觸發差距 10 km/h
+
+    # 計算下一個對齊到 10 的倍數的目標速度
+    def calculate_next_target(v_ego_ms):
+      v_ego_kph = v_ego_ms * CV.MS_TO_KPH
+      # 對齊到最近的 10 的倍數（向上取整）
+      # 例如: 38 km/h → 40, 40 km/h → 40, 42 km/h → 50
+      next_target_kph = math.ceil(v_ego_kph / 10) * 10
+      return next_target_kph * CV.KPH_TO_MS
 
     speed_diff = v_cruise_final - v_ego
 
     # 如果速度差距小於觸發閾值，直接使用最終目標
-    if speed_diff <= MIN_STEP_TRIGGER:
+    if speed_diff < MIN_STEP_TRIGGER:
       self.progressive_enabled = False
       return v_cruise_final
+
+    # 煞車場景檢測 - 如果當前速度比目標低太多，重新設定
+    reset_target = False
+    if self.progressive_enabled and v_ego < (self.progressive_target - STEP_SIZE):
+      # 煞車了，重新設定漸進目標（對齊到 10 的倍數）
+      self.progressive_target = calculate_next_target(v_ego)
+      reset_target = True
 
     # 初始化或重新設定漸進目標（當目標速度降低時也重置）
     if not self.progressive_enabled or self.progressive_target > v_cruise_final:
       self.progressive_enabled = True
-      self.progressive_target = v_ego + STEP_SIZE
+      self.progressive_target = calculate_next_target(v_ego)
+      reset_target = True
 
     # 如果接近當前漸進目標，增加下一個步進
-    if v_ego >= (self.progressive_target - APPROACH_THRESHOLD):
+    # 但如果剛剛重置過，就不要增加（避免立即跳升 10）
+    if not reset_target and v_ego >= (self.progressive_target - APPROACH_THRESHOLD):
       self.progressive_target = min(self.progressive_target + STEP_SIZE, v_cruise_final)
 
     # 確保不超過最終目標

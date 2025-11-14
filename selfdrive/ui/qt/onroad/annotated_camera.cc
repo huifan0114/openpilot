@@ -300,7 +300,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
   // Always show upcoming speed limit sign (larger size)
   if (true) {  // Always display
       const int upcoming_sign_size = has_eu_speed_limit ? 160 : 170;  // Increased size
-      const int distance_label_height = 45;  // Increased from 30 to 45
+      const int distance_label_height = 85;  // Increased from 45 to 85 to fit enlarged fonts (60-70pt number + 24pt unit)
       QRect upcomingRect(sign_rect.x() + (sign_rect.width() - upcoming_sign_size) / 2,
                          sign_rect.y() + sign_rect.height() + 8,
                          upcoming_sign_size, upcoming_sign_size);
@@ -358,12 +358,12 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
       p.setPen(QPen(whiteColor(), 4));
       // Draw distance number (same size as speed limit value: 60-70pt Bold)
       p.setFont(InterFont((distanceStr.size() >= 3) ? 60 : 70, QFont::Bold));
-      p.drawText(distanceRect.adjusted(0, 0, 0, -15), Qt::AlignCenter, distanceStr);
+      p.drawText(distanceRect.adjusted(0, 0, 0, -30), Qt::AlignCenter, distanceStr);
 
       // Draw distance unit on next line (smaller font)
       if (!distanceUnit.isEmpty()) {
         p.setFont(InterFont(24, QFont::DemiBold));
-        p.drawText(distanceRect.adjusted(0, 30, 0, 0), Qt::AlignCenter, distanceUnit);
+        p.drawText(distanceRect.adjusted(0, 55, 0, 0), Qt::AlignCenter, distanceUnit);
       }
   }
 
