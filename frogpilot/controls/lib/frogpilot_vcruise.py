@@ -36,8 +36,8 @@ class FrogPilotVCruise:
     from openpilot.common.conversions import Conversions as CV
 
     STEP_SIZE = 10 * CV.KPH_TO_MS  # 每次增加 10 km/h
-    APPROACH_THRESHOLD = 1 * CV.KPH_TO_MS  # 接近閾值 1 km/h
-    MIN_STEP_TRIGGER = 10 * CV.KPH_TO_MS  # 最小觸發差距 10 km/h
+    APPROACH_THRESHOLD = 2 * CV.KPH_TO_MS  # 接近閾值 1 km/h
+    MIN_STEP_TRIGGER = 20 * CV.KPH_TO_MS  # 最小觸發差距 10 km/h
 
     speed_diff = v_cruise_final - v_ego
 
