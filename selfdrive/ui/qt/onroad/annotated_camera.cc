@@ -183,6 +183,78 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
     p.drawText(set_speed_rect.adjusted(0, 77, 0, 0), Qt::AlignTop | Qt::AlignHCenter, setSpeedStr);
   }
 
+  // VCRUISE box - Display actual vCruise from FrogPilotPlanner (右邊顯示)
+  if (!frogpilot_toggles.value("hide_max_speed").toBool()) {
+    // Get vCruise from FrogPilotPlan (m/s)
+    float vCruise_ms = frogpilotPlan.getVCruise();
+    float vCruiseDisplay = 0;
+    if (is_metric) {
+      vCruiseDisplay = vCruise_ms * MS_TO_KPH;  // Convert to km/h
+    } else {
+      vCruiseDisplay = vCruise_ms * MS_TO_KPH * KM_TO_MILE;  // Convert to mph
+    }
+
+    QString vCruiseStr = (vCruiseDisplay > 0) ? QString::number(std::nearbyint(vCruiseDisplay)) : "--";
+
+    // Calculate difference between VCRUISE and MAX (setSpeed)
+    float speedDiff = vCruiseDisplay - setSpeed;
+    QString diffStr = "";
+    QColor diffColor = whiteColor();
+    if (is_cruise_set && vCruiseDisplay > 0) {
+      if (std::abs(speedDiff) >= 1) {  // Only show if difference >= 1 km/h
+        if (speedDiff > 0) {
+          diffStr = "+" + QString::number(std::nearbyint(speedDiff));
+          diffColor = QColor(0x80, 0xd8, 0xa6, 0xff);  // Green (higher than MAX)
+        } else {
+          diffStr = QString::number(std::nearbyint(speedDiff));  // Already has minus sign
+          diffColor = QColor(0xff, 0xbf, 0xbf, 0xff);  // Light red (lower than MAX)
+        }
+      }
+    }
+
+    // Position: to the right of MAX box
+    const int vcruise_offset_x = 20;  // 20px gap between MAX and VCRUISE
+    QRect vcruise_rect = set_speed_rect.adjusted(set_speed_rect.width() + vcruise_offset_x, 0,
+                                                  set_speed_rect.width() + vcruise_offset_x + default_size.width(), 0);
+
+    // Draw box (same style as MAX)
+    if (fs.frogpilot_scene.traffic_mode_enabled) {
+      p.setPen(QPen(redColor(), 10));
+    } else {
+      p.setPen(QPen(whiteColor(75), 6));
+    }
+    p.setBrush(blackColor(166));
+    drawRoundedRect(p, vcruise_rect, top_radius, top_radius, 32, 32);  // Use top_radius from MAX
+
+    // Draw VCRUISE label (same color logic as MAX)
+    QColor vcruise_label_color = QColor(0x80, 0xd8, 0xa6, 0xff);  // Default green
+    QColor vcruise_value_color = whiteColor();
+    if (is_cruise_set) {
+      if (status == STATUS_DISENGAGED) {
+        vcruise_label_color = whiteColor();
+      } else if (status == STATUS_OVERRIDE) {
+        vcruise_label_color = QColor(0x91, 0x9b, 0x95, 0xff);
+      }
+    } else {
+      vcruise_label_color = QColor(0xa6, 0xa6, 0xa6, 0xff);
+      vcruise_value_color = QColor(0x72, 0x72, 0x72, 0xff);
+    }
+
+    p.setFont(InterFont(40, QFont::DemiBold));
+    p.setPen(vcruise_label_color);
+    p.drawText(vcruise_rect.adjusted(0, 27, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("VCRUISE"));
+    p.setFont(InterFont(90, QFont::Bold));
+    p.setPen(vcruise_value_color);
+    p.drawText(vcruise_rect.adjusted(0, 77, 0, 0), Qt::AlignTop | Qt::AlignHCenter, vCruiseStr);
+
+    // Draw difference below VCRUISE value (if exists)
+    if (!diffStr.isEmpty()) {
+      p.setFont(InterFont(30, QFont::Bold));
+      p.setPen(diffColor);
+      p.drawText(vcruise_rect.adjusted(0, 165, 0, 0), Qt::AlignTop | Qt::AlignHCenter, diffStr);
+    }
+  }
+
   const QRect sign_rect = set_speed_rect.adjusted(sign_margin, default_size.height(), -sign_margin, -sign_margin);
   // US/Canada (MUTCD style) sign - MAPD simplified
   if (has_us_speed_limit) {
@@ -238,14 +310,18 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
       // Show "--" when no upcoming speed limit, otherwise show the value
       QString upcomingStr = (upcomingSpeedLimit > 0) ? QString::number(std::nearbyint(upcomingSpeedLimit)) : "–";
       QString distanceStr;
+      QString distanceUnit;
       if (upcomingDistance > 0) {
         if (upcomingDistance >= 1000) {
-          distanceStr = QString::number(upcomingDistance / 1000.0, 'f', 1) + " km";
+          distanceStr = QString::number(upcomingDistance / 1000.0, 'f', 1);
+          distanceUnit = "km";
         } else {
-          distanceStr = QString::number(std::nearbyint(upcomingDistance)) + " m";
+          distanceStr = QString::number(std::nearbyint(upcomingDistance));
+          distanceUnit = "m";
         }
       } else {
         distanceStr = "–";
+        distanceUnit = "";
       }
 
       if (has_eu_speed_limit) {
@@ -274,14 +350,21 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
         p.drawText(upcomingRect.adjusted(0, 50, 0, 0), Qt::AlignTop | Qt::AlignHCenter, upcomingStr);
       }
 
-      // Draw distance label (larger font)
+      // Draw distance label (larger font, number and unit on separate lines)
       p.setPen(Qt::NoPen);
       p.setBrush(blackColor(180));
       p.drawRoundedRect(distanceRect, 10, 10);
 
       p.setPen(QPen(whiteColor(), 4));
-      p.setFont(InterFont(26, QFont::DemiBold));  // Increased from 18 to 26
-      p.drawText(distanceRect, Qt::AlignCenter, distanceStr);
+      // Draw distance number (same size as speed limit value: 60-70pt Bold)
+      p.setFont(InterFont((distanceStr.size() >= 3) ? 60 : 70, QFont::Bold));
+      p.drawText(distanceRect.adjusted(0, 0, 0, -15), Qt::AlignCenter, distanceStr);
+
+      // Draw distance unit on next line (smaller font)
+      if (!distanceUnit.isEmpty()) {
+        p.setFont(InterFont(24, QFont::DemiBold));
+        p.drawText(distanceRect.adjusted(0, 30, 0, 0), Qt::AlignCenter, distanceUnit);
+      }
   }
 
   // current speed
