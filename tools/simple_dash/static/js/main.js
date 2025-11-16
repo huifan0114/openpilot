@@ -49,6 +49,10 @@ function handleMessage(msgType, msgData) {
       dashboard.updateSpeedLimit(msgData);
       // 更新 CSC 彎道控制
       dashboard.updateCSC(msgData);
+      // 更新道路名稱
+      if (msgData.roadName !== undefined) {
+        dashboard.updateRoadName(msgData.roadName);
+      }
       // 更新前車資訊 (需要配合 radarState)
       if (stateManager.radarState) {
         dashboard.updateLeadInfo(stateManager.radarState, msgData);
@@ -74,9 +78,6 @@ function handleMessage(msgType, msgData) {
 
 // 注意: 這裡需要實際從 params_memory 讀取，目前先用模擬資料
 function loadParams() {
-  // 道路名稱 (從 params_memory 讀取)
-  // dashboard.updateRoadName('中山北路');
-
   // 單位設定 (公制/英制)
   const isMetric = true;  // 從 params 讀取
   dashboard.setMetric(isMetric);

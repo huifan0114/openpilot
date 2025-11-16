@@ -179,4 +179,7 @@ class FrogPilotPlanner:
 
     frogpilotPlan.vCruise = self.v_cruise
 
+    road_name = params_memory.get("RoadName", encoding="utf-8")
+    frogpilotPlan.roadName = road_name if road_name else ""
+
     pm.send("frogpilotPlan", frogpilot_plan_send)

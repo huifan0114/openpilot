@@ -52,11 +52,6 @@ export class DashboardUI {
       roadNameCard: document.getElementById('road-name-card'),
       roadNameText: document.getElementById('road-name-text'),
 
-      // 停車計時器
-      standstillCard: document.getElementById('standstill-timer-card'),
-      standstillMinutes: document.getElementById('standstill-minutes'),
-      standstillSeconds: document.getElementById('standstill-seconds'),
-
       // 狀態指示器
       statusText: document.getElementById('status-text'),
       statusDot: document.querySelector('.status-dot')
@@ -201,13 +196,15 @@ export class DashboardUI {
   // ========== 速限標誌更新 ==========
 
   updateSpeedLimit(frogpilotPlan) {
-    // 使用 mapdSpeedLimit (原始 MAPD 速限) 而非 slcSpeedLimit
-    const speedLimit = frogpilotPlan.mapdSpeedLimit || 0;
+    // 使用 MAPD 原始資料 (與 FrogPilot UI 一致)
+    // 從 params_memory.MapSpeedLimit 讀取，未經 SLC 處理
+    const speedLimit = frogpilotPlan.mapdSpeedLimit || 0;  // m/s
 
     // 永遠顯示速限，沒有數據時顯示 --
     if (speedLimit <= 0) {
       this.elements.mutcdValue.textContent = '--';
     } else {
+      // 直接轉換單位 (m/s -> km/h 或 mph)
       const speedLimitConverted = speedLimit * this.units.speedConversion;
       this.elements.mutcdValue.textContent = Math.round(speedLimitConverted).toString();
     }
@@ -340,23 +337,6 @@ export class DashboardUI {
 
     this.elements.roadNameCard.classList.remove('hidden');
     this.elements.roadNameText.textContent = roadName;
-  }
-
-  // ========== 停車計時器更新 ==========
-
-  updateStandstillTimer(duration) {
-    if (!duration || duration === 0) {
-      this.elements.standstillCard.classList.add('hidden');
-      return;
-    }
-
-    this.elements.standstillCard.classList.remove('hidden');
-
-    const minutes = Math.floor(duration / 60);
-    const seconds = duration % 60;
-
-    this.elements.standstillMinutes.textContent = `${minutes} 分鐘`;
-    this.elements.standstillSeconds.textContent = `${seconds} 秒`;
   }
 
   // ========== 連接狀態更新 ==========

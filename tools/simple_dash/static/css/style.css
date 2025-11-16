@@ -254,14 +254,16 @@ body::after {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
-/* 即將到來的速限 */
+/* 即將到來的速限 (移動到右上角) */
 #upcoming-limit-card {
-  width: 180px;
+  width: 140px;       /* 從 180px 縮小 */
   text-align: center;
   border-color: var(--status-info);
+  padding: var(--spacing-md);
 }
 
 #upcoming-value {
+  font-size: 40px;    /* 明確設定字體大小 */
   margin: var(--spacing-xs) 0;
 }
 
@@ -311,12 +313,15 @@ body::after {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 200;
+  z-index: 50;  /* 降低 z-index，不覆蓋其他卡片 */
+  pointer-events: none;  /* 允許點擊穿透 */
 }
 
 .lead-info-card {
-  width: 600px;
-  min-height: 400px;
+  width: 400px;       /* 從 600px 縮小 */
+  min-height: 500px;  /* 從 400px 增加 */
+  max-width: 50vw;    /* 新增：最大寬度限制 */
+  pointer-events: auto;  /* 卡片本身可點擊 */
   background: linear-gradient(135deg, rgba(15, 15, 15, 0.98) 0%, rgba(25, 25, 25, 0.95) 100%);
   border-radius: 32px;
   border: 3px solid var(--status-safe);
@@ -358,18 +363,18 @@ body::after {
   align-items: center;
   justify-content: center;
   height: 100%;
-  min-height: 320px;
+  min-height: 250px;  /* 從 320px 降低 */
 }
 
 .no-lead-icon {
-  font-size: 120px;
+  font-size: 80px;    /* 從 120px 縮小 */
   opacity: 0.25;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
   filter: grayscale(100%);
 }
 
 .no-lead-text {
-  font-size: 48px;
+  font-size: 36px;    /* 從 48px 縮小 */
   font-weight: 500;
   color: var(--text-dim);
   opacity: 0.6;
@@ -517,23 +522,42 @@ body::after {
   margin: var(--spacing-xs) 0;
 }
 
-/* CSC 彎道速度控制 */
+/* CSC 樣式已移至右下角 #bottom-right-acceleration 區塊 */
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(74, 144, 226, 0.4); }
+  50% { box-shadow: 0 0 40px rgba(74, 144, 226, 0.8); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ===== 右下角: CSC + 加減速度 ===== */
+#bottom-right-acceleration {
+  position: absolute;
+  bottom: var(--spacing-lg);
+  right: var(--spacing-lg);
+  display: flex;              /* 新增：flex 佈局 */
+  flex-direction: column;     /* 新增：垂直排列 */
+  gap: var(--spacing-sm);     /* 新增：間距 */
+  z-index: 100;
+}
+
+/* CSC 彎道速度控制 (從左下角移過來) */
 #csc-card {
   width: 160px;
   text-align: center;
   border-color: var(--status-info);
   position: relative;
   overflow: hidden;
+  padding: var(--spacing-md);
 }
 
 #csc-card.training {
   border-color: var(--status-info);
   animation: glow-pulse 2s ease-in-out infinite;
-}
-
-@keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(74, 144, 226, 0.4); }
-  50% { box-shadow: 0 0 40px rgba(74, 144, 226, 0.8); }
 }
 
 .csc-icon-container {
@@ -567,23 +591,12 @@ body::after {
   animation: blink 1.5s ease-in-out infinite;
 }
 
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-
-/* ===== 右下角: 加減速度 ===== */
-#bottom-right-acceleration {
-  position: absolute;
-  bottom: var(--spacing-lg);
-  right: var(--spacing-lg);
-  z-index: 100;
-}
-
+/* 加減速度 */
 #acceleration-card {
-  width: 180px;
+  width: 160px;               /* 從 180px 縮小，與 CSC 對齊 */
   text-align: center;
   border: 2px solid rgba(255, 255, 255, 0.15);
+  padding: var(--spacing-md);
 }
 
 #acceleration-value {
@@ -628,24 +641,6 @@ body::after {
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
-}
-
-#standstill-timer-card {
-  padding: var(--spacing-md) 40px;
-  text-align: center;
-  border-color: var(--status-warning);
-}
-
-.timer-value {
-  font-size: 48px;
-  font-weight: 700;
-  color: var(--status-warning);
-}
-
-.timer-sublabel {
-  font-size: 24px;
-  color: var(--text-secondary);
-  margin-top: var(--spacing-xs);
 }
 
 /* ===== 狀態指示器 ===== */
@@ -724,14 +719,28 @@ body::after {
 /* 平板 (768px - 1200px) */
 @media (max-width: 1200px) {
   :root {
-    --spacing-lg: 24px;
-    --spacing-md: 16px;
+    --spacing-lg: 20px;
+    --spacing-md: 14px;
   }
 
+  /* 中央卡片：窄高型 */
   .lead-info-card {
-    width: 500px;
-    min-height: 350px;
-    padding: 30px;
+    width: 350px;       /* 從 500px 縮小 */
+    min-height: 450px;  /* 從 350px 增加 */
+    max-width: 45vw;
+    padding: 24px;
+  }
+
+  #no-lead-state {
+    min-height: 200px;
+  }
+
+  .no-lead-icon {
+    font-size: 60px;
+  }
+
+  .no-lead-text {
+    font-size: 28px;
   }
 
   .info-value-large {
@@ -749,79 +758,410 @@ body::after {
   .value-medium {
     font-size: 40px;
   }
+
+  /* 左上角 */
+  #max-speed-card,
+  #speed-limit-card {
+    width: 140px;
+  }
+
+  /* 右上角（新增 upcoming） */
+  #upcoming-limit-card {
+    width: 120px;
+  }
+
+  .icon-card {
+    width: 100px;
+    height: 100px;
+  }
+
+  #compass-card {
+    width: 110px;
+    height: 110px;
+  }
+
+  /* 左下角 */
+  #current-speed-card {
+    width: 120px;
+  }
+
+  /* 右下角（新增 CSC） */
+  #csc-card {
+    width: 130px;
+  }
+
+  #acceleration-card {
+    width: 130px;
+  }
 }
 
 /* 手機 (< 768px) */
 @media (max-width: 768px) {
   :root {
-    --spacing-lg: 16px;
-    --spacing-md: 12px;
-    --card-radius: 16px;
+    --spacing-lg: 8px;
+    --spacing-md: 6px;
+    --spacing-sm: 4px;
+    --card-radius: 12px;
+    --card-padding: 12px;
   }
 
+  /* 中央卡片：窄高型 */
   .lead-info-card {
-    width: 90vw;
-    min-height: 300px;
-    padding: 20px;
+    width: 55vw;        /* 從 90vw 大幅縮小 */
+    min-height: 400px;  /* 從 300px 增加 */
+    max-width: 300px;
+    padding: 12px;
+  }
+
+  #no-lead-state {
+    min-height: 160px;
+  }
+
+  .no-lead-icon {
+    font-size: 48px;
+    margin-bottom: 6px;
+  }
+
+  .no-lead-text {
+    font-size: 22px;
   }
 
   .info-value-large {
-    font-size: 36px;
+    font-size: 30px;
   }
 
   .info-label {
-    font-size: 20px;
+    font-size: 16px;
   }
 
   .info-sublabel {
-    font-size: 24px;
+    font-size: 18px;
+  }
+
+  .divider {
+    margin: 8px 0;
   }
 
   .value-large {
-    font-size: 56px;
+    font-size: 48px;
   }
 
   .value-medium {
+    font-size: 28px;
+  }
+
+  .label-small {
+    font-size: 12px;
+  }
+
+  .label-tiny {
+    font-size: 10px;
+  }
+
+  /* 左上角 */
+  #max-speed-card {
+    width: 90px;
+    padding: 8px;
+  }
+
+  #max-speed-value {
+    font-size: 36px;
+  }
+
+  #speed-limit-card {
+    width: 90px;
+    padding: 6px;
+  }
+
+  #mutcd-sign {
+    padding: 6px;
+  }
+
+  .sign-border {
+    padding: 4px;
+  }
+
+  .sign-label {
+    font-size: 10px;
+  }
+
+  .sign-value {
     font-size: 32px;
+    margin-top: 2px;
   }
 
-  #max-speed-card,
-  #speed-limit-card,
+  /* 右上角（保留所有元素，縮小） */
+  #top-right-status {
+    gap: 6px;
+  }
+
   #upcoming-limit-card {
-    width: 140px;
+    width: 90px;
+    padding: 8px;
   }
 
-  #current-speed-card,
-  .small-card {
-    width: 120px;
+  #upcoming-value {
+    font-size: 28px;
+  }
+
+  .icon-card {
+    width: 60px;
+    height: 60px;
+    padding: 6px;
+  }
+
+  .cem-icon {
+    width: 45px;
+    height: 45px;
+    font-size: 28px;
+  }
+
+  #compass-card {
+    width: 70px;
+    height: 70px;
+    padding: 6px;
+  }
+
+  /* 左下角 */
+  #current-speed-card {
+    width: 85px;
+    padding: 8px;
+  }
+
+  #current-speed-value {
+    font-size: 36px;
+  }
+
+  /* 右下角 */
+  #bottom-right-acceleration {
+    gap: 6px;
+  }
+
+  #csc-card {
+    width: 90px;
+    padding: 8px;
+  }
+
+  .csc-icon-container {
+    font-size: 32px;
+    margin-bottom: 4px;
+  }
+
+  #csc-speed {
+    font-size: 26px;
+  }
+
+  .training-label {
+    font-size: 10px;
   }
 
   #acceleration-card {
-    width: 140px;
+    width: 90px;
+    padding: 8px;
   }
 
-  /* 隱藏次要元素 */
-  #top-right-status,
-  #road-name-card {
-    display: none;
+  #acceleration-value {
+    font-size: 32px;
   }
+
+  /* 底部中央（保留，縮小） */
+  #bottom-center-road {
+    gap: 6px;
+  }
+
+  #road-name-card {
+    padding: 6px 16px;
+  }
+
+  #road-name-text {
+    font-size: 18px;
+  }
+
 }
 
 /* 極小螢幕 (< 480px) */
 @media (max-width: 480px) {
+  :root {
+    --spacing-lg: 6px;
+    --spacing-md: 4px;
+    --spacing-sm: 3px;
+    --card-radius: 10px;
+    --card-padding: 8px;
+  }
+
+  /* 中央卡片：更窄更高 */
   .lead-info-card {
-    width: 95vw;
-    min-height: 250px;
-    padding: 16px;
+    width: 50vw;        /* 從 95vw 大幅縮小 */
+    min-height: 360px;  /* 從 250px 增加 */
+    max-width: 250px;
+    padding: 10px;
+  }
+
+  #no-lead-state {
+    min-height: 140px;
+  }
+
+  .no-lead-icon {
+    font-size: 36px;
+    margin-bottom: 4px;
+  }
+
+  .no-lead-text {
+    font-size: 18px;
+  }
+
+  .info-value-large {
+    font-size: 24px;
+  }
+
+  .info-label {
+    font-size: 13px;
+  }
+
+  .info-sublabel {
+    font-size: 15px;
   }
 
   .info-row {
     flex-direction: column;
-    gap: 20px;
+    gap: 12px;
   }
 
-  #bottom-left-info,
-  #bottom-right-acceleration {
-    display: none;
+  .divider {
+    margin: 6px 0;
   }
+
+  .label-small {
+    font-size: 10px;
+  }
+
+  .label-tiny {
+    font-size: 8px;
+  }
+
+  /* 左上角 */
+  #top-left-controls {
+    gap: 4px;
+  }
+
+  #max-speed-card {
+    width: 70px;
+    padding: 6px;
+  }
+
+  #max-speed-value {
+    font-size: 28px;
+  }
+
+  #speed-limit-card {
+    width: 70px;
+    padding: 5px;
+  }
+
+  #mutcd-sign {
+    padding: 4px;
+  }
+
+  .sign-border {
+    padding: 3px;
+  }
+
+  .sign-label {
+    font-size: 8px;
+  }
+
+  .sign-value {
+    font-size: 24px;
+  }
+
+  /* 右上角（保留所有元素） */
+  #top-right-status {
+    gap: 4px;
+  }
+
+  #upcoming-limit-card {
+    width: 70px;
+    padding: 6px;
+  }
+
+  #upcoming-value {
+    font-size: 22px;
+  }
+
+  .icon-card {
+    width: 50px;
+    height: 50px;
+    padding: 4px;
+  }
+
+  .cem-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 24px;
+  }
+
+  #compass-card {
+    width: 55px;
+    height: 55px;
+    padding: 4px;
+  }
+
+  /* 左下角 */
+  #current-speed-card {
+    width: 70px;
+    padding: 6px;
+  }
+
+  #current-speed-value {
+    font-size: 28px;
+  }
+
+  /* 右下角（保留所有元素） */
+  #bottom-right-acceleration {
+    gap: 4px;
+  }
+
+  #csc-card {
+    width: 75px;
+    padding: 6px;
+  }
+
+  .csc-icon-container {
+    font-size: 26px;
+  }
+
+  #csc-speed {
+    font-size: 20px;
+  }
+
+  .training-label {
+    font-size: 8px;
+  }
+
+  #acceleration-card {
+    width: 75px;
+    padding: 6px;
+  }
+
+  #acceleration-value {
+    font-size: 26px;
+  }
+
+  /* 底部中央（保留，超小） */
+  #bottom-center-road {
+    gap: 4px;
+  }
+
+  #road-name-card {
+    padding: 4px 12px;
+  }
+
+  #road-name-text {
+    font-size: 14px;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
 }

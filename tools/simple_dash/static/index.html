@@ -31,17 +31,17 @@
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- 即將到來的速限 -->
+    <!-- 右上角: 即將到來 + CEM + 指南針 -->
+    <div id="top-right-status">
+      <!-- 即將到來的速限 (移動到右側) -->
       <div id="upcoming-limit-card" class="card">
         <div class="label-small">即將到來</div>
         <div id="upcoming-value" class="value-medium">--</div>
         <div id="upcoming-distance" class="label-tiny">-- 米</div>
       </div>
-    </div>
 
-    <!-- 右上角: CEM + 指南針 -->
-    <div id="top-right-status">
       <div id="cem-card" class="card icon-card hidden">
         <div id="cem-icon" class="cem-icon"></div>
       </div>
@@ -90,13 +90,17 @@
       </div>
     </div>
 
-    <!-- 左下角: 當前速度 + CSC -->
+    <!-- 左下角: 當前速度 -->
     <div id="bottom-left-info">
       <div id="current-speed-card" class="card small-card">
         <div id="current-speed-value" class="value-medium">--</div>
         <div id="current-speed-unit" class="label-small">km/h</div>
       </div>
+    </div>
 
+    <!-- 右下角: CSC + 加減速度 -->
+    <div id="bottom-right-acceleration">
+      <!-- CSC (移動到右側) -->
       <div id="csc-card" class="card">
         <div class="csc-icon-container">
           <div id="csc-icon" class="csc-curve-icon">↪️</div>
@@ -105,10 +109,7 @@
         <div id="csc-speed-unit" class="label-tiny">km/h</div>
         <div id="csc-training" class="training-label hidden">Training...</div>
       </div>
-    </div>
 
-    <!-- 右下角: 加減速度 -->
-    <div id="bottom-right-acceleration">
       <div id="acceleration-card" class="card small-card">
         <div class="label-small">加減速度</div>
         <div id="acceleration-value" class="value-medium neutral">--</div>
@@ -120,11 +121,6 @@
     <div id="bottom-center-road">
       <div id="road-name-card" class="card hidden">
         <div id="road-name-text">--</div>
-      </div>
-
-      <div id="standstill-timer-card" class="card hidden">
-        <div id="standstill-minutes" class="timer-value">--</div>
-        <div id="standstill-seconds" class="timer-sublabel">--</div>
       </div>
     </div>
 
