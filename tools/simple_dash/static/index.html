@@ -13,7 +13,7 @@
 <body>
   <div id="dashboard">
 
-    <!-- 左上角: MAX 速度 + 速限 -->
+    <!-- 左上角: MAX 速度 + 速限 + 即將到來速限 -->
     <div id="top-left-controls">
       <div id="max-speed-card" class="card">
         <div class="label-small">MAX</div>
@@ -31,17 +31,17 @@
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 右上角: 即將到來 + CEM + 指南針 -->
-    <div id="top-right-status">
-      <!-- 即將到來的速限 (移動到右側) -->
+      <!-- 即將到來的速限 (與速限標誌放在一起) -->
       <div id="upcoming-limit-card" class="card">
         <div class="label-small">即將到來</div>
         <div id="upcoming-value" class="value-medium">--</div>
         <div id="upcoming-distance" class="label-tiny">-- 米</div>
       </div>
+    </div>
 
+    <!-- 右上角: CEM + 指南針 -->
+    <div id="top-right-status">
       <div id="cem-card" class="card icon-card hidden">
         <div id="cem-icon" class="cem-icon"></div>
       </div>

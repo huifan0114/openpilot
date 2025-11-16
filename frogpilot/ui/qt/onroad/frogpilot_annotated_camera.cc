@@ -229,7 +229,7 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
   }
 
   // Road name display (always show if RoadName available, no toggle check)
-  paintRoadName(p);
+  paintRoadName(p, frogpilotPlan);
 
   if (!bigMapOpen && (mutcdSpeedLimit || viennaSpeedLimit) && frogpilot_toggles.value("speed_limit_sources").toBool()) {
     paintSpeedLimitSources(p, frogpilotCarState, frogpilotNavigation, frogpilotPlan);
@@ -755,8 +755,8 @@ void FrogPilotAnnotatedCameraWidget::paintRainbowPath(QPainter &p, QLinearGradie
   p.restore();
 }
 
-void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
-  QString roadName = QString::fromStdString(params_memory.get("RoadName"));
+void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan) {
+  QString roadName = QString::fromStdString(frogpilotPlan.getRoadName().cStr());
   if (roadName.isEmpty()) {
     return;
   }

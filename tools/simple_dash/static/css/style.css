@@ -254,9 +254,9 @@ body::after {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
-/* 即將到來的速限 (移動到右上角) */
+/* 即將到來的速限 (與速限標誌放在一起) */
 #upcoming-limit-card {
-  width: 140px;       /* 從 180px 縮小 */
+  width: 180px;       /* 與 speed-limit-card 保持一致 */
   text-align: center;
   border-color: var(--status-info);
   padding: var(--spacing-md);
@@ -318,9 +318,9 @@ body::after {
 }
 
 .lead-info-card {
-  width: 400px;       /* 從 600px 縮小 */
-  min-height: 500px;  /* 從 400px 增加 */
-  max-width: 50vw;    /* 新增：最大寬度限制 */
+  width: 320px;       /* 從 400px 縮小，避免遮擋 */
+  min-height: 420px;  /* 從 500px 縮小 */
+  max-width: 40vw;    /* 從 50vw 縮小 */
   pointer-events: auto;  /* 卡片本身可點擊 */
   background: linear-gradient(135deg, rgba(15, 15, 15, 0.98) 0%, rgba(25, 25, 25, 0.95) 100%);
   border-radius: 32px;
@@ -725,10 +725,10 @@ body::after {
 
   /* 中央卡片：窄高型 */
   .lead-info-card {
-    width: 350px;       /* 從 500px 縮小 */
-    min-height: 450px;  /* 從 350px 增加 */
-    max-width: 45vw;
-    padding: 24px;
+    width: 280px;       /* 從 350px 縮小 */
+    min-height: 380px;  /* 從 450px 縮小 */
+    max-width: 38vw;    /* 從 45vw 縮小 */
+    padding: 20px;      /* 從 24px 縮小 */
   }
 
   #no-lead-state {
@@ -761,13 +761,9 @@ body::after {
 
   /* 左上角 */
   #max-speed-card,
-  #speed-limit-card {
-    width: 140px;
-  }
-
-  /* 右上角（新增 upcoming） */
+  #speed-limit-card,
   #upcoming-limit-card {
-    width: 120px;
+    width: 140px;
   }
 
   .icon-card {
@@ -807,10 +803,10 @@ body::after {
 
   /* 中央卡片：窄高型 */
   .lead-info-card {
-    width: 55vw;        /* 從 90vw 大幅縮小 */
-    min-height: 400px;  /* 從 300px 增加 */
-    max-width: 300px;
-    padding: 12px;
+    width: 45vw;        /* 從 55vw 縮小 */
+    min-height: 340px;  /* 從 400px 縮小 */
+    max-width: 250px;   /* 從 300px 縮小 */
+    padding: 10px;      /* 從 12px 縮小 */
   }
 
   #no-lead-state {
@@ -873,6 +869,15 @@ body::after {
     padding: 6px;
   }
 
+  #upcoming-limit-card {
+    width: 90px;
+    padding: 6px;
+  }
+
+  #upcoming-value {
+    font-size: 28px;
+  }
+
   #mutcd-sign {
     padding: 6px;
   }
@@ -890,18 +895,9 @@ body::after {
     margin-top: 2px;
   }
 
-  /* 右上角（保留所有元素，縮小） */
+  /* 右上角（CEM + 指南針） */
   #top-right-status {
     gap: 6px;
-  }
-
-  #upcoming-limit-card {
-    width: 90px;
-    padding: 8px;
-  }
-
-  #upcoming-value {
-    font-size: 28px;
   }
 
   .icon-card {
@@ -991,10 +987,10 @@ body::after {
 
   /* 中央卡片：更窄更高 */
   .lead-info-card {
-    width: 50vw;        /* 從 95vw 大幅縮小 */
-    min-height: 360px;  /* 從 250px 增加 */
-    max-width: 250px;
-    padding: 10px;
+    width: 40vw;        /* 從 50vw 縮小 */
+    min-height: 300px;  /* 從 360px 縮小 */
+    max-width: 220px;   /* 從 250px 縮小 */
+    padding: 8px;       /* 從 10px 縮小 */
   }
 
   #no-lead-state {
@@ -1058,6 +1054,15 @@ body::after {
     padding: 5px;
   }
 
+  #upcoming-limit-card {
+    width: 70px;
+    padding: 5px;
+  }
+
+  #upcoming-value {
+    font-size: 22px;
+  }
+
   #mutcd-sign {
     padding: 4px;
   }
@@ -1074,18 +1079,9 @@ body::after {
     font-size: 24px;
   }
 
-  /* 右上角（保留所有元素） */
+  /* 右上角（CEM + 指南針） */
   #top-right-status {
     gap: 4px;
-  }
-
-  #upcoming-limit-card {
-    width: 70px;
-    padding: 6px;
-  }
-
-  #upcoming-value {
-    font-size: 22px;
   }
 
   .icon-card {
