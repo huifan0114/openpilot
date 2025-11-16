@@ -13,12 +13,26 @@
 <body>
   <div id="dashboard">
 
-    <!-- 左上角: MAX 速度 + 速限 + 即將到來速限 -->
+    <!-- 頂部中央: 連接狀態 -->
+    <div id="top-center-status">
+      <div id="connection-status" class="connection-badge connecting">
+        <span id="status-text">連接中...</span>
+      </div>
+    </div>
+
+    <!-- 左上角: MAX 速度 + VCRUISE + 速限 + 即將到來速限 -->
     <div id="top-left-controls">
       <div id="max-speed-card" class="card">
         <div class="label-small">MAX</div>
         <div id="max-speed-value" class="value-large">--</div>
         <div id="max-speed-unit" class="label-tiny">km/h</div>
+      </div>
+
+      <!-- VCRUISE (新增) -->
+      <div id="vcruise-card" class="card">
+        <div class="label-small">VCRUISE</div>
+        <div id="vcruise-value" class="value-large">--</div>
+        <div id="vcruise-unit" class="label-tiny">km/h</div>
       </div>
 
       <div id="speed-limit-card" class="card">
@@ -40,14 +54,17 @@
       </div>
     </div>
 
-    <!-- 右上角: CEM + 指南針 -->
+    <!-- 右上角: EXPERIMENTAL MODE + 指南針 -->
     <div id="top-right-status">
-      <div id="cem-card" class="card icon-card hidden">
-        <div id="cem-icon" class="cem-icon"></div>
+      <!-- EXPERIMENTAL MODE 圖示 -->
+      <div id="experimental-card" class="card experimental-icon-card">
+        <img id="experimental-icon" src="/assets/img_experimental_white.svg" alt="Experimental Mode" />
       </div>
 
-      <div id="compass-card" class="card hidden">
-        <canvas id="compass-canvas" width="120" height="120"></canvas>
+      <!-- 指南針（文字顯示） -->
+      <div id="compass-card" class="card small-card">
+        <div class="label-small">方向</div>
+        <div id="compass-text" class="compass-text">N</div>
       </div>
     </div>
 
@@ -124,10 +141,9 @@
       </div>
     </div>
 
-    <!-- 狀態指示器 (右上角小點) -->
-    <div id="status-indicator">
-      <div class="status-dot"></div>
-      <span id="status-text">連接中...</span>
+    <!-- 底部全寬導航動畫條 -->
+    <div id="bottom-navigation-bar">
+      <img id="nav-standby-gif" src="/assets/navstandby2.gif" alt="Navigation" />
     </div>
 
   </div>

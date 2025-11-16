@@ -182,7 +182,67 @@ body::after {
   letter-spacing: 0.1em;
 }
 
-/* ===== 左上角: MAX 速度 + 速限 ===== */
+/* ===== 頂部中央: 連接狀態 ===== */
+#top-center-status {
+  position: absolute;
+  top: var(--spacing-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+}
+
+.connection-badge {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(25, 25, 25, 0.9) 100%);
+  border-radius: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+  transition: all var(--transition-normal);
+}
+
+#status-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 已連接狀態 */
+.connection-badge.connected {
+  border-color: var(--status-safe);
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(0, 255, 136, 0.05) 100%);
+  box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+}
+
+.connection-badge.connected #status-text {
+  color: var(--status-safe);
+  text-shadow: 0 0 10px var(--status-safe-glow);
+}
+
+/* 連接中狀態（脈衝動畫） */
+.connection-badge.connecting {
+  border-color: var(--status-warning);
+  animation: pulse-connecting 1.5s ease-in-out infinite;
+}
+
+.connection-badge.connecting #status-text {
+  color: var(--status-warning);
+}
+
+@keyframes pulse-connecting {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
+}
+
+/* ===== 左上角: MAX 速度 + VCRUISE + 速限 ===== */
 #top-left-controls {
   position: absolute;
   top: var(--spacing-lg);
@@ -199,6 +259,16 @@ body::after {
 }
 
 #max-speed-value {
+  margin: var(--spacing-xs) 0;
+}
+
+/* VCRUISE 卡片 */
+#vcruise-card {
+  width: 180px;
+  text-align: center;
+}
+
+#vcruise-value {
   margin: var(--spacing-xs) 0;
 }
 
@@ -267,7 +337,7 @@ body::after {
   margin: var(--spacing-xs) 0;
 }
 
-/* ===== 右上角: CEM + 指南針 ===== */
+/* ===== 右上角: EXPERIMENTAL MODE + 指南針 ===== */
 #top-right-status {
   position: absolute;
   top: var(--spacing-lg);
@@ -278,33 +348,50 @@ body::after {
   z-index: 100;
 }
 
-.icon-card {
+/* EXPERIMENTAL MODE 圖示卡片 */
+.experimental-icon-card {
   width: 120px;
   height: 120px;
+  padding: var(--spacing-md);
   display: flex;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(25, 25, 25, 0.9) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+#experimental-icon {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  transition: all var(--transition-normal);
+}
+
+/* EXPERIMENTAL MODE 啟動狀態 */
+#experimental-card.active {
+  border-color: var(--status-warning);
+  background: linear-gradient(135deg, rgba(255, 170, 0, 0.2) 0%, rgba(255, 170, 0, 0.1) 100%);
+  box-shadow: 0 0 30px var(--status-warning-glow);
+}
+
+#experimental-card.active #experimental-icon {
+  filter: drop-shadow(0 0 8px rgba(255, 170, 0, 0.6));
+}
+
+/* 指南針文字卡片 */
+#compass-card {
+  width: 120px;
+  text-align: center;
   padding: var(--spacing-md);
 }
 
-.cem-icon {
-  width: 80px;
-  height: 80px;
-  font-size: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#compass-card {
-  width: 140px;
-  height: 140px;
-  padding: var(--spacing-sm);
-}
-
-#compass-canvas {
-  width: 100%;
-  height: 100%;
+.compass-text {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  margin: var(--spacing-xs) 0;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
 /* ===== 中央: 前車資訊卡片 (主角) ===== */
@@ -496,10 +583,10 @@ body::after {
   }
 }
 
-/* ===== 左下角: 當前速度 + CSC ===== */
+/* ===== 左下角: 當前速度 ===== */
 #bottom-left-info {
   position: absolute;
-  bottom: var(--spacing-lg);
+  bottom: 110px;  /* 95px (GIF) + 15px (間距) */
   left: var(--spacing-lg);
   display: flex;
   flex-direction: column;
@@ -537,7 +624,7 @@ body::after {
 /* ===== 右下角: CSC + 加減速度 ===== */
 #bottom-right-acceleration {
   position: absolute;
-  bottom: var(--spacing-lg);
+  bottom: 110px;  /* 95px (GIF) + 15px (間距) */
   right: var(--spacing-lg);
   display: flex;              /* 新增：flex 佈局 */
   flex-direction: column;     /* 新增：垂直排列 */
@@ -618,10 +705,10 @@ body::after {
   color: var(--text-dim);
 }
 
-/* ===== 底部中央: 道路名稱 + 停車計時器 ===== */
+/* ===== 底部中央: 道路名稱 ===== */
 #bottom-center-road {
   position: absolute;
-  bottom: var(--spacing-lg);
+  bottom: 110px;  /* 95px (GIF) + 15px (間距) */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -643,75 +730,23 @@ body::after {
   white-space: nowrap;
 }
 
-/* ===== 狀態指示器 ===== */
-#status-indicator {
+/* ===== 底部導航動畫條 ===== */
+#bottom-navigation-bar {
   position: absolute;
-  top: var(--spacing-md);
-  right: var(--spacing-md);
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: 12px 20px;
-  background: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(25, 25, 25, 0.9) 100%);
-  border-radius: 24px;
-  font-size: 14px;
-  color: var(--text-secondary);
-  z-index: 300;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.5),
-    0 0 1px rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px);
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 95px;  /* 固定高度，與 GIF 原始高度一致 */
+  z-index: 5;    /* 低於所有 UI 元素 */
+  pointer-events: none;
+  overflow: hidden;
 }
 
-.status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--status-danger);
-  box-shadow:
-    0 0 10px var(--status-danger),
-    inset 0 1px 1px rgba(255, 255, 255, 0.3);
-  animation: pulse-dot 2s ease-in-out infinite;
-}
-
-.status-dot.connected {
-  background: var(--status-safe);
-  box-shadow:
-    0 0 15px var(--status-safe),
-    0 0 25px var(--status-safe-glow),
-    inset 0 1px 1px rgba(255, 255, 255, 0.5);
-  animation: glow-pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse-dot {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.4;
-    transform: scale(0.9);
-  }
-}
-
-@keyframes glow-pulse {
-  0%, 100% {
-    box-shadow:
-      0 0 15px var(--status-safe),
-      0 0 25px var(--status-safe-glow);
-  }
-  50% {
-    box-shadow:
-      0 0 20px var(--status-safe),
-      0 0 35px var(--status-safe-glow);
-  }
-}
-
-#status-text {
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+#nav-standby-gif {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: fill;  /* 拉伸填滿，因為寬度比例可能不同 */
 }
 
 /* ===== 響應式設計 ===== */
@@ -761,19 +796,45 @@ body::after {
 
   /* 左上角 */
   #max-speed-card,
+  #vcruise-card,
   #speed-limit-card,
   #upcoming-limit-card {
     width: 140px;
   }
 
-  .icon-card {
+  /* 右上角 */
+  .experimental-icon-card {
     width: 100px;
     height: 100px;
   }
 
+  #experimental-icon {
+    width: 65px;
+    height: 65px;
+  }
+
   #compass-card {
-    width: 110px;
-    height: 110px;
+    width: 100px;
+  }
+
+  .compass-text {
+    font-size: 38px;
+  }
+
+  /* 頂部中央連接狀態 */
+  .connection-badge {
+    padding: 10px 20px;
+  }
+
+  #status-text {
+    font-size: 16px;
+  }
+
+  /* 底部元素位置調整 */
+  #bottom-center-road,
+  #bottom-left-info,
+  #bottom-right-acceleration {
+    bottom: 105px;  /* 95px + 10px */
   }
 
   /* 左下角 */
@@ -864,6 +925,15 @@ body::after {
     font-size: 36px;
   }
 
+  #vcruise-card {
+    width: 90px;
+    padding: 8px;
+  }
+
+  #vcruise-value {
+    font-size: 36px;
+  }
+
   #speed-limit-card {
     width: 90px;
     padding: 6px;
@@ -895,27 +965,50 @@ body::after {
     margin-top: 2px;
   }
 
-  /* 右上角（CEM + 指南針） */
+  /* 右上角（EXPERIMENTAL + 指南針） */
   #top-right-status {
     gap: 6px;
   }
 
-  .icon-card {
+  .experimental-icon-card {
     width: 60px;
     height: 60px;
     padding: 6px;
   }
 
-  .cem-icon {
+  #experimental-icon {
     width: 45px;
     height: 45px;
-    font-size: 28px;
   }
 
   #compass-card {
     width: 70px;
+    padding: 8px;
+  }
+
+  .compass-text {
+    font-size: 28px;
+  }
+
+  /* 頂部中央連接狀態 */
+  .connection-badge {
+    padding: 8px 16px;
+  }
+
+  #status-text {
+    font-size: 14px;
+  }
+
+  /* 底部元素位置調整 */
+  #bottom-center-road,
+  #bottom-left-info,
+  #bottom-right-acceleration {
+    bottom: 103px;  /* 95px + 8px */
+  }
+
+  /* 縮小 GIF 高度 */
+  #bottom-navigation-bar {
     height: 70px;
-    padding: 6px;
   }
 
   /* 左下角 */
@@ -1049,6 +1142,15 @@ body::after {
     font-size: 28px;
   }
 
+  #vcruise-card {
+    width: 70px;
+    padding: 6px;
+  }
+
+  #vcruise-value {
+    font-size: 28px;
+  }
+
   #speed-limit-card {
     width: 70px;
     padding: 5px;
@@ -1079,27 +1181,50 @@ body::after {
     font-size: 24px;
   }
 
-  /* 右上角（CEM + 指南針） */
+  /* 右上角（EXPERIMENTAL + 指南針） */
   #top-right-status {
     gap: 4px;
   }
 
-  .icon-card {
+  .experimental-icon-card {
     width: 50px;
     height: 50px;
     padding: 4px;
   }
 
-  .cem-icon {
+  #experimental-icon {
     width: 38px;
     height: 38px;
-    font-size: 24px;
   }
 
   #compass-card {
     width: 55px;
-    height: 55px;
     padding: 4px;
+  }
+
+  .compass-text {
+    font-size: 22px;
+  }
+
+  /* 頂部中央連接狀態 */
+  .connection-badge {
+    padding: 6px 12px;
+  }
+
+  #status-text {
+    font-size: 12px;
+  }
+
+  /* 底部元素位置調整 */
+  #bottom-center-road,
+  #bottom-left-info,
+  #bottom-right-acceleration {
+    bottom: 78px;  /* 70px + 8px */
+  }
+
+  /* 縮小 GIF 高度 */
+  #bottom-navigation-bar {
+    height: 70px;
   }
 
   /* 左下角 */

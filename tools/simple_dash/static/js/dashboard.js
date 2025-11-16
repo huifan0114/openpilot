@@ -25,6 +25,11 @@ export class DashboardUI {
       maxSpeed: document.getElementById('max-speed-value'),
       maxSpeedUnit: document.getElementById('max-speed-unit'),
 
+      // VCRUISE
+      vcruiseCard: document.getElementById('vcruise-card'),
+      vcruiseValue: document.getElementById('vcruise-value'),
+      vcruiseUnit: document.getElementById('vcruise-unit'),
+
       // 速限標誌
       speedLimitCard: document.getElementById('speed-limit-card'),
       mutcdValue: document.getElementById('mutcd-value'),
@@ -41,9 +46,13 @@ export class DashboardUI {
       cscSpeedUnit: document.getElementById('csc-speed-unit'),
       cscTraining: document.getElementById('csc-training'),
 
-      // CEM 狀態
-      cemCard: document.getElementById('cem-card'),
-      cemIcon: document.getElementById('cem-icon'),
+      // EXPERIMENTAL MODE
+      experimentalCard: document.getElementById('experimental-card'),
+      experimentalIcon: document.getElementById('experimental-icon'),
+
+      // 指南針（文字）
+      compassCard: document.getElementById('compass-card'),
+      compassText: document.getElementById('compass-text'),
 
       // 加減速度
       accelerationValue: document.getElementById('acceleration-value'),
@@ -52,9 +61,9 @@ export class DashboardUI {
       roadNameCard: document.getElementById('road-name-card'),
       roadNameText: document.getElementById('road-name-text'),
 
-      // 狀態指示器
-      statusText: document.getElementById('status-text'),
-      statusDot: document.querySelector('.status-dot')
+      // 連接狀態
+      connectionStatus: document.getElementById('connection-status'),
+      statusText: document.getElementById('status-text')
     };
 
     // 狀態
@@ -376,6 +385,86 @@ export class DashboardUI {
     this.elements.currentSpeedUnit.textContent = this.units.speed;
     this.elements.maxSpeedUnit.textContent = this.units.speed;
     this.elements.cscSpeedUnit.textContent = this.units.speed;
+    this.elements.vcruiseUnit.textContent = this.units.speed;
+  }
+
+  // ========== VCRUISE 更新 ==========
+
+  /**
+   * 更新 vCruise 顯示
+   * @param {Object} frogpilotPlan - FrogPilot plan 資料
+   */
+  updateVCruise(frogpilotPlan) {
+    if (!frogpilotPlan || !frogpilotPlan.vCruise || frogpilotPlan.vCruise <= 0) {
+      this.elements.vcruiseValue.textContent = '--';
+      return;
+    }
+
+    // m/s 轉換為 km/h 或 mph
+    const vCruise = frogpilotPlan.vCruise * this.units.speedConversion;
+    this.elements.vcruiseValue.textContent = Math.round(vCruise).toString();
+  }
+
+  // ========== EXPERIMENTAL MODE 更新 ==========
+
+  /**
+   * 更新 EXPERIMENTAL MODE 圖示
+   * @param {Object} frogpilotPlan - FrogPilot plan 資料
+   */
+  updateExperimentalMode(frogpilotPlan) {
+    if (!frogpilotPlan) {
+      // 沒訊號：顯示未啟動圖示
+      this.elements.experimentalIcon.src = '/assets/img_experimental_white.svg';
+      this.elements.experimentalCard.classList.remove('active');
+      return;
+    }
+
+    // 根據 experimentalMode 切換圖示
+    const isExperimental = frogpilotPlan.experimentalMode || false;
+
+    if (isExperimental) {
+      // 啟動：顯示橙色圖示
+      this.elements.experimentalIcon.src = '/assets/img_experimental.svg';
+      this.elements.experimentalCard.classList.add('active');
+    } else {
+      // 未啟動：顯示白色圖示
+      this.elements.experimentalIcon.src = '/assets/img_experimental_white.svg';
+      this.elements.experimentalCard.classList.remove('active');
+    }
+  }
+
+  // ========== 指南針更新 ==========
+
+  /**
+   * 更新指南針文字顯示
+   * @param {Number} bearing - 方向角度 (0-360)
+   */
+  updateCompass(bearing) {
+    if (bearing === null || bearing === undefined) {
+      this.elements.compassText.textContent = 'N';
+      return;
+    }
+
+    // 將角度轉換為方向文字
+    const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+    const index = Math.round(((bearing % 360) / 45)) % 8;
+    this.elements.compassText.textContent = directions[index];
+  }
+
+  // ========== 連接狀態更新 ==========
+
+  /**
+   * 更新連接狀態顯示
+   * @param {Boolean} connected - 是否已連接
+   */
+  updateConnectionStatus(connected) {
+    if (connected) {
+      this.elements.statusText.textContent = '已連接';
+      this.elements.connectionStatus.className = 'connection-badge connected';
+    } else {
+      this.elements.statusText.textContent = '連接中...';
+      this.elements.connectionStatus.className = 'connection-badge connecting';
+    }
   }
 
   // ========== 速限標誌樣式切換 ==========

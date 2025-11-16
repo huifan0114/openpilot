@@ -49,6 +49,10 @@ function handleMessage(msgType, msgData) {
       dashboard.updateSpeedLimit(msgData);
       // 更新 CSC 彎道控制
       dashboard.updateCSC(msgData);
+      // 更新 VCRUISE
+      dashboard.updateVCruise(msgData);
+      // 更新 EXPERIMENTAL MODE
+      dashboard.updateExperimentalMode(msgData);
       // 更新道路名稱
       if (msgData.roadName !== undefined) {
         dashboard.updateRoadName(msgData.roadName);
@@ -62,6 +66,15 @@ function handleMessage(msgType, msgData) {
     case 'radarState':
       // 更新前車資訊
       dashboard.updateLeadInfo(msgData, stateManager.frogpilotPlan);
+      break;
+
+    case 'modelV2':
+      // 更新指南針（如果有方向資料）
+      if (msgData.orientation && msgData.orientation.z !== undefined) {
+        // orientation.z 是 yaw 角度（弧度），需轉換為度數
+        const bearingDegrees = (msgData.orientation.z * 180 / Math.PI + 360) % 360;
+        dashboard.updateCompass(bearingDegrees);
+      }
       break;
 
     // 未來可以擴展更多服務
@@ -100,12 +113,12 @@ async function init() {
 
     // 啟動 WebRTC 連接
     console.log('Connecting to WebRTC...');
-    dashboard.updateConnectionStatus(false, '連接中...');
+    dashboard.updateConnectionStatus(false);
 
     await start(handleMessage);
 
     console.log('✓ WebRTC connected (Data Channel only)');
-    dashboard.updateConnectionStatus(true, '已連接');
+    dashboard.updateConnectionStatus(true);
 
     console.log('✓ FrogPilot Dashboard initialized');
     console.log('');
@@ -116,7 +129,7 @@ async function init() {
 
   } catch (error) {
     console.error('❌ Failed to initialize:', error);
-    dashboard.updateConnectionStatus(false, '連接失敗');
+    dashboard.updateConnectionStatus(false);
 
     alert('連接失敗，請確認:\n1. webrtcd 正在運行 (port 5001)\n2. 網路連接正常\n3. simple_dash 已啟動 (port 8000)');
   }
