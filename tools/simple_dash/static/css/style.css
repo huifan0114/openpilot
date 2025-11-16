@@ -408,9 +408,9 @@ body::after {
 }
 
 .lead-info-card {
-  width: 320px;       /* 從 400px 縮小，避免遮擋 */
-  min-height: 420px;  /* 從 500px 縮小 */
-  max-width: 40vw;    /* 從 50vw 縮小 */
+  width: 500px;       /* CSC 移走,可以放寬 */
+  min-height: 420px;
+  max-width: 50vw;
   pointer-events: auto;  /* 卡片本身可點擊 */
   background: linear-gradient(135deg, rgba(15, 15, 15, 0.98) 0%, rgba(25, 25, 25, 0.95) 100%);
   border-radius: 32px;
@@ -612,7 +612,87 @@ body::after {
   margin: var(--spacing-xs) 0;
 }
 
-/* CSC 樣式已移至右下角 #bottom-right-acceleration 區塊 */
+/* ===== 盲點警示指示器 (在前車卡片外側) ===== */
+.blindspot-indicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 70px;
+  height: 320px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 51, 102, 0.95) 0%,
+    rgba(255, 51, 102, 0.75) 50%,
+    rgba(255, 51, 102, 0.95) 100%
+  );
+  border-radius: 20px;
+  border: 3px solid var(--status-danger);
+  box-shadow:
+    0 0 40px var(--status-danger-glow),
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    inset 0 2px 10px rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 65;
+}
+
+.blindspot-indicator.active {
+  opacity: 1;
+  animation: blindspot-pulse 500ms ease-in-out infinite alternate;
+}
+
+#left-blindspot {
+  right: calc(100% + 25px);
+}
+
+#right-blindspot {
+  left: calc(100% + 25px);
+}
+
+.blindspot-icon {
+  font-size: 56px;
+  line-height: 1;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.9));
+}
+
+.blindspot-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.9),
+    0 0 20px rgba(255, 51, 102, 0.8);
+  letter-spacing: 3px;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+}
+
+@keyframes blindspot-pulse {
+  0% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+    box-shadow:
+      0 0 40px var(--status-danger-glow),
+      0 8px 32px rgba(0, 0, 0, 0.6),
+      inset 0 2px 10px rgba(255, 255, 255, 0.2);
+  }
+  100% {
+    opacity: 0.7;
+    transform: translateY(-50%) scale(0.97);
+    box-shadow:
+      0 0 60px var(--status-danger-glow),
+      0 8px 32px rgba(0, 0, 0, 0.6),
+      inset 0 2px 10px rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* CSC 樣式已移至 #bottom-right-csc 區塊 */
 
 @keyframes glow-pulse {
   0%, 100% { box-shadow: 0 0 20px rgba(74, 144, 226, 0.4); }
@@ -624,61 +704,12 @@ body::after {
   50% { opacity: 0.3; }
 }
 
-/* ===== 右下角: CSC + 加減速度 ===== */
+/* ===== 右下角: 加減速度 ===== */
 #bottom-right-acceleration {
   position: absolute;
-  bottom: 110px;  /* 95px (GIF) + 15px (間距) */
+  bottom: 110px;
   right: var(--spacing-lg);
-  display: flex;              /* 新增：flex 佈局 */
-  flex-direction: column;     /* 新增：垂直排列 */
-  gap: var(--spacing-sm);     /* 新增：間距 */
   z-index: 100;
-}
-
-/* CSC 彎道速度控制 (從左下角移過來) */
-#csc-card {
-  width: 160px;
-  text-align: center;
-  border-color: var(--status-info);
-  position: relative;
-  overflow: hidden;
-  padding: var(--spacing-md);
-}
-
-#csc-card.training {
-  border-color: var(--status-info);
-  animation: glow-pulse 2s ease-in-out infinite;
-}
-
-.csc-icon-container {
-  font-size: 48px;
-  margin-bottom: var(--spacing-xs);
-}
-
-.csc-curve-icon {
-  display: inline-block;
-  transition: transform var(--transition-fast);
-}
-
-.csc-curve-icon.flip {
-  transform: scaleX(-1);
-}
-
-#csc-speed {
-  font-size: 40px;
-  margin: var(--spacing-xs) 0;
-}
-
-.training-label {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--status-info);
-  text-transform: uppercase;
-  animation: blink 1.5s ease-in-out infinite;
 }
 
 /* 加減速度 */
@@ -733,6 +764,62 @@ body::after {
   white-space: nowrap;
 }
 
+/* ===== 底部右側: CSC (與道路名稱重疊) ===== */
+#bottom-right-csc {
+  position: absolute;
+  bottom: 110px;
+  right: var(--spacing-lg);
+  z-index: 105;
+}
+
+#csc-card {
+  width: 160px;
+  text-align: center;
+  border-color: var(--status-info);
+  position: relative;
+  overflow: hidden;
+  padding: var(--spacing-md);
+}
+
+#csc-card.training {
+  border-color: var(--status-info);
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.csc-icon-container {
+  font-size: 48px;
+  margin-bottom: var(--spacing-xs);
+}
+
+.csc-curve-icon {
+  display: inline-block;
+  transition: transform var(--transition-fast);
+}
+
+.csc-curve-icon.flip {
+  transform: scaleX(-1);
+}
+
+#csc-speed {
+  font-size: 48px;
+  font-weight: 300;
+  color: var(--text-primary);
+  margin: var(--spacing-xs) 0;
+}
+
+.training-label {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: var(--status-info);
+  animation: blink 1s ease-in-out infinite;
+  padding: 4px 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+}
+
 /* ===== 底部導航動畫條 ===== */
 #bottom-navigation-bar {
   position: absolute;
@@ -761,12 +848,34 @@ body::after {
     --spacing-md: 14px;
   }
 
-  /* 中央卡片：窄高型 */
+  /* 中央卡片 */
   .lead-info-card {
-    width: 280px;       /* 從 350px 縮小 */
-    min-height: 380px;  /* 從 450px 縮小 */
-    max-width: 38vw;    /* 從 45vw 縮小 */
-    padding: 20px;      /* 從 24px 縮小 */
+    width: 400px;
+    min-height: 380px;
+    max-width: 45vw;
+    padding: 20px;
+  }
+
+  /* 盲點指示器 */
+  .blindspot-indicator {
+    width: 60px;
+    height: 280px;
+  }
+
+  #left-blindspot {
+    right: calc(100% + 20px);
+  }
+
+  #right-blindspot {
+    left: calc(100% + 20px);
+  }
+
+  .blindspot-icon {
+    font-size: 48px;
+  }
+
+  .blindspot-label {
+    font-size: 16px;
   }
 
   #no-lead-state {
@@ -849,8 +958,14 @@ body::after {
   /* 底部元素位置調整 */
   #bottom-center-road,
   #bottom-left-info,
-  #bottom-right-acceleration {
+  #bottom-right-acceleration,
+  #bottom-right-csc {
     bottom: 105px;  /* 95px + 10px */
+  }
+
+  /* CSC */
+  #csc-card {
+    width: 130px;
   }
 
   /* 左下角 */
@@ -878,12 +993,34 @@ body::after {
     --card-padding: 12px;
   }
 
-  /* 中央卡片：窄高型 */
+  /* 中央卡片 */
   .lead-info-card {
-    width: 45vw;        /* 從 55vw 縮小 */
-    min-height: 340px;  /* 從 400px 縮小 */
-    max-width: 250px;   /* 從 300px 縮小 */
-    padding: 10px;      /* 從 12px 縮小 */
+    width: 320px;
+    min-height: 340px;
+    max-width: 65vw;
+    padding: 10px;
+  }
+
+  /* 盲點指示器 */
+  .blindspot-indicator {
+    width: 50px;
+    height: 220px;
+  }
+
+  #left-blindspot {
+    right: calc(100% + 15px);
+  }
+
+  #right-blindspot {
+    left: calc(100% + 15px);
+  }
+
+  .blindspot-icon {
+    font-size: 36px;
+  }
+
+  .blindspot-label {
+    font-size: 14px;
   }
 
   #no-lead-state {
@@ -1019,8 +1156,24 @@ body::after {
   /* 底部元素位置調整 */
   #bottom-center-road,
   #bottom-left-info,
-  #bottom-right-acceleration {
+  #bottom-right-acceleration,
+  #bottom-right-csc {
     bottom: 103px;  /* 95px + 8px */
+  }
+
+  /* CSC */
+  #csc-card {
+    width: 100px;
+    padding: 10px;
+  }
+
+  .csc-icon-container {
+    font-size: 36px;
+    margin-bottom: 4px;
+  }
+
+  #csc-speed {
+    font-size: 36px;
   }
 
   /* 縮小 GIF 高度 */
@@ -1095,12 +1248,34 @@ body::after {
     --card-padding: 8px;
   }
 
-  /* 中央卡片：更窄更高 */
+  /* 中央卡片 */
   .lead-info-card {
-    width: 40vw;        /* 從 50vw 縮小 */
-    min-height: 300px;  /* 從 360px 縮小 */
-    max-width: 220px;   /* 從 250px 縮小 */
-    padding: 8px;       /* 從 10px 縮小 */
+    width: 280px;
+    min-height: 300px;
+    max-width: 80vw;
+    padding: 8px;
+  }
+
+  /* 盲點指示器 */
+  .blindspot-indicator {
+    width: 40px;
+    height: 180px;
+  }
+
+  #left-blindspot {
+    right: calc(100% + 10px);
+  }
+
+  #right-blindspot {
+    left: calc(100% + 10px);
+  }
+
+  .blindspot-icon {
+    font-size: 28px;
+  }
+
+  .blindspot-label {
+    font-size: 12px;
   }
 
   #no-lead-state {
@@ -1240,8 +1415,23 @@ body::after {
   /* 底部元素位置調整 */
   #bottom-center-road,
   #bottom-left-info,
-  #bottom-right-acceleration {
+  #bottom-right-acceleration,
+  #bottom-right-csc {
     bottom: 78px;  /* 70px + 8px */
+  }
+
+  /* CSC */
+  #csc-card {
+    width: 80px;
+    padding: 8px;
+  }
+
+  .csc-icon-container {
+    font-size: 28px;
+  }
+
+  #csc-speed {
+    font-size: 28px;
   }
 
   /* 縮小 GIF 高度 */
@@ -1259,28 +1449,7 @@ body::after {
     font-size: 28px;
   }
 
-  /* 右下角（保留所有元素） */
-  #bottom-right-acceleration {
-    gap: 4px;
-  }
-
-  #csc-card {
-    width: 75px;
-    padding: 6px;
-  }
-
-  .csc-icon-container {
-    font-size: 26px;
-  }
-
-  #csc-speed {
-    font-size: 20px;
-  }
-
-  .training-label {
-    font-size: 8px;
-  }
-
+  /* 右下角 */
   #acceleration-card {
     width: 75px;
     padding: 6px;

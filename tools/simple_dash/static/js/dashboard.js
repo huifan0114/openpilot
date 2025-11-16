@@ -63,7 +63,11 @@ export class DashboardUI {
 
       // 連接狀態
       connectionStatus: document.getElementById('connection-status'),
-      statusText: document.getElementById('status-text')
+      statusText: document.getElementById('status-text'),
+
+      // 盲點警示
+      leftBlindspot: document.getElementById('left-blindspot'),
+      rightBlindspot: document.getElementById('right-blindspot')
     };
 
     // 狀態
@@ -464,6 +468,36 @@ export class DashboardUI {
     } else {
       this.elements.statusText.textContent = '連接中...';
       this.elements.connectionStatus.className = 'connection-badge connecting';
+    }
+  }
+
+  // ========== 盲點警示更新 ==========
+
+  /**
+   * 更新盲點警示顯示
+   * @param {Object} carState - 車輛狀態資料
+   */
+  updateBlindspots(carState) {
+    if (!carState) {
+      this.elements.leftBlindspot.classList.remove('active');
+      this.elements.rightBlindspot.classList.remove('active');
+      return;
+    }
+
+    // 左側盲點
+    if (carState.leftBlindspot) {
+      this.elements.leftBlindspot.classList.remove('hidden');
+      this.elements.leftBlindspot.classList.add('active');
+    } else {
+      this.elements.leftBlindspot.classList.remove('active');
+    }
+
+    // 右側盲點
+    if (carState.rightBlindspot) {
+      this.elements.rightBlindspot.classList.remove('hidden');
+      this.elements.rightBlindspot.classList.add('active');
+    } else {
+      this.elements.rightBlindspot.classList.remove('active');
     }
   }
 

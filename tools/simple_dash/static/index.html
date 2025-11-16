@@ -72,6 +72,12 @@
 
     <!-- 中央: 前車資訊卡片 (主要顯示) -->
     <div id="center-lead-info">
+      <!-- 左側盲點警示 -->
+      <div id="left-blindspot" class="blindspot-indicator hidden">
+        <div class="blindspot-icon">⚠️</div>
+        <div class="blindspot-label">左側</div>
+      </div>
+
       <div id="lead-card" class="card lead-info-card">
 
         <!-- 無前車狀態 -->
@@ -107,6 +113,12 @@
           </div>
         </div>
       </div>
+
+      <!-- 右側盲點警示 -->
+      <div id="right-blindspot" class="blindspot-indicator hidden">
+        <div class="blindspot-icon">⚠️</div>
+        <div class="blindspot-label">右側</div>
+      </div>
     </div>
 
     <!-- 左下角: 當前速度 -->
@@ -117,18 +129,8 @@
       </div>
     </div>
 
-    <!-- 右下角: CSC + 加減速度 -->
+    <!-- 右下角: 加減速度 -->
     <div id="bottom-right-acceleration">
-      <!-- CSC (移動到右側) -->
-      <div id="csc-card" class="card">
-        <div class="csc-icon-container">
-          <div id="csc-icon" class="csc-curve-icon">↪️</div>
-        </div>
-        <div id="csc-speed" class="value-medium">--</div>
-        <div id="csc-speed-unit" class="label-tiny">km/h</div>
-        <div id="csc-training" class="training-label hidden">Training...</div>
-      </div>
-
       <div id="acceleration-card" class="card small-card">
         <div class="label-small">加減速度</div>
         <div id="acceleration-value" class="value-medium neutral">--</div>
@@ -140,6 +142,18 @@
     <div id="bottom-center-road">
       <div id="road-name-card" class="card hidden">
         <div id="road-name-text">--</div>
+      </div>
+    </div>
+
+    <!-- 底部右側: CSC (與道路名稱重疊) -->
+    <div id="bottom-right-csc">
+      <div id="csc-card" class="card">
+        <div class="csc-icon-container">
+          <div id="csc-icon" class="csc-curve-icon">↪️</div>
+        </div>
+        <div id="csc-speed" class="value-medium">--</div>
+        <div id="csc-speed-unit" class="label-tiny">km/h</div>
+        <div id="csc-training" class="training-label hidden">Training...</div>
       </div>
     </div>
 

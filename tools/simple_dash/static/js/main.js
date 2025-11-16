@@ -42,6 +42,8 @@ function handleMessage(msgType, msgData) {
         const vCruise = msgData.cruiseState.speed || msgData.vEgoCluster || 0;
         dashboard.updateMaxSpeed(vCruise);
       }
+      // 更新盲點警示
+      dashboard.updateBlindspots(msgData);
       break;
 
     case 'frogpilotPlan':
