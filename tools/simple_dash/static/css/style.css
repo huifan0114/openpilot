@@ -768,7 +768,7 @@ body::after {
 #bottom-right-csc {
   position: absolute;
   bottom: 110px;
-  right: var(--spacing-lg);
+  right: 210px;  /* 在加減速度左側 */
   z-index: 105;
 }
 
@@ -961,6 +961,11 @@ body::after {
   #bottom-right-acceleration,
   #bottom-right-csc {
     bottom: 105px;  /* 95px + 10px */
+  }
+
+  /* CSC 位置調整 */
+  #bottom-right-csc {
+    right: 175px;  /* 在加減速度左側 */
   }
 
   /* CSC */
@@ -1159,6 +1164,11 @@ body::after {
   #bottom-right-acceleration,
   #bottom-right-csc {
     bottom: 103px;  /* 95px + 8px */
+  }
+
+  /* CSC 位置調整 */
+  #bottom-right-csc {
+    right: 115px;  /* 在加減速度左側 */
   }
 
   /* CSC */
@@ -1418,6 +1428,11 @@ body::after {
   #bottom-right-acceleration,
   #bottom-right-csc {
     bottom: 78px;  /* 70px + 8px */
+  }
+
+  /* CSC 位置調整 */
+  #bottom-right-csc {
+    right: 92px;  /* 在加減速度左側 */
   }
 
   /* CSC */
