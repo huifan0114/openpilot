@@ -414,7 +414,7 @@ export class DashboardUI {
   updateExperimentalMode(frogpilotPlan) {
     if (!frogpilotPlan) {
       // 沒訊號：顯示未啟動圖示
-      this.elements.experimentalIcon.src = '/assets/img_experimental_white.svg';
+      this.elements.experimentalIcon.src = '/static/assets/img_experimental_white.svg';
       this.elements.experimentalCard.classList.remove('active');
       return;
     }
@@ -424,11 +424,11 @@ export class DashboardUI {
 
     if (isExperimental) {
       // 啟動：顯示橙色圖示
-      this.elements.experimentalIcon.src = '/assets/img_experimental.svg';
+      this.elements.experimentalIcon.src = '/static/assets/img_experimental.svg';
       this.elements.experimentalCard.classList.add('active');
     } else {
       // 未啟動：顯示白色圖示
-      this.elements.experimentalIcon.src = '/assets/img_experimental_white.svg';
+      this.elements.experimentalIcon.src = '/static/assets/img_experimental_white.svg';
       this.elements.experimentalCard.classList.remove('active');
     }
   }

@@ -242,7 +242,29 @@ body::after {
   }
 }
 
-/* ===== 左上角: MAX 速度 + VCRUISE + 速限 ===== */
+/* ===== 中央上方: MAX + VCRUISE 並排 ===== */
+#center-top-speeds {
+  position: absolute;
+  top: 100px;  /* 連接狀態下方 */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-md);  /* 20px */
+  z-index: 150;
+  align-items: center;
+}
+
+#center-top-speeds .card {
+  width: 140px;
+  text-align: center;
+}
+
+#center-top-speeds .value-large {
+  font-size: 2.5rem;  /* 略小於原本 */
+}
+
+/* ===== 左上角: 速限 + 即將到來速限 ===== */
 #top-left-controls {
   position: absolute;
   top: var(--spacing-lg);
@@ -251,25 +273,6 @@ body::after {
   flex-direction: column;
   gap: var(--spacing-sm);
   z-index: 100;
-}
-
-#max-speed-card {
-  width: 180px;
-  text-align: center;
-}
-
-#max-speed-value {
-  margin: var(--spacing-xs) 0;
-}
-
-/* VCRUISE 卡片 */
-#vcruise-card {
-  width: 180px;
-  text-align: center;
-}
-
-#vcruise-value {
-  margin: var(--spacing-xs) 0;
 }
 
 #speed-limit-card {
@@ -794,9 +797,22 @@ body::after {
     font-size: 40px;
   }
 
+  /* 中央速度 */
+  #center-top-speeds {
+    top: 85px;
+    gap: var(--spacing-sm);  /* 12px */
+  }
+
+  #center-top-speeds .card {
+    width: 110px;
+    padding: 16px;
+  }
+
+  #center-top-speeds .value-large {
+    font-size: 2rem;
+  }
+
   /* 左上角 */
-  #max-speed-card,
-  #vcruise-card,
   #speed-limit-card,
   #upcoming-limit-card {
     width: 140px;
@@ -915,25 +931,26 @@ body::after {
     font-size: 10px;
   }
 
+  /* 中央速度 */
+  #center-top-speeds {
+    top: 75px;
+    gap: 10px;
+  }
+
+  #center-top-speeds .card {
+    width: 90px;
+    padding: 12px;
+  }
+
+  #center-top-speeds .value-large {
+    font-size: 1.6rem;
+  }
+
+  #center-top-speeds .label-small {
+    font-size: 0.7rem;
+  }
+
   /* 左上角 */
-  #max-speed-card {
-    width: 90px;
-    padding: 8px;
-  }
-
-  #max-speed-value {
-    font-size: 36px;
-  }
-
-  #vcruise-card {
-    width: 90px;
-    padding: 8px;
-  }
-
-  #vcruise-value {
-    font-size: 36px;
-  }
-
   #speed-limit-card {
     width: 90px;
     padding: 6px;
@@ -1128,27 +1145,32 @@ body::after {
     font-size: 8px;
   }
 
+  /* 中央速度 */
+  #center-top-speeds {
+    top: 65px;
+    gap: 6px;
+  }
+
+  #center-top-speeds .card {
+    width: 70px;
+    padding: 8px;
+  }
+
+  #center-top-speeds .value-large {
+    font-size: 1.3rem;
+  }
+
+  #center-top-speeds .label-small {
+    font-size: 0.6rem;
+  }
+
+  #center-top-speeds .label-tiny {
+    font-size: 0.5rem;
+  }
+
   /* 左上角 */
   #top-left-controls {
     gap: 4px;
-  }
-
-  #max-speed-card {
-    width: 70px;
-    padding: 6px;
-  }
-
-  #max-speed-value {
-    font-size: 28px;
-  }
-
-  #vcruise-card {
-    width: 70px;
-    padding: 6px;
-  }
-
-  #vcruise-value {
-    font-size: 28px;
   }
 
   #speed-limit-card {
