@@ -16,10 +16,6 @@ export class DashboardUI {
       leadSpeed: document.getElementById('lead-speed'),
       followTime: document.getElementById('follow-time'),
 
-      // 當前速度
-      currentSpeed: document.getElementById('current-speed-value'),
-      currentSpeedUnit: document.getElementById('current-speed-unit'),
-
       // MAX 速度
       maxSpeedCard: document.getElementById('max-speed-card'),
       maxSpeed: document.getElementById('max-speed-value'),
@@ -179,8 +175,7 @@ export class DashboardUI {
 
   updateCurrentSpeed(vEgo) {
     this.state.vEgo = vEgo;
-    const speed = vEgo * this.units.speedConversion;
-    this.elements.currentSpeed.textContent = Math.round(speed);
+    // 保留 vEgo 狀態供跟車時間計算使用
 
     // 如果有快取的雷達資料，重新計算跟車時間
     if (this.state.cachedRadarState) {
@@ -360,7 +355,6 @@ export class DashboardUI {
     }
 
     // 更新單位顯示
-    this.elements.currentSpeedUnit.textContent = this.units.speed;
     this.elements.maxSpeedUnit.textContent = this.units.speed;
     this.elements.cscSpeedUnit.textContent = this.units.speed;
     this.elements.vcruiseUnit.textContent = this.units.speed;
