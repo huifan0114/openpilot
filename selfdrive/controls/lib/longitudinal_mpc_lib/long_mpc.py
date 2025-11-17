@@ -55,7 +55,7 @@ T_IDXS = np.array(T_IDXS_LST)
 FCW_IDXS = T_IDXS < 5.0
 T_DIFFS = np.diff(T_IDXS, prepend=[0.])
 COMFORT_BRAKE = 2.5
-STOP_DISTANCE = 6.0
+STOP_DISTANCE = 5.0
 CRUISE_MIN_ACCEL = -1.2
 CRUISE_MAX_ACCEL = 1.6
 
@@ -102,6 +102,27 @@ def get_T_FOLLOW(aggressive_follow=1.25, standard_follow=1.45, relaxed_follow=1.
       return 1.25
     else:
       raise NotImplementedError("Longitudinal personality not supported")
+
+def get_dynamic_T_FOLLOW_stock_acc(v_ego):
+  """
+  原車 ACC 動態 Time Headway 公式
+  基於原車 ACC 分析結果: TH = 3.5/v_ego + 2.7
+
+  特性:
+  - 低速時較大（更安全）
+  - 高速時接近 2.7 秒
+  - 符合原車 ACC 行為
+  """
+  import numpy as np
+
+  # 避免除以零，最小速度 1 m/s
+  v_ego_safe = max(v_ego, 1.0)
+
+  # 原車 ACC 公式: TH = 3.5/v_ego + 2.7
+  th = 3.5 / v_ego_safe + 2.7
+
+  # 限制範圍 1.5~5.0 秒
+  return float(np.clip(th, 1.5, 5.0))
 
 def get_stopped_equivalence_factor(v_lead):
   return (v_lead**2) / (2 * COMFORT_BRAKE)

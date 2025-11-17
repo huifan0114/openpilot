@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
 
-from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import COMFORT_BRAKE, STOP_DISTANCE, desired_follow_distance, get_jerk_factor, get_T_FOLLOW
+from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import COMFORT_BRAKE, STOP_DISTANCE, desired_follow_distance, get_jerk_factor, get_T_FOLLOW, get_dynamic_T_FOLLOW_stock_acc
 
 from openpilot.frogpilot.common.frogpilot_variables import CITY_SPEED_LIMIT
 
@@ -47,12 +47,8 @@ class FrogPilotFollowing:
           frogpilot_toggles.custom_personalities, sm["controlsState"].personality
         )
 
-      self.t_follow = get_T_FOLLOW(
-        frogpilot_toggles.aggressive_follow,
-        frogpilot_toggles.standard_follow,
-        frogpilot_toggles.relaxed_follow,
-        frogpilot_toggles.custom_personalities, sm["controlsState"].personality
-      )
+      # 使用原車 ACC 動態 Time Headway 公式
+      self.t_follow = get_dynamic_T_FOLLOW_stock_acc(v_ego)
     else:
       self.base_acceleration_jerk = 0
       self.base_danger_jerk = 0
@@ -63,7 +59,24 @@ class FrogPilotFollowing:
     self.danger_jerk = self.base_danger_jerk
     self.speed_jerk = self.base_speed_jerk
 
-    self.following_lead = self.frogpilot_planner.tracking_lead and self.frogpilot_planner.lead_one.dRel < (self.t_follow + 1) * v_ego
+    # === 新增：原車 ACC 有車/無車差異化 Jerk ===
+    # 基於原車 ACC 分析，進行差異化控制
+    # Cost weight 機制：數值越大 = 越平順 = 實際 jerk 越小
+    if sm["controlsState"].enabled:
+        if self.frogpilot_planner.tracking_lead:
+            # 有前車：平順模式（目標實際 jerk ≈ 1.1 m/s³）
+            self.acceleration_jerk = 1.8
+            self.speed_jerk = 1.8
+            self.danger_jerk = 1.8
+        else:
+            # 無前車：溫和激進模式（目標實際 jerk ≈ 1.6 m/s³）
+            # 用戶要求不要太快，設定為 1.2
+            self.acceleration_jerk = 1.2
+            self.speed_jerk = 1.2
+            self.danger_jerk = 1.2
+
+    # 擴大閾值從 +1 → +5，減少 47.1% 誤判（有前車但 following_lead = False）
+    self.following_lead = self.frogpilot_planner.tracking_lead and self.frogpilot_planner.lead_one.dRel < (self.t_follow + 5) * v_ego
 
     if sm["controlsState"].enabled and self.frogpilot_planner.tracking_lead:
       self.update_follow_values(self.frogpilot_planner.lead_one.dRel, v_ego, self.frogpilot_planner.lead_one.vLead, frogpilot_toggles)
@@ -93,3 +106,31 @@ class FrogPilotFollowing:
           far_lead_offset = 0
         self.t_follow /= braking_offset + far_lead_offset
       self.slower_lead = braking_offset > 1
+
+    # === 新增：追定速修正 ===
+    # 防止定速過高時忽略前車，導致追定速問題
+    v_ego_kph = v_ego * 3.6
+    v_lead_kph = v_lead * 3.6
+
+    # 計算速度差（自車比前車快多少）
+    speed_diff_kph = v_ego_kph - v_lead_kph
+
+    # 計算期望跟車距離
+    desired_dist = desired_follow_distance(v_ego, v_lead, self.t_follow)
+
+    # 計算距離不足程度
+    distance_deficit = desired_dist - lead_distance
+
+    # 條件 1: 接近前車（速度比前車快超過 5 km/h）
+    # 條件 2: 距離不足（比期望距離少 5 米以上）
+    if speed_diff_kph > 5.0 and distance_deficit > 5.0:
+      # 根據距離不足程度調整 Jerk
+      deficit_factor = min(distance_deficit / 10.0, 3.0)
+
+      # 降低加速靈敏度
+      self.acceleration_jerk *= (1.0 + deficit_factor)
+      self.speed_jerk *= (1.0 + deficit_factor)
+
+      # 嚴重情況下增加跟車時間
+      if speed_diff_kph > 10.0 and distance_deficit > 10.0:
+        self.t_follow *= 1.3

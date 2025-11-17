@@ -32,12 +32,20 @@ class ConditionalExperimentalMode:
       # 檢查是否為紅綠燈/model stop 觸發模式 (status_value 11: model stop, 12: forcing stop)
       traffic_light_mode = self.status_value in {11, 12}
 
-      # 檢查前車距離和速度：距離超過 7m 且前車速度 > 1 m/s，表示前車真的在駛離
-      # 使用速度條件避免 dRel 不穩定或前車短暫移動造成誤判
-      lead_far_away = self.frogpilot_planner.tracking_lead and self.frogpilot_planner.lead_one.dRel > 7.0 and self.frogpilot_planner.lead_one.vLead > 1.0
+      # 檢查前車狀態，決定是否解除 Experimental Mode
+      # 方案 B: 前車移動 OR 距離遠 → 解除
+      # 條件 1: 前車開始移動（vLead > 0.5 m/s，約 1.8 km/h）
+      # 條件 2: 前車距離夠遠（dRel > 7m）
+      # 任一條件滿足就應該解除 Experimental Mode，允許起步跟車
+      if self.frogpilot_planner.tracking_lead:
+        lead_moving = self.frogpilot_planner.lead_one.vLead > 0.5
+        lead_far = self.frogpilot_planner.lead_one.dRel > 7.0
+        should_release = lead_moving or lead_far
+      else:
+        should_release = False
 
-      # 如果是紅綠燈模式且前車已經駛離（距離 > 7m 且速度 > 1 m/s），解除 experimental_mode
-      if traffic_light_mode and lead_far_away:
+      # 如果是紅綠燈模式且應該解除，解除 experimental_mode
+      if traffic_light_mode and should_release:
         self.experimental_mode = False
       else:
         # 原邏輯：status_value == 2 (手動) 或 standstill 時保持
