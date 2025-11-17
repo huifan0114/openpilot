@@ -28,7 +28,7 @@ export class DashboardUI {
 
       // 速限標誌
       speedLimitCard: document.getElementById('speed-limit-card'),
-      mutcdValue: document.getElementById('mutcd-value'),
+      speedLimitValue: document.getElementById('speed-limit-value'),
 
       // 即將到來的速限
       upcomingLimitCard: document.getElementById('upcoming-limit-card'),
@@ -78,6 +78,148 @@ export class DashboardUI {
     };
 
     console.log('[Dashboard] Initialized');
+  }
+
+  // ========== 飛機儀表板啟動效果 ==========
+
+  /**
+   * 啟動儀表板自檢效果
+   * 模擬飛機儀表板開機時的完整 LCD 測試
+   * 包含所有元素：數值、盲點、EXPERIMENTAL MODE 等
+   */
+  startupSequence() {
+    console.log('[Dashboard] 🎬 Starting startup sequence...');
+
+    // 添加啟動模式類
+    document.body.classList.add('startup-mode');
+
+    // 測試數值模板
+    const testValues = {
+      large: '888',    // 3位數
+      medium: '88',    // 2位數
+      distance: '888', // 距離
+      time: '8.8'      // 時間
+    };
+
+    // === 1. 所有數值顯示測試模式 ===
+
+    // MAX 和 VCRUISE
+    this.elements.maxSpeed.textContent = testValues.large;
+    this.elements.vcruiseValue.textContent = testValues.large;
+
+    // 速限
+    this.elements.speedLimitValue.textContent = testValues.medium;
+    this.elements.upcomingValue.textContent = testValues.medium;
+    this.elements.upcomingDistance.textContent = `${testValues.distance} ${this.units.distance}`;
+
+    // CSC
+    this.elements.cscSpeed.textContent = testValues.medium;
+
+    // 加減速度
+    this.elements.accelerationValue.textContent = '8.88';
+    this.elements.accelerationValue.classList.add('positive');
+
+    // 前車資訊（強制顯示）
+    this.elements.noLeadState.classList.add('hidden');
+    this.elements.hasLeadState.classList.remove('hidden');
+    this.elements.leadDistance.textContent = `${testValues.distance} ${this.units.distance}`;
+    this.elements.desiredDistance.textContent = `(期望: ${testValues.distance} ${this.units.distance})`;
+    this.elements.leadSpeed.textContent = `${testValues.medium} ${this.units.speed}`;
+    this.elements.followTime.textContent = `${testValues.time} 秒`;
+
+    // 道路名稱
+    this.elements.roadNameCard.classList.remove('hidden');
+    this.elements.roadNameText.textContent = '888888888';
+
+    // === 2. 盲點警示顯示 ===
+    this.elements.leftBlindspot.classList.remove('hidden');
+    this.elements.leftBlindspot.classList.add('active');
+    this.elements.rightBlindspot.classList.remove('hidden');
+    this.elements.rightBlindspot.classList.add('active');
+
+    // === 3. EXPERIMENTAL MODE 圖標顯示 ===
+    this.elements.experimentalIcon.src = '/static/assets/img_experimental.svg';
+    this.elements.experimentalCard.classList.add('active');
+
+    // === 4. 定義完整淡出序列（按邏輯順序熄滅）===
+    const fadeoutSequence = [
+      // 頂部元素
+      { element: this.elements.maxSpeed, delay: 800, type: 'value' },
+      { element: this.elements.vcruiseValue, delay: 1000, type: 'value' },
+      { element: this.elements.speedLimitValue, delay: 1200, type: 'value' },
+      { element: this.elements.upcomingValue, delay: 1400, type: 'value' },
+
+      // 盲點警示
+      { element: this.elements.leftBlindspot, delay: 1600, type: 'blindspot' },
+      { element: this.elements.rightBlindspot, delay: 1800, type: 'blindspot' },
+
+      // EXPERIMENTAL MODE
+      { element: this.elements.experimentalCard, delay: 2000, type: 'experimental' },
+
+      // 前車資訊
+      { element: this.elements.leadDistance, delay: 2200, type: 'value' },
+      { element: this.elements.leadSpeed, delay: 2400, type: 'value' },
+      { element: this.elements.followTime, delay: 2600, type: 'value' },
+
+      // 底部元素
+      { element: this.elements.cscSpeed, delay: 2800, type: 'value' },
+      { element: this.elements.accelerationValue, delay: 3000, type: 'value' },
+      { element: this.elements.roadNameCard, delay: 3200, type: 'card' }
+    ];
+
+    // === 5. 執行淡出序列 ===
+    fadeoutSequence.forEach(({ element, delay, type }) => {
+      setTimeout(() => {
+        if (type === 'value') {
+          // 數值淡出
+          element.classList.add('startup-fadeout');
+          setTimeout(() => {
+            element.textContent = '--';
+            element.classList.remove('startup-fadeout');
+          }, 1600);
+
+        } else if (type === 'blindspot') {
+          // 盲點淡出並隱藏
+          element.classList.add('blindspot-fadeout');
+          setTimeout(() => {
+            element.classList.remove('active', 'blindspot-fadeout');
+            element.classList.add('hidden');
+          }, 1600);
+
+        } else if (type === 'experimental') {
+          // EXPERIMENTAL MODE 淡出
+          element.classList.remove('active');
+          this.elements.experimentalIcon.src = '/static/assets/img_experimental_white.svg';
+
+        } else if (type === 'card') {
+          // 卡片淡出並隱藏
+          element.style.opacity = '0';
+          setTimeout(() => {
+            element.classList.add('hidden');
+            element.style.opacity = '1';
+          }, 1600);
+        }
+      }, delay);
+    });
+
+    // === 6. 完成後恢復正常狀態 ===
+    setTimeout(() => {
+      document.body.classList.remove('startup-mode');
+
+      // 恢復待機狀態
+      this.showNoLead();
+      this.elements.maxSpeed.textContent = '--';
+      this.elements.vcruiseValue.textContent = '--';
+      this.elements.speedLimitValue.textContent = '--';
+      this.elements.upcomingValue.textContent = '--';
+      this.elements.upcomingDistance.textContent = `-- ${this.units.distance}`;
+      this.elements.cscSpeed.textContent = '--';
+      this.elements.accelerationValue.textContent = '--';
+      this.elements.accelerationValue.className = 'value-medium neutral';
+      this.elements.roadNameText.textContent = '--';
+
+      console.log('[Dashboard] ✓ Startup sequence completed');
+    }, 5600); // 總時長約 5.6 秒
   }
 
   // ========== 前車資訊更新 (核心功能) ==========
@@ -204,11 +346,11 @@ export class DashboardUI {
 
     // 永遠顯示速限，沒有數據時顯示 --
     if (speedLimit <= 0) {
-      this.elements.mutcdValue.textContent = '--';
+      this.elements.speedLimitValue.textContent = '--';
     } else {
       // 直接轉換單位 (m/s -> km/h 或 mph)
       const speedLimitConverted = speedLimit * this.units.speedConversion;
-      this.elements.mutcdValue.textContent = Math.round(speedLimitConverted).toString();
+      this.elements.speedLimitValue.textContent = Math.round(speedLimitConverted).toString();
     }
 
     // 即將到來的速限 - 永遠顯示，數值和距離分別處理
@@ -290,8 +432,8 @@ export class DashboardUI {
       return;
     }
 
-    // 顯示加速度數值 (保留 2 位小數)
-    this.elements.accelerationValue.textContent = aEgo.toFixed(2);
+    // 顯示加速度數值 (保留 2 位小數，使用絕對值不顯示負號)
+    this.elements.accelerationValue.textContent = Math.abs(aEgo).toFixed(2);
 
     // 移除所有顏色類別
     this.elements.accelerationValue.classList.remove('positive', 'negative', 'neutral');

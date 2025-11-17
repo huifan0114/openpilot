@@ -103,6 +103,13 @@ async function init() {
     // 載入參數
     loadParams();
 
+    // 🎬 啟動飛機儀表板效果（包含所有元素）
+    console.log('🎬 Running startup sequence (all elements)...');
+    dashboard.startupSequence();
+
+    // 等待啟動序列完成後再連接 WebRTC
+    await new Promise(resolve => setTimeout(resolve, 5600));
+
     // 啟動 WebRTC 連接
     console.log('Connecting to WebRTC...');
     dashboard.updateConnectionStatus(false);

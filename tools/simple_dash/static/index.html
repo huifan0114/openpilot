@@ -2,19 +2,21 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>FrogPilot Dashboard</title>
   <link rel="stylesheet" href="/static/css/style.css">
   <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icon-192.png">
+  <meta name="theme-color" content="#000000">
 </head>
 <body>
   <div id="dashboard">
 
     <!-- 頂部中央: 連接狀態 -->
-    <div id="top-center-status">
+    <div id="top-center-status" class="hidden">
       <div id="connection-status" class="connection-badge connecting">
         <span id="status-text">連接中...</span>
       </div>
@@ -38,14 +40,9 @@
     <!-- 左上角: 速限 + 即將到來速限 -->
     <div id="top-left-controls">
       <div id="speed-limit-card" class="card">
-        <!-- MUTCD (美式方形) -->
-        <div id="mutcd-sign" class="speed-sign">
-          <div class="sign-border">
-            <div class="sign-label">SPEED</div>
-            <div class="sign-label">LIMIT</div>
-            <div id="mutcd-value" class="sign-value">--</div>
-          </div>
-        </div>
+        <div class="label-small">SPEED LIMIT</div>
+        <div id="speed-limit-value" class="value-medium">--</div>
+        <div class="label-tiny">km/h</div>
       </div>
 
       <!-- 即將到來的速限 (與速限標誌放在一起) -->

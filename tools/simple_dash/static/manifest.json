@@ -1,9 +1,9 @@
 {
-  "name": "AR HUD Dashboard",
-  "short_name": "AR HUD",
-  "description": "AR Head-Up Display for openpilot",
+  "name": "FrogPilot Dashboard",
+  "short_name": "FP DASH",
+  "description": "FrogPilot Dashboard for openpilot",
   "start_url": "/",
-  "display": "fullscreen",
+  "display": "standalone",
   "orientation": "landscape",
   "background_color": "#000000",
   "theme_color": "#000000",
