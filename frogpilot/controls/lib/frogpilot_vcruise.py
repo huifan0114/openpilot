@@ -37,15 +37,17 @@ class FrogPilotVCruise:
     import math
 
     STEP_SIZE = 10 * CV.KPH_TO_MS  # 每次增加 10 km/h
-    APPROACH_THRESHOLD = 1 * CV.KPH_TO_MS  # 接近閾值 1 km/h
+    APPROACH_THRESHOLD = 2 * CV.KPH_TO_MS  # 接近閾值 2 km/h（提前升段更流暢）
     MIN_STEP_TRIGGER = 10 * CV.KPH_TO_MS  # 最小觸發差距 10 km/h
 
-    # 計算下一個對齊到 10 的倍數的目標速度
+    # 計算下一個對齊到 10 的倍數的目標速度（最小 20 km/h）
     def calculate_next_target(v_ego_ms):
       v_ego_kph = v_ego_ms * CV.MS_TO_KPH
       # 對齊到最近的 10 的倍數（向上取整）
       # 例如: 38 km/h → 40, 40 km/h → 40, 42 km/h → 50
       next_target_kph = math.ceil(v_ego_kph / 10) * 10
+      # 確保最小目標速度為 20 km/h（避免 0→10 太慢）
+      next_target_kph = max(next_target_kph, 20)
       return next_target_kph * CV.KPH_TO_MS
 
     speed_diff = v_cruise_final - v_ego
@@ -156,14 +158,15 @@ class FrogPilotVCruise:
 
       self.tracked_model_length = self.frogpilot_planner.model_length
 
-      targets = [self.braking_target, self.csc_target, v_cruise]
-      #if frogpilot_toggles.speed_limit_controller:
-        #targets.append(max(self.slc.overridden_speed, self.slc_target + self.slc_offset) - v_ego_diff)
-
-      v_cruise_base = min([target if target > CRUISING_SPEED else v_cruise for target in targets])
-
-      # Apply progressive acceleration control
-      # This prevents sudden large accelerations by stepping up speed gradually (10 km/h increments)
-      v_cruise = self.update_progressive_speed(v_ego, v_cruise_base)
+      # CSC (Curve Speed Controller) takes priority - no progressive delay on safety features
+      if self.csc_controlling_speed:
+        # CSC active: use curve speed directly and reset progressive state
+        # Progressive will restart from current speed after exiting curve
+        self.progressive_enabled = False
+        v_cruise = self.csc_target
+      else:
+        # Normal operation: apply progressive acceleration control to v_cruise
+        # This prevents sudden large accelerations by stepping up speed gradually (10 km/h increments)
+        v_cruise = self.update_progressive_speed(v_ego, v_cruise)
 
     return v_cruise
