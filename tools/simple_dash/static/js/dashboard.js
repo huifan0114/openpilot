@@ -41,18 +41,12 @@ export class DashboardUI {
 
       // CSC 彎道速度控制
       cscCard: document.getElementById('csc-card'),
-      cscIcon: document.getElementById('csc-icon'),
       cscSpeed: document.getElementById('csc-speed'),
       cscSpeedUnit: document.getElementById('csc-speed-unit'),
-      cscTraining: document.getElementById('csc-training'),
 
       // EXPERIMENTAL MODE
       experimentalCard: document.getElementById('experimental-card'),
       experimentalIcon: document.getElementById('experimental-icon'),
-
-      // 指南針（文字）
-      compassCard: document.getElementById('compass-card'),
-      compassText: document.getElementById('compass-text'),
 
       // 加減速度
       accelerationValue: document.getElementById('acceleration-value'),
@@ -209,8 +203,8 @@ export class DashboardUI {
   // ========== 速限標誌更新 ==========
 
   updateSpeedLimit(frogpilotPlan) {
-    // 使用 MAPD 原始資料 (與 FrogPilot UI 一致)
-    // 從 params_memory.MapSpeedLimit 讀取，未經 SLC 處理
+    // 使用 MAPD 速限（與 openpilot UI 和 drive_helpers 一致）
+    // 這是控制定速的統一資料來源 (unified data source)
     const speedLimit = frogpilotPlan.mapdSpeedLimit || 0;  // m/s
 
     // 永遠顯示速限，沒有數據時顯示 --
@@ -247,34 +241,14 @@ export class DashboardUI {
 
   updateCSC(frogpilotPlan) {
     const cscControlling = frogpilotPlan.cscControllingSpeed || false;
-    const cscTraining = frogpilotPlan.cscTraining || false;
     const cscSpeed = frogpilotPlan.cscSpeed || 0;
-    const roadCurvature = frogpilotPlan.roadCurvature || 0;
 
-    // 永遠顯示 CSC 卡片
-
-    // 彎道方向 (負值 = 左彎，正值 = 右彎)
-    if (roadCurvature < 0) {
-      this.elements.cscIcon.classList.remove('flip');
-    } else {
-      this.elements.cscIcon.classList.add('flip');
-    }
-
-    // 速度顯示 - 沒有數據或未控制時顯示 --
-    if (cscSpeed > 0 && (cscControlling || cscTraining)) {
+    // 速度顯示 - CSC 控制時顯示速度，否則顯示 --
+    if (cscSpeed > 0 && cscControlling) {
       const cscSpeedConverted = cscSpeed * this.units.speedConversion;
       this.elements.cscSpeed.textContent = Math.round(cscSpeedConverted);
     } else {
       this.elements.cscSpeed.textContent = '--';
-    }
-
-    // 訓練模式
-    if (cscTraining) {
-      this.elements.cscCard.classList.add('training');
-      this.elements.cscTraining.classList.remove('hidden');
-    } else {
-      this.elements.cscCard.classList.remove('training');
-      this.elements.cscTraining.classList.add('hidden');
     }
   }
 
@@ -435,24 +409,6 @@ export class DashboardUI {
       this.elements.experimentalIcon.src = '/static/assets/img_experimental_white.svg';
       this.elements.experimentalCard.classList.remove('active');
     }
-  }
-
-  // ========== 指南針更新 ==========
-
-  /**
-   * 更新指南針文字顯示
-   * @param {Number} bearing - 方向角度 (0-360)
-   */
-  updateCompass(bearing) {
-    if (bearing === null || bearing === undefined) {
-      this.elements.compassText.textContent = 'N';
-      return;
-    }
-
-    // 將角度轉換為方向文字
-    const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-    const index = Math.round(((bearing % 360) / 45)) % 8;
-    this.elements.compassText.textContent = directions[index];
   }
 
   // ========== 連接狀態更新 ==========

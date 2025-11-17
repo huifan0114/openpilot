@@ -37,10 +37,9 @@ function handleMessage(msgType, msgData) {
       if (msgData.aEgo !== undefined) {
         dashboard.updateAcceleration(msgData.aEgo);
       }
-      // 更新 MAX 速度
-      if (msgData.cruiseState) {
-        const vCruise = msgData.cruiseState.speed || msgData.vEgoCluster || 0;
-        dashboard.updateMaxSpeed(vCruise);
+      // 更新 MAX 速度（定速設定值）
+      if (msgData.cruiseState && msgData.cruiseState.speed) {
+        dashboard.updateMaxSpeed(msgData.cruiseState.speed);
       }
       // 更新盲點警示
       dashboard.updateBlindspots(msgData);
@@ -68,15 +67,6 @@ function handleMessage(msgType, msgData) {
     case 'radarState':
       // 更新前車資訊
       dashboard.updateLeadInfo(msgData, stateManager.frogpilotPlan);
-      break;
-
-    case 'modelV2':
-      // 更新指南針（如果有方向資料）
-      if (msgData.orientation && msgData.orientation.z !== undefined) {
-        // orientation.z 是 yaw 角度（弧度），需轉換為度數
-        const bearingDegrees = (msgData.orientation.z * 180 / Math.PI + 360) % 360;
-        dashboard.updateCompass(bearingDegrees);
-      }
       break;
 
     // 未來可以擴展更多服務

@@ -56,17 +56,11 @@
       </div>
     </div>
 
-    <!-- 右上角: EXPERIMENTAL MODE + 指南針 -->
+    <!-- 右上角: EXPERIMENTAL MODE -->
     <div id="top-right-status">
       <!-- EXPERIMENTAL MODE 圖示 -->
       <div id="experimental-card" class="card experimental-icon-card">
         <img id="experimental-icon" src="/static/assets/img_experimental_white.svg" alt="Experimental Mode" />
-      </div>
-
-      <!-- 指南針（文字顯示） -->
-      <div id="compass-card" class="card small-card">
-        <div class="label-small">方向</div>
-        <div id="compass-text" class="compass-text">N</div>
       </div>
     </div>
 
@@ -121,14 +115,6 @@
       </div>
     </div>
 
-    <!-- 左下角: 當前速度 -->
-    <div id="bottom-left-info">
-      <div id="current-speed-card" class="card small-card">
-        <div id="current-speed-value" class="value-medium">--</div>
-        <div id="current-speed-unit" class="label-small">km/h</div>
-      </div>
-    </div>
-
     <!-- 右下角: 加減速度 -->
     <div id="bottom-right-acceleration">
       <div id="acceleration-card" class="card small-card">
@@ -145,15 +131,12 @@
       </div>
     </div>
 
-    <!-- 底部右側: CSC (與道路名稱重疊) -->
-    <div id="bottom-right-csc">
-      <div id="csc-card" class="card">
-        <div class="csc-icon-container">
-          <div id="csc-icon" class="csc-curve-icon">↪️</div>
-        </div>
+    <!-- 左下角: 彎道減速 -->
+    <div id="bottom-left-csc">
+      <div id="csc-card" class="card small-card">
+        <div class="label-small">彎道減速</div>
         <div id="csc-speed" class="value-medium">--</div>
         <div id="csc-speed-unit" class="label-tiny">km/h</div>
-        <div id="csc-training" class="training-label hidden">Training...</div>
       </div>
     </div>
 
