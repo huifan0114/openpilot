@@ -355,18 +355,26 @@ body::after {
 /* ===== 中央: 前車資訊卡片 (主角) ===== */
 #center-lead-info {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+
+  /* 上邊：MAX/VCRUISE 卡片下緣 + 間距 */
+  top: calc(var(--spacing-lg) + 130px + var(--spacing-md));  /* 32px + 130px + 20px = 182px */
+
+  /* 下邊：底部導航條 + 間距 */
+  bottom: calc(50px + var(--spacing-md));  /* 50px + 20px = 70px */
+
+  /* 左邊：UPCOMING 卡片右緣 + 間距 */
+  left: calc(var(--spacing-lg) + 220px + var(--spacing-md));  /* 32px + 220px + 20px = 272px */
+
+  /* 右邊：加減速度卡片寬度 + 左右邊距 + 間距 */
+  right: calc(var(--spacing-lg) + 160px + var(--spacing-md));  /* 32px + 160px + 20px = 212px */
+
   z-index: 50;  /* 降低 z-index，不覆蓋其他卡片 */
   pointer-events: none;  /* 允許點擊穿透 */
 }
 
 .lead-info-card {
-  width: 500px;       /* CSC 移走,可以放寬 */
-  min-height: 45vh;   /* 響應式高度：螢幕高度的 45% */
-  max-height: 500px;  /* 最大高度限制，避免大螢幕過高 */
-  max-width: 50vw;
+  width: 100%;        /* 填滿父容器 */
+  height: 100%;       /* 填滿父容器 */
   pointer-events: auto;  /* 卡片本身可點擊 */
   background: linear-gradient(135deg, rgba(15, 15, 15, 0.98) 0%, rgba(25, 25, 25, 0.95) 100%);
   border-radius: 32px;
@@ -430,7 +438,7 @@ body::after {
 #has-lead-state {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: 16px;                 /* 從 var(--spacing-lg) (32px) 縮小 */
 }
 
 .info-section {
@@ -438,31 +446,31 @@ body::after {
 }
 
 .info-label {
-  font-size: 28px;
+  font-size: 20px;           /* 從 28px 縮小 */
   color: var(--text-secondary);
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: 4px;        /* 從 var(--spacing-sm) (12px) 縮小 */
   font-weight: 500;
 }
 
 .info-value-large {
-  font-size: 60px;
+  font-size: 56px;           /* 從 60px 縮小 */
   font-weight: 700;
   color: var(--text-primary);
-  margin: var(--spacing-xs) 0;
+  margin: 2px 0;             /* 從 var(--spacing-xs) (8px) 縮小 */
   transition: color var(--transition-fast);
 }
 
 .info-sublabel {
-  font-size: 32px;
+  font-size: 24px;           /* 從 32px 縮小 */
   color: var(--text-dim);
-  margin-top: var(--spacing-xs);
+  margin-top: 4px;           /* 從 var(--spacing-xs) (8px) 縮小 */
   font-weight: 400;
 }
 
 .info-row {
   display: flex;
   justify-content: space-around;
-  gap: 40px;
+  gap: 24px;                 /* 從 40px 縮小 */
 }
 
 .info-col {
@@ -472,7 +480,7 @@ body::after {
 .divider {
   height: 2px;
   background: rgba(255, 255, 255, 0.15);
-  margin: var(--spacing-md) 0;
+  margin: 12px 0;            /* 從 var(--spacing-md) (20px) 縮小 */
 }
 
 /* 狀態顏色類 */
@@ -770,13 +778,46 @@ body::after {
     --spacing-md: 14px;
   }
 
-  /* 中央卡片 */
+  /* 中央前車卡片 */
+  #center-lead-info {
+    top: calc(var(--spacing-lg) + 100px + var(--spacing-sm));  /* 20px + 100px + 12px */
+    bottom: calc(50px + var(--spacing-sm));                    /* 50px + 12px */
+    left: calc(var(--spacing-lg) + 140px + var(--spacing-sm)); /* 20px + 140px + 12px */
+    right: calc(var(--spacing-lg) + 130px + var(--spacing-sm));/* 20px + 130px + 12px */
+  }
+
   .lead-info-card {
-    width: 400px;
-    min-height: 40vh;   /* 平板：螢幕高度的 40% */
-    max-height: 450px;  /* 最大高度限制 */
-    max-width: 45vw;
+    width: 100%;
+    height: 100%;
     padding: 20px;
+  }
+
+  /* 緊湊化文字 */
+  .info-label {
+    font-size: 18px;
+    margin-bottom: 3px;
+  }
+
+  .info-value-large {
+    font-size: 44px;
+    margin: 2px 0;
+  }
+
+  .info-sublabel {
+    font-size: 20px;
+    margin-top: 3px;
+  }
+
+  #has-lead-state {
+    gap: 12px;
+  }
+
+  .divider {
+    margin: 10px 0;
+  }
+
+  .info-row {
+    gap: 20px;
   }
 
   /* 盲點指示器 */
@@ -912,13 +953,46 @@ body::after {
     --card-padding: 12px;
   }
 
-  /* 中央卡片 */
+  /* 中央前車卡片 */
+  #center-lead-info {
+    top: calc(var(--spacing-lg) + 80px + var(--spacing-sm));   /* 8px + 80px + 4px */
+    bottom: calc(50px + var(--spacing-sm));                    /* 50px + 4px */
+    left: calc(var(--spacing-lg) + 90px + var(--spacing-sm));  /* 8px + 90px + 4px */
+    right: calc(var(--spacing-lg) + 90px + var(--spacing-sm)); /* 8px + 90px + 4px */
+  }
+
   .lead-info-card {
-    width: 320px;
-    min-height: 35vh;   /* 手機：螢幕高度的 35% */
-    max-height: 400px;  /* 最大高度限制 */
-    max-width: 65vw;
+    width: 100%;
+    height: 100%;
     padding: 10px;
+  }
+
+  /* 緊湊化文字 */
+  .info-label {
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .info-value-large {
+    font-size: 28px;
+    margin: 2px 0;
+  }
+
+  .info-sublabel {
+    font-size: 16px;
+    margin-top: 2px;
+  }
+
+  #has-lead-state {
+    gap: 8px;
+  }
+
+  .divider {
+    margin: 6px 0;
+  }
+
+  .info-row {
+    gap: 16px;
   }
 
   /* 盲點指示器 */
@@ -1124,13 +1198,46 @@ body::after {
     --card-padding: 8px;
   }
 
-  /* 中央卡片 */
+  /* 中央前車卡片 */
+  #center-lead-info {
+    top: calc(var(--spacing-lg) + 70px + var(--spacing-sm));   /* 6px + 70px + 3px */
+    bottom: calc(50px + var(--spacing-sm));                    /* 50px + 3px */
+    left: calc(var(--spacing-lg) + 70px + var(--spacing-sm));  /* 6px + 70px + 3px */
+    right: calc(var(--spacing-lg) + 75px + var(--spacing-sm)); /* 6px + 75px + 3px */
+  }
+
   .lead-info-card {
-    width: 280px;
-    min-height: 30vh;   /* 極小螢幕：螢幕高度的 30% */
-    max-height: 350px;  /* 最大高度限制 */
-    max-width: 80vw;
+    width: 100%;
+    height: 100%;
     padding: 8px;
+  }
+
+  /* 緊湊化文字 */
+  .info-label {
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+
+  .info-value-large {
+    font-size: 22px;
+    margin: 1px 0;
+  }
+
+  .info-sublabel {
+    font-size: 13px;
+    margin-top: 2px;
+  }
+
+  #has-lead-state {
+    gap: 6px;
+  }
+
+  .divider {
+    margin: 4px 0;
+  }
+
+  .info-row {
+    gap: 12px;
   }
 
   /* 盲點指示器 */

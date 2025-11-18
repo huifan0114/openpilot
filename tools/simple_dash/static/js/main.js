@@ -10,6 +10,7 @@ import { DashboardUI } from './dashboard.js';
 
 const stateManager = {
   carState: null,          // 基本車輛狀態 (vEgo, aEgo, vCruise 等)
+  controlsState: null,     // 控制狀態 (定速設定值)
   radarState: null,        // 雷達狀態 (前車資訊)
   frogpilotPlan: null      // FrogPilot 路徑規劃 (速限, 彎道控制等)
 };
@@ -37,12 +38,15 @@ function handleMessage(msgType, msgData) {
       if (msgData.aEgo !== undefined) {
         dashboard.updateAcceleration(msgData.aEgo);
       }
-      // 更新 MAX 速度（定速設定值）
-      if (msgData.cruiseState && msgData.cruiseState.speed) {
-        dashboard.updateMaxSpeed(msgData.cruiseState.speed);
-      }
       // 更新盲點警示
       dashboard.updateBlindspots(msgData);
+      break;
+
+    case 'controlsState':
+      // 更新 MAX 速度（用戶設定的原始定速）
+      if (msgData.vCruise !== undefined && msgData.vCruise > 0) {
+        dashboard.updateMaxSpeed(msgData.vCruise);
+      }
       break;
 
     case 'frogpilotPlan':
@@ -122,7 +126,8 @@ async function init() {
     console.log('✓ FrogPilot Dashboard initialized');
     console.log('');
     console.log('訂閱的服務（最小化訂閱，減少系統負擔）:');
-    console.log('- carState (基本車輛狀態: 速度, 加速度, cruise 等)');
+    console.log('- carState (基本車輛狀態: 速度, 加速度等)');
+    console.log('- controlsState (控制狀態: 定速設定值)');
     console.log('- frogpilotPlan (FrogPilot 路徑規劃: 速限, 彎道控制等)');
     console.log('- radarState (雷達狀態: 前車資訊)');
 

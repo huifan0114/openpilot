@@ -119,13 +119,13 @@ export class DashboardUI {
     this.elements.accelerationValue.textContent = '8.88';
     this.elements.accelerationValue.classList.add('positive');
 
-    // 前車資訊（強制顯示）
+    // 前車資訊（強制顯示，移除單位）
     this.elements.noLeadState.classList.add('hidden');
     this.elements.hasLeadState.classList.remove('hidden');
-    this.elements.leadDistance.textContent = `${testValues.distance} ${this.units.distance}`;
-    this.elements.desiredDistance.textContent = `(期望: ${testValues.distance} ${this.units.distance})`;
-    this.elements.leadSpeed.textContent = `${testValues.medium} ${this.units.speed}`;
-    this.elements.followTime.textContent = `${testValues.time} 秒`;
+    this.elements.leadDistance.textContent = testValues.distance;
+    this.elements.desiredDistance.textContent = `(期望: ${testValues.distance})`;
+    this.elements.leadSpeed.textContent = testValues.medium;
+    this.elements.followTime.textContent = testValues.time;
 
     // 道路名稱
     this.elements.roadNameCard.classList.remove('hidden');
@@ -258,11 +258,11 @@ export class DashboardUI {
       ? (lead.dRel / this.state.vEgo).toFixed(1)
       : '--';
 
-    // 更新顯示
-    this.elements.leadDistance.textContent = `${Math.round(distance)} ${this.units.distance}`;
-    this.elements.desiredDistance.textContent = `(期望: ${Math.round(desiredDist)} ${this.units.distance})`;
-    this.elements.leadSpeed.textContent = `${Math.round(leadSpeed)} ${this.units.speed}`;
-    this.elements.followTime.textContent = followTime !== '--' ? `${followTime} 秒` : '--';
+    // 更新顯示（移除單位，更緊湊）
+    this.elements.leadDistance.textContent = `${Math.round(distance)}`;
+    this.elements.desiredDistance.textContent = `(期望: ${Math.round(desiredDist)})`;
+    this.elements.leadSpeed.textContent = `${Math.round(leadSpeed)}`;
+    this.elements.followTime.textContent = followTime !== '--' ? `${followTime}` : '--';
 
     // 根據距離和時間更新卡片狀態
     this.updateLeadCardStatus(distance, desiredDist, followTime);
