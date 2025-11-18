@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
 
-from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import COMFORT_BRAKE, STOP_DISTANCE, desired_follow_distance, get_jerk_factor, get_T_FOLLOW, get_dynamic_T_FOLLOW_stock_acc
+from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import COMFORT_BRAKE, STOP_DISTANCE, desired_follow_distance, get_jerk_factor, get_T_FOLLOW, get_dynamic_T_FOLLOW_stock_style
 
 from openpilot.frogpilot.common.frogpilot_variables import CITY_SPEED_LIMIT
 
@@ -47,8 +47,8 @@ class FrogPilotFollowing:
           frogpilot_toggles.custom_personalities, sm["controlsState"].personality
         )
 
-      # 使用原車 ACC 動態 Time Headway 公式
-      self.t_follow = get_dynamic_T_FOLLOW_stock_acc(v_ego)
+      # 使用原車 ACC 動態 Time Headway 公式（簡單公式 + 60m 上限）
+      self.t_follow = get_dynamic_T_FOLLOW_stock_style(v_ego)
     else:
       self.base_acceleration_jerk = 0
       self.base_danger_jerk = 0
