@@ -278,8 +278,9 @@ body::after {
 }
 
 #speed-limit-card {
-  width: 220px;  /* 從 180px 增加，防止 "SPEED LIMIT" 文字換行 */
+  width: 220px;
   padding: var(--spacing-md);
+  text-align: center;     /* 新增：文字置中 */
 }
 
 /* 即將到來的速限 (與速限標誌放在一起) */
@@ -308,8 +309,8 @@ body::after {
 
 /* EXPERIMENTAL MODE 圖示卡片 */
 .experimental-icon-card {
-  width: 120px;
-  height: 120px;
+  width: 160px;           /* 從 120px 改為 160px，與加減速度卡片一致 */
+  height: 160px;          /* 從 120px 改為 160px，保持正方形 */
   padding: var(--spacing-md);
   display: flex;
   align-items: center;
@@ -359,14 +360,14 @@ body::after {
   /* 上邊：MAX/VCRUISE 卡片下緣 + 間距 */
   top: calc(var(--spacing-lg) + 130px + var(--spacing-md));  /* 32px + 130px + 20px = 182px */
 
-  /* 下邊：底部導航條 + 間距 */
-  bottom: calc(50px + var(--spacing-md));  /* 50px + 20px = 70px */
+  /* 下邊：ROADNAME 上邊 + 間距 */
+  bottom: calc(65px + 78px + var(--spacing-md));  /* 65px (bottom) + 78px (實際高度) + 20px = 163px */
 
-  /* 左邊：UPCOMING 卡片右緣 + 間距 */
-  left: calc(var(--spacing-lg) + 220px + var(--spacing-md));  /* 32px + 220px + 20px = 272px */
+  /* 左邊：UPCOMING 卡片右緣 + 間距 + 左側盲點 + 盲點間距 */
+  left: calc(var(--spacing-lg) + 220px + var(--spacing-md) + 70px + 25px);  /* 32px + 220px + 20px + 70px + 25px = 367px */
 
-  /* 右邊：加減速度卡片寬度 + 左右邊距 + 間距 */
-  right: calc(var(--spacing-lg) + 160px + var(--spacing-md));  /* 32px + 160px + 20px = 212px */
+  /* 右邊：加減速度卡片寬度 + 左右邊距 + 間距 + 右側盲點 + 盲點間距 */
+  right: calc(var(--spacing-lg) + 160px + var(--spacing-md) + 70px + 25px);  /* 32px + 160px + 20px + 70px + 25px = 307px */
 
   z-index: 50;  /* 降低 z-index，不覆蓋其他卡片 */
   pointer-events: none;  /* 允許點擊穿透 */
@@ -559,7 +560,7 @@ body::after {
 }
 
 #bottom-left-csc #csc-card {
-  width: 160px;
+  width: 220px;           /* 從 160px 改為 220px，與速限卡片一致 */
   text-align: center;
   border: 2px solid rgba(255, 255, 255, 0.15);
   padding: var(--spacing-md);
@@ -781,9 +782,9 @@ body::after {
   /* 中央前車卡片 */
   #center-lead-info {
     top: calc(var(--spacing-lg) + 100px + var(--spacing-sm));  /* 20px + 100px + 12px */
-    bottom: calc(50px + var(--spacing-sm));                    /* 50px + 12px */
-    left: calc(var(--spacing-lg) + 140px + var(--spacing-sm)); /* 20px + 140px + 12px */
-    right: calc(var(--spacing-lg) + 130px + var(--spacing-sm));/* 20px + 130px + 12px */
+    bottom: calc(60px + 65px + var(--spacing-sm));             /* 60px (bottom) + 65px (高度) + 12px = 137px */
+    left: calc(var(--spacing-lg) + 140px + var(--spacing-sm) + 60px + 20px); /* 20px + 140px + 12px + 60px + 20px = 252px */
+    right: calc(var(--spacing-lg) + 130px + var(--spacing-sm) + 60px + 20px);/* 20px + 130px + 12px + 60px + 20px = 242px */
   }
 
   .lead-info-card {
@@ -893,13 +894,13 @@ body::after {
 
   /* 右上角 */
   .experimental-icon-card {
-    width: 100px;
-    height: 100px;
+    width: 130px;         /* 與加減速度卡片一致 */
+    height: 130px;
   }
 
   #experimental-icon {
-    width: 65px;
-    height: 65px;
+    width: 85px;          /* 按比例放大 */
+    height: 85px;
   }
 
   #compass-card {
@@ -929,7 +930,7 @@ body::after {
 
   /* CSC */
   #bottom-left-csc #csc-card {
-    width: 130px;
+    width: 140px;           /* 與速限卡片一致 */
   }
 
   /* 左下角 */
@@ -956,9 +957,9 @@ body::after {
   /* 中央前車卡片 */
   #center-lead-info {
     top: calc(var(--spacing-lg) + 80px + var(--spacing-sm));   /* 8px + 80px + 4px */
-    bottom: calc(50px + var(--spacing-sm));                    /* 50px + 4px */
-    left: calc(var(--spacing-lg) + 90px + var(--spacing-sm));  /* 8px + 90px + 4px */
-    right: calc(var(--spacing-lg) + 90px + var(--spacing-sm)); /* 8px + 90px + 4px */
+    bottom: calc(58px + 54px + var(--spacing-sm));             /* 58px (bottom) + 54px (高度) + 4px = 116px */
+    left: calc(var(--spacing-lg) + 90px + var(--spacing-sm) + 50px + 15px);  /* 8px + 90px + 4px + 50px + 15px = 167px */
+    right: calc(var(--spacing-lg) + 90px + var(--spacing-sm) + 50px + 15px); /* 8px + 90px + 4px + 50px + 15px = 167px */
   }
 
   .lead-info-card {
@@ -1102,14 +1103,14 @@ body::after {
   }
 
   .experimental-icon-card {
-    width: 60px;
-    height: 60px;
+    width: 90px;          /* 與加減速度卡片一致 */
+    height: 90px;
     padding: 6px;
   }
 
   #experimental-icon {
-    width: 45px;
-    height: 45px;
+    width: 70px;          /* 按比例放大 */
+    height: 70px;
   }
 
   #compass-card {
@@ -1140,7 +1141,7 @@ body::after {
 
   /* CSC */
   #bottom-left-csc #csc-card {
-    width: 100px;
+    width: 90px;            /* 與速限卡片一致 */
     padding: 10px;
   }
 
@@ -1201,9 +1202,9 @@ body::after {
   /* 中央前車卡片 */
   #center-lead-info {
     top: calc(var(--spacing-lg) + 70px + var(--spacing-sm));   /* 6px + 70px + 3px */
-    bottom: calc(50px + var(--spacing-sm));                    /* 50px + 3px */
-    left: calc(var(--spacing-lg) + 70px + var(--spacing-sm));  /* 6px + 70px + 3px */
-    right: calc(var(--spacing-lg) + 75px + var(--spacing-sm)); /* 6px + 75px + 3px */
+    bottom: calc(58px + 44px + var(--spacing-sm));             /* 58px (bottom) + 44px (高度) + 3px = 105px */
+    left: calc(var(--spacing-lg) + 70px + var(--spacing-sm) + 40px + 10px);  /* 6px + 70px + 3px + 40px + 10px = 129px */
+    right: calc(var(--spacing-lg) + 75px + var(--spacing-sm) + 40px + 10px); /* 6px + 75px + 3px + 40px + 10px = 134px */
   }
 
   .lead-info-card {
@@ -1352,14 +1353,14 @@ body::after {
   }
 
   .experimental-icon-card {
-    width: 50px;
-    height: 50px;
+    width: 75px;          /* 與加減速度卡片一致 */
+    height: 75px;
     padding: 4px;
   }
 
   #experimental-icon {
-    width: 38px;
-    height: 38px;
+    width: 60px;          /* 按比例放大 */
+    height: 60px;
   }
 
   #compass-card {
@@ -1390,7 +1391,7 @@ body::after {
 
   /* CSC */
   #bottom-left-csc #csc-card {
-    width: 80px;
+    width: 70px;            /* 與速限卡片一致 */
     padding: 8px;
   }
 
