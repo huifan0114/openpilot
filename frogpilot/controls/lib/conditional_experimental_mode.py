@@ -37,10 +37,15 @@ class ConditionalExperimentalMode:
       # 條件 1: 前車開始移動（vLead > 0.5 m/s，約 1.8 km/h）
       # 條件 2: 前車距離夠遠（dRel > 7m）
       # 任一條件滿足就應該解除 Experimental Mode，允許起步跟車
+      # if self.frogpilot_planner.tracking_lead:
+      #   lead_moving = self.frogpilot_planner.lead_one.vLead > 0.5
+      #   lead_far = self.frogpilot_planner.lead_one.dRel > 7.0
+      #   should_release = lead_moving or lead_far
+      # else:
+      #   should_release = False
+
       if self.frogpilot_planner.tracking_lead:
-        lead_moving = self.frogpilot_planner.lead_one.vLead > 0.5
-        lead_far = self.frogpilot_planner.lead_one.dRel > 7.0
-        should_release = lead_moving or lead_far
+        should_release = True
       else:
         should_release = False
 

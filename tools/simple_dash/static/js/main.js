@@ -58,6 +58,8 @@ function handleMessage(msgType, msgData) {
       dashboard.updateVCruise(msgData);
       // 更新 EXPERIMENTAL MODE
       dashboard.updateExperimentalMode(msgData);
+      // 更新 CEM 狀態
+      dashboard.updateCEM(msgData);
       // 更新道路名稱
       if (msgData.roadName !== undefined) {
         dashboard.updateRoadName(msgData.roadName);

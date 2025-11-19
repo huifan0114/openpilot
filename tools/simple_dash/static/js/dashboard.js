@@ -54,7 +54,12 @@ export class DashboardUI {
 
       // 盲點警示
       leftBlindspot: document.getElementById('left-blindspot'),
-      rightBlindspot: document.getElementById('right-blindspot')
+      rightBlindspot: document.getElementById('right-blindspot'),
+
+      // CEM 狀態
+      cemCard: document.getElementById('cem-card'),
+      cemIcon: document.getElementById('cem-icon'),
+      cemText: document.getElementById('cem-text')
     };
 
     // 狀態
@@ -392,6 +397,7 @@ export class DashboardUI {
     const conditionalStatus = frogpilotPlan.ceStatus || 0;
     const experimentalMode = frogpilotPlan.experimentalMode || false;
 
+    // 當未啟用且狀態為 0 時隱藏
     if (!experimentalMode && conditionalStatus === 0) {
       this.elements.cemCard.classList.add('hidden');
       return;
@@ -399,25 +405,41 @@ export class DashboardUI {
 
     this.elements.cemCard.classList.remove('hidden');
 
-    // 根據狀態選擇圖標 (使用 emoji 作為臨時圖標)
-    let icon = '🤖';  // 預設
+    // 根據狀態選擇圖標和文字
+    let icon = '🤖';
+    let text = '實驗';
+
     if (conditionalStatus === 1) {
-      icon = '😌';  // Chill Mode (Overridden)
+      icon = '😌';
+      text = '已暫停';
     } else if (conditionalStatus === 2 || experimentalMode) {
-      icon = '🚀';  // Experimental Mode
+      icon = '🚀';
+      text = '實驗';
     } else if (conditionalStatus === 3 || conditionalStatus === 4) {
-      icon = '⚡';  // Speed-based
-    } else if (conditionalStatus === 5 || conditionalStatus === 7) {
-      icon = '↪️';  // Turn-based
-    } else if (conditionalStatus === 6 || conditionalStatus === 11 || conditionalStatus === 12) {
-      icon = '🚦';  // Stop Light
+      icon = '⚡';
+      text = '低速';
+    } else if (conditionalStatus === 5) {
+      icon = '↪️';
+      text = '轉彎';
+    } else if (conditionalStatus === 6 || conditionalStatus === 7) {
+      icon = '↪️';
+      text = '導航';
     } else if (conditionalStatus === 8) {
-      icon = '🌀';  // Curve
+      icon = '🌀';
+      text = '彎道';
     } else if (conditionalStatus === 9 || conditionalStatus === 10) {
-      icon = '🚗';  // Lead
+      icon = '🚗';
+      text = '跟車';
+    } else if (conditionalStatus === 11 || conditionalStatus === 12) {
+      icon = '🚦';
+      text = '號誌';
+    } else if (conditionalStatus === 13) {
+      icon = '🚀';
+      text = '速限';
     }
 
     this.elements.cemIcon.textContent = icon;
+    this.elements.cemText.textContent = text;
   }
 
   // ========== 加減速度更新 ==========
