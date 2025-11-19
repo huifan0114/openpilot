@@ -18,6 +18,11 @@ async def index(request: web.Request):
     return web.FileResponse(STATIC_DIR / "index.html")
 
 
+async def vm_page(request: web.Request):
+    """返回視覺監控頁面"""
+    return web.FileResponse(STATIC_DIR / "vm.html")
+
+
 # 移除 offer 函數 - 前端直接連接 webrtcd (模仿 DASHY 架構)
 
 
@@ -27,6 +32,7 @@ def create_app():
 
     # 路由（只提供靜態文件服務，模仿 DASHY）
     app.router.add_get('/', index)
+    app.router.add_get('/vm.html', vm_page)
     # 移除 /offer - 前端直接連接 webrtcd (port 5001)
     app.router.add_static('/static/', path=STATIC_DIR, name='static')
 
