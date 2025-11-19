@@ -303,10 +303,10 @@ body::after {
   color: var(--text-primary) !important; /* 白色，覆蓋 label-tiny 的灰色 */
 }
 
-/* ===== 右上角: EXPERIMENTAL MODE + 指南針 ===== */
-#top-right-status {
+/* ===== 右下角: EXPERIMENTAL MODE ===== */
+#bottom-right-experimental {
   position: absolute;
-  top: var(--spacing-lg);
+  bottom: 65px;  /* 50px (GIF) + 15px (間距) */
   right: var(--spacing-lg);
   display: flex;
   flex-direction: column;
@@ -597,28 +597,6 @@ body::after {
   }
 }
 
-/* ===== 左下角: 彎道減速 (CSC) ===== */
-#bottom-left-csc {
-  position: absolute;
-  bottom: 65px;  /* 50px (新的 GIF 高度) + 15px (間距) */
-  left: var(--spacing-lg);
-  z-index: 100;
-}
-
-#bottom-left-csc #csc-card {
-  width: 220px;           /* 從 160px 改為 220px，與速限卡片一致 */
-  text-align: center;
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  padding: var(--spacing-md);
-}
-
-#bottom-left-csc #csc-speed {
-  font-size: 48px;
-  font-weight: 300;
-  color: var(--text-primary);
-  margin: var(--spacing-xs) 0;
-}
-
 /* ===== 左下角: 當前速度 ===== */
 #bottom-left-info {
   position: absolute;
@@ -737,11 +715,11 @@ body::after {
   50% { opacity: 0.3; }
 }
 
-/* ===== 右下角: 加減速度 ===== */
-#bottom-right-acceleration {
+/* ===== 左下角: 加減速度 ===== */
+#bottom-left-acceleration {
   position: absolute;
   bottom: 65px;  /* 50px (GIF) + 15px (間距) */
-  right: var(--spacing-lg);
+  left: var(--spacing-lg);
   z-index: 100;
 }
 
@@ -974,14 +952,9 @@ body::after {
   /* 底部元素位置調整 */
   #bottom-center-road,
   #bottom-left-info,
-  #bottom-right-acceleration,
-  #bottom-left-csc {
+  #bottom-left-acceleration,
+  #bottom-right-experimental {
     bottom: 60px;  /* 50px + 10px */
-  }
-
-  /* CSC */
-  #bottom-left-csc #csc-card {
-    width: 140px;           /* 與速限卡片一致 */
   }
 
   /* 左下角 */
@@ -1158,13 +1131,13 @@ body::after {
     font-size: 28px;
   }
 
-  /* 右上角（EXPERIMENTAL + 指南針） */
-  #top-right-status {
+  /* 右下角（EXPERIMENTAL） */
+  #bottom-right-experimental {
     gap: 6px;
   }
 
   .experimental-icon-card {
-    width: 90px;          /* 與加減速度卡片一致 */
+    width: 90px;
     height: 90px;
     padding: 6px;
   }
@@ -1195,19 +1168,9 @@ body::after {
   /* 底部元素位置調整 */
   #bottom-center-road,
   #bottom-left-info,
-  #bottom-right-acceleration,
-  #bottom-left-csc {
+  #bottom-left-acceleration,
+  #bottom-right-experimental {
     bottom: 58px;  /* 50px + 8px */
-  }
-
-  /* CSC */
-  #bottom-left-csc #csc-card {
-    width: 90px;            /* 與速限卡片一致 */
-    padding: 10px;
-  }
-
-  #bottom-left-csc #csc-speed {
-    font-size: 36px;
   }
 
   /* 縮小 GIF 高度 */
@@ -1418,13 +1381,13 @@ body::after {
     font-size: 22px;
   }
 
-  /* 右上角（EXPERIMENTAL + 指南針） */
-  #top-right-status {
+  /* 右下角（EXPERIMENTAL） */
+  #bottom-right-experimental {
     gap: 4px;
   }
 
   .experimental-icon-card {
-    width: 75px;          /* 與加減速度卡片一致 */
+    width: 75px;
     height: 75px;
     padding: 4px;
   }
@@ -1455,19 +1418,9 @@ body::after {
   /* 底部元素位置調整 */
   #bottom-center-road,
   #bottom-left-info,
-  #bottom-right-acceleration,
-  #bottom-left-csc {
+  #bottom-left-acceleration,
+  #bottom-right-experimental {
     bottom: 58px;  /* 50px + 8px */
-  }
-
-  /* CSC */
-  #bottom-left-csc #csc-card {
-    width: 70px;            /* 與速限卡片一致 */
-    padding: 8px;
-  }
-
-  #bottom-left-csc #csc-speed {
-    font-size: 28px;
   }
 
   /* 縮小 GIF 高度 */

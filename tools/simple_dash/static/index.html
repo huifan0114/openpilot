@@ -22,7 +22,7 @@
       </div>
     </div>
 
-    <!-- 中央上方: MAX + VCRUISE (並排) -->
+    <!-- 中央上方: MAX + VC + 彎道 (並排) -->
     <div id="center-top-speeds">
       <div id="max-speed-card" class="card">
         <div class="label-small">MAX</div>
@@ -30,8 +30,13 @@
       </div>
 
       <div id="vcruise-card" class="card">
-        <div class="label-small">VCRUISE</div>
+        <div class="label-small">VC</div>
         <div id="vcruise-value" class="value-large">--</div>
+      </div>
+
+      <div id="csc-card" class="card">
+        <div class="label-small">彎道</div>
+        <div id="csc-speed" class="value-large">--</div>
       </div>
     </div>
 
@@ -50,8 +55,8 @@
       </div>
     </div>
 
-    <!-- 右上角: EXPERIMENTAL MODE -->
-    <div id="top-right-status">
+    <!-- 右下角: EXPERIMENTAL MODE -->
+    <div id="bottom-right-experimental">
       <!-- EXPERIMENTAL MODE 圖示 -->
       <div id="experimental-card" class="card experimental-icon-card">
         <img id="experimental-icon" src="/static/assets/img_experimental_white.svg" alt="Experimental Mode" />
@@ -105,8 +110,8 @@
       </div>
     </div>
 
-    <!-- 右下角: 加減速度 -->
-    <div id="bottom-right-acceleration">
+    <!-- 左下角: 加減速度 -->
+    <div id="bottom-left-acceleration">
       <div id="acceleration-card" class="card small-card">
         <div class="label-small">加減速度</div>
         <div id="acceleration-value" class="value-medium neutral">--</div>
@@ -117,14 +122,6 @@
     <div id="bottom-center-road">
       <div id="road-name-card" class="card hidden">
         <div id="road-name-text">--</div>
-      </div>
-    </div>
-
-    <!-- 左下角: 彎道減速 -->
-    <div id="bottom-left-csc">
-      <div id="csc-card" class="card small-card">
-        <div class="label-small">彎道減速</div>
-        <div id="csc-speed" class="value-medium">--</div>
       </div>
     </div>
 
