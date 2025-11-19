@@ -2,7 +2,7 @@
 
 | 日期 | 版本 | 變更內容 |
 |------|------|---------|
-| 2025-11-20 | v2.9 | **✅ 實作**：Simple Dash 視覺不確定性監控面板（右側完整監控面板、即時顯示 xStd/vStd/Prob/TTC/距離/速差、定速模擬邏輯、風險級別視覺化、響應式設計）；**✅ 研究**：RLOG 實測數據驗證（3 segments 分析、5 個危險事件、閾值驗證：xStd=2.17m/vStd=1.08m/s/TTC<6s、降速策略有效性測試、誤觸發率 3-9%）；**修改**：註解 CEM 狀態與 EXPERIMENTAL MODE 顯示，重新配置 Simple Dash 右側布局 |
+| 2025-11-20 | v2.9 | **✅ 實作**：Simple Dash 視覺監控獨立頁面 `vm.html`（完整監控頁面、獨立 WebRTC 連接、即時顯示 xStd/vStd/Prob/TTC/距離/速差、定速模擬邏輯、風險級別視覺化、深色主題、響應式設計、雙向頁面切換按鈕）；**✅ 研究**：RLOG 實測數據驗證（3 segments 分析、5 個危險事件、閾值驗證：xStd=2.17m/vStd=1.08m/s/TTC<6s、降速策略有效性測試、誤觸發率 3-9%）；**架構**：恢復原 Simple Dash 布局（CEM 狀態與 EXPERIMENTAL MODE 保留），視覺監控移至獨立頁面，兩頁面可通過右上角按鈕互相切換 |
 | 2025-11-02 | v2.8 | **新增**：速限控制修正 - VW Dashboard 無訊號問題解決方案（修改 `speed_limit_controller.py:245` 使 Dashboard 直接使用 Map Data） |
 | 2025-11-02 | v2.7 | **✅ 研究**：ForceStops 停車機制深度分析（動態 v_cruise 降低策略、為什麼不需要實驗模式、與傳統路徑規劃停車的對比） |
 | 2025-11-02 | v2.6 | **✅ 研究**：定速控制系統架構完整分析（VCruiseHelper vs FrogPilotVCruise 關係釐清、單向資料流、進程分離、職責分工） |

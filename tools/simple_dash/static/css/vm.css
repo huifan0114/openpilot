@@ -1,0 +1,444 @@
+/**
+ * Vision Monitor Styles
+ * 視覺不確定性監控頁面樣式
+ */
+
+/* ==================== 基礎設定 ==================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: #ffffff;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+#container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ==================== 頁面切換按鈕 ==================== */
+
+.page-switch-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.page-switch-btn:hover {
+  background: rgba(76, 175, 80, 0.3);
+  border-color: #4CAF50;
+  color: #4CAF50;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+}
+
+.page-switch-btn svg {
+  flex-shrink: 0;
+}
+
+/* ==================== 頁面標題 ==================== */
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #4CAF50, #8BC34A);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ==================== 狀態徽章 ==================== */
+
+.status-badge {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.connected {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+  border: 1px solid #4CAF50;
+}
+
+.status-badge.disconnected {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  border: 1px solid #f44336;
+}
+
+.status-badge.normal {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+  border: 1px solid #4CAF50;
+}
+
+.status-badge.warning {
+  background: rgba(255, 152, 0, 0.2);
+  color: #FF9800;
+  border: 1px solid #FF9800;
+}
+
+.status-badge.danger {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  border: 1px solid #f44336;
+  animation: pulse 1s infinite;
+}
+
+/* ==================== 監控面板網格 ==================== */
+
+#monitor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+/* ==================== 卡片樣式 ==================== */
+
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: rgba(76, 175, 80, 0.3);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.card h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #4CAF50;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.card-header h2 {
+  margin-bottom: 0;
+}
+
+/* ==================== 指標行 ==================== */
+
+.metric-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.metric-row:last-child {
+  border-bottom: none;
+}
+
+.metric-row .label {
+  min-width: 100px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.metric-row .value {
+  flex: 1;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  color: #ffffff;
+  text-align: right;
+}
+
+.metric-row .unit {
+  min-width: 50px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ==================== 警告狀態 ==================== */
+
+.warn {
+  color: #FF9800;
+  font-size: 20px;
+  animation: blink 1s infinite;
+}
+
+.warn.hidden {
+  display: none;
+}
+
+.warn-value {
+  color: #FF9800 !important;
+  animation: pulse 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0.3; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ==================== TTC 顏色分級 ==================== */
+
+.ttc-value {
+  transition: color 0.3s ease;
+}
+
+.ttc-danger {
+  color: #f44336 !important;
+  font-weight: 900 !important;
+  animation: blink 0.5s infinite;
+}
+
+.ttc-warning {
+  color: #FF9800 !important;
+  font-weight: 800 !important;
+}
+
+.ttc-caution {
+  color: #FFC107 !important;
+}
+
+/* ==================== 定速模擬樣式 ==================== */
+
+.sim-value {
+  transition: color 0.3s ease;
+}
+
+.sim-normal {
+  color: #4CAF50 !important;
+}
+
+.sim-warning {
+  color: #FF9800 !important;
+}
+
+.sim-danger {
+  color: #f44336 !important;
+  animation: pulse 1s infinite;
+}
+
+.reduction-active {
+  color: #FF9800 !important;
+  font-weight: 800 !important;
+}
+
+/* ==================== 觸發條件標籤 ==================== */
+
+.trigger-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1;
+}
+
+.tag {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255, 152, 0, 0.2);
+  color: #FF9800;
+  border: 1px solid #FF9800;
+  transition: all 0.3s ease;
+}
+
+.tag.hidden {
+  display: none;
+}
+
+/* ==================== 資訊面板 ==================== */
+
+footer {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px 24px;
+  backdrop-filter: blur(10px);
+}
+
+.info-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.info-panel span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ==================== 響應式設計 ==================== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  #monitor-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+  }
+
+  header h1 {
+    font-size: 28px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .metric-row .value {
+    font-size: 20px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  body {
+    padding: 12px;
+  }
+
+  .page-switch-btn {
+    top: 12px;
+    right: 12px;
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+
+  .page-switch-btn span {
+    display: none; /* 手機版只顯示圖示 */
+  }
+
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  header h1 {
+    font-size: 24px;
+  }
+
+  #monitor-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .card h2 {
+    font-size: 18px;
+  }
+
+  .metric-row {
+    flex-wrap: wrap;
+  }
+
+  .metric-row .label {
+    min-width: 80px;
+    font-size: 13px;
+  }
+
+  .metric-row .value {
+    font-size: 18px;
+  }
+
+  .info-panel {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  #monitor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-row .label {
+    min-width: 70px;
+    font-size: 12px;
+  }
+
+  .metric-row .value {
+    font-size: 16px;
+  }
+
+  .metric-row .unit {
+    font-size: 12px;
+  }
+
+  .trigger-tags {
+    gap: 6px;
+  }
+
+  .tag {
+    font-size: 11px;
+    padding: 3px 10px;
+  }
+}

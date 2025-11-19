@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>視覺監控 - Vision Monitor</title>
+  <link rel="stylesheet" href="css/vm.css">
+</head>
+<body>
+  <!-- 返回 Simple Dash 按鈕 -->
+  <a href="/" class="page-switch-btn" title="返回 Simple Dash">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+    <span>Simple Dash</span>
+  </a>
+
+  <div id="container">
+    <!-- 頁面標題 -->
+    <header>
+      <h1>視覺不確定性監控</h1>
+      <div id="connection-status" class="status-badge disconnected">未連接</div>
+    </header>
+
+    <!-- 主要監控面板 -->
+    <main id="monitor-grid">
+      <!-- 不確定性指標卡片 -->
+      <div class="card">
+        <h2>不確定性指標</h2>
+        <div class="metric-row">
+          <span class="label">xStd:</span>
+          <span id="xstd" class="value">--</span>
+          <span class="unit">m</span>
+          <span id="xstd-warn" class="warn hidden">⚠</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">vStd:</span>
+          <span id="vstd" class="value">--</span>
+          <span class="unit">m/s</span>
+          <span id="vstd-warn" class="warn hidden">⚠</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">Prob:</span>
+          <span id="prob" class="value">--</span>
+          <span class="unit"></span>
+          <span id="prob-warn" class="warn hidden">⚠</span>
+        </div>
+      </div>
+
+      <!-- 安全指標卡片 -->
+      <div class="card">
+        <h2>安全指標</h2>
+        <div class="metric-row">
+          <span class="label">TTC:</span>
+          <span id="ttc" class="value ttc-value">--</span>
+          <span class="unit">秒</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">距離:</span>
+          <span id="drel" class="value">--</span>
+          <span class="unit">m</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">速差:</span>
+          <span id="vrel" class="value">--</span>
+          <span class="unit">km/h</span>
+        </div>
+      </div>
+
+      <!-- 定速模擬卡片 -->
+      <div class="card">
+        <div class="card-header">
+          <h2>定速模擬</h2>
+          <span id="sim-status" class="status-badge normal">正常</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">原始定速:</span>
+          <span id="vcruise-original" class="value">--</span>
+          <span class="unit">km/h</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">建議定速:</span>
+          <span id="vcruise-suggested" class="value sim-value">--</span>
+          <span class="unit">km/h</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">降低幅度:</span>
+          <span id="vcruise-reduction" class="value">--</span>
+          <span class="unit">km/h</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">觸發條件:</span>
+          <div id="triggers" class="trigger-tags">
+            <span id="tag-xstd" class="tag hidden">xStd</span>
+            <span id="tag-vstd" class="tag hidden">vStd</span>
+            <span id="tag-prob" class="tag hidden">Prob</span>
+            <span id="tag-ttc" class="tag hidden">TTC</span>
+            <span id="tag-accel" class="tag hidden">加速</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 資訊面板 -->
+    <footer>
+      <div class="info-panel">
+        <span>閾值: xStd=2.17m | vStd=1.08m/s | TTC<6s</span>
+        <span id="last-update">最後更新: --</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="js/vm.js"></script>
+</body>
+</html>

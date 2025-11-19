@@ -57,13 +57,9 @@ function handleMessage(msgType, msgData) {
       // 更新 VCRUISE
       dashboard.updateVCruise(msgData);
       // 更新 EXPERIMENTAL MODE
-      // ⚠️ 暫時註解
-      // dashboard.updateExperimentalMode(msgData);
+      dashboard.updateExperimentalMode(msgData);
       // 更新 CEM 狀態
-      // ⚠️ 暫時註解
-      // dashboard.updateCEM(msgData);
-      // 更新視覺監控面板
-      dashboard.updateVisionMonitor(msgData);
+      dashboard.updateCEM(msgData);
       // 更新道路名稱
       if (msgData.roadName !== undefined) {
         dashboard.updateRoadName(msgData.roadName);

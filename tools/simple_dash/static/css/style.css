@@ -1630,370 +1630,58 @@ body.startup-mode .lead-info-card {
   box-shadow: 0 0 80px var(--status-warning-glow) !important;
 }
 
-/* ========== 視覺監控面板 ========== */
+/* ========== 頁面切換按鈕 ========== */
 
-/* 右側容器 - 佔用整個右側區域 */
-#right-vision-monitor {
-  position: absolute;
-  top: var(--spacing-lg);
-  right: var(--spacing-lg);
-  bottom: calc(var(--spacing-lg) + 60px);
-  width: 280px;
-  display: flex;
-  flex-direction: column;
-  z-index: 100;
-}
+.page-switch-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
 
-.vision-card {
-  background: rgba(0, 0, 0, 0.85);
-  border-radius: var(--border-radius);
-  padding: var(--spacing-md);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-/* 標題 */
-.vision-header {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-md);
-  text-align: center;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-  padding-bottom: var(--spacing-sm);
-}
-
-/* 區塊 */
-.vision-section {
-  margin-bottom: var(--spacing-md);
-  flex: 1;
-}
-
-.vision-section-title {
-  font-size: 14px;
-  color: var(--text-secondary);
-  font-weight: 600;
-  margin-bottom: var(--spacing-sm);
-  padding-bottom: 4px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* 數據行 */
-.vision-row {
   display: flex;
   align-items: center;
-  margin-bottom: var(--spacing-sm);
-  padding: 4px 0;
-}
+  gap: 8px;
 
-.vision-label {
-  color: var(--text-secondary);
-  width: 60px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.vision-value {
-  color: var(--text-primary);
-  font-weight: 700;
-  font-family: 'Courier New', monospace;
-  min-width: 70px;
-  text-align: right;
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.vision-unit {
-  color: var(--text-secondary);
-  font-size: 13px;
-  margin-left: 6px;
-  min-width: 35px;
-  flex-shrink: 0;
-}
-
-.vision-warn {
-  color: #FFA500;
-  font-size: 18px;
-  margin-left: auto;
-  animation: pulse 1s infinite;
-}
-
-/* 警告值顏色 */
-.warn-value {
-  color: #FFA500 !important;
-}
-
-/* TTC 特殊樣式 */
-.ttc-value {
-  font-size: 22px;
-  font-weight: 800;
-}
-
-.ttc-danger {
-  color: #FF4444 !important;
-  animation: blink 0.5s infinite;
-}
-
-.ttc-warning {
-  color: #FFA500 !important;
-}
-
-.ttc-caution {
-  color: #FFD700 !important;
-}
-
-/* 動畫 */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.6;
-    transform: scale(1.1);
-  }
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-
-/* ========== 定速模擬樣式 ========== */
-
-/* 區塊標題行（包含狀態徽章） */
-.vision-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--spacing-sm);
-}
-
-/* 狀態徽章 */
-.sim-status-badge {
-  font-size: 12px;
-  font-weight: 700;
-  padding: 3px 10px;
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
 
-.sim-status-badge.normal {
-  background: rgba(76, 175, 80, 0.3);
-  color: #4CAF50;
-  border: 1px solid #4CAF50;
-}
-
-.sim-status-badge.warning {
-  background: rgba(255, 165, 0, 0.3);
-  color: #FFA500;
-  border: 1px solid #FFA500;
-  animation: pulse 1s infinite;
-}
-
-.sim-status-badge.danger {
-  background: rgba(255, 68, 68, 0.3);
-  color: #FF4444;
-  border: 1px solid #FF4444;
-  animation: blink 0.5s infinite;
-}
-
-/* 定速數值顏色 */
-.sim-suggested.sim-normal {
-  color: #4CAF50 !important;
-}
-
-.sim-suggested.sim-warning {
-  color: #FFA500 !important;
-}
-
-.sim-suggested.sim-danger {
-  color: #FF4444 !important;
-  font-weight: 800;
-}
-
-/* 降低幅度 */
-.sim-reduction-active {
-  color: #FF4444 !important;
-  font-weight: 700;
-}
-
-/* 觸發條件標籤容器 */
-.trigger-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  flex: 1;
-  margin-left: 4px;
-}
-
-/* 觸發條件標籤 */
-.trigger-tag {
-  font-size: 11px;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 14px;
   font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(255, 165, 0, 0.3);
-  color: #FFA500;
-  border: 1px solid #FFA500;
-  white-space: nowrap;
+
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
-/* ========== 響應式調整 ========== */
-
-/* Tablet (1024px 以下) */
-@media (max-width: 1024px) {
-  #right-vision-monitor {
-    width: 240px;
-    top: var(--spacing-md);
-    right: var(--spacing-md);
-  }
-
-  .vision-card {
-    padding: var(--spacing-sm);
-  }
-
-  .vision-header {
-    font-size: 16px;
-  }
-
-  .vision-value {
-    font-size: 16px;
-    min-width: 60px;
-  }
-
-  .ttc-value {
-    font-size: 20px;
-  }
-
-  .sim-status-badge {
-    font-size: 11px;
-    padding: 2px 8px;
-  }
-
-  .trigger-tag {
-    font-size: 10px;
-    padding: 2px 5px;
-  }
+.page-switch-btn:hover {
+  background: rgba(76, 175, 80, 0.3);
+  border-color: #4CAF50;
+  color: #4CAF50;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
 }
 
-/* Mobile (768px 以下) */
+.page-switch-btn svg {
+  flex-shrink: 0;
+}
+
+/* 響應式：Mobile */
 @media (max-width: 768px) {
-  #right-vision-monitor {
-    width: 200px;
-    top: var(--spacing-sm);
-    right: var(--spacing-sm);
-    bottom: calc(var(--spacing-sm) + 50px);
-  }
-
-  .vision-card {
-    padding: var(--spacing-xs);
-  }
-
-  .vision-header {
-    font-size: 15px;
-    margin-bottom: var(--spacing-sm);
-  }
-
-  .vision-section-title {
-    font-size: 13px;
-  }
-
-  .vision-label {
-    font-size: 13px;
-    width: 50px;
-  }
-
-  .vision-value {
-    font-size: 15px;
-    min-width: 55px;
-  }
-
-  .vision-unit {
+  .page-switch-btn {
+    top: 12px;
+    right: 12px;
+    padding: 10px 16px;
     font-size: 12px;
   }
 
-  .ttc-value {
-    font-size: 18px;
-  }
-
-  .vision-warn {
-    font-size: 16px;
-  }
-
-  .sim-status-badge {
-    font-size: 10px;
-    padding: 2px 6px;
-  }
-
-  .trigger-tag {
-    font-size: 9px;
-    padding: 1px 4px;
-  }
-
-  .vision-section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
+  .page-switch-btn span {
+    display: none; /* 手機版只顯示圖示 */
   }
 }
 
-/* Small Mobile (480px 以下) */
-@media (max-width: 480px) {
-  #right-vision-monitor {
-    width: 170px;
-  }
-
-  .vision-header {
-    font-size: 14px;
-  }
-
-  .vision-section-title {
-    font-size: 12px;
-  }
-
-  .vision-label {
-    font-size: 12px;
-    width: 45px;
-  }
-
-  .vision-value {
-    font-size: 14px;
-    min-width: 50px;
-  }
-
-  .vision-unit {
-    font-size: 11px;
-    min-width: 30px;
-  }
-
-  .ttc-value {
-    font-size: 16px;
-  }
-
-  .vision-warn {
-    font-size: 15px;
-  }
-
-  .vision-row {
-    margin-bottom: 6px;
-  }
-
-  .sim-status-badge {
-    font-size: 9px;
-    padding: 1px 5px;
-  }
-
-  .trigger-tag {
-    font-size: 8px;
-    padding: 1px 3px;
-  }
-
-  .trigger-tags {
-    gap: 2px;
-  }
-}

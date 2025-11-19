@@ -1098,13 +1098,13 @@ done
 
 ## Simple Dash 視覺不確定性監控
 
-**版本**: v1.0
+**版本**: v1.1
 **日期**: 2025-11-20
-**功能**: 在 Simple Dash 右側新增視覺監控面板,即時顯示不確定性指標與定速模擬
+**功能**: 獨立頁面 vm.html 視覺監控,即時顯示不確定性指標與定速模擬
 
 ### 功能概述
 
-**顯示位置**: Simple Dash 右側 (取代原 CEM 狀態和 EXPERIMENTAL MODE 圖示)
+**顯示位置**: 獨立頁面 `vm.html` (可通過 Simple Dash 右上角按鈕切換)
 
 **顯示內容**:
 1. **不確定性指標**: xStd, vStd, Prob (含警告標示)
@@ -1115,98 +1115,119 @@ done
 - 僅供**監控和調試**,不控制車輛
 - 顯示「如果啟用 VSC 會做什麼」
 - 協助驗證 RLOG 分析的閾值
+- 獨立頁面設計,不影響 Simple Dash 原有布局
+
+**架構特色**:
+- 獨立 WebRTC 連接（訂閱 modelV2, carState, controlsState）
+- 響應式設計（Desktop/Tablet/Mobile 完整支援）
+- 雙向頁面切換（Simple Dash ↔ Vision Monitor）
 
 ### 布局設計
 
-#### HTML 結構 (index.html:80-174)
+#### HTML 結構 (vm.html)
 
+**完整結構** (`vm.html`):
 ```html
-<!-- 右側: 視覺不確定性監控面板 -->
-<div id="right-vision-monitor">
-  <div id="vision-monitor-card" class="card vision-card">
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>視覺監控 - Vision Monitor</title>
+  <link rel="stylesheet" href="css/vm.css">
+</head>
+<body>
+  <!-- 返回 Simple Dash 按鈕 (右上角固定) -->
+  <a href="/" class="page-switch-btn" title="返回 Simple Dash">
+    <svg>...</svg>
+    <span>Simple Dash</span>
+  </a>
 
-    <!-- 標題 -->
-    <div class="vision-header">視覺監控</div>
+  <div id="container">
+    <!-- 頁面標題與連接狀態 -->
+    <header>
+      <h1>視覺不確定性監控</h1>
+      <div id="connection-status" class="status-badge disconnected">未連接</div>
+    </header>
 
-    <!-- 不確定性指標區 -->
-    <div class="vision-section">
-      <div class="vision-section-title">不確定性</div>
-
-      <div class="vision-row">
-        <span class="vision-label">xStd:</span>
-        <span id="vision-xstd" class="vision-value">--</span>
-        <span class="vision-unit">m</span>
-        <span id="vision-xstd-warn" class="vision-warn hidden">⚠</span>
-      </div>
-      <!-- vStd, Prob 類似... -->
-    </div>
-
-    <!-- 安全指標區 -->
-    <div class="vision-section">
-      <div class="vision-section-title">安全指標</div>
-
-      <div class="vision-row">
-        <span class="vision-label">TTC:</span>
-        <span id="vision-ttc" class="vision-value ttc-value">--</span>
-        <span class="vision-unit">秒</span>
-      </div>
-      <!-- 距離, 速差 類似... -->
-    </div>
-
-    <!-- 定速模擬區 -->
-    <div class="vision-section">
-      <div class="vision-section-header">
-        <div class="vision-section-title">定速模擬</div>
-        <span id="vcruise-sim-status" class="sim-status-badge normal">正常</span>
-      </div>
-
-      <div class="vision-row">
-        <span class="vision-label">原始:</span>
-        <span id="vcruise-original" class="vision-value">--</span>
-        <span class="vision-unit">km/h</span>
-      </div>
-
-      <div class="vision-row">
-        <span class="vision-label">建議:</span>
-        <span id="vcruise-suggested" class="vision-value sim-suggested">--</span>
-        <span class="vision-unit">km/h</span>
-      </div>
-
-      <div class="vision-row">
-        <span class="vision-label">降低:</span>
-        <span id="vcruise-reduction" class="vision-value sim-reduction">--</span>
-        <span class="vision-unit">km/h</span>
-      </div>
-
-      <div class="vision-row">
-        <span class="vision-label">觸發:</span>
-        <div id="trigger-tags" class="trigger-tags">
-          <span id="tag-xstd" class="trigger-tag hidden">xStd</span>
-          <span id="tag-vstd" class="trigger-tag hidden">vStd</span>
-          <span id="tag-prob" class="trigger-tag hidden">Prob</span>
-          <span id="tag-ttc" class="trigger-tag hidden">TTC</span>
-          <span id="tag-accel" class="trigger-tag hidden">加速</span>
+    <!-- 監控卡片網格 -->
+    <main id="monitor-grid">
+      <!-- 卡片 1: 不確定性指標 -->
+      <div class="card">
+        <h2>不確定性指標</h2>
+        <div class="metric-row">
+          <span class="label">xStd:</span>
+          <span id="xstd" class="value">--</span>
+          <span class="unit">m</span>
+          <span id="xstd-warn" class="warn hidden">⚠</span>
         </div>
+        <!-- vStd, Prob 類似 -->
       </div>
-    </div>
 
+      <!-- 卡片 2: 安全指標 -->
+      <div class="card">
+        <h2>安全指標</h2>
+        <div class="metric-row">
+          <span class="label">TTC:</span>
+          <span id="ttc" class="value ttc-value">--</span>
+          <span class="unit">秒</span>
+        </div>
+        <!-- 距離, 速差 類似 -->
+      </div>
+
+      <!-- 卡片 3: 定速模擬 -->
+      <div class="card">
+        <div class="card-header">
+          <h2>定速模擬</h2>
+          <span id="sim-status" class="status-badge normal">正常</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">原始定速:</span>
+          <span id="vcruise-original" class="value">--</span>
+          <span class="unit">km/h</span>
+        </div>
+        <!-- 建議定速, 降低幅度, 觸發條件 -->
+      </div>
+    </main>
+
+    <!-- 資訊面板 -->
+    <footer>
+      <div class="info-panel">
+        <span>閾值: xStd=2.17m | vStd=1.08m/s | TTC<6s</span>
+        <span id="last-update">最後更新: --</span>
+      </div>
+    </footer>
   </div>
-</div>
+
+  <script src="js/vm.js"></script>
+</body>
+</html>
 ```
 
-**尺寸規格**:
-- Desktop: 寬度 280px, 高度自適應
-- Tablet (≤1024px): 寬度 240px
-- Mobile (≤768px): 寬度 200px
+**頁面切換按鈕**:
+- Simple Dash (`index.html`): 右上角「視覺監控」按鈕（眼睛圖標 👁）
+- Vision Monitor (`vm.html`): 右上角「Simple Dash」按鈕（房屋圖標 🏠）
+- 響應式: Desktop 顯示圖標+文字，Mobile 僅顯示圖標
 
 ### 數據處理邏輯
 
-#### 核心函數 (dashboard.js:598-813)
+#### 核心類別 (vm.js:15-574)
 
-**位置**: `tools/simple_dash/static/js/dashboard.js`
+**位置**: `tools/simple_dash/static/js/vm.js`
+
+**VisionMonitor 類別** - 獨立的視覺監控管理器:
 
 ```javascript
-updateVisionMonitor(msgData) {
+class VisionMonitor {
+  constructor() {
+    this.pc = null;  // WebRTC PeerConnection
+    this.dc = null;  // Data Channel
+    this.stateManager = { modelV2: null, carState: null, controlsState: null };
+    this.initElements();
+    this.connect();  // 獨立 WebRTC 連接
+  }
+
+  updateMonitor() {  // 主更新函數
   // 1. 檢查數據來源
   if (!msgData.modelV2 || !msgData.modelV2.leadsV3 || msgData.modelV2.leadsV3.length === 0) {
     this.elements.visionMonitorCard.classList.add('hidden');
@@ -1316,26 +1337,64 @@ updateVisionMonitor(msgData) {
 }
 ```
 
-#### 調用位置 (main.js:66)
-
-**位置**: `tools/simple_dash/static/js/main.js`
-
+**WebRTC 連接管理**:
 ```javascript
-case 'frogpilotPlan':
-  // ... 其他更新 ...
+async connect() {
+  // 建立獨立的 WebRTC 連接（不與 Simple Dash 共用）
+  this.pc = this.createPeerConnection();
+  this.dc = this.pc.createDataChannel('data', { ordered: true });
 
-  // 更新視覺監控面板
-  dashboard.updateVisionMonitor(msgData);
-  break;
+  // 訂閱服務
+  const body = {
+    bridge_services_out: [
+      "modelV2",        // 視覺模型輸出（leadsV3 不確定性）
+      "carState",       // 車輛狀態（v_ego, a_ego）
+      "controlsState"   // 控制狀態（v_cruise）
+    ]
+  };
+
+  // 處理訊息
+  this.dc.onmessage = (evt) => {
+    const msg = JSON.parse(textDecoder.decode(evt.data));
+    this.handleMessage(msg.type, msg.data);
+  };
+}
 ```
 
-**數據來源**: WebRTC Data Channel 接收的 `frogpilotPlan` 訊息
+**關鍵差異**:
+- ❌ **不依賴** Simple Dash 的 WebRTC 連接
+- ✅ **獨立訂閱** modelV2（Simple Dash 不訂閱此服務）
+- ✅ 完整的生命週期管理（connect/disconnect）
 
 ### 視覺樣式設計
 
-#### CSS 樣式 (style.css:1633-1999, 367 lines)
+#### CSS 樣式 (vm.css, 448 lines)
 
-**位置**: `tools/simple_dash/static/css/style.css`
+**位置**: `tools/simple_dash/static/css/vm.css`
+
+**深色主題設計**:
+```css
+body {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: #ffffff;
+  min-height: 100vh;
+}
+```
+
+**響應式網格布局**:
+```css
+#monitor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  #monitor-grid {
+    grid-template-columns: 1fr;  /* Mobile: 單列 */
+  }
+}
+```
 
 **關鍵樣式**:
 
@@ -1418,32 +1477,43 @@ case 'frogpilotPlan':
 
 ### 實作檔案總覽
 
-| 檔案 | 修改行數 | 說明 |
-|------|---------|------|
-| `index.html` | 80-174 (95 lines) | 新增視覺監控面板 HTML |
-| `dashboard.js` | 66-89 (24 lines) | 新增元素引用 |
-| `dashboard.js` | 598-813 (216 lines) | 新增 updateVisionMonitor() 函數 |
-| `main.js` | 66 (1 line) | 調用 updateVisionMonitor() |
-| `style.css` | 1633-1999 (367 lines) | 新增視覺監控樣式 |
+| 檔案 | 行數 | 說明 |
+|------|------|------|
+| `vm.html` | 117 lines | 獨立監控頁面 HTML |
+| `vm.js` | 574 lines | VisionMonitor 類別（WebRTC + 監控邏輯） |
+| `vm.css` | 448 lines | 深色主題 + 響應式樣式 |
+| `index.html` | +15 lines | 新增頁面切換按鈕 |
+| `style.css` | +54 lines | 頁面切換按鈕樣式 |
 
-**總計**: ~703 lines 新增程式碼
+**總計**: ~1208 lines 新增程式碼
+
+**版本變更**:
+- v1.0 (初版): Simple Dash 右側嵌入面板
+- v1.1 (當前): 獨立頁面架構（vm.html）
 
 ### 使用指南
 
-#### 啟動 Simple Dash
+#### 啟動視覺監控
 
 ```bash
 # 1. 確認 webrtcd 正在運行
 ps aux | grep webrtcd
 
-# 2. 啟動 Simple Dash
+# 2. 啟動 Simple Dash (同時提供 vm.html)
 cd /data/openpilot/tools/simple_dash
 python server.py
 
 # 3. 在瀏覽器開啟
-# Desktop: http://<device-ip>:8000
-# Mobile: 加入主畫面使用 PWA 模式
+# Simple Dash: http://<device-ip>:8000/
+# Vision Monitor: http://<device-ip>:8000/vm.html
+
+# 或通過頁面切換按鈕（右上角）互相跳轉
 ```
+
+**URL 說明**:
+- `/` → Simple Dash 主儀表板
+- `/vm.html` → 視覺監控獨立頁面
+- 兩者可通過右上角按鈕互相切換
 
 #### 監控數據解讀
 
