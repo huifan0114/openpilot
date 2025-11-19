@@ -38,8 +38,9 @@ export class DashboardUI {
       cscSpeed: document.getElementById('csc-speed'),
 
       // EXPERIMENTAL MODE
-      experimentalCard: document.getElementById('experimental-card'),
-      experimentalIcon: document.getElementById('experimental-icon'),
+      // ⚠️ 暫時註解
+      // experimentalCard: document.getElementById('experimental-card'),
+      // experimentalIcon: document.getElementById('experimental-icon'),
 
       // 加減速度
       accelerationValue: document.getElementById('acceleration-value'),
@@ -57,9 +58,35 @@ export class DashboardUI {
       rightBlindspot: document.getElementById('right-blindspot'),
 
       // CEM 狀態
-      cemCard: document.getElementById('cem-card'),
-      cemIcon: document.getElementById('cem-icon'),
-      cemText: document.getElementById('cem-text')
+      // ⚠️ 暫時註解
+      // cemCard: document.getElementById('cem-card'),
+      // cemIcon: document.getElementById('cem-icon'),
+      // cemText: document.getElementById('cem-text'),
+
+      // 視覺監控面板
+      visionMonitorCard: document.getElementById('vision-monitor-card'),
+      visionXstd: document.getElementById('vision-xstd'),
+      visionXstdWarn: document.getElementById('vision-xstd-warn'),
+      visionVstd: document.getElementById('vision-vstd'),
+      visionVstdWarn: document.getElementById('vision-vstd-warn'),
+      visionProb: document.getElementById('vision-prob'),
+      visionProbWarn: document.getElementById('vision-prob-warn'),
+      visionTtc: document.getElementById('vision-ttc'),
+      visionDrel: document.getElementById('vision-drel'),
+      visionVrel: document.getElementById('vision-vrel'),
+
+      // 定速模擬元素
+      vcruiseSimStatus: document.getElementById('vcruise-sim-status'),
+      vcruiseOriginal: document.getElementById('vcruise-original'),
+      vcruiseSuggested: document.getElementById('vcruise-suggested'),
+      vcruiseReduction: document.getElementById('vcruise-reduction'),
+      triggerTags: {
+        xstd: document.getElementById('tag-xstd'),
+        vstd: document.getElementById('tag-vstd'),
+        prob: document.getElementById('tag-prob'),
+        ttc: document.getElementById('tag-ttc'),
+        accel: document.getElementById('tag-accel')
+      }
     };
 
     // 狀態
@@ -140,8 +167,9 @@ export class DashboardUI {
     this.elements.rightBlindspot.classList.add('active');
 
     // === 3. EXPERIMENTAL MODE 圖標顯示 ===
-    this.elements.experimentalIcon.src = '/static/assets/img_experimental.svg';
-    this.elements.experimentalCard.classList.add('active');
+    // ⚠️ 暫時註解
+    // this.elements.experimentalIcon.src = '/static/assets/img_experimental.svg';
+    // this.elements.experimentalCard.classList.add('active');
 
     // === 4. 定義完整淡出序列（按邏輯順序熄滅）===
     const fadeoutSequence = [
@@ -156,7 +184,8 @@ export class DashboardUI {
       { element: this.elements.rightBlindspot, delay: 1800, type: 'blindspot' },
 
       // EXPERIMENTAL MODE
-      { element: this.elements.experimentalCard, delay: 2000, type: 'experimental' },
+      // ⚠️ 暫時註解
+      // { element: this.elements.experimentalCard, delay: 2000, type: 'experimental' },
 
       // 前車資訊
       { element: this.elements.leadDistance, delay: 2200, type: 'value' },
@@ -190,8 +219,9 @@ export class DashboardUI {
 
         } else if (type === 'experimental') {
           // EXPERIMENTAL MODE 淡出
-          element.classList.remove('active');
-          this.elements.experimentalIcon.src = '/static/assets/img_experimental_white.svg';
+          // ⚠️ 暫時註解
+          // element.classList.remove('active');
+          // this.elements.experimentalIcon.src = '/static/assets/img_experimental_white.svg';
 
         } else if (type === 'card') {
           // 卡片淡出並隱藏
@@ -393,6 +423,8 @@ export class DashboardUI {
 
   // ========== CEM 狀態更新 ==========
 
+  // ⚠️ 暫時註解整個 updateCEM 函數
+  /*
   updateCEM(frogpilotPlan) {
     const conditionalStatus = frogpilotPlan.ceStatus || 0;
     const experimentalMode = frogpilotPlan.experimentalMode || false;
@@ -441,6 +473,7 @@ export class DashboardUI {
     this.elements.cemIcon.textContent = icon;
     this.elements.cemText.textContent = text;
   }
+  */
 
   // ========== 加減速度更新 ==========
 
@@ -537,10 +570,8 @@ export class DashboardUI {
 
   // ========== EXPERIMENTAL MODE 更新 ==========
 
-  /**
-   * 更新 EXPERIMENTAL MODE 圖示
-   * @param {Object} frogpilotPlan - FrogPilot plan 資料
-   */
+  // ⚠️ 暫時註解整個 updateExperimentalMode 函數
+  /*
   updateExperimentalMode(frogpilotPlan) {
     if (!frogpilotPlan) {
       // 沒訊號：顯示未啟動圖示
@@ -560,6 +591,224 @@ export class DashboardUI {
       // 未啟動：顯示白色圖示
       this.elements.experimentalIcon.src = '/static/assets/img_experimental_white.svg';
       this.elements.experimentalCard.classList.remove('active');
+    }
+  }
+  */
+
+  // ========== 視覺監控更新 ==========
+
+  /**
+   * 更新視覺不確定性監控數據
+   */
+  updateVisionMonitor(msgData) {
+    // 檢查是否有 modelV2 數據
+    if (!msgData.modelV2 || !msgData.modelV2.leadsV3 || msgData.modelV2.leadsV3.length === 0) {
+      // 無前車數據，隱藏面板
+      this.elements.visionMonitorCard.classList.add('hidden');
+      return;
+    }
+
+    // 檢查是否有 carState
+    if (!msgData.carState) {
+      return;
+    }
+
+    const lead = msgData.modelV2.leadsV3[0];
+    const vEgo = msgData.carState.vEgo || 0;
+
+    // 顯示面板
+    this.elements.visionMonitorCard.classList.remove('hidden');
+
+    // === 不確定性指標 ===
+
+    // xStd (距離標準差)
+    const xStd = (lead.xStd && lead.xStd.length > 0) ? lead.xStd[0] : 0;
+    this.elements.visionXstd.textContent = xStd.toFixed(2);
+
+    // xStd 超過閾值 (2.17m)
+    if (xStd > 2.17) {
+      this.elements.visionXstd.classList.add('warn-value');
+      this.elements.visionXstdWarn.classList.remove('hidden');
+    } else {
+      this.elements.visionXstd.classList.remove('warn-value');
+      this.elements.visionXstdWarn.classList.add('hidden');
+    }
+
+    // vStd (速度標準差)
+    const vStd = (lead.vStd && lead.vStd.length > 0) ? lead.vStd[0] : 0;
+    this.elements.visionVstd.textContent = vStd.toFixed(2);
+
+    // vStd 超過閾值 (1.08 m/s)
+    if (vStd > 1.08) {
+      this.elements.visionVstd.classList.add('warn-value');
+      this.elements.visionVstdWarn.classList.remove('hidden');
+    } else {
+      this.elements.visionVstd.classList.remove('warn-value');
+      this.elements.visionVstdWarn.classList.add('hidden');
+    }
+
+    // Prob (前車機率)
+    const prob = lead.prob || 0;
+    this.elements.visionProb.textContent = prob.toFixed(2);
+
+    // Prob 低於閾值 (0.5)
+    if (prob < 0.5 && prob > 0.05) {
+      this.elements.visionProb.classList.add('warn-value');
+      this.elements.visionProbWarn.classList.remove('hidden');
+    } else {
+      this.elements.visionProb.classList.remove('warn-value');
+      this.elements.visionProbWarn.classList.add('hidden');
+    }
+
+    // === 安全指標 ===
+
+    // 距離和速度
+    const dRel = (lead.x && lead.x.length > 0) ? lead.x[0] : 0;
+    const vLead = (lead.v && lead.v.length > 0) ? lead.v[0] : 0;
+    const vRel = vLead - vEgo;
+
+    // 顯示距離
+    this.elements.visionDrel.textContent = dRel.toFixed(1);
+
+    // 顯示相對速度 (km/h)
+    const vRelKph = vRel * 3.6;
+    this.elements.visionVrel.textContent = vRelKph.toFixed(1);
+
+    // TTC (碰撞時間)
+    let ttc = 999;
+    if (vRel > 0.1) {  // 正在接近
+      ttc = dRel / vRel;
+    }
+
+    // 顯示 TTC
+    const ttcElem = this.elements.visionTtc;
+    if (ttc > 99) {
+      ttcElem.textContent = '--';
+      ttcElem.classList.remove('ttc-danger', 'ttc-warning', 'ttc-caution');
+    } else {
+      ttcElem.textContent = ttc.toFixed(1);
+
+      // TTC 顏色分級
+      ttcElem.classList.remove('ttc-danger', 'ttc-warning', 'ttc-caution');
+      if (ttc < 3) {
+        ttcElem.classList.add('ttc-danger');  // 紅色閃爍
+      } else if (ttc < 6) {
+        ttcElem.classList.add('ttc-warning'); // 黃色
+      } else {
+        ttcElem.classList.add('ttc-caution'); // 淺黃
+      }
+    }
+
+    // === 定速模擬計算 ===
+
+    // 檢查是否有 controlsState
+    if (!msgData.controlsState || !msgData.carState) {
+      return;
+    }
+
+    const vCruise = msgData.controlsState.vCruise || 0;  // m/s
+    const aEgo = msgData.carState.aEgo || 0;
+
+    const vCruiseKph = vCruise * 3.6;  // 轉換為 km/h
+    const vEgoKph = vEgo * 3.6;
+
+    // 顯示原始定速
+    this.elements.vcruiseOriginal.textContent = vCruiseKph.toFixed(0);
+
+    // === 條件判斷 ===
+    let triggers = {
+      xstd: false,
+      vstd: false,
+      prob: false,
+      ttc: false,
+      accel: false
+    };
+
+    // 檢查各項條件
+    if (xStd > 2.17) triggers.xstd = true;
+    if (vStd > 1.08) triggers.vstd = true;
+    if (prob < 0.5 && prob > 0.05) triggers.prob = true;
+    if (ttc < 6 && ttc < 99) triggers.ttc = true;
+
+    // 危險加速場景
+    const accelerating = aEgo > 0.5;
+    const largeSpeedGap = (vCruiseKph - vEgoKph) > 20;
+    if (accelerating && largeSpeedGap && triggers.prob) {
+      triggers.accel = true;
+    }
+
+    // === 風險等級判斷 ===
+    let riskLevel = 'normal';  // normal, medium, high
+    let suggestedVCruiseKph = vCruiseKph;
+
+    // 高風險：xStd 和 vStd 都超標，或 TTC < 3
+    const highRisk = (triggers.xstd && triggers.vstd) || (ttc < 3 && ttc < 99);
+
+    // 中風險：任一指標觸發
+    const mediumRisk = triggers.xstd || triggers.vstd || triggers.prob ||
+                       (ttc < 6 && ttc < 99) || triggers.accel;
+
+    if (highRisk) {
+      riskLevel = 'high';
+      // 降到當前速度下方最近的 5 倍數
+      suggestedVCruiseKph = Math.floor(vEgoKph / 5) * 5;
+      suggestedVCruiseKph = Math.max(suggestedVCruiseKph, 30);  // 最低 30 km/h
+
+    } else if (mediumRisk) {
+      riskLevel = 'medium';
+      // 降到當前速度 + 10 km/h
+      suggestedVCruiseKph = Math.min(vCruiseKph, vEgoKph + 10);
+      suggestedVCruiseKph = Math.max(suggestedVCruiseKph, 30);
+    }
+
+    // === 顯示建議定速 ===
+    this.elements.vcruiseSuggested.textContent = suggestedVCruiseKph.toFixed(0);
+
+    // 設置建議定速顏色
+    this.elements.vcruiseSuggested.classList.remove('sim-normal', 'sim-warning', 'sim-danger');
+    if (riskLevel === 'high') {
+      this.elements.vcruiseSuggested.classList.add('sim-danger');
+    } else if (riskLevel === 'medium') {
+      this.elements.vcruiseSuggested.classList.add('sim-warning');
+    } else {
+      this.elements.vcruiseSuggested.classList.add('sim-normal');
+    }
+
+    // === 顯示降低幅度 ===
+    const reduction = vCruiseKph - suggestedVCruiseKph;
+    if (reduction > 0.5) {
+      this.elements.vcruiseReduction.textContent = '-' + reduction.toFixed(0);
+      this.elements.vcruiseReduction.classList.add('sim-reduction-active');
+    } else {
+      this.elements.vcruiseReduction.textContent = '--';
+      this.elements.vcruiseReduction.classList.remove('sim-reduction-active');
+    }
+
+    // === 顯示狀態徽章 ===
+    const statusBadge = this.elements.vcruiseSimStatus;
+    statusBadge.classList.remove('normal', 'warning', 'danger');
+
+    if (riskLevel === 'high') {
+      statusBadge.textContent = '降速中';
+      statusBadge.classList.add('danger');
+    } else if (riskLevel === 'medium') {
+      statusBadge.textContent = '警告';
+      statusBadge.classList.add('warning');
+    } else {
+      statusBadge.textContent = '正常';
+      statusBadge.classList.add('normal');
+    }
+
+    // === 顯示觸發條件標籤 ===
+    for (const [key, isTriggered] of Object.entries(triggers)) {
+      const tag = this.elements.triggerTags[key];
+      if (tag) {
+        if (isTriggered) {
+          tag.classList.remove('hidden');
+        } else {
+          tag.classList.add('hidden');
+        }
+      }
     }
   }
 

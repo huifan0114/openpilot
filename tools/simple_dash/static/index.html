@@ -56,6 +56,7 @@
     </div>
 
     <!-- 右上角: CEM 狀態 -->
+    <!-- ⚠️ 暫時註解，改為視覺監控面板
     <div id="top-right-cem">
       <div id="cem-card" class="card small-card hidden">
         <div id="cem-status-row">
@@ -64,12 +65,111 @@
         </div>
       </div>
     </div>
+    -->
 
     <!-- 右下角: EXPERIMENTAL MODE -->
+    <!-- ⚠️ 暫時註解，改為視覺監控面板
     <div id="bottom-right-experimental">
       <!-- EXPERIMENTAL MODE 圖示 -->
       <div id="experimental-card" class="card experimental-icon-card">
         <img id="experimental-icon" src="/static/assets/img_experimental_white.svg" alt="Experimental Mode" />
+      </div>
+    </div>
+    -->
+
+    <!-- 右側: 視覺不確定性監控面板 -->
+    <div id="right-vision-monitor">
+      <div id="vision-monitor-card" class="card vision-card">
+
+        <!-- 標題 -->
+        <div class="vision-header">視覺監控</div>
+
+        <!-- 不確定性指標區 -->
+        <div class="vision-section">
+          <div class="vision-section-title">不確定性</div>
+
+          <div class="vision-row">
+            <span class="vision-label">xStd:</span>
+            <span id="vision-xstd" class="vision-value">--</span>
+            <span class="vision-unit">m</span>
+            <span id="vision-xstd-warn" class="vision-warn hidden">⚠</span>
+          </div>
+
+          <div class="vision-row">
+            <span class="vision-label">vStd:</span>
+            <span id="vision-vstd" class="vision-value">--</span>
+            <span class="vision-unit">m/s</span>
+            <span id="vision-vstd-warn" class="vision-warn hidden">⚠</span>
+          </div>
+
+          <div class="vision-row">
+            <span class="vision-label">Prob:</span>
+            <span id="vision-prob" class="vision-value">--</span>
+            <span class="vision-unit"></span>
+            <span id="vision-prob-warn" class="vision-warn hidden">⚠</span>
+          </div>
+        </div>
+
+        <!-- 安全指標區 -->
+        <div class="vision-section">
+          <div class="vision-section-title">安全指標</div>
+
+          <div class="vision-row">
+            <span class="vision-label">TTC:</span>
+            <span id="vision-ttc" class="vision-value ttc-value">--</span>
+            <span class="vision-unit">秒</span>
+          </div>
+
+          <div class="vision-row">
+            <span class="vision-label">距離:</span>
+            <span id="vision-drel" class="vision-value">--</span>
+            <span class="vision-unit">m</span>
+          </div>
+
+          <div class="vision-row">
+            <span class="vision-label">速差:</span>
+            <span id="vision-vrel" class="vision-value">--</span>
+            <span class="vision-unit">km/h</span>
+          </div>
+        </div>
+
+        <!-- 定速模擬區 -->
+        <div class="vision-section">
+          <div class="vision-section-header">
+            <div class="vision-section-title">定速模擬</div>
+            <span id="vcruise-sim-status" class="sim-status-badge normal">正常</span>
+          </div>
+
+          <div class="vision-row">
+            <span class="vision-label">原始:</span>
+            <span id="vcruise-original" class="vision-value">--</span>
+            <span class="vision-unit">km/h</span>
+          </div>
+
+          <div class="vision-row">
+            <span class="vision-label">建議:</span>
+            <span id="vcruise-suggested" class="vision-value sim-suggested">--</span>
+            <span class="vision-unit">km/h</span>
+          </div>
+
+          <div class="vision-row">
+            <span class="vision-label">降低:</span>
+            <span id="vcruise-reduction" class="vision-value sim-reduction">--</span>
+            <span class="vision-unit">km/h</span>
+          </div>
+
+          <div class="vision-row">
+            <span class="vision-label">觸發:</span>
+            <div id="trigger-tags" class="trigger-tags">
+              <span id="tag-xstd" class="trigger-tag hidden">xStd</span>
+              <span id="tag-vstd" class="trigger-tag hidden">vStd</span>
+              <span id="tag-prob" class="trigger-tag hidden">Prob</span>
+              <span id="tag-ttc" class="trigger-tag hidden">TTC</span>
+              <span id="tag-accel" class="trigger-tag hidden">加速</span>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
