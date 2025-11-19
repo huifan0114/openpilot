@@ -296,6 +296,13 @@ body::after {
   margin: var(--spacing-xs) 0;
 }
 
+/* 即將到來的距離 - 加大字體並改為白色 */
+#upcoming-distance {
+  font-size: 24px !important;           /* 從 16px 加大到 24px */
+  font-weight: 600;
+  color: var(--text-primary) !important; /* 白色，覆蓋 label-tiny 的灰色 */
+}
+
 /* ===== 右上角: EXPERIMENTAL MODE + 指南針 ===== */
 #top-right-status {
   position: absolute;
@@ -461,6 +468,16 @@ body::after {
   transition: color var(--transition-fast);
 }
 
+/* 前車資訊數值 - 中等大小 */
+.info-value-medium {
+  font-size: 48px;           /* 比 large 稍小，但足夠清楚 */
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 2px 0;
+  transition: color var(--transition-fast);
+  font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', monospace;
+}
+
 .info-sublabel {
   font-size: 24px;           /* 從 32px 縮小 */
   color: var(--text-dim);
@@ -476,6 +493,35 @@ body::after {
 
 .info-col {
   flex: 1;
+}
+
+/* 前車資訊 flex 布局 - 水平排列，自動換行 */
+.info-row-flex {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+  width: 100%;
+}
+
+.info-row-flex .info-col {
+  flex: 1 1 auto;
+  min-width: 60px;
+  max-width: 120px;
+  text-align: center;
+}
+
+/* 手機極小螢幕時：強制換行（每行最多2個） */
+@media (max-width: 480px) {
+  .info-row-flex {
+    gap: 12px;
+  }
+
+  .info-row-flex .info-col {
+    flex: 1 1 40%;
+    min-width: 80px;
+  }
 }
 
 .divider {
@@ -804,6 +850,11 @@ body::after {
     margin: 2px 0;
   }
 
+  .info-value-medium {
+    font-size: 36px;
+    margin: 2px 0;
+  }
+
   .info-sublabel {
     font-size: 20px;
     margin-top: 3px;
@@ -942,6 +993,11 @@ body::after {
   #acceleration-card {
     width: 130px;
   }
+
+  /* 即將到來的距離 - Tablet */
+  #upcoming-distance {
+    font-size: 20px !important;
+  }
 }
 
 /* 手機 (< 768px) */
@@ -976,6 +1032,11 @@ body::after {
 
   .info-value-large {
     font-size: 28px;
+    margin: 2px 0;
+  }
+
+  .info-value-medium {
+    font-size: 24px;
     margin: 2px 0;
   }
 
@@ -1187,6 +1248,11 @@ body::after {
     font-size: 18px;
   }
 
+  /* 即將到來的距離 - Mobile */
+  #upcoming-distance {
+    font-size: 16px !important;
+  }
+
 }
 
 /* 極小螢幕 (< 480px) */
@@ -1221,6 +1287,11 @@ body::after {
 
   .info-value-large {
     font-size: 22px;
+    margin: 1px 0;
+  }
+
+  .info-value-medium {
+    font-size: 18px;
     margin: 1px 0;
   }
 
@@ -1439,6 +1510,11 @@ body::after {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  /* 即將到來的距離 - Small */
+  #upcoming-distance {
+    font-size: 14px !important;
   }
 
 }

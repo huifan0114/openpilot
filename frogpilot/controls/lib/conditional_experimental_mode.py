@@ -117,7 +117,7 @@ class ConditionalExperimentalMode:
       self.stop_light_filter.update(self.frogpilot_planner.model_stopped or model_stopping)
       # 修正：移除 "and not tracking_lead" 條件
       # 原因：紅綠燈前通常有前車，此條件會阻止 Experimental Mode 啟動
-      self.stop_light_detected = self.stop_light_filter.x >= THRESHOLD
+      self.stop_light_detected = self.stop_light_filter.x >= THRESHOLD and not self.frogpilot_planner.tracking_lead
     else:
       self.stop_light_filter.x = 0
       self.stop_light_detected = False

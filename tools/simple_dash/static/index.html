@@ -27,13 +27,11 @@
       <div id="max-speed-card" class="card">
         <div class="label-small">MAX</div>
         <div id="max-speed-value" class="value-large">--</div>
-        <div id="max-speed-unit" class="label-tiny">km/h</div>
       </div>
 
       <div id="vcruise-card" class="card">
         <div class="label-small">VCRUISE</div>
         <div id="vcruise-value" class="value-large">--</div>
-        <div id="vcruise-unit" class="label-tiny">km/h</div>
       </div>
     </div>
 
@@ -42,14 +40,13 @@
       <div id="speed-limit-card" class="card">
         <div class="label-small">速限</div>
         <div id="speed-limit-value" class="value-medium">--</div>
-        <div class="label-tiny">km/h</div>
       </div>
 
       <!-- 即將到來的速限 (與速限標誌放在一起) -->
       <div id="upcoming-limit-card" class="card">
         <div class="label-small">即將到來</div>
         <div id="upcoming-value" class="value-medium">--</div>
-        <div id="upcoming-distance" class="label-tiny">-- 米</div>
+        <div id="upcoming-distance" class="label-tiny">--</div>
       </div>
     </div>
 
@@ -79,27 +76,23 @@
 
         <!-- 有前車狀態 -->
         <div id="has-lead-state" class="hidden">
-          <!-- 距離區塊 -->
-          <div class="info-section">
-            <div class="info-label">前車距離</div>
-            <div id="lead-distance" class="info-value-large">-- 米</div>
-            <div id="desired-distance" class="info-sublabel">(期望: -- 米)</div>
-          </div>
-
-          <!-- 分隔線 -->
-          <div class="divider"></div>
-
-          <!-- 速度 + 時間區塊 -->
-          <div class="info-section">
-            <div class="info-row">
-              <div class="info-col">
-                <div class="info-label">前車速度</div>
-                <div id="lead-speed" class="info-value-large">-- km/h</div>
-              </div>
-              <div class="info-col">
-                <div class="info-label">跟車時間</div>
-                <div id="follow-time" class="info-value-large">-- 秒</div>
-              </div>
+          <!-- 4個資訊水平排列，手機時自動換行 -->
+          <div class="info-row-flex">
+            <div class="info-col">
+              <div class="info-label">距離</div>
+              <div id="lead-distance" class="info-value-medium">--</div>
+            </div>
+            <div class="info-col">
+              <div class="info-label">期望</div>
+              <div id="desired-distance" class="info-value-medium">--</div>
+            </div>
+            <div class="info-col">
+              <div class="info-label">速度</div>
+              <div id="lead-speed" class="info-value-medium">--</div>
+            </div>
+            <div class="info-col">
+              <div class="info-label">時間</div>
+              <div id="follow-time" class="info-value-medium">--</div>
             </div>
           </div>
         </div>
@@ -117,7 +110,6 @@
       <div id="acceleration-card" class="card small-card">
         <div class="label-small">加減速度</div>
         <div id="acceleration-value" class="value-medium neutral">--</div>
-        <div class="label-tiny">m/s²</div>
       </div>
     </div>
 
@@ -133,7 +125,6 @@
       <div id="csc-card" class="card small-card">
         <div class="label-small">彎道減速</div>
         <div id="csc-speed" class="value-medium">--</div>
-        <div id="csc-speed-unit" class="label-tiny">km/h</div>
       </div>
     </div>
 

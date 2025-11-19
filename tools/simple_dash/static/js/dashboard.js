@@ -19,12 +19,10 @@ export class DashboardUI {
       // MAX 速度
       maxSpeedCard: document.getElementById('max-speed-card'),
       maxSpeed: document.getElementById('max-speed-value'),
-      maxSpeedUnit: document.getElementById('max-speed-unit'),
 
       // VCRUISE
       vcruiseCard: document.getElementById('vcruise-card'),
       vcruiseValue: document.getElementById('vcruise-value'),
-      vcruiseUnit: document.getElementById('vcruise-unit'),
 
       // 速限標誌
       speedLimitCard: document.getElementById('speed-limit-card'),
@@ -38,7 +36,6 @@ export class DashboardUI {
       // CSC 彎道速度控制
       cscCard: document.getElementById('csc-card'),
       cscSpeed: document.getElementById('csc-speed'),
-      cscSpeedUnit: document.getElementById('csc-speed-unit'),
 
       // EXPERIMENTAL MODE
       experimentalCard: document.getElementById('experimental-card'),
@@ -123,7 +120,7 @@ export class DashboardUI {
     this.elements.noLeadState.classList.add('hidden');
     this.elements.hasLeadState.classList.remove('hidden');
     this.elements.leadDistance.textContent = testValues.distance;
-    this.elements.desiredDistance.textContent = `(期望: ${testValues.distance})`;
+    this.elements.desiredDistance.textContent = testValues.distance;
     this.elements.leadSpeed.textContent = testValues.medium;
     this.elements.followTime.textContent = testValues.time;
 
@@ -212,7 +209,7 @@ export class DashboardUI {
       this.elements.vcruiseValue.textContent = '--';
       this.elements.speedLimitValue.textContent = '--';
       this.elements.upcomingValue.textContent = '--';
-      this.elements.upcomingDistance.textContent = `-- ${this.units.distance}`;
+      this.elements.upcomingDistance.textContent = `--`;
       this.elements.cscSpeed.textContent = '--';
       this.elements.accelerationValue.textContent = '--';
       this.elements.accelerationValue.className = 'value-medium neutral';
@@ -260,7 +257,7 @@ export class DashboardUI {
 
     // 更新顯示（移除單位，更緊湊）
     this.elements.leadDistance.textContent = `${Math.round(distance)}`;
-    this.elements.desiredDistance.textContent = `(期望: ${Math.round(desiredDist)})`;
+    this.elements.desiredDistance.textContent = `${Math.round(desiredDist)}`;
     this.elements.leadSpeed.textContent = `${Math.round(leadSpeed)}`;
     this.elements.followTime.textContent = followTime !== '--' ? `${followTime}` : '--';
 
@@ -333,7 +330,7 @@ export class DashboardUI {
       return;
     }
 
-    const maxSpeed = vCruise * this.units.speedConversion;
+    const maxSpeed = vCruise;  // vCruise 已經是 KPH，不需要轉換
     this.elements.maxSpeed.textContent = Math.round(maxSpeed);
   }
 
@@ -368,9 +365,9 @@ export class DashboardUI {
     // 距離
     if (upcomingDistance > 0) {
       const distanceConverted = upcomingDistance * this.units.distanceConversion;
-      this.elements.upcomingDistance.textContent = `${Math.round(distanceConverted)} ${this.units.distance}`;
+      this.elements.upcomingDistance.textContent = `${Math.round(distanceConverted)}`;
     } else {
-      this.elements.upcomingDistance.textContent = `-- ${this.units.distance}`;
+      this.elements.upcomingDistance.textContent = `--`;
     }
   }
 
@@ -496,10 +493,7 @@ export class DashboardUI {
       this.units.speedConversion = 2.23694;  // m/s to mph
     }
 
-    // 更新單位顯示
-    this.elements.maxSpeedUnit.textContent = this.units.speed;
-    this.elements.cscSpeedUnit.textContent = this.units.speed;
-    this.elements.vcruiseUnit.textContent = this.units.speed;
+    // 單位已從 HTML 移除，不需要更新顯示
   }
 
   // ========== VCRUISE 更新 ==========
