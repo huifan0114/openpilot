@@ -244,6 +244,12 @@ class VisionMonitor {
     const carState = this.stateManager.carState;
     const controlsState = this.stateManager.controlsState;
 
+    // 無論有無前車，都顯示定速
+    if (controlsState) {
+      const vCruiseKph = controlsState.vCruise || 0;
+      this.elements.vcruiseOriginal.textContent = vCruiseKph.toFixed(0);
+    }
+
     // 檢查是否有必要數據
     if (!modelV2 || !modelV2.leadsV3 || modelV2.leadsV3.length === 0) {
       this.showNoData();
@@ -534,13 +540,13 @@ class VisionMonitor {
   }
 
   showNoData() {
-    // 無前車數據時顯示 "--"
+    // 無前車數據時顯示 "--"（保留 vcruiseOriginal，因為已在 updateMonitor 中設定）
     this.elements.ttc.textContent = '--';
     this.elements.th.textContent = '--';
     this.elements.drel.textContent = '--';
     this.elements.vrel.textContent = '--';
     this.elements.vrelStuck.textContent = '--';
-    this.elements.vcruiseOriginal.textContent = '--';
+    // this.elements.vcruiseOriginal 保留顯示
     this.elements.vcruiseSuggested.textContent = '--';
     this.elements.vcruiseReduction.textContent = '--';
 
