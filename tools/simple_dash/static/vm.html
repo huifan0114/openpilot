@@ -25,29 +25,6 @@
 
     <!-- 主要監控面板 -->
     <main id="monitor-grid">
-      <!-- 不確定性指標卡片 -->
-      <div class="card">
-        <h2>不確定性指標</h2>
-        <div class="metric-row">
-          <span class="label">xStd:</span>
-          <span id="xstd" class="value">--</span>
-          <span class="unit">m</span>
-          <span id="xstd-warn" class="warn hidden">⚠</span>
-        </div>
-        <div class="metric-row">
-          <span class="label">vStd:</span>
-          <span id="vstd" class="value">--</span>
-          <span class="unit">m/s</span>
-          <span id="vstd-warn" class="warn hidden">⚠</span>
-        </div>
-        <div class="metric-row">
-          <span class="label">Prob:</span>
-          <span id="prob" class="value">--</span>
-          <span class="unit"></span>
-          <span id="prob-warn" class="warn hidden">⚠</span>
-        </div>
-      </div>
-
       <!-- 安全指標卡片 -->
       <div class="card">
         <h2>安全指標</h2>
@@ -55,6 +32,13 @@
           <span class="label">TTC:</span>
           <span id="ttc" class="value ttc-value">--</span>
           <span class="unit">秒</span>
+          <span id="ttc-warn" class="warn hidden">⚠</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">TH:</span>
+          <span id="th" class="value th-value">--</span>
+          <span class="unit">秒</span>
+          <span id="th-warn" class="warn hidden">⚠</span>
         </div>
         <div class="metric-row">
           <span class="label">距離:</span>
@@ -65,6 +49,12 @@
           <span class="label">速差:</span>
           <span id="vrel" class="value">--</span>
           <span class="unit">km/h</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">vRel異常:</span>
+          <span id="vrel-stuck" class="value">--</span>
+          <span class="unit"></span>
+          <span id="vrel-stuck-warn" class="warn hidden">⚠</span>
         </div>
       </div>
 
@@ -92,10 +82,9 @@
         <div class="metric-row">
           <span class="label">觸發條件:</span>
           <div id="triggers" class="trigger-tags">
-            <span id="tag-xstd" class="tag hidden">xStd</span>
-            <span id="tag-vstd" class="tag hidden">vStd</span>
-            <span id="tag-prob" class="tag hidden">Prob</span>
             <span id="tag-ttc" class="tag hidden">TTC</span>
+            <span id="tag-th" class="tag hidden">TH</span>
+            <span id="tag-vrel-stuck" class="tag hidden">vRel卡住</span>
             <span id="tag-accel" class="tag hidden">加速</span>
           </div>
         </div>
@@ -105,7 +94,7 @@
     <!-- 資訊面板 -->
     <footer>
       <div class="info-panel">
-        <span>閾值: xStd=2.17m | vStd=1.08m/s | TTC<6s</span>
+        <span>閾值: TTC<4s | TH<1.2s | vRel std<0.5</span>
         <span id="last-update">最後更新: --</span>
       </div>
     </footer>

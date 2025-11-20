@@ -131,7 +131,7 @@ header h1 {
 
 #monitor-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: 1fr 1fr;  /* 強制兩欄單行顯示 */
   gap: 20px;
   margin-bottom: 30px;
 }
@@ -256,6 +256,31 @@ header h1 {
 
 .ttc-caution {
   color: #FFC107 !important;
+}
+
+/* ==================== TH 顏色分級 ==================== */
+
+.th-value {
+  transition: color 0.3s ease;
+}
+
+.th-danger {
+  color: #f44336 !important;
+  font-weight: 900 !important;
+  animation: blink 0.5s infinite;
+}
+
+.th-warning {
+  color: #FF9800 !important;
+  font-weight: 800 !important;
+}
+
+/* ==================== vRel_stuck 警告樣式 ==================== */
+
+.vrel-stuck-danger {
+  color: #f44336 !important;
+  font-weight: 900 !important;
+  animation: blink 0.5s infinite;
 }
 
 /* ==================== 定速模擬樣式 ==================== */

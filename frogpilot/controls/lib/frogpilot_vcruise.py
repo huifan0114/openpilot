@@ -37,7 +37,7 @@ class FrogPilotVCruise:
     import math
 
     STEP_SIZE = 10 * CV.KPH_TO_MS  # 每次增加 10 km/h
-    APPROACH_THRESHOLD = 3 * CV.KPH_TO_MS  # 接近閾值 2 km/h（提前升段更流暢）
+    APPROACH_THRESHOLD = 2 * CV.KPH_TO_MS  # 接近閾值 2 km/h（提前升段更流暢）
     MIN_STEP_TRIGGER = 10 * CV.KPH_TO_MS  # 最小觸發差距 10 km/h
 
     # 計算下一個對齊到 10 的倍數的目標速度（最小 30 km/h）
@@ -47,7 +47,7 @@ class FrogPilotVCruise:
       # 例如: 38 km/h → 40, 40 km/h → 40, 42 km/h → 50
       next_target_kph = math.ceil(v_ego_kph / 10) * 10
       # 確保最小目標速度為 30 km/h（避免 0→10 太慢）
-      next_target_kph = max(next_target_kph, 30)
+      next_target_kph = max(next_target_kph, 20)
       return next_target_kph * CV.KPH_TO_MS
 
     speed_diff = v_cruise_final - v_ego

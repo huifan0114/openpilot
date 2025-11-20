@@ -18,6 +18,11 @@ class VisionMonitor {
       controlsState: null
     };
 
+    // vRel_stuck 偵測用歷史數據
+    this.vRelHistory = [];
+    this.dRelHistory = [];
+    this.historySize = 50;  // 約 2.5 秒 (20Hz)
+
     // 初始化 DOM 元素
     this.initElements();
 
@@ -33,18 +38,15 @@ class VisionMonitor {
       connectionStatus: document.getElementById('connection-status'),
       lastUpdate: document.getElementById('last-update'),
 
-      // 不確定性指標
-      xstd: document.getElementById('xstd'),
-      vstd: document.getElementById('vstd'),
-      prob: document.getElementById('prob'),
-      xstdWarn: document.getElementById('xstd-warn'),
-      vstdWarn: document.getElementById('vstd-warn'),
-      probWarn: document.getElementById('prob-warn'),
-
       // 安全指標
       ttc: document.getElementById('ttc'),
+      th: document.getElementById('th'),
       drel: document.getElementById('drel'),
       vrel: document.getElementById('vrel'),
+      vrelStuck: document.getElementById('vrel-stuck'),
+      ttcWarn: document.getElementById('ttc-warn'),
+      thWarn: document.getElementById('th-warn'),
+      vrelStuckWarn: document.getElementById('vrel-stuck-warn'),
 
       // 定速模擬
       vcruiseOriginal: document.getElementById('vcruise-original'),
@@ -54,10 +56,9 @@ class VisionMonitor {
 
       // 觸發條件標籤
       triggerTags: {
-        xstd: document.getElementById('tag-xstd'),
-        vstd: document.getElementById('tag-vstd'),
-        prob: document.getElementById('tag-prob'),
         ttc: document.getElementById('tag-ttc'),
+        th: document.getElementById('tag-th'),
+        vrelStuck: document.getElementById('tag-vrel-stuck'),
         accel: document.getElementById('tag-accel')
       }
     };
@@ -256,10 +257,7 @@ class VisionMonitor {
     const lead = modelV2.leadsV3[0];
     const vEgo = carState.vEgo || 0;
 
-    // 更新不確定性指標
-    this.updateUncertainty(lead);
-
-    // 更新安全指標
+    // 更新安全指標（包含 TTC 和 TH）
     this.updateSafety(lead, vEgo);
 
     // 更新定速模擬
@@ -269,49 +267,6 @@ class VisionMonitor {
 
     // 更新最後更新時間
     this.updateLastUpdate();
-  }
-
-  // ========== 不確定性指標更新 ==========
-
-  updateUncertainty(lead) {
-    // xStd (距離標準差)
-    const xStd = (lead.xStd && lead.xStd.length > 0) ? lead.xStd[0] : 0;
-    this.elements.xstd.textContent = xStd.toFixed(2);
-
-    // xStd 超過閾值 (2.17m)
-    if (xStd > 2.17) {
-      this.elements.xstd.classList.add('warn-value');
-      this.elements.xstdWarn.classList.remove('hidden');
-    } else {
-      this.elements.xstd.classList.remove('warn-value');
-      this.elements.xstdWarn.classList.add('hidden');
-    }
-
-    // vStd (速度標準差)
-    const vStd = (lead.vStd && lead.vStd.length > 0) ? lead.vStd[0] : 0;
-    this.elements.vstd.textContent = vStd.toFixed(2);
-
-    // vStd 超過閾值 (1.08 m/s)
-    if (vStd > 1.08) {
-      this.elements.vstd.classList.add('warn-value');
-      this.elements.vstdWarn.classList.remove('hidden');
-    } else {
-      this.elements.vstd.classList.remove('warn-value');
-      this.elements.vstdWarn.classList.add('hidden');
-    }
-
-    // Prob (前車機率)
-    const prob = lead.prob || 0;
-    this.elements.prob.textContent = prob.toFixed(2);
-
-    // Prob 低於閾值 (0.5)
-    if (prob < 0.5 && prob > 0.05) {
-      this.elements.prob.classList.add('warn-value');
-      this.elements.probWarn.classList.remove('hidden');
-    } else {
-      this.elements.prob.classList.remove('warn-value');
-      this.elements.probWarn.classList.add('hidden');
-    }
   }
 
   // ========== 安全指標更新 ==========
@@ -335,69 +290,145 @@ class VisionMonitor {
       ttc = dRel / vRel;
     }
 
-    // 顯示 TTC
+    // TH (Time Headway 車頭時距)
+    let th = 999;
+    if (vEgo > 0.1) {
+      th = dRel / vEgo;
+    }
+
+    // 顯示 TTC（閾值調嚴格）
     const ttcElem = this.elements.ttc;
     if (ttc > 99) {
       ttcElem.textContent = '--';
       ttcElem.classList.remove('ttc-danger', 'ttc-warning', 'ttc-caution');
+      this.elements.ttcWarn.classList.add('hidden');
     } else {
       ttcElem.textContent = ttc.toFixed(1);
 
-      // TTC 顏色分級
+      // TTC 顏色分級和警告
       ttcElem.classList.remove('ttc-danger', 'ttc-warning', 'ttc-caution');
-      if (ttc < 3) {
-        ttcElem.classList.add('ttc-danger');  // 紅色閃爍
-      } else if (ttc < 6) {
-        ttcElem.classList.add('ttc-warning'); // 黃色
+      if (ttc < 2.5) {
+        ttcElem.classList.add('ttc-danger');
+        this.elements.ttcWarn.classList.remove('hidden');
+      } else if (ttc < 4) {
+        ttcElem.classList.add('ttc-warning');
+        this.elements.ttcWarn.classList.remove('hidden');
       } else {
-        ttcElem.classList.add('ttc-caution'); // 淺黃
+        ttcElem.classList.add('ttc-caution');
+        this.elements.ttcWarn.classList.add('hidden');
       }
     }
+
+    // 顯示 TH（閾值調嚴格）
+    const thElem = this.elements.th;
+    if (th > 99) {
+      thElem.textContent = '--';
+      thElem.classList.remove('th-danger', 'th-warning');
+      this.elements.thWarn.classList.add('hidden');
+    } else {
+      thElem.textContent = th.toFixed(2);
+
+      // TH 顏色分級和警告
+      thElem.classList.remove('th-danger', 'th-warning');
+      if (th < 0.8) {
+        thElem.classList.add('th-danger');
+        this.elements.thWarn.classList.remove('hidden');
+      } else if (th < 1.2) {
+        thElem.classList.add('th-warning');
+        this.elements.thWarn.classList.remove('hidden');
+      } else {
+        this.elements.thWarn.classList.add('hidden');
+      }
+    }
+
+    // 更新歷史數據並偵測 vRel_stuck
+    this.updateHistory(vRel, dRel);
+    const isVRelStuck = this.detectVRelStuck();
+
+    // 顯示 vRel_stuck 狀態
+    const vrelStuckElem = this.elements.vrelStuck;
+    if (isVRelStuck) {
+      vrelStuckElem.textContent = '異常';
+      vrelStuckElem.classList.add('vrel-stuck-danger');
+      this.elements.vrelStuckWarn.classList.remove('hidden');
+    } else {
+      vrelStuckElem.textContent = '正常';
+      vrelStuckElem.classList.remove('vrel-stuck-danger');
+      this.elements.vrelStuckWarn.classList.add('hidden');
+    }
+  }
+
+  // ========== 歷史數據更新 ==========
+
+  updateHistory(vRel, dRel) {
+    this.vRelHistory.push(vRel);
+    this.dRelHistory.push(dRel);
+    if (this.vRelHistory.length > this.historySize) {
+      this.vRelHistory.shift();
+      this.dRelHistory.shift();
+    }
+  }
+
+  // ========== vRel_stuck 偵測 ==========
+
+  detectVRelStuck() {
+    if (this.vRelHistory.length < this.historySize) return false;
+
+    // 計算 vRel 標準差
+    const mean = this.vRelHistory.reduce((a, b) => a + b, 0) / this.historySize;
+    const variance = this.vRelHistory.reduce((sum, val) =>
+      sum + Math.pow(val - mean, 2), 0) / this.historySize;
+    const std = Math.sqrt(variance);
+
+    // 計算 dRel 變化（第一個值 - 最後一個值，正值表示距離減少）
+    const dRelChange = this.dRelHistory[0] - this.dRelHistory[this.historySize - 1];
+
+    // 條件：vRel 標準差 < 0.5 m/s 且 dRel 變化 > 20m
+    return std < 0.5 && dRelChange > 20;
   }
 
   // ========== 定速模擬更新 ==========
 
   updateCruiseSim(lead, vEgo, controlsState, aEgo) {
-    const vCruise = controlsState.vCruise || 0;  // m/s
-    const vCruiseKph = vCruise * 3.6;  // 轉換為 km/h
+    // vCruise 已經是 km/h，不需要轉換
+    const vCruiseKph = controlsState.vCruise || 0;
     const vEgoKph = vEgo * 3.6;
 
     // 顯示原始定速
     this.elements.vcruiseOriginal.textContent = vCruiseKph.toFixed(0);
 
-    // 獲取不確定性數據
-    const xStd = (lead.xStd && lead.xStd.length > 0) ? lead.xStd[0] : 0;
-    const vStd = (lead.vStd && lead.vStd.length > 0) ? lead.vStd[0] : 0;
-    const prob = lead.prob || 0;
-
-    // 計算 TTC
+    // 計算 TTC 和 TH
     const dRel = (lead.x && lead.x.length > 0) ? lead.x[0] : 0;
     const vLead = (lead.v && lead.v.length > 0) ? lead.v[0] : 0;
     const vRel = vLead - vEgo;
+
     let ttc = 999;
     if (vRel > 0.1) {
       ttc = dRel / vRel;
     }
 
+    let th = 999;
+    if (vEgo > 0.1) {
+      th = dRel / vEgo;
+    }
+
     // === 條件判斷 ===
     let triggers = {
-      xstd: false,
-      vstd: false,
-      prob: false,
       ttc: false,
+      th: false,
+      vrelStuck: false,
       accel: false
     };
 
-    // 檢查各項條件
-    if (xStd > 2.17) triggers.xstd = true;
-    if (vStd > 1.08) triggers.vstd = true;
-    if (prob < 0.5 && prob > 0.05) triggers.prob = true;
-    if (ttc < 6 && ttc < 99) triggers.ttc = true;
+    // 檢查各項條件（閾值調嚴格）
+    if (ttc < 4 && ttc < 99) triggers.ttc = true;
+    if (th < 1.2 && th < 99) triggers.th = true;
+    triggers.vrelStuck = this.detectVRelStuck();
 
     // 危險加速場景
     const accelerating = aEgo > 0.5;
     const largeSpeedGap = (vCruiseKph - vEgoKph) > 20;
-    if (accelerating && largeSpeedGap && triggers.prob) {
+    if (accelerating && largeSpeedGap && th < 2.0) {
       triggers.accel = true;
     }
 
@@ -405,12 +436,11 @@ class VisionMonitor {
     let riskLevel = 'normal';  // normal, medium, high
     let suggestedVCruiseKph = vCruiseKph;
 
-    // 高風險：xStd 和 vStd 都超標，或 TTC < 3
-    const highRisk = (triggers.xstd && triggers.vstd) || (ttc < 3 && ttc < 99);
+    // 高風險：TTC < 2.5 或 TH < 0.8 或 vRel_stuck
+    const highRisk = (ttc < 2.5 && ttc < 99) || (th < 0.8 && th < 99) || triggers.vrelStuck;
 
-    // 中風險：任一指標觸發
-    const mediumRisk = triggers.xstd || triggers.vstd || triggers.prob ||
-                       (ttc < 6 && ttc < 99) || triggers.accel;
+    // 中風險：TTC < 4 或 TH < 1.2 或危險加速
+    const mediumRisk = triggers.ttc || triggers.th || triggers.accel;
 
     if (highRisk) {
       riskLevel = 'high';
@@ -505,20 +535,19 @@ class VisionMonitor {
 
   showNoData() {
     // 無前車數據時顯示 "--"
-    this.elements.xstd.textContent = '--';
-    this.elements.vstd.textContent = '--';
-    this.elements.prob.textContent = '--';
     this.elements.ttc.textContent = '--';
+    this.elements.th.textContent = '--';
     this.elements.drel.textContent = '--';
     this.elements.vrel.textContent = '--';
+    this.elements.vrelStuck.textContent = '--';
     this.elements.vcruiseOriginal.textContent = '--';
     this.elements.vcruiseSuggested.textContent = '--';
     this.elements.vcruiseReduction.textContent = '--';
 
     // 隱藏所有警告標記
-    this.elements.xstdWarn.classList.add('hidden');
-    this.elements.vstdWarn.classList.add('hidden');
-    this.elements.probWarn.classList.add('hidden');
+    this.elements.ttcWarn.classList.add('hidden');
+    this.elements.thWarn.classList.add('hidden');
+    this.elements.vrelStuckWarn.classList.add('hidden');
 
     // 隱藏所有觸發標籤
     for (const tag of Object.values(this.elements.triggerTags)) {
@@ -530,6 +559,10 @@ class VisionMonitor {
     // 重置狀態
     this.elements.simStatus.textContent = '等待數據';
     this.elements.simStatus.classList.remove('normal', 'warning', 'danger');
+
+    // 清空歷史數據
+    this.vRelHistory = [];
+    this.dRelHistory = [];
   }
 }
 

@@ -108,15 +108,15 @@ class FrogPilotPlanner:
 
     self.road_curvature_detected = (1 / abs(self.road_curvature))**0.5 < v_ego > CRUISING_SPEED and not (sm["carState"].leftBlinker or sm["carState"].rightBlinker)
 
-    if not sm["carState"].standstill:
-      self.tracking_lead = self.update_lead_status()
+    #if not sm["carState"].standstill:
+    self.tracking_lead = self.update_lead_status()
 
     self.v_cruise = self.frogpilot_vcruise.update(gps_position, now, time_validated, v_cruise, v_ego, sm, frogpilot_toggles)
 
   def update_lead_status(self):
     following_lead = self.lead_one.status
     #following_lead &= self.lead_one.dRel < self.model_length + 2
-    following_lead &= self.lead_one.dRel < self.model_length + STOP_DISTANCE
+    #following_lead &= self.lead_one.dRel < self.model_length + STOP_DISTANCE
 
     self.tracking_lead_filter.update(following_lead)
     return self.tracking_lead_filter.x >= THRESHOLD
