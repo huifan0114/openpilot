@@ -16,12 +16,18 @@ class FrogPilotVCruise:
 
     # Progressive speed controller - dynamic step-by-step acceleration
     self.progressive_target = 0
-    self.progressive_enabled = False
 
     self.forcing_stop = False
     self.override_force_stop = False
 
     self.override_force_stop_timer = 0
+
+    # Vision Safety Controller (VSC)
+    self.vrel_history = []
+    self.drel_history = []
+    self.vsc_history_size = 50  # 約 2.5 秒 (20Hz)
+    self.vsc_target = 0
+    self.vsc_active = False
 
   def update_progressive_speed(self, v_ego, v_cruise_final):
     """
@@ -54,19 +60,17 @@ class FrogPilotVCruise:
 
     # 如果速度差距小於觸發閾值，直接使用最終目標
     if speed_diff < MIN_STEP_TRIGGER:
-      self.progressive_enabled = False
       return v_cruise_final
 
     # 煞車場景檢測 - 如果當前速度比目標低太多，重新設定
     reset_target = False
-    if self.progressive_enabled and v_ego < (self.progressive_target - STEP_SIZE):
+    if v_ego < (self.progressive_target - STEP_SIZE):
       # 煞車了，重新設定漸進目標（對齊到 10 的倍數）
       self.progressive_target = calculate_next_target(v_ego)
       reset_target = True
 
     # 初始化或重新設定漸進目標（當目標速度降低時也重置）
-    if not self.progressive_enabled or self.progressive_target > v_cruise_final:
-      self.progressive_enabled = True
+    if self.progressive_target > v_cruise_final:
       self.progressive_target = calculate_next_target(v_ego)
       reset_target = True
 
@@ -79,6 +83,67 @@ class FrogPilotVCruise:
     self.progressive_target = min(self.progressive_target, v_cruise_final)
 
     return self.progressive_target
+
+  def update_vsc(self, v_ego, v_cruise, sm):
+    """Vision Safety Controller - 基於 TTC/TH/vRel_stuck 動態降速"""
+    import numpy as np
+
+    if not sm["radarState"].leadOne.status:
+        self.vrel_history.clear()
+        self.drel_history.clear()
+        self.vsc_active = False
+        return v_cruise
+
+    lead = sm["radarState"].leadOne
+    dRel = lead.dRel
+    vRel = lead.vRel
+
+    # 更新歷史
+    self.vrel_history.append(vRel)
+    self.drel_history.append(dRel)
+    if len(self.vrel_history) > self.vsc_history_size:
+        self.vrel_history.pop(0)
+        self.drel_history.pop(0)
+
+    # 計算指標
+    ttc = dRel / abs(vRel) if vRel < -0.1 else 99
+    th = dRel / v_ego if v_ego > 0.1 else 99
+
+    # vRel_stuck 檢測
+    vrel_stuck = False
+    if len(self.vrel_history) >= self.vsc_history_size:
+        vrel_std = np.std(self.vrel_history)
+        drel_change = self.drel_history[0] - self.drel_history[-1]
+        vrel_stuck = vrel_std < 0.5 and drel_change > 20
+
+    # 風險評估
+    risk_level = 0
+
+    if ttc < 2.5:
+        risk_level = max(risk_level, 3)
+    elif ttc < 4:
+        risk_level = max(risk_level, 2)
+
+    if th < 0.8:
+        risk_level = max(risk_level, 3)
+    elif th < 1.2:
+        risk_level = max(risk_level, 2)
+
+    if vrel_stuck:
+        risk_level = max(risk_level, 2)
+
+    # 降速比例
+    if risk_level >= 3:
+        reduction = 0.7
+    elif risk_level >= 2:
+        reduction = 0.85
+    else:
+        reduction = 1.0
+
+    self.vsc_active = reduction < 1.0
+    self.vsc_target = v_cruise * reduction
+
+    return self.vsc_target
 
   def update(self, gps_position, now, time_validated, v_cruise, v_ego, sm, frogpilot_toggles):
     force_stop = self.frogpilot_planner.cem.stop_light_detected and sm["controlsState"].enabled and frogpilot_toggles.force_stops
@@ -159,14 +224,22 @@ class FrogPilotVCruise:
       self.tracked_model_length = self.frogpilot_planner.model_length
 
       # CSC (Curve Speed Controller) takes priority - no progressive delay on safety features
-      if self.csc_controlling_speed:
+      #if self.csc_controlling_speed:
         # CSC active: use curve speed directly and reset progressive state
         # Progressive will restart from current speed after exiting curve
-        self.progressive_enabled = False
-      else:
+      #self.progressive_enabled = False
+      #else:
         # Normal operation: apply progressive acceleration control to v_cruise
         # This prevents sudden large accelerations by stepping up speed gradually (10 km/h increments)
-        v_cruise = self.update_progressive_speed(v_ego, v_cruise)
-      v_cruise = min(self.csc_target, v_cruise)
+      # VSC (Vision Safety Controller)
+      if sm["controlsState"].enabled:
+          v_cruise_vsc = self.update_vsc(v_ego, v_cruise, sm)
+      else:
+          v_cruise_vsc = v_cruise
+          self.vsc_active = False
+
+      # Progressive Speed
+      v_cruise_g = self.update_progressive_speed(v_ego, v_cruise)
+      v_cruise = min(self.csc_target, v_cruise_g, v_cruise_vsc)
 
     return v_cruise
