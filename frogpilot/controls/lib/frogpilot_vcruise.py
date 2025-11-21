@@ -134,9 +134,9 @@ class FrogPilotVCruise:
 
     # 降速比例
     if risk_level >= 3:
-        reduction = 0.7
+        reduction = 0.8
     elif risk_level >= 2:
-        reduction = 0.85
+        reduction = 0.9
     else:
         reduction = 1.0
 
