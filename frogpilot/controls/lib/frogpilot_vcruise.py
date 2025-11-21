@@ -88,7 +88,7 @@ class FrogPilotVCruise:
     """Vision Safety Controller - 基於 TTC/TH/vRel_stuck 動態降速"""
     import numpy as np
 
-    if not sm["radarState"].leadOne.status:
+    if not sm["radarState"].leadOne.status and v_ego > CRUISING_SPEED:
         self.vrel_history.clear()
         self.drel_history.clear()
         self.vsc_active = False
