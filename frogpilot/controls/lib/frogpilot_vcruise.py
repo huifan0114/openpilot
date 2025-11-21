@@ -163,10 +163,10 @@ class FrogPilotVCruise:
         # CSC active: use curve speed directly and reset progressive state
         # Progressive will restart from current speed after exiting curve
         self.progressive_enabled = False
-        v_cruise = min(self.csc_target, v_cruise)
       else:
         # Normal operation: apply progressive acceleration control to v_cruise
         # This prevents sudden large accelerations by stepping up speed gradually (10 km/h increments)
         v_cruise = self.update_progressive_speed(v_ego, v_cruise)
+      v_cruise = min(self.csc_target, v_cruise)
 
     return v_cruise
