@@ -102,6 +102,7 @@ class FrogPilotPlanner:
     self.model_length = sm["modelV2"].position.x[-1]
 
     self.model_stopped = self.model_length < CRUISING_SPEED * PLANNER_TIME
+    self.model_stopped |= self.frogpilot_vcruise.forcing_stop
 
     self.road_curvature, self.time_to_curve = calculate_road_curvature(sm["modelV2"], v_ego)
 
