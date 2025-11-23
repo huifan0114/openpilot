@@ -19,6 +19,12 @@ class FrogPilotVCruise:
 
     # Progressive speed controller
     self.progressive_target = 0
+    self.forcing_stop = False
+    self.override_force_stop = False
+
+    self.override_force_stop_timer = 0
+    self.force_stop_timer = 0
+    self.tracked_model_length = 0
 
     # Vision Safety Controller (VSC)
     self.vrel_history = []
@@ -28,6 +34,12 @@ class FrogPilotVCruise:
     self.vsc_active = False
 
   def update(self, gps_position, now, time_validated, v_cruise, v_ego, sm, frogpilot_toggles):
+
+    v_cruise_cluster = max(sm["controlsState"].vCruiseCluster * CV.KPH_TO_MS, v_cruise)
+    v_cruise_diff = v_cruise_cluster - v_cruise
+
+    v_ego_cluster = max(sm["carState"].vEgoCluster, v_ego)
+    v_ego_diff = v_ego_cluster - v_ego
 
     # ========== CSC (Curve Speed Controller) ==========
     if v_ego > CRUISING_SPEED and sm["controlsState"].enabled and self.frogpilot_planner.road_curvature_detected and frogpilot_toggles.curve_speed_controller:
@@ -49,6 +61,25 @@ class FrogPilotVCruise:
         self.braking_target = v_cruise
     else:
       self.braking_target = v_cruise
+
+    # Pfeiferj's Speed Limit Controller
+    self.slc.frogpilot_toggles = frogpilot_toggles
+
+    if frogpilot_toggles.speed_limit_controller:
+      self.slc.update_limits(sm["frogpilotCarState"].dashboardSpeedLimit, gps_position, sm["frogpilotNavigation"].navigationSpeedLimit, now, time_validated, v_cruise, v_ego, sm)
+      self.slc.update_override(v_cruise, v_cruise_diff, v_ego, v_ego_diff, sm)
+
+      self.slc_offset = self.slc.offset
+      self.slc_target = self.slc.target
+    elif frogpilot_toggles.show_speed_limits:
+      self.slc.update_limits(sm["frogpilotCarState"].dashboardSpeedLimit, gps_position, sm["frogpilotNavigation"].navigationSpeedLimit, now, time_validated, v_cruise, v_ego, sm)
+
+      self.slc_offset = 0
+      self.slc_target = self.slc.target
+    else:
+      self.slc_offset = 0
+      self.slc_target = 0
+
 
     # ========== VSC (Vision Safety Controller) ==========
     if sm["controlsState"].enabled:
