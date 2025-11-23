@@ -64,6 +64,8 @@ class FrogPilotEvents:
       else:
         self.events.add(FrogPilotEventName.openpilotCrashed)
 
+    if self.frogpilot_planner.frogpilot_vcruise.forcing_stop:
+      self.events.add(FrogPilotEventName.forcingStop)
 
     if not self.frogpilot_planner.tracking_lead and sm["carState"].standstill and sm["carState"].gearShifter not in NON_DRIVING_GEARS:
       if not self.frogpilot_planner.model_stopped and self.stopped_for_light and frogpilot_toggles.green_light_alert:
