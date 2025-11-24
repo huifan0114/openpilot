@@ -90,14 +90,21 @@ class CurveSpeedController:
 
   def update_target(self, v_ego):
     lateral_acceleration = self.lateral_acceleration
+    road_curvature = abs(self.frogpilot_planner.road_curvature)
+
+    # 防止除以零
+    if road_curvature < 0.0001:
+      road_curvature = 0.0001
+
+    csc_speed = (lateral_acceleration / road_curvature)**0.5
 
     if self.target_set:
-      csc_speed = (lateral_acceleration / abs(self.frogpilot_planner.road_curvature))**0.5
       decel_rate = (v_ego - csc_speed) / self.frogpilot_planner.time_to_curve
 
       self.target -= decel_rate * DT_MDL
-      self.target = float(np.clip(self.target, CRUISING_SPEED, csc_speed))
+      # 修正：clip 上限為 min(csc_speed, v_ego)，防止 target 增加超過當前車速
+      self.target = float(np.clip(self.target, CRUISING_SPEED, min(csc_speed, v_ego)))
     else:
       self.target_set = True
-
-      self.target = v_ego
+      # 修正：初始化為 min(v_ego, csc_speed)，直接從安全速度開始
+      self.target = min(v_ego, csc_speed)
