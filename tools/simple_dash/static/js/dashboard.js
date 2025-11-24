@@ -20,10 +20,6 @@ export class DashboardUI {
       maxSpeedCard: document.getElementById('max-speed-card'),
       maxSpeed: document.getElementById('max-speed-value'),
 
-      // VCRUISE
-      vcruiseCard: document.getElementById('vcruise-card'),
-      vcruiseValue: document.getElementById('vcruise-value'),
-
       // 速限標誌
       speedLimitCard: document.getElementById('speed-limit-card'),
       speedLimitValue: document.getElementById('speed-limit-value'),
@@ -49,8 +45,11 @@ export class DashboardUI {
       experimentalCard: document.getElementById('experimental-card'),
       experimentalIcon: document.getElementById('experimental-icon'),
 
-      // 加減速度
+      // 加減速度 (aEgo)
       accelerationValue: document.getElementById('acceleration-value'),
+
+      // 控制加速 (actuatorsOutput.accel)
+      controlAccelValue: document.getElementById('control-accel-value'),
 
       // 道路名稱
       roadNameCard: document.getElementById('road-name-card'),
@@ -113,9 +112,8 @@ export class DashboardUI {
 
     // === 1. 所有數值顯示測試模式 ===
 
-    // MAX 和 VCRUISE
+    // MAX
     this.elements.maxSpeed.textContent = testValues.large;
-    this.elements.vcruiseValue.textContent = testValues.large;
 
     // 速限
     this.elements.speedLimitValue.textContent = testValues.medium;
@@ -134,6 +132,10 @@ export class DashboardUI {
     // 加減速度
     this.elements.accelerationValue.textContent = '8.88';
     this.elements.accelerationValue.classList.add('positive');
+
+    // 控制加速
+    this.elements.controlAccelValue.textContent = '8.88';
+    this.elements.controlAccelValue.classList.add('positive');
 
     // 前車資訊（強制顯示，移除單位）
     this.elements.noLeadState.classList.add('hidden');
@@ -162,9 +164,8 @@ export class DashboardUI {
     const fadeoutSequence = [
       // 頂部元素
       { element: this.elements.maxSpeed, delay: 800, type: 'value' },
-      { element: this.elements.vcruiseValue, delay: 1000, type: 'value' },
-      { element: this.elements.speedLimitValue, delay: 1200, type: 'value' },
-      { element: this.elements.upcomingValue, delay: 1400, type: 'value' },
+      { element: this.elements.speedLimitValue, delay: 1000, type: 'value' },
+      { element: this.elements.upcomingValue, delay: 1200, type: 'value' },
 
       // 盲點警示
       { element: this.elements.leftBlindspot, delay: 1600, type: 'blindspot' },
@@ -184,9 +185,10 @@ export class DashboardUI {
       { element: this.elements.vscSpeed, delay: 2900, type: 'value' },
       { element: this.elements.progressiveSpeed, delay: 3000, type: 'value' },
 
-      // 底部元素
+      // 右上角和底部元素
       { element: this.elements.accelerationValue, delay: 3100, type: 'value' },
-      { element: this.elements.roadNameCard, delay: 3300, type: 'card' }
+      { element: this.elements.controlAccelValue, delay: 3200, type: 'value' },
+      { element: this.elements.roadNameCard, delay: 3400, type: 'card' }
     ];
 
     // === 5. 執行淡出序列 ===
@@ -232,7 +234,6 @@ export class DashboardUI {
       // 恢復待機狀態
       this.showNoLead();
       this.elements.maxSpeed.textContent = '--';
-      this.elements.vcruiseValue.textContent = '--';
       this.elements.speedLimitValue.textContent = '--';
       this.elements.upcomingValue.textContent = '--';
       this.elements.upcomingDistance.textContent = `--`;
@@ -241,6 +242,8 @@ export class DashboardUI {
       this.elements.progressiveSpeed.textContent = '--';
       this.elements.accelerationValue.textContent = '--';
       this.elements.accelerationValue.className = 'value-medium neutral';
+      this.elements.controlAccelValue.textContent = '--';
+      this.elements.controlAccelValue.className = 'value-medium neutral';
       this.elements.roadNameText.textContent = '--';
 
       console.log('[Dashboard] ✓ Startup sequence completed');
@@ -522,6 +525,34 @@ export class DashboardUI {
     }
   }
 
+  // ========== 控制加速更新 (actuatorsOutput.accel) ==========
+
+  updateControlAccel(accel) {
+    if (accel === undefined || accel === null) {
+      this.elements.controlAccelValue.textContent = '--';
+      this.elements.controlAccelValue.className = 'value-medium neutral';
+      return;
+    }
+
+    // 顯示控制加速度數值 (保留 2 位小數)
+    this.elements.controlAccelValue.textContent = accel.toFixed(2);
+
+    // 移除所有顏色類別
+    this.elements.controlAccelValue.classList.remove('positive', 'negative', 'neutral');
+
+    // 根據加速度值設定顏色
+    if (accel > 0.1) {
+      // 加速 (綠色)
+      this.elements.controlAccelValue.classList.add('positive');
+    } else if (accel < -0.1) {
+      // 減速 (紅色)
+      this.elements.controlAccelValue.classList.add('negative');
+    } else {
+      // 中性 (灰色)
+      this.elements.controlAccelValue.classList.add('neutral');
+    }
+  }
+
   // ========== 道路名稱更新 ==========
 
   updateRoadName(roadName) {
@@ -570,21 +601,38 @@ export class DashboardUI {
     // 單位已從 HTML 移除，不需要更新顯示
   }
 
-  // ========== VCRUISE 更新 ==========
+  // ========== 標示控制速度來源 (最低值) ==========
 
   /**
-   * 更新 vCruise 顯示
+   * 標示 CSC/VSC/漸進式中的最低值
    * @param {Object} frogpilotPlan - FrogPilot plan 資料
    */
-  updateVCruise(frogpilotPlan) {
-    if (!frogpilotPlan || !frogpilotPlan.vCruise || frogpilotPlan.vCruise <= 0) {
-      this.elements.vcruiseValue.textContent = '--';
-      return;
-    }
+  updateControllingSource(frogpilotPlan) {
+    // 移除所有 controlling 類別
+    this.elements.cscCard.classList.remove('controlling');
+    this.elements.vscCard.classList.remove('controlling');
+    this.elements.progressiveCard.classList.remove('controlling');
 
-    // m/s 轉換為 km/h 或 mph
-    const vCruise = frogpilotPlan.vCruise * this.units.speedConversion;
-    this.elements.vcruiseValue.textContent = Math.round(vCruise).toString();
+    if (!frogpilotPlan) return;
+
+    const cscSpeed = frogpilotPlan.cscSpeed || Infinity;
+    const vscSpeed = frogpilotPlan.vscSpeed || Infinity;
+    const progressiveSpeed = frogpilotPlan.progressiveSpeed || Infinity;
+
+    // 找出最低值
+    const minSpeed = Math.min(cscSpeed, vscSpeed, progressiveSpeed);
+
+    // 如果所有都是 Infinity，不標示
+    if (minSpeed === Infinity) return;
+
+    // 標示最低值的卡片
+    if (cscSpeed === minSpeed && cscSpeed < Infinity) {
+      this.elements.cscCard.classList.add('controlling');
+    } else if (vscSpeed === minSpeed && vscSpeed < Infinity) {
+      this.elements.vscCard.classList.add('controlling');
+    } else if (progressiveSpeed === minSpeed && progressiveSpeed < Infinity) {
+      this.elements.progressiveCard.classList.add('controlling');
+    }
   }
 
   // ========== EXPERIMENTAL MODE 更新 ==========

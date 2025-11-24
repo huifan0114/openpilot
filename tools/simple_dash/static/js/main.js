@@ -12,7 +12,8 @@ const stateManager = {
   carState: null,          // 基本車輛狀態 (vEgo, aEgo, vCruise 等)
   controlsState: null,     // 控制狀態 (定速設定值)
   radarState: null,        // 雷達狀態 (前車資訊)
-  frogpilotPlan: null      // FrogPilot 路徑規劃 (速限, 彎道控制等)
+  frogpilotPlan: null,     // FrogPilot 路徑規劃 (速限, 彎道控制等)
+  carOutput: null          // 車輛輸出 (actuatorsOutput.accel 等)
 };
 
 // ==================== 初始化 Dashboard ====================
@@ -58,8 +59,8 @@ function handleMessage(msgType, msgData) {
       dashboard.updateVSC(msgData);
       // 更新漸進式加速
       dashboard.updateProgressive(msgData);
-      // 更新 VCRUISE
-      dashboard.updateVCruise(msgData);
+      // 標示控制速度來源 (最低值)
+      dashboard.updateControllingSource(msgData);
       // 更新 EXPERIMENTAL MODE
       dashboard.updateExperimentalMode(msgData);
       // 更新 CEM 狀態
@@ -77,6 +78,13 @@ function handleMessage(msgType, msgData) {
     case 'radarState':
       // 更新前車資訊
       dashboard.updateLeadInfo(msgData, stateManager.frogpilotPlan);
+      break;
+
+    case 'carOutput':
+      // 更新控制加速度 (actuatorsOutput.accel)
+      if (msgData.actuatorsOutput && msgData.actuatorsOutput.accel !== undefined) {
+        dashboard.updateControlAccel(msgData.actuatorsOutput.accel);
+      }
       break;
 
     // 未來可以擴展更多服務

@@ -19,7 +19,8 @@ function offerRtcRequest(sdp, type) {
       "carState",               // 基本車輛狀態 (vEgo, aEgo, vCruise 等)
       "controlsState",          // 控制狀態 (定速設定值 vCruise)
       "frogpilotPlan",          // FrogPilot 路徑規劃 (速限, 彎道控制, CEM 等)
-      "radarState"              // 雷達狀態 (前車資訊)
+      "radarState",             // 雷達狀態 (前車資訊)
+      "carOutput"               // 車輛輸出 (actuatorsOutput.accel 等)
     ]
   };
 

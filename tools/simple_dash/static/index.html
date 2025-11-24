@@ -22,16 +22,11 @@
       </div>
     </div>
 
-    <!-- 中央上方: MAX + VC + 彎道 + VSC + 漸進 (並排) -->
+    <!-- 中央上方: MAX + 彎道 + VSC + 漸進 (並排，最低值會有動畫標示) -->
     <div id="center-top-speeds">
       <div id="max-speed-card" class="card">
         <div class="label-small">MAX</div>
         <div id="max-speed-value" class="value-large">--</div>
-      </div>
-
-      <div id="vcruise-card" class="card">
-        <div class="label-small">VC</div>
-        <div id="vcruise-value" class="value-large">--</div>
       </div>
 
       <div id="csc-card" class="card">
@@ -50,7 +45,7 @@
       </div>
     </div>
 
-    <!-- 左側控制區: 速限 + 即將到來 + 加減速度 (平均分配) -->
+    <!-- 左側控制區: 速限 + 即將到來 + 控制加速 (平均分配) -->
     <div id="top-left-controls">
       <div id="speed-limit-card" class="card">
         <div class="label-small">速限</div>
@@ -64,15 +59,22 @@
         <div id="upcoming-distance" class="label-tiny">--</div>
       </div>
 
-      <!-- 加減速度 -->
+      <!-- 控制加速 (actuatorsOutput.accel) -->
+      <div id="control-accel-card" class="card">
+        <div class="label-small">控制加速</div>
+        <div id="control-accel-value" class="value-medium neutral">--</div>
+      </div>
+    </div>
+
+    <!-- 右上角: 加減速度 + CEM 狀態 -->
+    <div id="top-right-area">
+      <!-- 加減速度 (aEgo) -->
       <div id="acceleration-card" class="card">
         <div class="label-small">加減速度</div>
         <div id="acceleration-value" class="value-medium neutral">--</div>
       </div>
-    </div>
 
-    <!-- 右上角: CEM 狀態 -->
-    <div id="top-right-cem">
+      <!-- CEM 狀態 -->
       <div id="cem-card" class="card small-card hidden">
         <div id="cem-status-row">
           <span id="cem-icon" class="cem-icon">🤖</span>

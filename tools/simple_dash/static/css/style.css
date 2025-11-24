@@ -257,9 +257,25 @@ body::after {
 }
 
 #center-top-speeds .card {
-  width: 130px;  /* 從 170px 縮小，配合 5 個卡片 */
+  width: 150px;  /* 4 個卡片，增加寬度 */
   text-align: center;
   pointer-events: auto;  /* 卡片本身可點擊 */
+}
+
+/* 最低值卡片標示動畫 */
+#center-top-speeds .card.controlling {
+  border-color: var(--status-warning);
+  box-shadow: 0 0 20px var(--status-warning-glow);
+  animation: controlling-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes controlling-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--status-warning-glow);
+  }
+  50% {
+    box-shadow: 0 0 35px var(--status-warning-glow);
+  }
 }
 
 #center-top-speeds .value-large {
@@ -269,7 +285,7 @@ body::after {
 /* ===== 左側控制區: 速限 + 即將到來 + 加減速度 (平均分配) ===== */
 #top-left-controls {
   position: absolute;
-  top: calc(var(--spacing-lg) + 130px + var(--spacing-md));  /* 與前車卡片頂部對齊 */
+  top: var(--spacing-lg);                                     /* 與 MAX 卡片頂部對齊 */
   bottom: calc(65px + 78px + var(--spacing-md));              /* 與前車卡片底部對齊 */
   left: var(--spacing-lg);
   display: flex;
@@ -325,12 +341,23 @@ body::after {
   color: var(--text-primary) !important; /* 白色，覆蓋 label-tiny 的灰色 */
 }
 
-/* ===== 右上角: CEM 狀態 ===== */
-#top-right-cem {
+/* ===== 右上角: 加減速度 + CEM 狀態 ===== */
+#top-right-area {
   position: absolute;
   top: var(--spacing-lg);
   right: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
   z-index: 100;
+}
+
+/* 右上角的加減速度卡片 */
+#top-right-area #acceleration-card {
+  width: 180px;  /* 與 EXPERIMENTAL 寬度一致 */
+  text-align: center;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  padding: var(--spacing-md);
 }
 
 #cem-card {
@@ -768,8 +795,8 @@ body::after {
   50% { opacity: 0.3; }
 }
 
-/* 加減速度卡片 (移到左側控制區) */
-#acceleration-card {
+/* 控制加速卡片 (左側控制區) */
+#control-accel-card {
   width: 180px;
   flex: 1;
   text-align: center;
@@ -780,7 +807,15 @@ body::after {
   justify-content: center;
 }
 
-#acceleration-value {
+#control-accel-value {
+  margin: var(--spacing-xs) 0;
+  font-weight: 700;
+  transition: color var(--transition-fast);
+}
+
+/* 加速度顏色編碼 (通用) */
+#acceleration-value,
+#control-accel-value {
   margin: var(--spacing-xs) 0;
   font-weight: 700;
   transition: color var(--transition-fast);
@@ -956,7 +991,7 @@ body::after {
   }
 
   #center-top-speeds .card {
-    width: 100px;  /* 5個卡片縮小 */
+    width: 120px;  /* 4個卡片 */
     padding: 12px;
   }
 
@@ -1011,9 +1046,14 @@ body::after {
     width: 120px;
   }
 
-  /* 左側加減速度 */
-  #acceleration-card {
+  /* 左側控制加速 */
+  #control-accel-card {
     width: 140px;
+  }
+
+  /* 右上角加減速度 - 與 EXPERIMENTAL 一致 */
+  #top-right-area #acceleration-card {
+    width: 130px;
   }
 
   /* 即將到來的距離 - Tablet */
@@ -1021,8 +1061,8 @@ body::after {
     font-size: 20px !important;
   }
 
-  /* CEM 狀態 - Tablet */
-  #top-right-cem {
+  /* 右上角區域 - Tablet */
+  #top-right-area {
     top: 15px;
     right: 15px;
   }
@@ -1167,7 +1207,7 @@ body::after {
   }
 
   #center-top-speeds .card {
-    width: 65px;  /* 5個卡片縮小 */
+    width: 80px;  /* 4個卡片 */
     padding: 8px;
   }
 
@@ -1251,8 +1291,18 @@ body::after {
     font-size: 36px;
   }
 
-  /* 左側加減速度 */
-  #acceleration-card {
+  /* 左側控制加速 */
+  #control-accel-card {
+    width: 90px;
+    padding: 6px;
+  }
+
+  #control-accel-value {
+    font-size: 28px;
+  }
+
+  /* 右上角加減速度 - 與 EXPERIMENTAL 一致 */
+  #top-right-area #acceleration-card {
     width: 90px;
     padding: 6px;
   }
@@ -1279,8 +1329,8 @@ body::after {
     font-size: 16px !important;
   }
 
-  /* CEM 狀態 - Mobile */
-  #top-right-cem {
+  /* 右上角區域 - Mobile */
+  #top-right-area {
     top: 12px;
     right: 12px;
   }
@@ -1423,7 +1473,7 @@ body::after {
   }
 
   #center-top-speeds .card {
-    width: 55px;  /* 5個卡片縮小 */
+    width: 65px;  /* 4個卡片 */
     padding: 6px;
   }
 
@@ -1515,10 +1565,20 @@ body::after {
     font-size: 28px;
   }
 
-  /* 左側加減速度 */
-  #acceleration-card {
+  /* 左側控制加速 */
+  #control-accel-card {
     width: 70px;
     padding: 5px;
+  }
+
+  #control-accel-value {
+    font-size: 22px;
+  }
+
+  /* 右上角加減速度 - 與 EXPERIMENTAL 一致 */
+  #top-right-area #acceleration-card {
+    width: 75px;
+    padding: 4px;
   }
 
   #acceleration-value {
@@ -1547,8 +1607,8 @@ body::after {
     font-size: 14px !important;
   }
 
-  /* CEM 狀態 - Small */
-  #top-right-cem {
+  /* 右上角區域 - Small */
+  #top-right-area {
     top: 10px;
     right: 10px;
   }
