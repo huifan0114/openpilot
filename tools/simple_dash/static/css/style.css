@@ -250,20 +250,20 @@ body::after {
   transform: translateX(-50%);  /* 只需要水平居中 */
   display: flex;
   flex-direction: row;
-  gap: var(--spacing-md);  /* 20px 間距，讓兩個卡片緊鄰並排 */
+  gap: var(--spacing-sm);  /* 12px 間距，5個卡片需要更緊湊 */
   z-index: 55;  /* 高於前車卡片 (50)，在前車上方 */
   pointer-events: none;  /* 允許點擊穿透 */
   align-items: center;
 }
 
 #center-top-speeds .card {
-  width: 170px;
+  width: 130px;  /* 從 170px 縮小，配合 5 個卡片 */
   text-align: center;
   pointer-events: auto;  /* 卡片本身可點擊 */
 }
 
 #center-top-speeds .value-large {
-  font-size: 2.5rem;  /* 略小於原本 */
+  font-size: 2rem;  /* 縮小字體配合卡片寬度 */
 }
 
 /* ===== 左側控制區: 速限 + 即將到來 + 加減速度 (平均分配) ===== */
@@ -682,7 +682,7 @@ body::after {
   top: 0;
   bottom: 0;
   width: 70px;
-  height: 100%;  /* 與前車卡片同高 */
+  /* top: 0 + bottom: 0 會自動填滿高度 */
   background: linear-gradient(
     180deg,
     rgba(255, 51, 102, 0.95) 0%,
@@ -740,7 +740,7 @@ body::after {
 @keyframes blindspot-pulse {
   0% {
     opacity: 1;
-    transform: translateY(-50%) scale(1);
+    transform: scale(1);
     box-shadow:
       0 0 40px var(--status-danger-glow),
       0 8px 32px rgba(0, 0, 0, 0.6),
@@ -748,7 +748,7 @@ body::after {
   }
   100% {
     opacity: 0.7;
-    transform: translateY(-50%) scale(0.97);
+    transform: scale(0.97);
     box-shadow:
       0 0 60px var(--status-danger-glow),
       0 8px 32px rgba(0, 0, 0, 0.6),
@@ -952,16 +952,16 @@ body::after {
   /* 中央速度 */
   #center-top-speeds {
     top: var(--spacing-lg);  /* 20px，與速限卡片對齊 */
-    gap: var(--spacing-sm);  /* 12px */
+    gap: 8px;  /* 縮小間距 */
   }
 
   #center-top-speeds .card {
-    width: 135px;
-    padding: 16px;
+    width: 100px;  /* 5個卡片縮小 */
+    padding: 12px;
   }
 
   #center-top-speeds .value-large {
-    font-size: 2rem;
+    font-size: 1.6rem;
   }
 
   /* 左上角 */
@@ -1163,20 +1163,20 @@ body::after {
   /* 中央速度 */
   #center-top-speeds {
     top: var(--spacing-lg);  /* 8px，與速限卡片對齊 */
-    gap: 10px;
+    gap: 6px;  /* 縮小間距 */
   }
 
   #center-top-speeds .card {
-    width: 110px;
-    padding: 12px;
+    width: 65px;  /* 5個卡片縮小 */
+    padding: 8px;
   }
 
   #center-top-speeds .value-large {
-    font-size: 1.6rem;
+    font-size: 1.2rem;
   }
 
   #center-top-speeds .label-small {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
   }
 
   /* 左上角 */
@@ -1419,24 +1419,24 @@ body::after {
   /* 中央速度 */
   #center-top-speeds {
     top: var(--spacing-lg);  /* 6px，與速限卡片對齊 */
-    gap: 6px;
+    gap: 4px;  /* 縮小間距 */
   }
 
   #center-top-speeds .card {
-    width: 85px;
-    padding: 8px;
+    width: 55px;  /* 5個卡片縮小 */
+    padding: 6px;
   }
 
   #center-top-speeds .value-large {
-    font-size: 1.3rem;
+    font-size: 1rem;
   }
 
   #center-top-speeds .label-small {
-    font-size: 0.6rem;
+    font-size: 0.5rem;
   }
 
   #center-top-speeds .label-tiny {
-    font-size: 0.5rem;
+    font-size: 0.4rem;
   }
 
   /* 左上角 */

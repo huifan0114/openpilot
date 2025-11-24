@@ -54,6 +54,10 @@ function handleMessage(msgType, msgData) {
       dashboard.updateSpeedLimit(msgData);
       // 更新 CSC 彎道控制
       dashboard.updateCSC(msgData);
+      // 更新 VSC 視覺安全控制
+      dashboard.updateVSC(msgData);
+      // 更新漸進式加速
+      dashboard.updateProgressive(msgData);
       // 更新 VCRUISE
       dashboard.updateVCruise(msgData);
       // 更新 EXPERIMENTAL MODE

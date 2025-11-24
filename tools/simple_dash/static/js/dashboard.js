@@ -37,6 +37,14 @@ export class DashboardUI {
       cscCard: document.getElementById('csc-card'),
       cscSpeed: document.getElementById('csc-speed'),
 
+      // VSC 視覺安全控制
+      vscCard: document.getElementById('vsc-card'),
+      vscSpeed: document.getElementById('vsc-speed'),
+
+      // 漸進式加速
+      progressiveCard: document.getElementById('progressive-card'),
+      progressiveSpeed: document.getElementById('progressive-speed'),
+
       // EXPERIMENTAL MODE
       experimentalCard: document.getElementById('experimental-card'),
       experimentalIcon: document.getElementById('experimental-icon'),
@@ -117,6 +125,12 @@ export class DashboardUI {
     // CSC
     this.elements.cscSpeed.textContent = testValues.medium;
 
+    // VSC
+    this.elements.vscSpeed.textContent = testValues.medium;
+
+    // 漸進式
+    this.elements.progressiveSpeed.textContent = testValues.medium;
+
     // 加減速度
     this.elements.accelerationValue.textContent = '8.88';
     this.elements.accelerationValue.classList.add('positive');
@@ -165,10 +179,14 @@ export class DashboardUI {
       { element: this.elements.leadSpeed, delay: 2400, type: 'value' },
       { element: this.elements.followTime, delay: 2600, type: 'value' },
 
-      // 底部元素
+      // 中央上方元素
       { element: this.elements.cscSpeed, delay: 2800, type: 'value' },
-      { element: this.elements.accelerationValue, delay: 3000, type: 'value' },
-      { element: this.elements.roadNameCard, delay: 3200, type: 'card' }
+      { element: this.elements.vscSpeed, delay: 2900, type: 'value' },
+      { element: this.elements.progressiveSpeed, delay: 3000, type: 'value' },
+
+      // 底部元素
+      { element: this.elements.accelerationValue, delay: 3100, type: 'value' },
+      { element: this.elements.roadNameCard, delay: 3300, type: 'card' }
     ];
 
     // === 5. 執行淡出序列 ===
@@ -219,6 +237,8 @@ export class DashboardUI {
       this.elements.upcomingValue.textContent = '--';
       this.elements.upcomingDistance.textContent = `--`;
       this.elements.cscSpeed.textContent = '--';
+      this.elements.vscSpeed.textContent = '--';
+      this.elements.progressiveSpeed.textContent = '--';
       this.elements.accelerationValue.textContent = '--';
       this.elements.accelerationValue.className = 'value-medium neutral';
       this.elements.roadNameText.textContent = '--';
@@ -391,6 +411,35 @@ export class DashboardUI {
       this.elements.cscSpeed.textContent = Math.round(cscSpeedConverted);
     } else {
       this.elements.cscSpeed.textContent = '--';
+    }
+  }
+
+  // ========== VSC 視覺安全控制更新 ==========
+
+  updateVSC(frogpilotPlan) {
+    const vscActive = frogpilotPlan.vscActive || false;
+    const vscSpeed = frogpilotPlan.vscSpeed || 0;
+
+    // VSC 啟動時顯示速度，否則顯示 --
+    if (vscSpeed > 0 && vscActive) {
+      const vscSpeedConverted = vscSpeed * this.units.speedConversion;
+      this.elements.vscSpeed.textContent = Math.round(vscSpeedConverted);
+    } else {
+      this.elements.vscSpeed.textContent = '--';
+    }
+  }
+
+  // ========== 漸進式加速更新 ==========
+
+  updateProgressive(frogpilotPlan) {
+    const progressiveSpeed = frogpilotPlan.progressiveSpeed || 0;
+
+    // 漸進式速度 > 0 時顯示
+    if (progressiveSpeed > 0) {
+      const progressiveSpeedConverted = progressiveSpeed * this.units.speedConversion;
+      this.elements.progressiveSpeed.textContent = Math.round(progressiveSpeedConverted);
+    } else {
+      this.elements.progressiveSpeed.textContent = '--';
     }
   }
 

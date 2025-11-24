@@ -139,6 +139,10 @@ class FrogPilotPlanner:
     frogpilotPlan.cscSpeed = self.frogpilot_vcruise.csc_target
     frogpilotPlan.cscTraining = self.frogpilot_vcruise.csc.enable_training
 
+    frogpilotPlan.vscSpeed = self.frogpilot_vcruise.vsc_target
+    frogpilotPlan.vscActive = self.frogpilot_vcruise.vsc_active
+    frogpilotPlan.progressiveSpeed = self.frogpilot_vcruise.progressive_target
+
     frogpilotPlan.desiredFollowDistance = self.frogpilot_following.desired_follow_distance
 
     frogpilotPlan.experimentalMode = self.cem.experimental_mode or self.frogpilot_vcruise.slc.experimental_mode

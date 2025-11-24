@@ -219,6 +219,9 @@ struct FrogPilotPlan @0xa1680744031fdb2d {
   slcNextSpeedLimitDistance @35 :Float32;
   mapdSpeedLimit @36 :Float32;
   roadName @37 :Text;
+  vscSpeed @38 :Float32;
+  vscActive @39 :Bool;
+  progressiveSpeed @40 :Float32;
 }
 
 struct FrogPilotRadarState @0xcb9fd56c7057593a {
