@@ -13,15 +13,6 @@
   <meta name="theme-color" content="#000000">
 </head>
 <body>
-  <!-- 視覺監控切換按鈕 -->
-  <a href="vm.html" class="page-switch-btn" title="開啟視覺監控">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-      <circle cx="12" cy="12" r="3"></circle>
-    </svg>
-    <span>視覺監控</span>
-  </a>
-
   <div id="dashboard">
 
     <!-- 頂部中央: 連接狀態 -->
@@ -49,18 +40,24 @@
       </div>
     </div>
 
-    <!-- 左上角: 速限 + 即將到來速限 -->
+    <!-- 左側控制區: 速限 + 即將到來 + 加減速度 (平均分配) -->
     <div id="top-left-controls">
       <div id="speed-limit-card" class="card">
         <div class="label-small">速限</div>
         <div id="speed-limit-value" class="value-medium">--</div>
       </div>
 
-      <!-- 即將到來的速限 (與速限標誌放在一起) -->
+      <!-- 即將到來的速限 -->
       <div id="upcoming-limit-card" class="card">
         <div class="label-small">即將到來</div>
         <div id="upcoming-value" class="value-medium">--</div>
         <div id="upcoming-distance" class="label-tiny">--</div>
+      </div>
+
+      <!-- 加減速度 -->
+      <div id="acceleration-card" class="card">
+        <div class="label-small">加減速度</div>
+        <div id="acceleration-value" class="value-medium neutral">--</div>
       </div>
     </div>
 
@@ -126,14 +123,6 @@
       <div id="right-blindspot" class="blindspot-indicator hidden">
         <div class="blindspot-icon">⚠️</div>
         <div class="blindspot-label">右側</div>
-      </div>
-    </div>
-
-    <!-- 左下角: 加減速度 -->
-    <div id="bottom-left-acceleration">
-      <div id="acceleration-card" class="card small-card">
-        <div class="label-small">加減速度</div>
-        <div id="acceleration-value" class="value-medium neutral">--</div>
       </div>
     </div>
 

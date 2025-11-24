@@ -266,29 +266,51 @@ body::after {
   font-size: 2.5rem;  /* 略小於原本 */
 }
 
-/* ===== 左上角: 速限 + 即將到來速限 ===== */
+/* ===== 左側控制區: 速限 + 即將到來 + 加減速度 (平均分配) ===== */
 #top-left-controls {
   position: absolute;
-  top: var(--spacing-lg);
+  top: calc(var(--spacing-lg) + 130px + var(--spacing-md));  /* 與前車卡片頂部對齊 */
+  bottom: calc(65px + 78px + var(--spacing-md));              /* 與前車卡片底部對齊 */
   left: var(--spacing-lg);
   display: flex;
   flex-direction: column;
+  justify-content: space-between;  /* 平均分配高度 */
   gap: var(--spacing-sm);
   z-index: 100;
 }
 
 #speed-limit-card {
-  width: 220px;
+  width: 180px;
+  flex: 1;
   padding: var(--spacing-md);
-  text-align: center;     /* 新增：文字置中 */
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-/* 即將到來的速限 (與速限標誌放在一起) */
+/* 即將到來的速限 */
 #upcoming-limit-card {
-  width: 220px;       /* 與 speed-limit-card 保持一致 */
+  width: 180px;
+  flex: 1;
   text-align: center;
   border-color: var(--status-info);
   padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* 加減速度卡片移到左側控制區 */
+#acceleration-card-left {
+  width: 180px;
+  flex: 1;
+  text-align: center;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 #upcoming-value {
@@ -347,8 +369,8 @@ body::after {
 
 /* EXPERIMENTAL MODE 圖示卡片 */
 .experimental-icon-card {
-  width: 160px;           /* 從 120px 改為 160px，與加減速度卡片一致 */
-  height: 160px;          /* 從 120px 改為 160px，保持正方形 */
+  width: 180px;           /* 與左側卡片寬度一致 */
+  height: 180px;          /* 保持正方形 */
   padding: var(--spacing-md);
   display: flex;
   align-items: center;
@@ -654,13 +676,13 @@ body::after {
   margin: var(--spacing-xs) 0;
 }
 
-/* ===== 盲點警示指示器 (在前車卡片外側) ===== */
+/* ===== 盲點警示指示器 (與前車卡片同高) ===== */
 .blindspot-indicator {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  bottom: 0;
   width: 70px;
-  height: 320px;
+  height: 100%;  /* 與前車卡片同高 */
   background: linear-gradient(
     180deg,
     rgba(255, 51, 102, 0.95) 0%,
@@ -746,20 +768,16 @@ body::after {
   50% { opacity: 0.3; }
 }
 
-/* ===== 左下角: 加減速度 ===== */
-#bottom-left-acceleration {
-  position: absolute;
-  bottom: 65px;  /* 50px (GIF) + 15px (間距) */
-  left: var(--spacing-lg);
-  z-index: 100;
-}
-
-/* 加減速度 */
+/* 加減速度卡片 (移到左側控制區) */
 #acceleration-card {
-  width: 160px;               /* 從 180px 縮小，與 CSC 對齊 */
+  width: 180px;
+  flex: 1;
   text-align: center;
   border: 2px solid rgba(255, 255, 255, 0.15);
   padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 #acceleration-value {
@@ -993,9 +1011,9 @@ body::after {
     width: 120px;
   }
 
-  /* 右下角加減速度 */
+  /* 左側加減速度 */
   #acceleration-card {
-    width: 130px;
+    width: 140px;
   }
 
   /* 即將到來的距離 - Tablet */
@@ -1233,14 +1251,14 @@ body::after {
     font-size: 36px;
   }
 
-  /* 右下角加減速度 */
+  /* 左側加減速度 */
   #acceleration-card {
     width: 90px;
-    padding: 8px;
+    padding: 6px;
   }
 
   #acceleration-value {
-    font-size: 32px;
+    font-size: 28px;
   }
 
   /* 底部中央（保留，縮小） */
@@ -1497,14 +1515,14 @@ body::after {
     font-size: 28px;
   }
 
-  /* 右下角 */
+  /* 左側加減速度 */
   #acceleration-card {
-    width: 75px;
-    padding: 6px;
+    width: 70px;
+    padding: 5px;
   }
 
   #acceleration-value {
-    font-size: 26px;
+    font-size: 22px;
   }
 
   /* 底部中央（保留，超小） */
