@@ -31,7 +31,8 @@ class CurveSpeedController:
   def log_data(self, v_ego, sm):
     self.enable_training = v_ego > CRUISING_SPEED
     self.enable_training &= not self.frogpilot_planner.tracking_lead
-    self.enable_training &= not sm["carControl"].longActive
+    # 移除 longActive 限制 - 原本只允許手動駕駛時訓練，但這樣用戶永遠無法完成訓練
+    # self.enable_training &= not sm["carControl"].longActive
 
     if self.enable_training:
       self.training_timer += DT_MDL

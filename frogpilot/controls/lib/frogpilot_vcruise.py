@@ -126,16 +126,19 @@ class FrogPilotVCruise:
         if vrel_stuck:
           risk_level = max(risk_level, 2)
 
-        # 降速比例
+        # 降速比例 (以當前時速 v_ego 為基準)
         if risk_level >= 3:
-          reduction = 0.8
+          reduction = 0.8  # 高風險: 減速 20%
         elif risk_level >= 2:
-          reduction = 0.9
+          reduction = 0.9  # 中風險: 減速 10%
         else:
           reduction = 1.0
 
         self.vsc_active = reduction < 1.0
-        self.vsc_target = v_cruise * reduction
+        if self.vsc_active:
+          self.vsc_target = max(v_ego * reduction, 30 * CV.KPH_TO_MS)  # 最低 30 km/h
+        else:
+          self.vsc_target = v_cruise
         v_cruise_vsc = self.vsc_target
     else:
       v_cruise_vsc = v_cruise

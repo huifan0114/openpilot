@@ -106,9 +106,11 @@ class FrogPilotPlanner:
 
     self.road_curvature, self.time_to_curve = calculate_road_curvature(sm["modelV2"], v_ego)
 
-    # 使用校準的 lateral_acceleration 來偵測彎道（與 CSC 計算一致）
+    # 使用 calibrated lateral_acceleration 來偵測彎道 (與 CSC 目標計算一致)
+    # 這樣觸發門檻 = 目標速度，CSC 觸發時一定會減速
     lat_acc = self.frogpilot_vcruise.csc.lateral_acceleration
-    self.road_curvature_detected = (lat_acc / abs(self.road_curvature))**0.5 < v_ego > CRUISING_SPEED and not (sm["carState"].leftBlinker or sm["carState"].rightBlinker)
+    csc_trigger_speed = (lat_acc / abs(self.road_curvature))**0.5 if abs(self.road_curvature) > 0.0001 else 999
+    self.road_curvature_detected = csc_trigger_speed < v_ego > CRUISING_SPEED and not (sm["carState"].leftBlinker or sm["carState"].rightBlinker)
 
     #if not sm["carState"].standstill:
     self.tracking_lead = self.update_lead_status()
