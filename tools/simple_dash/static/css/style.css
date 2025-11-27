@@ -741,6 +741,13 @@ body::after {
   animation: blindspot-pulse 500ms ease-in-out infinite alternate;
 }
 
+/* 盲點隱藏時仍然佔據空間，防止前車卡片寬度變動 */
+.blindspot-indicator.hidden {
+  display: flex !important;  /* 覆蓋全局 .hidden 的 display: none */
+  visibility: hidden;        /* 隱藏但佔據空間 */
+  opacity: 0;
+}
+
 #left-blindspot {
   order: -1;  /* 放在最左邊 */
 }
