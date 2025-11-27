@@ -196,22 +196,6 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
 
     QString vCruiseStr = (vCruiseDisplay > 0) ? QString::number(std::nearbyint(vCruiseDisplay)) : "--";
 
-    // Calculate difference between VCRUISE and MAX (setSpeed)
-    float speedDiff = vCruiseDisplay - setSpeed;
-    QString diffStr = "";
-    QColor diffColor = whiteColor();
-    if (is_cruise_set && vCruiseDisplay > 0) {
-      if (std::abs(speedDiff) >= 1) {  // Only show if difference >= 1 km/h
-        if (speedDiff > 0) {
-          diffStr = "+" + QString::number(std::nearbyint(speedDiff));
-          diffColor = QColor(0x80, 0xd8, 0xa6, 0xff);  // Green (higher than MAX)
-        } else {
-          diffStr = QString::number(std::nearbyint(speedDiff));  // Already has minus sign
-          diffColor = QColor(0xff, 0xbf, 0xbf, 0xff);  // Light red (lower than MAX)
-        }
-      }
-    }
-
     // Position: to the right of MAX box
     const int vcruise_offset_x = 20;  // 20px gap between MAX and VCRUISE
     QRect vcruise_rect = set_speed_rect.adjusted(set_speed_rect.width() + vcruise_offset_x, 0,
@@ -246,13 +230,6 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
     p.setFont(InterFont(90, QFont::Bold));
     p.setPen(vcruise_value_color);
     p.drawText(vcruise_rect.adjusted(0, 77, 0, 0), Qt::AlignTop | Qt::AlignHCenter, vCruiseStr);
-
-    // Draw difference below VCRUISE value (if exists)
-    if (!diffStr.isEmpty()) {
-      p.setFont(InterFont(30, QFont::Bold));
-      p.setPen(diffColor);
-      p.drawText(vcruise_rect.adjusted(0, 165, 0, 0), Qt::AlignTop | Qt::AlignHCenter, diffStr);
-    }
   }
 
   const QRect sign_rect = set_speed_rect.adjusted(sign_margin, default_size.height(), -sign_margin, -sign_margin);

@@ -450,19 +450,24 @@ body::after {
   /* 下邊：ROADNAME 上邊 + 間距 */
   bottom: calc(65px + 78px + var(--spacing-md));  /* 65px (bottom) + 78px (實際高度) + 20px = 163px */
 
-  /* 左邊：UPCOMING 卡片右緣 + 間距 + 左側盲點 + 盲點間距 */
-  left: calc(var(--spacing-lg) + 220px + var(--spacing-md) + 70px + 25px);  /* 32px + 220px + 20px + 70px + 25px = 367px */
+  /* 左邊：UPCOMING 卡片右緣 + 間距 (不再預留盲點空間，改用 flex) */
+  left: calc(var(--spacing-lg) + 220px + var(--spacing-md));  /* 32px + 220px + 20px = 272px */
 
-  /* 右邊：加減速度卡片寬度 + 左右邊距 + 間距 + 右側盲點 + 盲點間距 */
-  right: calc(var(--spacing-lg) + 160px + var(--spacing-md) + 70px + 25px);  /* 32px + 160px + 20px + 70px + 25px = 307px */
+  /* 右邊：加減速度卡片寬度 + 左右邊距 + 間距 (不再預留盲點空間，改用 flex) */
+  right: calc(var(--spacing-lg) + 160px + var(--spacing-md));  /* 32px + 160px + 20px = 212px */
 
   z-index: 50;  /* 降低 z-index，不覆蓋其他卡片 */
   pointer-events: none;  /* 允許點擊穿透 */
+
+  /* 使用 flexbox 確保盲點和前車卡片高度一致 */
+  display: flex;
+  align-items: stretch;  /* 所有子元素高度相同 */
+  gap: 25px;  /* 盲點與卡片的間距 */
 }
 
 .lead-info-card {
-  width: 100%;        /* 填滿父容器 */
-  height: 100%;       /* 填滿父容器 */
+  flex: 1;            /* 填滿 flex 容器的剩餘空間 */
+  min-width: 0;       /* 防止 flex item 溢出 */
   pointer-events: auto;  /* 卡片本身可點擊 */
   background: linear-gradient(135deg, rgba(15, 15, 15, 0.98) 0%, rgba(25, 25, 25, 0.95) 100%);
   border-radius: 32px;
@@ -703,13 +708,11 @@ body::after {
   margin: var(--spacing-xs) 0;
 }
 
-/* ===== 盲點警示指示器 (與前車卡片同高) ===== */
+/* ===== 盲點警示指示器 (與前車卡片同高，使用 flex 對齊) ===== */
 .blindspot-indicator {
-  position: absolute;
-  top: 0;
-  bottom: 0;
+  /* 使用 flex 佈局，自動與前車卡片高度對齊 */
   width: 70px;
-  /* top: 0 + bottom: 0 會自動填滿高度 */
+  flex-shrink: 0;
   background: linear-gradient(
     180deg,
     rgba(255, 51, 102, 0.95) 0%,
@@ -739,11 +742,11 @@ body::after {
 }
 
 #left-blindspot {
-  right: calc(100% + 25px);
+  order: -1;  /* 放在最左邊 */
 }
 
 #right-blindspot {
-  left: calc(100% + 25px);
+  order: 1;   /* 放在最右邊 */
 }
 
 .blindspot-icon {
@@ -887,17 +890,16 @@ body::after {
     --spacing-md: 14px;
   }
 
-  /* 中央前車卡片 */
+  /* 中央前車卡片 (flex 佈局，不再預留盲點空間) */
   #center-lead-info {
     top: calc(var(--spacing-lg) + 100px + var(--spacing-sm));  /* 20px + 100px + 12px */
     bottom: calc(60px + 65px + var(--spacing-sm));             /* 60px (bottom) + 65px (高度) + 12px = 137px */
-    left: calc(var(--spacing-lg) + 140px + var(--spacing-sm) + 60px + 20px); /* 20px + 140px + 12px + 60px + 20px = 252px */
-    right: calc(var(--spacing-lg) + 130px + var(--spacing-sm) + 60px + 20px);/* 20px + 130px + 12px + 60px + 20px = 242px */
+    left: calc(var(--spacing-lg) + 140px + var(--spacing-sm)); /* 20px + 140px + 12px = 172px */
+    right: calc(var(--spacing-lg) + 130px + var(--spacing-sm));/* 20px + 130px + 12px = 162px */
+    gap: 20px;  /* 盲點與卡片的間距 */
   }
 
   .lead-info-card {
-    width: 100%;
-    height: 100%;
     padding: 20px;
   }
 
@@ -934,19 +936,13 @@ body::after {
     gap: 20px;
   }
 
-  /* 盲點指示器 */
+  /* 盲點指示器 (flex 自動對齊，不需要固定高度) */
   .blindspot-indicator {
     width: 60px;
-    height: 280px;
+    /* height 由 flex stretch 自動決定 */
   }
 
-  #left-blindspot {
-    right: calc(100% + 20px);
-  }
-
-  #right-blindspot {
-    left: calc(100% + 20px);
-  }
+  /* 間距在父容器 gap 中設定，不需要 left/right */
 
   .blindspot-icon {
     font-size: 48px;
@@ -1086,17 +1082,16 @@ body::after {
     --card-padding: 12px;
   }
 
-  /* 中央前車卡片 */
+  /* 中央前車卡片 (flex 佈局，不再預留盲點空間) */
   #center-lead-info {
     top: calc(var(--spacing-lg) + 80px + var(--spacing-sm));   /* 8px + 80px + 4px */
     bottom: calc(58px + 54px + var(--spacing-sm));             /* 58px (bottom) + 54px (高度) + 4px = 116px */
-    left: calc(var(--spacing-lg) + 90px + var(--spacing-sm) + 50px + 15px);  /* 8px + 90px + 4px + 50px + 15px = 167px */
-    right: calc(var(--spacing-lg) + 90px + var(--spacing-sm) + 50px + 15px); /* 8px + 90px + 4px + 50px + 15px = 167px */
+    left: calc(var(--spacing-lg) + 90px + var(--spacing-sm));  /* 8px + 90px + 4px = 102px */
+    right: calc(var(--spacing-lg) + 90px + var(--spacing-sm)); /* 8px + 90px + 4px = 102px */
+    gap: 15px;  /* 盲點與卡片的間距 */
   }
 
   .lead-info-card {
-    width: 100%;
-    height: 100%;
     padding: 10px;
   }
 
@@ -1133,19 +1128,13 @@ body::after {
     gap: 16px;
   }
 
-  /* 盲點指示器 */
+  /* 盲點指示器 (flex 自動對齊) */
   .blindspot-indicator {
     width: 50px;
-    height: 220px;
+    /* height 由 flex stretch 自動決定 */
   }
 
-  #left-blindspot {
-    right: calc(100% + 15px);
-  }
-
-  #right-blindspot {
-    left: calc(100% + 15px);
-  }
+  /* 間距在父容器 gap 中設定 */
 
   .blindspot-icon {
     font-size: 36px;
@@ -1355,17 +1344,16 @@ body::after {
     --card-padding: 8px;
   }
 
-  /* 中央前車卡片 */
+  /* 中央前車卡片 (flex 佈局，不再預留盲點空間) */
   #center-lead-info {
     top: calc(var(--spacing-lg) + 70px + var(--spacing-sm));   /* 6px + 70px + 3px */
     bottom: calc(58px + 44px + var(--spacing-sm));             /* 58px (bottom) + 44px (高度) + 3px = 105px */
-    left: calc(var(--spacing-lg) + 70px + var(--spacing-sm) + 40px + 10px);  /* 6px + 70px + 3px + 40px + 10px = 129px */
-    right: calc(var(--spacing-lg) + 75px + var(--spacing-sm) + 40px + 10px); /* 6px + 75px + 3px + 40px + 10px = 134px */
+    left: calc(var(--spacing-lg) + 70px + var(--spacing-sm));  /* 6px + 70px + 3px = 79px */
+    right: calc(var(--spacing-lg) + 75px + var(--spacing-sm)); /* 6px + 75px + 3px = 84px */
+    gap: 10px;  /* 盲點與卡片的間距 */
   }
 
   .lead-info-card {
-    width: 100%;
-    height: 100%;
     padding: 8px;
   }
 
@@ -1402,19 +1390,13 @@ body::after {
     gap: 12px;
   }
 
-  /* 盲點指示器 */
+  /* 盲點指示器 (flex 自動對齊) */
   .blindspot-indicator {
     width: 40px;
-    height: 180px;
+    /* height 由 flex stretch 自動決定 */
   }
 
-  #left-blindspot {
-    right: calc(100% + 10px);
-  }
-
-  #right-blindspot {
-    left: calc(100% + 10px);
-  }
+  /* 間距在父容器 gap 中設定 */
 
   .blindspot-icon {
     font-size: 28px;

@@ -405,11 +405,10 @@ export class DashboardUI {
   // ========== CSC 彎道速度控制更新 ==========
 
   updateCSC(frogpilotPlan) {
-    const cscControlling = frogpilotPlan.cscControllingSpeed || false;
     const cscSpeed = frogpilotPlan.cscSpeed || 0;
 
-    // 速度顯示 - CSC 控制時顯示速度，否則顯示 --
-    if (cscSpeed > 0 && cscControlling) {
+    // 只要有值就顯示
+    if (cscSpeed > 0) {
       const cscSpeedConverted = cscSpeed * this.units.speedConversion;
       this.elements.cscSpeed.textContent = Math.round(cscSpeedConverted);
     } else {
@@ -420,11 +419,10 @@ export class DashboardUI {
   // ========== VSC 視覺安全控制更新 ==========
 
   updateVSC(frogpilotPlan) {
-    const vscActive = frogpilotPlan.vscActive || false;
     const vscSpeed = frogpilotPlan.vscSpeed || 0;
 
-    // VSC 啟動時顯示速度，否則顯示 --
-    if (vscSpeed > 0 && vscActive) {
+    // 只要有值就顯示
+    if (vscSpeed > 0) {
       const vscSpeedConverted = vscSpeed * this.units.speedConversion;
       this.elements.vscSpeed.textContent = Math.round(vscSpeedConverted);
     } else {
@@ -437,7 +435,7 @@ export class DashboardUI {
   updateProgressive(frogpilotPlan) {
     const progressiveSpeed = frogpilotPlan.progressiveSpeed || 0;
 
-    // 漸進式速度 > 0 時顯示
+    // 只要有值就顯示
     if (progressiveSpeed > 0) {
       const progressiveSpeedConverted = progressiveSpeed * this.units.speedConversion;
       this.elements.progressiveSpeed.textContent = Math.round(progressiveSpeedConverted);
@@ -534,8 +532,8 @@ export class DashboardUI {
       return;
     }
 
-    // 顯示控制加速度數值 (保留 2 位小數)
-    this.elements.controlAccelValue.textContent = accel.toFixed(2);
+    // 顯示控制加速度數值 (保留 2 位小數，使用絕對值不顯示符號)
+    this.elements.controlAccelValue.textContent = Math.abs(accel).toFixed(2);
 
     // 移除所有顏色類別
     this.elements.controlAccelValue.classList.remove('positive', 'negative', 'neutral');
@@ -605,6 +603,8 @@ export class DashboardUI {
 
   /**
    * 標示 CSC/VSC/漸進式中的最低值
+   * v_cruise = min(csc_target, v_cruise_prog, v_cruise_vsc)
+   * 所以橘框標示的就是 v_cruise 實際取用的那個
    * @param {Object} frogpilotPlan - FrogPilot plan 資料
    */
   updateControllingSource(frogpilotPlan) {
@@ -615,22 +615,23 @@ export class DashboardUI {
 
     if (!frogpilotPlan) return;
 
+    // 取三者的值，沒有值視為 Infinity
     const cscSpeed = frogpilotPlan.cscSpeed || Infinity;
     const vscSpeed = frogpilotPlan.vscSpeed || Infinity;
     const progressiveSpeed = frogpilotPlan.progressiveSpeed || Infinity;
 
-    // 找出最低值
+    // 找出最低值 (這就是 v_cruise 取用的值)
     const minSpeed = Math.min(cscSpeed, vscSpeed, progressiveSpeed);
 
     // 如果所有都是 Infinity，不標示
     if (minSpeed === Infinity) return;
 
-    // 標示最低值的卡片
-    if (cscSpeed === minSpeed && cscSpeed < Infinity) {
+    // 標示最低值的卡片 (v_cruise 取用的那個)
+    if (cscSpeed === minSpeed) {
       this.elements.cscCard.classList.add('controlling');
-    } else if (vscSpeed === minSpeed && vscSpeed < Infinity) {
+    } else if (vscSpeed === minSpeed) {
       this.elements.vscCard.classList.add('controlling');
-    } else if (progressiveSpeed === minSpeed && progressiveSpeed < Infinity) {
+    } else if (progressiveSpeed === minSpeed) {
       this.elements.progressiveCard.classList.add('controlling');
     }
   }
