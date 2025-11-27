@@ -113,15 +113,18 @@ class FrogPilotVCruise:
           vrel_stuck = vrel_std < 0.5 and drel_change > 20
 
         # 風險評估
+        # FIX: 提高門檻讓 VSC 更早啟動，避免急煞
+        # 原本 TTC: 2.5/4 秒, TH: 0.8/1.2 秒 → 啟動太晚
+        # 修改 TTC: 4/6 秒, TH: 1.2/1.8 秒 → 提早啟動
         risk_level = 0
-        if ttc < 2.5:
+        if ttc < 4:
           risk_level = max(risk_level, 3)
-        elif ttc < 4:
+        elif ttc < 6:
           risk_level = max(risk_level, 2)
 
-        if th < 0.8:
+        if th < 1.2:
           risk_level = max(risk_level, 3)
-        elif th < 1.2:
+        elif th < 1.8:
           risk_level = max(risk_level, 2)
 
         if vrel_stuck:

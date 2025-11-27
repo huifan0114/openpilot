@@ -135,10 +135,24 @@ class FrogPilotPlanner:
     self.road_curvature, self.time_to_curve = calculate_road_curvature(sm["modelV2"], v_ego)
 
     # 使用 calibrated lateral_acceleration 來偵測彎道 (與 CSC 目標計算一致)
-    # 這樣觸發門檻 = 目標速度，CSC 觸發時一定會減速
     lat_acc = self.frogpilot_vcruise.csc.lateral_acceleration
     csc_trigger_speed = (lat_acc / abs(self.road_curvature))**0.5 if abs(self.road_curvature) > 0.0001 else 999
-    self.road_curvature_detected = csc_trigger_speed < v_ego > CRUISING_SPEED and not (sm["carState"].leftBlinker or sm["carState"].rightBlinker)
+
+    # FIX: 提前觸發 CSC，避免等到超速才開始減速
+    # 原本邏輯：v_ego > csc_trigger_speed 才觸發（太晚了！）
+    # 新邏輯：
+    #   1. 速度預警：當車速接近目標速度時提前觸發
+    #   2. 時間預警：當彎道很近時（< 3 秒）且車速接近目標，提前觸發
+    SPEED_BUFFER = 3 * CV.KPH_TO_MS  # 3 km/h 的速度預警緩衝
+    TIME_BUFFER = 3.0  # 3 秒的時間預警
+
+    # 條件 1: 車速接近或超過目標速度
+    speed_trigger = v_ego > (csc_trigger_speed - SPEED_BUFFER)
+    # 條件 2: 彎道很近且車速達到目標的 90%
+    time_trigger = self.time_to_curve < TIME_BUFFER and v_ego > csc_trigger_speed * 0.9
+
+    early_trigger = speed_trigger or time_trigger
+    self.road_curvature_detected = early_trigger and v_ego > CRUISING_SPEED and not (sm["carState"].leftBlinker or sm["carState"].rightBlinker)
 
     #if not sm["carState"].standstill:
     self.tracking_lead = self.update_lead_status()
