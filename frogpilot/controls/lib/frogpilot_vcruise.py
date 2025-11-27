@@ -47,7 +47,8 @@ class FrogPilotVCruise:
       self.csc_controlling_speed = True
       self.csc_target = self.csc.target
     else:
-      self.csc.log_data(v_ego, sm)
+      # 過彎結束時評估並調整 lateral_acceleration (持久化學習)
+      self.csc.end_curve_session()
       self.csc_controlling_speed = False
       self.csc.target_set = False
       self.csc_target = v_cruise

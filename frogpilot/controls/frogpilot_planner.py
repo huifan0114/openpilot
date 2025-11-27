@@ -47,6 +47,12 @@ class FrogPilotPlanner:
     self.time_to_curve = 0
     self.v_cruise = 0
 
+    # CSC 動態控制相關變數
+    self.steer_usage = 0.0
+    self.undershooting = False
+    self.turning = False
+    self.steer_saturated = False
+
   def update(self, now, time_validated, sm, frogpilot_toggles):
     self.lead_one = sm["radarState"].leadOne
 
@@ -86,6 +92,28 @@ class FrogPilotPlanner:
       params_memory.remove("LastGPSPosition")
 
     self.lateral_acceleration = v_ego**2 * (sm["carState"].steeringAngleDeg - sm["liveParameters"].angleOffsetDeg) * CV.DEG_TO_RAD / (self.CP.steerRatio * self.CP.wheelbase)
+
+    # CSC 動態控制 - 計算 steer 使用率和物理極限檢測
+    # actuators.steer 範圍: -1.0 到 1.0
+    self.steer_usage = abs(sm["carControl"].actuators.steer)
+
+    # 期望橫向加速度 (從模型期望的轉向角度計算)
+    desired_steer = sm["carControl"].actuatorsOutput.steer if hasattr(sm["carControl"], 'actuatorsOutput') else sm["carControl"].actuators.steer
+    desired_lat_acc = abs(v_ego**2 * desired_steer * self.CP.steerRatio * CV.DEG_TO_RAD / self.CP.wheelbase) if v_ego > 1 else 0
+
+    # 實際橫向加速度
+    actual_lat_acc = abs(self.lateral_acceleration)
+
+    # 三個條件檢測 (與 steerSaturated event 相同邏輯)
+    # 1. saturated: 方向盤輸出達到 90%
+    saturated = self.steer_usage >= 0.9
+    # 2. undershooting: 實際轉向不足 (期望/實際 > 1.2)
+    self.undershooting = (actual_lat_acc > 0.5 and desired_lat_acc / actual_lat_acc > 1.2) if actual_lat_acc > 0.1 else False
+    # 3. turning: 正在轉彎 (期望橫向加速度 > 1.0 m/s²)
+    self.turning = desired_lat_acc > 1.0
+
+    # 物理極限判定 = 三個條件同時滿足
+    self.steer_saturated = saturated and self.undershooting and self.turning
 
     check_lane_width = frogpilot_toggles.adjacent_paths or frogpilot_toggles.adjacent_path_metrics or frogpilot_toggles.blind_spot_path or frogpilot_toggles.lane_detection
     if check_lane_width and v_ego >= frogpilot_toggles.minimum_lane_change_speed:
