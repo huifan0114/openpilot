@@ -831,16 +831,19 @@ body::after {
   transition: color var(--transition-fast);
 }
 
-/* 加速度顏色編碼 */
-#acceleration-value.positive {
+/* 加速度顏色編碼 (右上角 aEgo + 左下角 控制加速) */
+#acceleration-value.positive,
+#control-accel-value.positive {
   color: var(--status-safe);
 }
 
-#acceleration-value.negative {
+#acceleration-value.negative,
+#control-accel-value.negative {
   color: var(--status-danger);
 }
 
-#acceleration-value.neutral {
+#acceleration-value.neutral,
+#control-accel-value.neutral {
   color: var(--text-dim);
 }
 

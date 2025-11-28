@@ -35,10 +35,6 @@ function handleMessage(msgType, msgData) {
       if (msgData.vEgo !== undefined) {
         dashboard.updateCurrentSpeed(msgData.vEgo);
       }
-      // 更新加減速度
-      if (msgData.aEgo !== undefined) {
-        dashboard.updateAcceleration(msgData.aEgo);
-      }
       // 更新盲點警示
       dashboard.updateBlindspots(msgData);
       break;
@@ -63,8 +59,6 @@ function handleMessage(msgType, msgData) {
       dashboard.updateControllingSource(msgData);
       // 更新 EXPERIMENTAL MODE
       dashboard.updateExperimentalMode(msgData);
-      // 更新 CEM 狀態
-      dashboard.updateCEM(msgData);
       // 更新道路名稱
       if (msgData.roadName !== undefined) {
         dashboard.updateRoadName(msgData.roadName);

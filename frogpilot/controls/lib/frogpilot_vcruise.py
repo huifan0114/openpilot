@@ -33,6 +33,11 @@ class FrogPilotVCruise:
     self.vsc_target = 0
     self.vsc_active = False
 
+    # VSC 新增狀態變數
+    self.prev_vLead = None
+    self.prev_vRel = None
+    self.approaching_frames = 0
+
   def update(self, gps_position, now, time_validated, v_cruise, v_ego, sm, frogpilot_toggles):
 
     v_cruise_cluster = max(sm["controlsState"].vCruiseCluster * CV.KPH_TO_MS, v_cruise)
@@ -85,14 +90,20 @@ class FrogPilotVCruise:
     # ========== VSC (Vision Safety Controller) ==========
     if sm["controlsState"].enabled:
       if not sm["radarState"].leadOne.status:
+        # 無前車時重置所有狀態
         self.vrel_history.clear()
         self.drel_history.clear()
+        self.prev_vLead = None
+        self.prev_vRel = None
+        self.approaching_frames = 0
         self.vsc_active = False
         v_cruise_vsc = v_cruise
       else:
         lead = sm["radarState"].leadOne
         dRel = lead.dRel
         vRel = lead.vRel
+        vLead = lead.vLead * CV.MS_TO_KPH  # 轉換為 km/h
+        v_ego_kph = v_ego * CV.MS_TO_KPH
 
         # 更新歷史
         self.vrel_history.append(vRel)
@@ -101,7 +112,16 @@ class FrogPilotVCruise:
           self.vrel_history.pop(0)
           self.drel_history.pop(0)
 
-        # 計算指標
+        # 計算變化率
+        delta_vLead = vLead - self.prev_vLead if self.prev_vLead is not None else 0
+        delta_vRel = vRel - self.prev_vRel if self.prev_vRel is not None else 0
+        self.prev_vLead = vLead
+        self.prev_vRel = vRel
+
+        # 計算跟車距離設定: dRel = (0.576 × v_kph + 2.96) × 0.8
+        follow_dist = min((0.576 * v_ego_kph + 2.96) * 0.8, 60.0)
+
+        # 計算 TTC, TH
         ttc = dRel / abs(vRel) if vRel < -0.1 else 99
         th = dRel / v_ego if v_ego > 0.1 else 99
 
@@ -112,36 +132,47 @@ class FrogPilotVCruise:
           drel_change = self.drel_history[0] - self.drel_history[-1]
           vrel_stuck = vrel_std < 0.5 and drel_change > 20
 
-        # 風險評估
-        # TTC: 4/6 秒 (維持)
-        # TH: 1.0/1.5 秒 (調整，避免與跟車距離 ~1.9-2.0 秒衝突)
-        risk_level = 0
-        if ttc < 4:
-          risk_level = max(risk_level, 3)
-        elif ttc < 6:
-          risk_level = max(risk_level, 2)
-
-        if th < 1.0:
-          risk_level = max(risk_level, 3)
-        elif th < 1.5:
-          risk_level = max(risk_level, 2)
-
-        if vrel_stuck:
-          risk_level = max(risk_level, 2)
-
-        # 降速比例 (以當前時速 v_ego 為基準)
-        if risk_level >= 3:
-          reduction = 0.8  # 高風險: 減速 20%
-        elif risk_level >= 2:
-          reduction = 0.9  # 中風險: 減速 10%
+        # === 條件 A: 持續接近 ===
+        if vRel < -1.5:
+          self.approaching_frames += 1
         else:
-          reduction = 1.0
+          self.approaching_frames = max(0, self.approaching_frames - 2)
+        cond_A = self.approaching_frames >= 15 and dRel < follow_dist * 1.5
 
-        self.vsc_active = reduction < 1.0
-        if self.vsc_active:
-          self.vsc_target = max(v_ego * reduction, 30 * CV.KPH_TO_MS)  # 最低 30 km/h
+        # === 條件 B: vLead 驟降 ===
+        cond_B = delta_vLead < -5.0
+
+        # === 條件 C: 接近加速 ===
+        cond_C = delta_vRel < -0.8 and vRel < -1.0
+
+        # === 風險判斷 ===
+        # 高風險: (A+B) 或 (A+C) 或 TTC<4 或 TH<1.0
+        high_risk = (cond_A and (cond_B or cond_C)) or ttc < 4 or th < 1.0
+
+        # 中風險: A 或 B 或 C 或 TTC<6 或 TH<1.5 或 vrel_stuck
+        medium_risk = cond_A or cond_B or cond_C or ttc < 6 or th < 1.5 or vrel_stuck
+
+        # 低風險: vRel < -0.5 或 approaching_frames > 0
+        low_risk = vRel < -0.5 or self.approaching_frames > 0
+
+        # === 動作 ===
+        if high_risk:
+          # 高風險: 減速 20%
+          self.vsc_target = max(v_ego * 0.8, 30 * CV.KPH_TO_MS)
+          self.vsc_active = True
+        elif medium_risk:
+          # 中風險: 減速 10%
+          self.vsc_target = max(v_ego * 0.9, 30 * CV.KPH_TO_MS)
+          self.vsc_active = True
+        elif low_risk:
+          # 低風險: 維持現速，不加速
+          self.vsc_target = v_ego
+          self.vsc_active = True
         else:
+          # 正常
           self.vsc_target = v_cruise
+          self.vsc_active = False
+
         v_cruise_vsc = self.vsc_target
     else:
       v_cruise_vsc = v_cruise

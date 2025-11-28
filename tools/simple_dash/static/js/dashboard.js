@@ -45,9 +45,6 @@ export class DashboardUI {
       experimentalCard: document.getElementById('experimental-card'),
       experimentalIcon: document.getElementById('experimental-icon'),
 
-      // 加減速度 (aEgo)
-      accelerationValue: document.getElementById('acceleration-value'),
-
       // 控制加速 (actuatorsOutput.accel)
       controlAccelValue: document.getElementById('control-accel-value'),
 
@@ -61,12 +58,7 @@ export class DashboardUI {
 
       // 盲點警示
       leftBlindspot: document.getElementById('left-blindspot'),
-      rightBlindspot: document.getElementById('right-blindspot'),
-
-      // CEM 狀態
-      cemCard: document.getElementById('cem-card'),
-      cemIcon: document.getElementById('cem-icon'),
-      cemText: document.getElementById('cem-text')
+      rightBlindspot: document.getElementById('right-blindspot')
     };
 
     // 狀態
@@ -129,10 +121,6 @@ export class DashboardUI {
     // 漸進式
     this.elements.progressiveSpeed.textContent = testValues.medium;
 
-    // 加減速度
-    this.elements.accelerationValue.textContent = '8.88';
-    this.elements.accelerationValue.classList.add('positive');
-
     // 控制加速
     this.elements.controlAccelValue.textContent = '8.88';
     this.elements.controlAccelValue.classList.add('positive');
@@ -185,10 +173,9 @@ export class DashboardUI {
       { element: this.elements.vscSpeed, delay: 2900, type: 'value' },
       { element: this.elements.progressiveSpeed, delay: 3000, type: 'value' },
 
-      // 右上角和底部元素
-      { element: this.elements.accelerationValue, delay: 3100, type: 'value' },
-      { element: this.elements.controlAccelValue, delay: 3200, type: 'value' },
-      { element: this.elements.roadNameCard, delay: 3400, type: 'card' }
+      // 左下角和底部元素
+      { element: this.elements.controlAccelValue, delay: 3100, type: 'value' },
+      { element: this.elements.roadNameCard, delay: 3300, type: 'card' }
     ];
 
     // === 5. 執行淡出序列 ===
@@ -240,8 +227,6 @@ export class DashboardUI {
       this.elements.cscSpeed.textContent = '--';
       this.elements.vscSpeed.textContent = '--';
       this.elements.progressiveSpeed.textContent = '--';
-      this.elements.accelerationValue.textContent = '--';
-      this.elements.accelerationValue.className = 'value-medium neutral';
       this.elements.controlAccelValue.textContent = '--';
       this.elements.controlAccelValue.className = 'value-medium neutral';
       this.elements.roadNameText.textContent = '--';
@@ -441,85 +426,6 @@ export class DashboardUI {
       this.elements.progressiveSpeed.textContent = Math.round(progressiveSpeedConverted);
     } else {
       this.elements.progressiveSpeed.textContent = '--';
-    }
-  }
-
-  // ========== CEM 狀態更新 ==========
-
-  updateCEM(frogpilotPlan) {
-    const conditionalStatus = frogpilotPlan.ceStatus || 0;
-    const experimentalMode = frogpilotPlan.experimentalMode || false;
-
-    // 當未啟用且狀態為 0 時隱藏
-    if (!experimentalMode && conditionalStatus === 0) {
-      this.elements.cemCard.classList.add('hidden');
-      return;
-    }
-
-    this.elements.cemCard.classList.remove('hidden');
-
-    // 根據狀態選擇圖標和文字
-    let icon = '🤖';
-    let text = '實驗';
-
-    if (conditionalStatus === 1) {
-      icon = '😌';
-      text = '已暫停';
-    } else if (conditionalStatus === 2 || experimentalMode) {
-      icon = '🚀';
-      text = '實驗';
-    } else if (conditionalStatus === 3 || conditionalStatus === 4) {
-      icon = '⚡';
-      text = '低速';
-    } else if (conditionalStatus === 5) {
-      icon = '↪️';
-      text = '轉彎';
-    } else if (conditionalStatus === 6 || conditionalStatus === 7) {
-      icon = '↪️';
-      text = '導航';
-    } else if (conditionalStatus === 8) {
-      icon = '🌀';
-      text = '彎道';
-    } else if (conditionalStatus === 9 || conditionalStatus === 10) {
-      icon = '🚗';
-      text = '跟車';
-    } else if (conditionalStatus === 11 || conditionalStatus === 12) {
-      icon = '🚦';
-      text = '號誌';
-    } else if (conditionalStatus === 13) {
-      icon = '🚀';
-      text = '速限';
-    }
-
-    this.elements.cemIcon.textContent = icon;
-    this.elements.cemText.textContent = text;
-  }
-
-  // ========== 加減速度更新 ==========
-
-  updateAcceleration(aEgo) {
-    if (aEgo === undefined || aEgo === null) {
-      this.elements.accelerationValue.textContent = '--';
-      this.elements.accelerationValue.className = 'value-medium neutral';
-      return;
-    }
-
-    // 顯示加速度數值 (保留 2 位小數，使用絕對值不顯示負號)
-    this.elements.accelerationValue.textContent = Math.abs(aEgo).toFixed(2);
-
-    // 移除所有顏色類別
-    this.elements.accelerationValue.classList.remove('positive', 'negative', 'neutral');
-
-    // 根據加速度值設定顏色
-    if (aEgo > 0.25) {
-      // 加速 (綠色)
-      this.elements.accelerationValue.classList.add('positive');
-    } else if (aEgo < -0.25) {
-      // 煞車 (紅色)
-      this.elements.accelerationValue.classList.add('negative');
-    } else {
-      // 中性 (灰色)
-      this.elements.accelerationValue.classList.add('neutral');
     }
   }
 
