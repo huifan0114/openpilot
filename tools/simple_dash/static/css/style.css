@@ -1755,3 +1755,215 @@ body.startup-mode .lead-info-card {
   }
 }
 
+/* ===== NavBridge 導航指示卡片 ===== */
+
+.nav-card {
+  padding: var(--spacing-md) 32px;
+  border: 2px solid var(--status-safe);
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(0, 255, 136, 0.05) 100%);
+  box-shadow: 0 0 30px var(--status-safe-glow);
+  transition: all var(--transition-normal);
+}
+
+.nav-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-icon {
+  font-size: 48px;
+  font-weight: bold;
+  color: var(--status-safe);
+  text-shadow: 0 0 15px var(--status-safe-glow);
+  min-width: 60px;
+  text-align: center;
+  transition: all var(--transition-fast);
+}
+
+/* 左轉圖示 - 橙色 */
+.nav-icon.nav-left {
+  color: var(--status-warning);
+  text-shadow: 0 0 15px var(--status-warning-glow);
+}
+
+/* 右轉圖示 - 藍色 */
+.nav-icon.nav-right {
+  color: var(--status-info);
+  text-shadow: 0 0 15px var(--status-info-glow);
+}
+
+/* 迴轉圖示 - 紅色 */
+.nav-icon.nav-uturn {
+  color: var(--status-danger);
+  text-shadow: 0 0 15px var(--status-danger-glow);
+}
+
+.nav-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-main-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.nav-distance {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.nav-instruction {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.nav-road-name {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* 導航緊急程度樣式 */
+
+/* 一般 (綠色) - 距離 > 300m */
+.nav-card.nav-normal {
+  border-color: var(--status-safe);
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(0, 255, 136, 0.05) 100%);
+  box-shadow: 0 0 30px var(--status-safe-glow);
+}
+
+/* 警告 (橙色) - 距離 100-300m */
+.nav-card.nav-warning {
+  border-color: var(--status-warning);
+  background: linear-gradient(135deg, rgba(255, 170, 0, 0.2) 0%, rgba(255, 170, 0, 0.1) 100%);
+  box-shadow: 0 0 40px var(--status-warning-glow);
+  animation: nav-pulse-warning 1.5s ease-in-out infinite;
+}
+
+/* 緊急 (紅色) - 距離 < 100m */
+.nav-card.nav-urgent {
+  border-color: var(--status-danger);
+  background: linear-gradient(135deg, rgba(255, 51, 102, 0.25) 0%, rgba(255, 51, 102, 0.15) 100%);
+  box-shadow: 0 0 60px var(--status-danger-glow);
+  animation: nav-pulse-urgent 0.8s ease-in-out infinite;
+}
+
+.nav-card.nav-warning .nav-distance,
+.nav-card.nav-warning .nav-instruction {
+  color: var(--status-warning);
+}
+
+.nav-card.nav-urgent .nav-distance,
+.nav-card.nav-urgent .nav-instruction {
+  color: var(--status-danger);
+}
+
+@keyframes nav-pulse-warning {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 40px var(--status-warning-glow);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 60px var(--status-warning-glow);
+  }
+}
+
+@keyframes nav-pulse-urgent {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 60px var(--status-danger-glow);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 0 80px var(--status-danger-glow);
+  }
+}
+
+/* 導航卡片響應式 */
+
+@media (max-width: 1200px) {
+  .nav-icon {
+    font-size: 40px;
+    min-width: 50px;
+  }
+
+  .nav-distance {
+    font-size: 28px;
+  }
+
+  .nav-instruction {
+    font-size: 24px;
+  }
+
+  .nav-road-name {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-card {
+    padding: var(--spacing-sm) 20px;
+  }
+
+  .nav-content {
+    gap: 12px;
+  }
+
+  .nav-icon {
+    font-size: 32px;
+    min-width: 40px;
+  }
+
+  .nav-distance {
+    font-size: 22px;
+  }
+
+  .nav-instruction {
+    font-size: 18px;
+  }
+
+  .nav-road-name {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-card {
+    padding: var(--spacing-xs) 12px;
+  }
+
+  .nav-content {
+    gap: 8px;
+  }
+
+  .nav-icon {
+    font-size: 24px;
+    min-width: 30px;
+  }
+
+  .nav-distance {
+    font-size: 18px;
+  }
+
+  .nav-instruction {
+    font-size: 14px;
+  }
+
+  .nav-road-name {
+    font-size: 12px;
+  }
+
+  .nav-main-row {
+    gap: 8px;
+  }
+}
+
