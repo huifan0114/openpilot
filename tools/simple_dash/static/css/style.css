@@ -847,15 +847,15 @@ body::after {
   color: var(--text-dim);
 }
 
-/* ===== 底部中央: 道路名稱 ===== */
+/* ===== 底部中央: 導航 + 道路名稱 (並列) ===== */
 #bottom-center-road {
   position: absolute;
   bottom: 65px;  /* 50px (GIF) + 15px (間距) */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+  flex-direction: row;  /* 水平並列 */
+  gap: var(--spacing-lg);
   align-items: center;
   z-index: 100;
 }

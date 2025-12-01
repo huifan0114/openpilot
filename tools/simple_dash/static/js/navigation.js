@@ -69,9 +69,7 @@ const elements = {
   navCard: null,
   navIcon: null,
   navDistance: null,
-  navInstruction: null,
-  navRoadName: null,
-  roadNameCard: null
+  navInstruction: null
 };
 
 // ==================== 初始化 ====================
@@ -87,8 +85,6 @@ export function initNavigation() {
   elements.navIcon = document.getElementById('nav-icon');
   elements.navDistance = document.getElementById('nav-distance');
   elements.navInstruction = document.getElementById('nav-instruction');
-  elements.navRoadName = document.getElementById('nav-road-name');
-  elements.roadNameCard = document.getElementById('road-name-card');
 
   // 從 URL 參數讀取 NavBridge IP
   const urlParams = new URLSearchParams(window.location.search);
@@ -201,10 +197,7 @@ function updateNavDisplay(data) {
   // 顯示導航卡片
   elements.navCard.classList.remove('hidden');
 
-  // 隱藏原本的道路名稱卡片
-  if (elements.roadNameCard) {
-    elements.roadNameCard.classList.add('hidden');
-  }
+  // 道路名稱卡片保持顯示 (由 dashboard.js 控制)
 
   // 更新圖示
   const iconKey = `${data.maneuverType}_${data.maneuverModifier}`;
@@ -222,9 +215,6 @@ function updateNavDisplay(data) {
   // 更新指示文字
   elements.navInstruction.textContent = data.instruction || '--';
 
-  // 更新道路名稱
-  elements.navRoadName.textContent = data.roadName || '';
-
   // 根據距離更新緊急程度
   updateUrgency(data.distanceToNext);
 }
@@ -237,8 +227,7 @@ function hideNavigation() {
 
   elements.navCard.classList.add('hidden');
 
-  // 恢復顯示原本的道路名稱卡片 (如果有資料)
-  // 不在這裡處理，讓 dashboard.js 控制
+  // 道路名稱卡片保持顯示 (由 dashboard.js 控制)
 }
 
 /**

@@ -39,6 +39,26 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   createKeyControl(publicMapboxKeyControl, tr("Public Mapbox Key"), "MapboxPublicKey", "pk.", 80, settingsList);
   createKeyControl(secretMapboxKeyControl, tr("Secret Mapbox Key"), "MapboxSecretKey", "sk.", 80, settingsList);
 
+  // NavBridge 設定區塊
+  navBridgeToggle = new ParamControl("NavBridgeEnabled", tr("NavBridge (Google Maps)"),
+    tr("<b>Enable NavBridge to receive navigation data from Google Maps</b> via the NavBridge Android app. "
+       "This allows conditional experimental mode to activate based on upcoming turns and intersections."), "", this);
+  settingsList->addItem(navBridgeToggle);
+
+  navBridgeHostControl = new ButtonControl(tr("NavBridge Host IP"), "", tr("<b>Set the IP address of the NavBridge Android device.</b> Default is \"localhost\" for same device."));
+  QObject::connect(navBridgeHostControl, &ButtonControl::clicked, [this]() {
+    QString currentHost = QString::fromStdString(params.get("NavBridgeHost"));
+    if (currentHost.isEmpty()) {
+      currentHost = "localhost";
+    }
+    QString newHost = InputDialog::getText(tr("Enter NavBridge IP"), this, tr("Current: %1").arg(currentHost), false, 1, currentHost).trimmed();
+    if (!newHost.isEmpty()) {
+      params.put("NavBridgeHost", newHost.toStdString());
+      updateNavBridgeHostLabel();
+    }
+  });
+  settingsList->addItem(navBridgeHostControl);
+
   setupButton = new ButtonControl(tr("Mapbox Setup Instructions"), tr("VIEW"), tr("<b>Instructions on how to set up Mapbox</b> for \"Primeless Navigation\"."), this);
   QObject::connect(setupButton, &ButtonControl::clicked, [this]() {
     openSubPanel();
@@ -144,9 +164,19 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
       secretMapboxKeyControl->showDescription();
       setupButton->showDescription();
       updateSpeedLimitsToggle->showDescription();
+      navBridgeToggle->showDescription();
+      navBridgeHostControl->showDescription();
     }
   });
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotNavigationPanel::updateState);
+}
+
+void FrogPilotNavigationPanel::updateNavBridgeHostLabel() {
+  QString host = QString::fromStdString(params.get("NavBridgeHost"));
+  if (host.isEmpty()) {
+    host = "localhost";
+  }
+  navBridgeHostControl->setText(host);
 }
 
 void FrogPilotNavigationPanel::showEvent(QShowEvent *event) {
@@ -158,7 +188,12 @@ void FrogPilotNavigationPanel::showEvent(QShowEvent *event) {
     secretMapboxKeyControl->showDescription();
     setupButton->showDescription();
     updateSpeedLimitsToggle->showDescription();
+    navBridgeToggle->showDescription();
+    navBridgeHostControl->showDescription();
   }
+
+  // 更新 NavBridge Host 顯示
+  updateNavBridgeHostLabel();
 
   FrogPilotUIState &fs = *frogpilotUIState();
   UIState &s = *uiState();
@@ -210,6 +245,8 @@ void FrogPilotNavigationPanel::mousePressEvent(QMouseEvent *event) {
       secretMapboxKeyControl->showDescription();
       setupButton->showDescription();
       updateSpeedLimitsToggle->showDescription();
+      navBridgeToggle->showDescription();
+      navBridgeHostControl->showDescription();
     }
   }
 }
