@@ -180,7 +180,7 @@ class FrogPilotVCruise:
 
     # ========== Progressive Speed ==========
     STEP_SIZE = 10 * CV.KPH_TO_MS
-    APPROACH_THRESHOLD = 2 * CV.KPH_TO_MS
+    APPROACH_THRESHOLD = 3 * CV.KPH_TO_MS
     MIN_STEP_TRIGGER = 10 * CV.KPH_TO_MS
 
     # Progressive 基於原始 v_cruise，與 VSC 獨立運作
@@ -189,7 +189,7 @@ class FrogPilotVCruise:
     # 計算下一個對齊到 10 的倍數的目標速度
     v_ego_kph = v_ego * CV.MS_TO_KPH
     next_target_kph = math.ceil(v_ego_kph / 10) * 10
-    next_target_kph = max(next_target_kph, 20)
+    next_target_kph = max(next_target_kph, 30)
     next_target = next_target_kph * CV.KPH_TO_MS
 
     speed_diff = v_cruise_final - v_ego

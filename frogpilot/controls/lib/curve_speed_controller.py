@@ -17,7 +17,7 @@ STEP = 0.001
 BASE_LATERAL_ACCELERATION = 2.58  # 預設基準值 (m/s²)
 STEER_USAGE_HIGH = 0.9   # 高使用率門檻
 STEER_USAGE_LOW = 0.5    # 低使用率門檻 (可考慮提高 lat_acc)
-MIN_LATERAL_ACCELERATION = 1.5   # 最低橫向加速度 (m/s²)
+MIN_LATERAL_ACCELERATION = 2.0   # 最低橫向加速度 (m/s²)
 MAX_LATERAL_ACCELERATION = 3.5   # 最高橫向加速度 (m/s²)
 LAT_ACC_ADJUST_STEP = 0.05       # 每次過彎後調整幅度 (m/s²)
 
