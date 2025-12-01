@@ -1838,6 +1838,25 @@ body.startup-mode .lead-info-card {
   color: var(--status-danger);
 }
 
+/* 行程資訊列 */
+.nav-trip-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.nav-remaining {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.nav-eta {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--status-info);
+}
+
 @keyframes nav-pulse-warning {
   0%, 100% {
     transform: scale(1);
@@ -1879,6 +1898,11 @@ body.startup-mode .lead-info-card {
   .nav-road-name {
     font-size: 18px;
   }
+
+  .nav-remaining,
+  .nav-eta {
+    font-size: 14px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1906,6 +1930,11 @@ body.startup-mode .lead-info-card {
   .nav-road-name {
     font-size: 14px;
   }
+
+  .nav-remaining,
+  .nav-eta {
+    font-size: 12px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1932,6 +1961,11 @@ body.startup-mode .lead-info-card {
 
   .nav-road-name {
     font-size: 12px;
+  }
+
+  .nav-remaining,
+  .nav-eta {
+    font-size: 10px;
   }
 
   .nav-main-row {

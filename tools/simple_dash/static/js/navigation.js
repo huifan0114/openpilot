@@ -71,6 +71,8 @@ const elements = {
   navDistance: null,
   navInstruction: null,
   navRoadName: null,
+  navRemaining: null,
+  navEta: null,
   roadNameCard: null,
   roadNameText: null
 };
@@ -89,6 +91,8 @@ export function initNavigation() {
   elements.navDistance = document.getElementById('nav-distance');
   elements.navInstruction = document.getElementById('nav-instruction');
   elements.navRoadName = document.getElementById('nav-road-name');
+  elements.navRemaining = document.getElementById('nav-remaining');
+  elements.navEta = document.getElementById('nav-eta');
   elements.roadNameCard = document.getElementById('road-name-card');
   elements.roadNameText = document.getElementById('road-name-text');
 
@@ -226,6 +230,25 @@ function updateNavDisplay(data) {
     elements.navRoadName.textContent = data.roadName || '';
   }
 
+  // 更新剩餘距離和時間
+  if (elements.navRemaining) {
+    const parts = [];
+    if (data.distanceRemaining > 0) {
+      parts.push(formatDistance(data.distanceRemaining));
+    }
+    if (data.timeRemaining > 0) {
+      parts.push(formatTime(data.timeRemaining));
+    }
+    elements.navRemaining.textContent = parts.join(' · ');
+  }
+
+  // 更新 ETA
+  if (elements.navEta && data.eta) {
+    elements.navEta.textContent = `抵達 ${data.eta}`;
+  } else if (elements.navEta) {
+    elements.navEta.textContent = '';
+  }
+
   // 同時更新道路名稱卡片 (如果 NavBridge 有提供)
   if (data.roadName && elements.roadNameCard && elements.roadNameText) {
     elements.roadNameCard.classList.remove('hidden');
@@ -299,6 +322,22 @@ function formatDistance(meters) {
     return `${(meters / 1000).toFixed(1)} km`;
   } else {
     return `${Math.round(meters)} m`;
+  }
+}
+
+/**
+ * 格式化時間 (秒 -> 分鐘/小時)
+ */
+function formatTime(seconds) {
+  if (!seconds || seconds <= 0) return '';
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+
+  if (hours > 0) {
+    return `${hours} 小時 ${minutes} 分`;
+  } else {
+    return `${minutes} 分鐘`;
   }
 }
 
