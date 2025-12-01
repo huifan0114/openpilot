@@ -69,7 +69,10 @@ const elements = {
   navCard: null,
   navIcon: null,
   navDistance: null,
-  navInstruction: null
+  navInstruction: null,
+  navRoadName: null,
+  roadNameCard: null,
+  roadNameText: null
 };
 
 // ==================== 初始化 ====================
@@ -85,6 +88,9 @@ export function initNavigation() {
   elements.navIcon = document.getElementById('nav-icon');
   elements.navDistance = document.getElementById('nav-distance');
   elements.navInstruction = document.getElementById('nav-instruction');
+  elements.navRoadName = document.getElementById('nav-road-name');
+  elements.roadNameCard = document.getElementById('road-name-card');
+  elements.roadNameText = document.getElementById('road-name-text');
 
   // 從 URL 參數讀取 NavBridge IP
   const urlParams = new URLSearchParams(window.location.search);
@@ -214,6 +220,17 @@ function updateNavDisplay(data) {
 
   // 更新指示文字
   elements.navInstruction.textContent = data.instruction || '--';
+
+  // 更新導航指示中的道路名稱
+  if (elements.navRoadName) {
+    elements.navRoadName.textContent = data.roadName || '';
+  }
+
+  // 同時更新道路名稱卡片 (如果 NavBridge 有提供)
+  if (data.roadName && elements.roadNameCard && elements.roadNameText) {
+    elements.roadNameCard.classList.remove('hidden');
+    elements.roadNameText.textContent = data.roadName;
+  }
 
   // 根據距離更新緊急程度
   updateUrgency(data.distanceToNext);

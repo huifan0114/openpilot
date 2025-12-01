@@ -121,7 +121,7 @@
       </div>
     </div>
 
-    <!-- 底部中央: 導航指示 + 道路名稱 (並列) -->
+    <!-- 底部中央: 導航指示 + 道路名稱 (垂直排列，貼底) -->
     <div id="bottom-center-road">
       <!-- 導航指示卡片 (來自 NavBridge) -->
       <div id="nav-instruction-card" class="card nav-card hidden">
@@ -132,18 +132,15 @@
               <span id="nav-distance" class="nav-distance">--</span>
               <span id="nav-instruction" class="nav-instruction">--</span>
             </div>
+            <!-- 導航中的道路名稱 -->
+            <div id="nav-road-name" class="nav-road-name"></div>
           </div>
         </div>
       </div>
-      <!-- 道路名稱卡片 (永遠顯示) -->
-      <div id="road-name-card" class="card hidden">
+      <!-- 道路名稱卡片 (固定顯示) -->
+      <div id="road-name-card" class="card">
         <div id="road-name-text">--</div>
       </div>
-    </div>
-
-    <!-- 底部全寬導航動畫條 -->
-    <div id="bottom-navigation-bar">
-      <img id="nav-standby-gif" src="/static/assets/navstandby2.gif" alt="Navigation" />
     </div>
 
   </div>

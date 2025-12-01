@@ -133,8 +133,7 @@ export class DashboardUI {
     this.elements.leadSpeed.textContent = testValues.medium;
     this.elements.followTime.textContent = testValues.time;
 
-    // 道路名稱
-    this.elements.roadNameCard.classList.remove('hidden');
+    // 道路名稱 (固定顯示)
     this.elements.roadNameText.textContent = '888888888';
 
     // === 2. 盲點警示顯示 ===
@@ -173,9 +172,10 @@ export class DashboardUI {
       { element: this.elements.vscSpeed, delay: 2900, type: 'value' },
       { element: this.elements.progressiveSpeed, delay: 3000, type: 'value' },
 
-      // 左下角和底部元素
+      // 左下角元素
       { element: this.elements.controlAccelValue, delay: 3100, type: 'value' },
-      { element: this.elements.roadNameCard, delay: 3300, type: 'card' }
+      // 道路名稱 (固定顯示，只淡出數值)
+      { element: this.elements.roadNameText, delay: 3300, type: 'value' }
     ];
 
     // === 5. 執行淡出序列 ===
@@ -460,13 +460,14 @@ export class DashboardUI {
   // ========== 道路名稱更新 ==========
 
   updateRoadName(roadName) {
-    if (!roadName || roadName.trim() === '') {
-      this.elements.roadNameCard.classList.add('hidden');
-      return;
-    }
-
+    // 道路名稱卡片固定顯示，不隱藏
     this.elements.roadNameCard.classList.remove('hidden');
-    this.elements.roadNameText.textContent = roadName;
+
+    if (!roadName || roadName.trim() === '') {
+      this.elements.roadNameText.textContent = '--';
+    } else {
+      this.elements.roadNameText.textContent = roadName;
+    }
   }
 
   // ========== 連接狀態更新 ==========

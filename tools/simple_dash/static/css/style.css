@@ -847,48 +847,31 @@ body::after {
   color: var(--text-dim);
 }
 
-/* ===== 底部中央: 導航 + 道路名稱 (並列) ===== */
+/* ===== 底部中央: 導航 + 道路名稱 (垂直排列，貼底) ===== */
 #bottom-center-road {
   position: absolute;
-  bottom: 65px;  /* 50px (GIF) + 15px (間距) */
+  bottom: var(--spacing-md);  /* 貼底邊界 */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  flex-direction: row;  /* 水平並列 */
-  gap: var(--spacing-lg);
+  flex-direction: column;  /* 垂直排列 (導航在上，路名在下) */
+  gap: var(--spacing-sm);
   align-items: center;
   z-index: 100;
+  max-width: 90%;  /* 限制最大寬度，避免超出螢幕 */
 }
 
 #road-name-card {
-  padding: var(--spacing-md) 40px;
+  padding: var(--spacing-sm) var(--spacing-lg);
   border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 #road-name-text {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
-}
-
-/* ===== 底部導航動畫條 ===== */
-#bottom-navigation-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 50px;  /* 從 95px 降低，減少視覺干擾 */
-  z-index: 5;    /* 低於所有 UI 元素 */
-  pointer-events: none;
-  overflow: hidden;
-}
-
-#nav-standby-gif {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: fill;  /* 拉伸填滿，因為寬度比例可能不同 */
+  text-align: center;
 }
 
 /* ===== 響應式設計 ===== */
@@ -1044,7 +1027,7 @@ body::after {
   #bottom-left-info,
   #bottom-left-acceleration,
   #bottom-right-experimental {
-    bottom: 60px;  /* 50px + 10px */
+    bottom: var(--spacing-md);  /* 貼底邊界 */
   }
 
   /* 左下角 */
@@ -1272,12 +1255,7 @@ body::after {
   #bottom-left-info,
   #bottom-left-acceleration,
   #bottom-right-experimental {
-    bottom: 58px;  /* 50px + 8px */
-  }
-
-  /* 縮小 GIF 高度 */
-  #bottom-navigation-bar {
-    height: 50px;  /* 與桌面版一致 */
+    bottom: var(--spacing-md);  /* 貼底邊界 */
   }
 
   /* 左下角 */
@@ -1539,12 +1517,7 @@ body::after {
   #bottom-left-info,
   #bottom-left-acceleration,
   #bottom-right-experimental {
-    bottom: 58px;  /* 50px + 8px */
-  }
-
-  /* 縮小 GIF 高度 */
-  #bottom-navigation-bar {
-    height: 50px;  /* 與桌面版一致 */
+    bottom: var(--spacing-md);  /* 貼底邊界 */
   }
 
   /* 左下角 */
