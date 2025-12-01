@@ -847,18 +847,17 @@ body::after {
   color: var(--text-dim);
 }
 
-/* ===== 底部中央: 導航 + 道路名稱 (垂直排列，貼底) ===== */
+/* ===== 底部中央: 導航 + 道路名稱 (水平並排，貼底) ===== */
 #bottom-center-road {
   position: absolute;
   bottom: var(--spacing-md);  /* 貼底邊界 */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  flex-direction: column;  /* 垂直排列 (導航在上，路名在下) */
-  gap: var(--spacing-sm);
+  flex-direction: row;  /* 水平並排 */
+  gap: var(--spacing-md);
   align-items: center;
   z-index: 100;
-  max-width: 90%;  /* 限制最大寬度，避免超出螢幕 */
 }
 
 #road-name-card {
@@ -867,7 +866,7 @@ body::after {
 }
 
 #road-name-text {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
