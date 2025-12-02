@@ -345,11 +345,11 @@ body::after {
 #top-right-controls {
   position: absolute;
   top: var(--spacing-lg);                                     /* 與左側卡片頂部對齊 */
-  bottom: calc(65px + 78px + var(--spacing-md));              /* 與前車卡片底部對齊 */
+  bottom: 35%;                                                /* 與前車卡片底部對齊 */
   right: var(--spacing-lg);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;  /* 平均分配高度 */
+  justify-content: space-between;
   gap: var(--spacing-sm);
   z-index: 100;
 }
@@ -480,22 +480,22 @@ body::after {
   /* 上邊：MAX/VCRUISE 卡片下緣 + 間距 */
   top: calc(var(--spacing-lg) + 130px + var(--spacing-md));  /* 32px + 130px + 20px = 182px */
 
-  /* 下邊：導航列上方 (50px GIF + 20px 間距 + 78px nav-row + 20px 間距) */
-  bottom: calc(50px + var(--spacing-md) + 78px + var(--spacing-md));  /* 50px + 20px + 78px + 20px = 168px */
+  /* 下邊：大約在畫面中間偏下，給 nav-row 留空間 */
+  bottom: 35%;
 
-  /* 左邊：UPCOMING 卡片右緣 + 間距 (不再預留盲點空間，改用 flex) */
+  /* 左邊：UPCOMING 卡片右緣 + 間距 */
   left: calc(var(--spacing-lg) + 220px + var(--spacing-md));  /* 32px + 220px + 20px = 272px */
 
   /* 右邊：控制加速卡片寬度 + 左右邊距 + 間距 */
   right: calc(var(--spacing-lg) + 180px + var(--spacing-md));  /* 32px + 180px + 20px = 232px */
 
-  z-index: 50;  /* 降低 z-index，不覆蓋其他卡片 */
-  pointer-events: none;  /* 允許點擊穿透 */
+  z-index: 50;
+  pointer-events: none;
 
   /* 使用 flexbox 確保盲點和前車卡片高度一致 */
   display: flex;
-  align-items: stretch;  /* 所有子元素高度相同 */
-  gap: 25px;  /* 盲點與卡片的間距 */
+  align-items: stretch;
+  gap: 25px;
 }
 
 .lead-info-card {
@@ -880,18 +880,18 @@ body::after {
   color: var(--text-dim);
 }
 
-/* ===== 導航列: 前車下方全寬 (導航指示 + 道路名稱) ===== */
+/* ===== 導航列: 緊貼前車卡片下方、畫面底部 ===== */
 #nav-row {
   position: absolute;
-  /* 緊貼前車卡片底部，在底部 GIF 動畫條上方 */
-  bottom: calc(50px + var(--spacing-md));  /* 50px (GIF) + 20px 間距 */
+  /* 貼齊畫面底部 */
+  bottom: var(--spacing-lg);
   left: var(--spacing-lg);
   right: var(--spacing-lg);
   display: flex;
   flex-direction: row;
   gap: var(--spacing-md);
   align-items: stretch;
-  z-index: 100;
+  z-index: 60;  /* 比前車卡片 (50) 高一點，但不要太高 */
 }
 
 /* 導航指示卡片（在導航列中） */
@@ -1119,7 +1119,7 @@ body::after {
 
   /* 右上角控制區 - Tablet */
   #top-right-controls {
-    bottom: calc(50px + var(--spacing-md) + 65px + var(--spacing-sm));  /* GIF + 間距 + nav-row + 間距 */
+    bottom: 32%;
   }
 
   #top-right-controls #control-accel-card,
@@ -1129,7 +1129,7 @@ body::after {
 
   /* 導航列 - Tablet */
   #nav-row {
-    bottom: calc(50px + var(--spacing-md));  /* GIF + 間距 */
+    bottom: var(--spacing-lg);
   }
 
   .cem-icon {
@@ -1390,7 +1390,7 @@ body::after {
 
   /* 右上角控制區 - Mobile */
   #top-right-controls {
-    bottom: calc(50px + var(--spacing-md) + 54px + var(--spacing-sm));  /* GIF + 間距 + nav-row + 間距 */
+    bottom: 30%;
   }
 
   #top-right-controls #control-accel-card,
@@ -1401,7 +1401,7 @@ body::after {
 
   /* 導航列 - Mobile */
   #nav-row {
-    bottom: calc(50px + var(--spacing-md));  /* GIF + 間距 */
+    bottom: var(--spacing-lg);
     gap: var(--spacing-sm);
   }
 
@@ -1678,7 +1678,7 @@ body::after {
 
   /* 右上角控制區 - Small */
   #top-right-controls {
-    bottom: calc(50px + var(--spacing-md) + 44px + var(--spacing-sm));  /* GIF + 間距 + nav-row + 間距 */
+    bottom: 28%;
   }
 
   #top-right-controls #control-accel-card,
@@ -1689,9 +1689,9 @@ body::after {
 
   /* 導航列 - Small */
   #nav-row {
-    bottom: calc(50px + var(--spacing-md));  /* GIF + 間距 */
+    bottom: var(--spacing-lg);
     gap: var(--spacing-xs);
-    flex-wrap: wrap;  /* 允許換行 */
+    flex-wrap: wrap;
   }
 
   #nav-row #nav-instruction-card,
