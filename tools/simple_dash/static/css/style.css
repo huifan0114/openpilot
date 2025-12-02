@@ -341,7 +341,40 @@ body::after {
   color: var(--text-primary) !important; /* 白色，覆蓋 label-tiny 的灰色 */
 }
 
-/* ===== 右上角: 加減速度 + CEM 狀態 ===== */
+/* ===== 右上角控制區: 控制加速 + EXPERIMENTAL ===== */
+#top-right-controls {
+  position: absolute;
+  top: var(--spacing-lg);                                     /* 與左側卡片頂部對齊 */
+  bottom: calc(65px + 78px + var(--spacing-md));              /* 與前車卡片底部對齊 */
+  right: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;  /* 平均分配高度 */
+  gap: var(--spacing-sm);
+  z-index: 100;
+}
+
+/* 右上角的控制加速卡片 */
+#top-right-controls #control-accel-card {
+  width: 180px;
+  flex: 1;
+  text-align: center;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* 右上角的 EXPERIMENTAL 圖示卡片 */
+#top-right-controls .experimental-icon-card {
+  width: 180px;
+  height: auto;
+  min-height: 150px;
+  flex: 1;
+}
+
+/* ===== 右上角: 加減速度 + CEM 狀態 (舊版，保留相容) ===== */
 #top-right-area {
   position: absolute;
   top: var(--spacing-lg);
@@ -447,14 +480,14 @@ body::after {
   /* 上邊：MAX/VCRUISE 卡片下緣 + 間距 */
   top: calc(var(--spacing-lg) + 130px + var(--spacing-md));  /* 32px + 130px + 20px = 182px */
 
-  /* 下邊：ROADNAME 上邊 + 間距 */
-  bottom: calc(65px + 78px + var(--spacing-md));  /* 65px (bottom) + 78px (實際高度) + 20px = 163px */
+  /* 下邊：導航列上方 (50px GIF + 20px 間距 + 78px nav-row + 20px 間距) */
+  bottom: calc(50px + var(--spacing-md) + 78px + var(--spacing-md));  /* 50px + 20px + 78px + 20px = 168px */
 
   /* 左邊：UPCOMING 卡片右緣 + 間距 (不再預留盲點空間，改用 flex) */
   left: calc(var(--spacing-lg) + 220px + var(--spacing-md));  /* 32px + 220px + 20px = 272px */
 
-  /* 右邊：加減速度卡片寬度 + 左右邊距 + 間距 (不再預留盲點空間，改用 flex) */
-  right: calc(var(--spacing-lg) + 160px + var(--spacing-md));  /* 32px + 160px + 20px = 212px */
+  /* 右邊：控制加速卡片寬度 + 左右邊距 + 間距 */
+  right: calc(var(--spacing-lg) + 180px + var(--spacing-md));  /* 32px + 180px + 20px = 232px */
 
   z-index: 50;  /* 降低 z-index，不覆蓋其他卡片 */
   pointer-events: none;  /* 允許點擊穿透 */
@@ -847,7 +880,36 @@ body::after {
   color: var(--text-dim);
 }
 
-/* ===== 底部中央: 導航 + 道路名稱 (水平並排，貼底) ===== */
+/* ===== 導航列: 前車下方全寬 (導航指示 + 道路名稱) ===== */
+#nav-row {
+  position: absolute;
+  /* 緊貼前車卡片底部，在底部 GIF 動畫條上方 */
+  bottom: calc(50px + var(--spacing-md));  /* 50px (GIF) + 20px 間距 */
+  left: var(--spacing-lg);
+  right: var(--spacing-lg);
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-md);
+  align-items: stretch;
+  z-index: 100;
+}
+
+/* 導航指示卡片（在導航列中） */
+#nav-row #nav-instruction-card {
+  flex: 2;  /* 導航佔比較大 */
+  min-width: 0;
+}
+
+/* 道路名稱卡片（在導航列中） */
+#nav-row #road-name-card {
+  flex: 1;
+  min-width: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== 底部中央: 導航 + 道路名稱 (舊版，保留相容) ===== */
 #bottom-center-road {
   position: absolute;
   bottom: var(--spacing-md);  /* 貼底邊界 */
@@ -1053,6 +1115,21 @@ body::after {
   #top-right-area {
     top: 15px;
     right: 15px;
+  }
+
+  /* 右上角控制區 - Tablet */
+  #top-right-controls {
+    bottom: calc(50px + var(--spacing-md) + 65px + var(--spacing-sm));  /* GIF + 間距 + nav-row + 間距 */
+  }
+
+  #top-right-controls #control-accel-card,
+  #top-right-controls .experimental-icon-card {
+    width: 130px;
+  }
+
+  /* 導航列 - Tablet */
+  #nav-row {
+    bottom: calc(50px + var(--spacing-md));  /* GIF + 間距 */
   }
 
   .cem-icon {
@@ -1309,6 +1386,28 @@ body::after {
   #top-right-area {
     top: 12px;
     right: 12px;
+  }
+
+  /* 右上角控制區 - Mobile */
+  #top-right-controls {
+    bottom: calc(50px + var(--spacing-md) + 54px + var(--spacing-sm));  /* GIF + 間距 + nav-row + 間距 */
+  }
+
+  #top-right-controls #control-accel-card,
+  #top-right-controls .experimental-icon-card {
+    width: 90px;
+    min-height: 80px;
+  }
+
+  /* 導航列 - Mobile */
+  #nav-row {
+    bottom: calc(50px + var(--spacing-md));  /* GIF + 間距 */
+    gap: var(--spacing-sm);
+  }
+
+  #nav-row #nav-instruction-card,
+  #nav-row #road-name-card {
+    padding: var(--spacing-sm) var(--spacing-md);
   }
 
   .cem-icon {
@@ -1575,6 +1674,31 @@ body::after {
   #top-right-area {
     top: 10px;
     right: 10px;
+  }
+
+  /* 右上角控制區 - Small */
+  #top-right-controls {
+    bottom: calc(50px + var(--spacing-md) + 44px + var(--spacing-sm));  /* GIF + 間距 + nav-row + 間距 */
+  }
+
+  #top-right-controls #control-accel-card,
+  #top-right-controls .experimental-icon-card {
+    width: 75px;
+    min-height: 70px;
+  }
+
+  /* 導航列 - Small */
+  #nav-row {
+    bottom: calc(50px + var(--spacing-md));  /* GIF + 間距 */
+    gap: var(--spacing-xs);
+    flex-wrap: wrap;  /* 允許換行 */
+  }
+
+  #nav-row #nav-instruction-card,
+  #nav-row #road-name-card {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    flex: 1 1 auto;
+    min-width: 100px;
   }
 
   #cem-card {

@@ -45,7 +45,7 @@
       </div>
     </div>
 
-    <!-- 左側控制區: 速限 + 即將到來 + 控制加速 (平均分配) -->
+    <!-- 左側控制區: 速限 + 即將到來 (平均分配) -->
     <div id="top-left-controls">
       <div id="speed-limit-card" class="card">
         <div class="label-small">速限</div>
@@ -58,16 +58,16 @@
         <div id="upcoming-value" class="value-medium">--</div>
         <div id="upcoming-distance" class="label-tiny">--</div>
       </div>
+    </div>
 
+    <!-- 右側控制區: 控制加速 + EXPERIMENTAL MODE (與前車卡片底部齊平) -->
+    <div id="top-right-controls">
       <!-- 控制加速 (actuatorsOutput.accel) -->
       <div id="control-accel-card" class="card">
         <div class="label-small">控制加速</div>
         <div id="control-accel-value" class="value-medium neutral">--</div>
       </div>
-    </div>
 
-    <!-- 右下角: EXPERIMENTAL MODE -->
-    <div id="bottom-right-experimental">
       <!-- EXPERIMENTAL MODE 圖示 -->
       <div id="experimental-card" class="card experimental-icon-card">
         <img id="experimental-icon" src="/static/assets/img_experimental_white.svg" alt="Experimental Mode" />
@@ -121,8 +121,8 @@
       </div>
     </div>
 
-    <!-- 底部中央: 導航指示 + 道路名稱 (水平並排，貼底) -->
-    <div id="bottom-center-road">
+    <!-- 前車下方: 導航資訊列 (全寬，與左右側卡片齊平) -->
+    <div id="nav-row">
       <!-- 導航指示卡片 (來自 NavBridge) -->
       <div id="nav-instruction-card" class="card nav-card hidden">
         <div class="nav-content">
@@ -146,6 +146,11 @@
       <div id="road-name-card" class="card">
         <div id="road-name-text">--</div>
       </div>
+    </div>
+
+    <!-- 底部全寬導航動畫條 -->
+    <div id="bottom-navigation-bar">
+      <img id="nav-standby-gif" src="/static/assets/navstandby2.gif" alt="Navigation" />
     </div>
 
   </div>
