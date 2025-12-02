@@ -138,13 +138,17 @@ class FrogPilotVCruise:
         if self.vsc_cooldown > 0:
           self.vsc_cooldown -= 1
 
+        # === 當距離偏近時，取消冷卻 ===
+        if dist_ratio < 0.9 and self.vsc_cooldown > 0:
+          self.vsc_cooldown = 0
+
         # === 基於距離比例的風險判斷 ===
         if dist_ratio >= 1.0:
           # 距離已達理想，不需要 VSC
           self.vsc_target = v_cruise
           self.vsc_active = False
           # 設定冷卻時間，防止立即重新觸發
-          self.vsc_cooldown = 20  # 1 秒冷卻
+          self.vsc_cooldown = 10  # 0.5 秒冷卻
 
         elif self.vsc_cooldown > 0:
           # 冷卻中，不觸發 VSC
@@ -155,11 +159,11 @@ class FrogPilotVCruise:
           # 高風險: 距離 < 70% 且快速接近，或 TTC < 3.5，或前車急煞
           high_risk = (dist_ratio < 0.7 and vRel < -2.0) or ttc < 3.5 or delta_vLead < -5.0
 
-          # 中風險: 距離 < 85% 且正在接近，或 TTC < 5 且距離偏近
-          medium_risk = (dist_ratio < 0.85 and vRel < -1.5) or (ttc < 5 and dist_ratio < 0.9)
+          # 中風險: 距離 < 80% (太近了!)，或 距離 < 90% 且正在接近，或 TTC < 5 且距離偏近
+          medium_risk = dist_ratio < 0.8 or (dist_ratio < 0.9 and vRel < -1.0) or (ttc < 5 and dist_ratio < 0.9)
 
           # 低風險: 距離 < 95% 且持續接近 (需要累積一段時間)
-          low_risk = dist_ratio < 0.95 and vRel < -1.0 and self.approaching_frames >= 10
+          low_risk = dist_ratio < 0.95 and vRel < -0.5 and self.approaching_frames >= 10
 
           # === 動作 ===
           if high_risk:
