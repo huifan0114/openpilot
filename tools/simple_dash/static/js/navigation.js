@@ -193,21 +193,33 @@ async function fetchNavigation() {
 // ==================== UI 更新 ====================
 
 /**
+ * 檢查導航資料是否有效（有實際內容可顯示）
+ */
+function hasValidNavData(data) {
+  // 必須正在導航
+  if (!data.isNavigating) return false;
+
+  // 至少要有指示文字或道路名稱
+  const hasInstruction = data.instruction && data.instruction.trim() !== '';
+  const hasRoadName = data.roadName && data.roadName.trim() !== '';
+
+  return hasInstruction || hasRoadName;
+}
+
+/**
  * 更新導航顯示
  */
 function updateNavDisplay(data) {
   if (!elements.navCard) return;
 
-  // 檢查是否正在導航
-  if (!data.isNavigating) {
+  // 檢查是否有有效的導航資料
+  if (!hasValidNavData(data)) {
     hideNavigation();
     return;
   }
 
   // 顯示導航卡片
   elements.navCard.classList.remove('hidden');
-
-  // 道路名稱卡片保持顯示 (由 dashboard.js 控制)
 
   // 更新圖示
   const iconKey = `${data.maneuverType}_${data.maneuverModifier}`;
@@ -219,18 +231,26 @@ function updateNavDisplay(data) {
   // 根據轉向方向設定圖示顏色
   updateIconStyle(data.maneuverModifier);
 
-  // 更新距離
-  elements.navDistance.textContent = formatDistance(data.distanceToNext);
+  // 更新距離（只有有效值才顯示）
+  if (data.distanceToNext > 0) {
+    elements.navDistance.textContent = formatDistance(data.distanceToNext);
+  } else {
+    elements.navDistance.textContent = '';
+  }
 
-  // 更新指示文字
-  elements.navInstruction.textContent = data.instruction || '--';
+  // 更新指示文字（只有有效值才顯示）
+  if (data.instruction && data.instruction.trim()) {
+    elements.navInstruction.textContent = data.instruction;
+  } else {
+    elements.navInstruction.textContent = '';
+  }
 
   // 更新導航指示中的道路名稱
   if (elements.navRoadName) {
     elements.navRoadName.textContent = data.roadName || '';
   }
 
-  // 更新剩餘距離和時間
+  // 更新剩餘距離和時間（只有有效值才顯示）
   if (elements.navRemaining) {
     const parts = [];
     if (data.distanceRemaining > 0) {
@@ -242,21 +262,25 @@ function updateNavDisplay(data) {
     elements.navRemaining.textContent = parts.join(' · ');
   }
 
-  // 更新 ETA
-  if (elements.navEta && data.eta) {
-    elements.navEta.textContent = `抵達 ${data.eta}`;
-  } else if (elements.navEta) {
-    elements.navEta.textContent = '';
+  // 更新 ETA（只有有效值才顯示）
+  if (elements.navEta) {
+    if (data.eta && data.eta.trim()) {
+      elements.navEta.textContent = `抵達 ${data.eta}`;
+    } else {
+      elements.navEta.textContent = '';
+    }
   }
 
-  // 同時更新道路名稱卡片 (如果 NavBridge 有提供)
-  if (data.roadName && elements.roadNameCard && elements.roadNameText) {
+  // 同時更新道路名稱卡片
+  if (data.roadName && data.roadName.trim() && elements.roadNameCard && elements.roadNameText) {
     elements.roadNameCard.classList.remove('hidden');
     elements.roadNameText.textContent = data.roadName;
   }
 
-  // 根據距離更新緊急程度
-  updateUrgency(data.distanceToNext);
+  // 根據距離更新緊急程度（只有有效距離才更新）
+  if (data.distanceToNext > 0) {
+    updateUrgency(data.distanceToNext);
+  }
 }
 
 /**
