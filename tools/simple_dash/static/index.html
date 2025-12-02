@@ -123,24 +123,9 @@
 
     <!-- 前車下方: 導航資訊列 (全寬，與左右側卡片齊平) -->
     <div id="nav-row">
-      <!-- 導航指示卡片 (來自 NavBridge) -->
-      <div id="nav-instruction-card" class="card nav-card hidden">
-        <div class="nav-content">
-          <div id="nav-icon" class="nav-icon">→</div>
-          <div class="nav-info">
-            <div class="nav-main-row">
-              <span id="nav-distance" class="nav-distance">--</span>
-              <span id="nav-instruction" class="nav-instruction">--</span>
-            </div>
-            <!-- 導航中的道路名稱 -->
-            <div id="nav-road-name" class="nav-road-name"></div>
-            <!-- 行程資訊 (剩餘距離/時間/ETA) -->
-            <div class="nav-trip-row">
-              <span id="nav-remaining" class="nav-remaining"></span>
-              <span id="nav-eta" class="nav-eta"></span>
-            </div>
-          </div>
-        </div>
+      <!-- 導航佔位區域 (固定高度，供 NavDash App 原生 overlay 疊加) -->
+      <div id="nav-placeholder" class="card nav-placeholder">
+        <!-- 空白透明區域 -->
       </div>
       <!-- 道路名稱卡片 (固定顯示) -->
       <div id="road-name-card" class="card">
@@ -181,7 +166,7 @@
   <!-- 載入模組 -->
   <script src="/static/js/webrtc.js" type="module"></script>
   <script src="/static/js/dashboard.js" type="module"></script>
-  <script src="/static/js/navigation.js" type="module"></script>
+  <!-- navigation.js 已移除，導航由 NavDash App 原生 overlay 顯示 -->
   <script src="/static/js/main.js" type="module"></script>
 </body>
 </html>

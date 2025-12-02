@@ -894,16 +894,33 @@ body::after {
   z-index: 60;  /* 比前車卡片 (50) 高一點，但不要太高 */
 }
 
-/* 導航指示卡片（在導航列中） */
-#nav-row #nav-instruction-card {
+/* 導航佔位區域（固定高度，供 NavDash App 原生 overlay 疊加） */
+#nav-row #nav-placeholder {
   flex: 2;  /* 導航佔比較大 */
   min-width: 0;
+  height: 90px;  /* 固定高度，讓 Android 原生卡片可以精準對齊 */
+  background: transparent;  /* 透明背景 */
+  border: none;  /* 無邊框 */
+  box-shadow: none;  /* 無陰影 */
+}
+
+/* 導航佔位區 - 移除卡片樣式 */
+.nav-placeholder {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.nav-placeholder::before {
+  display: none !important;  /* 移除卡片的偽元素邊框 */
 }
 
 /* 道路名稱卡片（在導航列中） */
 #nav-row #road-name-card {
   flex: 1;
   min-width: 150px;
+  height: 90px;  /* 與導航佔位區同高 */
   display: flex;
   align-items: center;
   justify-content: center;
