@@ -160,8 +160,25 @@ export function stopNavigation() {
 
 /**
  * 從 NavBridge 取得導航資料
+ * 優先使用 NavDashBridge (Android App 注入)，其次才用 HTTP 輪詢
  */
 async function fetchNavigation() {
+  // 如果 NavDashBridge 已初始化，由它全權控制 UI
+  // navigation.js 不再干涉顯示/隱藏
+  if (window.NavDashBridge && window.NavDashBridge._initialized) {
+    // 檢查是否有導航資料
+    const data = window.NavDashBridge.navData;
+    if (data && data.isNavigating) {
+      isConnected = true;
+      lastNavData = data;
+      // 不呼叫 updateNavDisplay，因為 NavDashBridge._updateUI 已經處理了
+    }
+    // 不管有沒有資料，都不要呼叫 hideNavigation()
+    // 讓 NavDashBridge 自己控制 UI
+    return;
+  }
+
+  // 沒有 NavDashBridge，使用 HTTP 輪詢
   try {
     const url = `http://${navBridgeHost}:${NAVBRIDGE_PORT}/nav`;
     const response = await fetch(url, {
@@ -181,7 +198,7 @@ async function fetchNavigation() {
     lastNavData = data;
 
   } catch (error) {
-    // 連線失敗
+    // 真正的連線失敗
     if (isConnected) {
       console.warn('[Navigation] Connection lost:', error.message);
       isConnected = false;
