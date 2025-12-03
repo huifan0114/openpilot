@@ -242,28 +242,47 @@ body::after {
   }
 }
 
-/* ===== MAX 和 VCRUISE: 與速限卡片同高 ===== */
-#center-top-speeds {
+/* ===== 頂部一排: 6個卡片統一大小 ===== */
+#top-row {
   position: absolute;
-  top: var(--spacing-lg);  /* 32px，與左上角速限卡片對齊 */
-  left: 50%;
-  transform: translateX(-50%);  /* 只需要水平居中 */
+  top: var(--spacing-md);
+  left: var(--spacing-md);
+  right: var(--spacing-md);
   display: flex;
   flex-direction: row;
-  gap: var(--spacing-sm);  /* 12px 間距，5個卡片需要更緊湊 */
-  z-index: 55;  /* 高於前車卡片 (50)，在前車上方 */
-  pointer-events: none;  /* 允許點擊穿透 */
-  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  z-index: 100;
 }
 
-#center-top-speeds .card {
-  width: 150px;  /* 4 個卡片，增加寬度 */
+/* 頂部卡片統一樣式 */
+.top-card {
+  width: 100px;
+  padding: 8px 4px;
   text-align: center;
-  pointer-events: auto;  /* 卡片本身可點擊 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.top-card .label-small {
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+/* 頂部數值統一樣式 */
+.value-top {
+  font-size: 1.8rem;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--text-primary);
+  font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', monospace;
+  font-variant-numeric: tabular-nums;
 }
 
 /* 最低值卡片標示動畫 */
-#center-top-speeds .card.controlling {
+.top-card.controlling {
   border-color: var(--status-warning);
   box-shadow: 0 0 20px var(--status-warning-glow);
   animation: controlling-pulse 1.5s ease-in-out infinite;
@@ -278,191 +297,71 @@ body::after {
   }
 }
 
-#center-top-speeds .value-large {
-  font-size: 2rem;  /* 縮小字體配合卡片寬度 */
-}
-
-/* ===== 統一數值字體大小 (與 MAX/彎道/VSC/漸進 一致) ===== */
-/* 速限數值 */
-#speed-limit-value {
-  font-size: 2rem;
-}
-
-/* 即將到來數值 */
-#upcoming-value {
-  font-size: 2rem;
-}
-
-/* 控制加速數值 */
-#control-accel-value {
-  font-size: 2rem;
-}
-
-/* 前車資訊數值 (距離、期望、速度、時間) */
-#center-lead-info .info-value-medium {
-  font-size: 2rem;
-}
-
-/* ===== 左側控制區: 速限 + 即將到來 + 加減速度 (平均分配) ===== */
-#top-left-controls {
+/* ===== 中間一排: 即將到來 + 前車卡片 + EXPERIMENTAL ===== */
+#middle-row {
   position: absolute;
-  top: var(--spacing-lg);                                     /* 與 MAX 卡片頂部對齊 */
-  bottom: calc(65px + 78px + var(--spacing-md));              /* 與前車卡片底部對齊 */
-  left: var(--spacing-lg);
+  top: calc(var(--spacing-md) + 70px + var(--spacing-md));  /* 頂部卡片下方 */
+  bottom: calc(var(--spacing-md) + 80px + var(--spacing-md));  /* 底部道路名稱上方 */
+  left: var(--spacing-md);
+  right: var(--spacing-md);
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;  /* 平均分配高度 */
+  flex-direction: row;
+  align-items: stretch;  /* 垂直對齊拉伸 */
   gap: var(--spacing-sm);
-  z-index: 100;
+  z-index: 50;
 }
 
-#speed-limit-card {
-  width: 150px;  /* 與 MAX 卡片寬度一致 */
-  flex: 1;
-  padding: var(--spacing-md);
+/* 側邊卡片 (即將到來、EXPERIMENTAL) */
+.side-card {
+  width: 100px;
+  flex-shrink: 0;
+  padding: 12px 8px;
   text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-}
-
-/* 即將到來的速限 */
-#upcoming-limit-card {
-  width: 150px;  /* 與 MAX 卡片寬度一致 */
-  flex: 1;
-  text-align: center;
-  border-color: var(--status-info);
-  padding: var(--spacing-md);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-/* 加減速度卡片移到左側控制區 */
-#acceleration-card-left {
-  width: 150px;  /* 與 MAX 卡片寬度一致 */
-  flex: 1;
-  text-align: center;
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  padding: var(--spacing-md);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-#upcoming-value {
-  font-size: 2rem;    /* 與 MAX/彎道/VSC/漸進 一致 */
-  margin: var(--spacing-xs) 0;
-}
-
-/* 即將到來的距離 - 加大字體並改為白色 */
-#upcoming-distance {
-  font-size: 24px !important;           /* 從 16px 加大到 24px */
-  font-weight: 600;
-  color: var(--text-primary) !important; /* 白色，覆蓋 label-tiny 的灰色 */
-}
-
-/* ===== 右上角控制區: 控制加速 + EXPERIMENTAL ===== */
-#top-right-controls {
-  position: absolute;
-  top: var(--spacing-lg);                                     /* 與左側卡片頂部對齊 */
-  bottom: 35%;                                                /* 與前車卡片底部對齊 */
-  right: var(--spacing-lg);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
-  z-index: 100;
-}
-
-/* 右上角的控制加速卡片 */
-#top-right-controls #control-accel-card {
-  width: 150px;  /* 與 MAX 卡片寬度一致 */
-  flex: 1;
-  text-align: center;
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  padding: var(--spacing-md);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-/* 右上角的 EXPERIMENTAL 圖示卡片 */
-#top-right-controls .experimental-icon-card {
-  width: 150px;  /* 與 MAX 卡片寬度一致 */
-  height: auto;
-  min-height: 150px;
-  flex: 1;
-}
-
-/* ===== 右上角: 加減速度 + CEM 狀態 (舊版，保留相容) ===== */
-#top-right-area {
-  position: absolute;
-  top: var(--spacing-lg);
-  right: var(--spacing-lg);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  z-index: 100;
-}
-
-/* 右上角的加減速度卡片 */
-#top-right-area #acceleration-card {
-  width: 180px;  /* 與 EXPERIMENTAL 寬度一致 */
-  text-align: center;
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  padding: var(--spacing-md);
-}
-
-#cem-card {
-  min-width: 100px;
-  padding: var(--spacing-sm) var(--spacing-md);
-}
-
-#cem-status-row {
-  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
 }
 
-.cem-icon {
-  font-size: 32px;
-  line-height: 1;
+.side-card .label-small {
+  font-size: 12px;
+  margin-bottom: 4px;
 }
 
-.cem-text {
-  font-size: 20px;
+/* 側邊數值樣式 */
+.value-side {
+  font-size: 1.6rem;
   font-weight: 600;
+  line-height: 1.1;
   color: var(--text-primary);
+  font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', monospace;
+  font-variant-numeric: tabular-nums;
 }
 
-/* ===== 右下角: EXPERIMENTAL MODE ===== */
-#bottom-right-experimental {
-  position: absolute;
-  bottom: 65px;  /* 50px (GIF) + 15px (間距) */
-  right: var(--spacing-lg);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  z-index: 100;
+/* 即將到來的距離 */
+#upcoming-distance {
+  font-size: 16px !important;
+  font-weight: 600;
+  color: var(--text-primary) !important;
+  margin-top: 4px;
 }
 
-/* EXPERIMENTAL MODE 圖示卡片 */
+/* 即將到來卡片藍色邊框 */
+#upcoming-limit-card {
+  border-color: var(--status-info);
+}
+
+/* EXPERIMENTAL 圖示卡片 */
 .experimental-icon-card {
-  width: 150px;           /* 與 MAX 卡片寬度一致 */
-  height: 150px;          /* 保持正方形 */
-  padding: var(--spacing-md);
+  padding: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(25, 25, 25, 0.9) 100%);
-  border: 2px solid rgba(255, 255, 255, 0.15);
 }
 
 #experimental-icon {
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   object-fit: contain;
   transition: all var(--transition-normal);
 }
@@ -478,45 +377,13 @@ body::after {
   filter: drop-shadow(0 0 8px rgba(255, 170, 0, 0.6));
 }
 
-/* 指南針文字卡片 */
-#compass-card {
-  width: 120px;
-  text-align: center;
-  padding: var(--spacing-md);
-}
-
-.compass-text {
-  font-size: 48px;
-  font-weight: 700;
-  color: var(--text-primary);
-  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-  margin: var(--spacing-xs) 0;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-}
-
-/* ===== 中央: 前車資訊卡片 (主角) ===== */
+/* ===== 中央: 前車資訊卡片區域 (在 middle-row 內) ===== */
 #center-lead-info {
-  position: absolute;
-
-  /* 上邊：MAX/VCRUISE 卡片下緣 + 間距 */
-  top: calc(var(--spacing-lg) + 130px + var(--spacing-md));  /* 32px + 130px + 20px = 182px */
-
-  /* 下邊：大約在畫面中間偏下，給 nav-row 留空間 */
-  bottom: 35%;
-
-  /* 左邊：UPCOMING 卡片右緣 + 間距 */
-  left: calc(var(--spacing-lg) + 220px + var(--spacing-md));  /* 32px + 220px + 20px = 272px */
-
-  /* 右邊：控制加速卡片寬度 + 左右邊距 + 間距 */
-  right: calc(var(--spacing-lg) + 180px + var(--spacing-md));  /* 32px + 180px + 20px = 232px */
-
-  z-index: 50;
-  pointer-events: none;
-
-  /* 使用 flexbox 確保盲點和前車卡片高度一致 */
+  flex: 1;  /* 填滿中間剩餘空間 */
+  min-width: 0;
   display: flex;
   align-items: stretch;
-  gap: 25px;
+  gap: 12px;
 }
 
 .lead-info-card {
@@ -901,47 +768,42 @@ body::after {
   color: var(--text-dim);
 }
 
-/* ===== 導航列: 緊貼前車卡片下方、畫面底部 ===== */
-#nav-row {
+/* ===== 底部區域: 導航佔位 + 道路名稱 (道路名稱置中) ===== */
+#bottom-row {
   position: absolute;
-  /* 貼齊畫面底部 */
-  bottom: var(--spacing-lg);
-  left: var(--spacing-lg);
-  right: var(--spacing-lg);
+  bottom: var(--spacing-md);
+  left: var(--spacing-md);
+  right: var(--spacing-md);
+  height: 70px;
   display: flex;
   flex-direction: row;
-  gap: var(--spacing-md);
-  align-items: stretch;
-  z-index: 60;  /* 比前車卡片 (50) 高一點，但不要太高 */
+  align-items: center;
+  justify-content: center;  /* 整體置中 */
+  z-index: 60;
 }
 
-/* 導航佔位區域（固定高度，供 NavDash App 原生 overlay 疊加） */
-#nav-row #nav-placeholder {
-  flex: 2;  /* 導航佔比較大 */
-  min-width: 0;
-  height: 90px;  /* 固定高度，讓 Android 原生卡片可以精準對齊 */
-  background: transparent;  /* 透明背景 */
-  border: none;  /* 無邊框 */
-  box-shadow: none;  /* 無陰影 */
-}
-
-/* 導航佔位區 - 移除卡片樣式 */
+/* 導航佔位區域（透明，供 NavDash App overlay） */
 .nav-placeholder {
+  flex: 1;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   padding: 0 !important;
+  pointer-events: none;
 }
 
 .nav-placeholder::before {
-  display: none !important;  /* 移除卡片的偽元素邊框 */
+  display: none !important;
 }
 
-/* 道路名稱卡片（在導航列中） */
-#nav-row #road-name-card {
-  flex: 1;
-  min-width: 150px;
-  height: 90px;  /* 與導航佔位區同高 */
+/* 道路名稱卡片 (置中) */
+#bottom-row #road-name-card {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 120px;
+  max-width: 300px;
+  padding: 12px 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -978,780 +840,297 @@ body::after {
 /* 平板 (768px - 1200px) */
 @media (max-width: 1200px) {
   :root {
-    --spacing-lg: 20px;
-    --spacing-md: 14px;
+    --spacing-md: 12px;
+    --spacing-sm: 8px;
   }
 
-  /* 中央前車卡片 (flex 佈局，不再預留盲點空間) */
-  #center-lead-info {
-    top: calc(var(--spacing-lg) + 100px + var(--spacing-sm));  /* 20px + 100px + 12px */
-    bottom: calc(60px + 65px + var(--spacing-sm));             /* 60px (bottom) + 65px (高度) + 12px = 137px */
-    left: calc(var(--spacing-lg) + 140px + var(--spacing-sm)); /* 20px + 140px + 12px = 172px */
-    right: calc(var(--spacing-lg) + 130px + var(--spacing-sm));/* 20px + 130px + 12px = 162px */
-    gap: 20px;  /* 盲點與卡片的間距 */
+  /* 頂部一排 */
+  #top-row {
+    gap: 6px;
   }
 
-  .lead-info-card {
-    padding: 20px;
+  .top-card {
+    width: 85px;
+    padding: 6px 3px;
   }
 
-  /* 緊湊化文字 */
-  .info-label {
-    font-size: 18px;
-    margin-bottom: 3px;
+  .top-card .label-small {
+    font-size: 10px;
   }
 
-  .info-value-large {
-    font-size: 44px;
-    margin: 2px 0;
+  .value-top {
+    font-size: 1.5rem;
   }
 
-  .info-value-medium {
-    font-size: 36px;
-    margin: 2px 0;
+  /* 中間一排 */
+  #middle-row {
+    top: calc(var(--spacing-md) + 60px + var(--spacing-sm));
+    bottom: calc(var(--spacing-md) + 70px + var(--spacing-sm));
+    gap: 8px;
   }
 
-  .info-sublabel {
-    font-size: 20px;
-    margin-top: 3px;
+  .side-card {
+    width: 85px;
+    padding: 10px 6px;
   }
 
-  #has-lead-state {
-    gap: 12px;
+  .side-card .label-small {
+    font-size: 10px;
   }
 
-  .divider {
-    margin: 10px 0;
-  }
-
-  .info-row {
-    gap: 20px;
-  }
-
-  /* 盲點指示器 (flex 自動對齊，不需要固定高度) */
-  .blindspot-indicator {
-    width: 60px;
-    /* height 由 flex stretch 自動決定 */
-  }
-
-  /* 間距在父容器 gap 中設定，不需要 left/right */
-
-  .blindspot-icon {
-    font-size: 48px;
-  }
-
-  .blindspot-label {
-    font-size: 16px;
-  }
-
-  #no-lead-state {
-    min-height: 25vh;  /* 平板：螢幕高度的 25% */
-  }
-
-  .no-lead-icon {
-    font-size: 60px;
-  }
-
-  .no-lead-text {
-    font-size: 28px;
-  }
-
-  .info-value-large {
-    font-size: 48px;
-  }
-
-  .info-label {
-    font-size: 24px;
-  }
-
-  .value-large {
-    font-size: 70px;
-  }
-
-  .value-medium {
-    font-size: 40px;
-  }
-
-  /* 中央速度 */
-  #center-top-speeds {
-    top: var(--spacing-lg);  /* 20px，與速限卡片對齊 */
-    gap: 8px;  /* 縮小間距 */
-  }
-
-  #center-top-speeds .card {
-    width: 120px;  /* 4個卡片 */
-    padding: 12px;
-  }
-
-  #center-top-speeds .value-large {
-    font-size: 1.6rem;
-  }
-
-  /* 左上角 */
-  #speed-limit-card,
-  #upcoming-limit-card {
-    width: 140px;
-  }
-
-  /* 右上角 */
-  .experimental-icon-card {
-    width: 130px;         /* 與加減速度卡片一致 */
-    height: 130px;
+  .value-side {
+    font-size: 1.4rem;
   }
 
   #experimental-icon {
-    width: 85px;          /* 按比例放大 */
-    height: 85px;
+    width: 50px;
+    height: 50px;
   }
 
-  #compass-card {
-    width: 100px;
+  /* 前車卡片 */
+  .lead-info-card {
+    padding: 16px;
   }
 
-  .compass-text {
-    font-size: 38px;
-  }
-
-  /* 頂部中央連接狀態 */
-  .connection-badge {
-    padding: 10px 20px;
-  }
-
-  #status-text {
+  .info-label {
     font-size: 16px;
   }
 
-  /* 底部元素位置調整 */
-  #bottom-center-road,
-  #bottom-left-info,
-  #bottom-left-acceleration,
-  #bottom-right-experimental {
-    bottom: var(--spacing-md);  /* 貼底邊界 */
+  .info-value-medium {
+    font-size: 1.5rem;
   }
 
-  /* 左下角 */
-  #current-speed-card {
-    width: 120px;
+  .blindspot-indicator {
+    width: 50px;
   }
 
-  /* 左側控制加速 */
-  #control-accel-card {
-    width: 140px;
+  .blindspot-icon {
+    font-size: 40px;
   }
 
-  /* 右上角加減速度 - 與 EXPERIMENTAL 一致 */
-  #top-right-area #acceleration-card {
-    width: 130px;
+  .blindspot-label {
+    font-size: 14px;
   }
 
-  /* 即將到來的距離 - Tablet */
-  #upcoming-distance {
-    font-size: 20px !important;
+  /* 底部 */
+  #bottom-row {
+    height: 60px;
   }
 
-  /* 右上角區域 - Tablet */
-  #top-right-area {
-    top: 15px;
-    right: 15px;
+  #bottom-row #road-name-card {
+    padding: 10px 20px;
   }
 
-  /* 右上角控制區 - Tablet */
-  #top-right-controls {
-    bottom: 32%;
-  }
-
-  #top-right-controls #control-accel-card,
-  #top-right-controls .experimental-icon-card {
-    width: 130px;
-  }
-
-  /* 導航列 - Tablet */
-  #nav-row {
-    bottom: var(--spacing-lg);
-  }
-
-  .cem-icon {
-    font-size: 28px;
-  }
-
-  .cem-text {
-    font-size: 18px;
+  #road-name-text {
+    font-size: 20px;
   }
 }
 
 /* 手機 (< 768px) */
 @media (max-width: 768px) {
   :root {
-    --spacing-lg: 8px;
-    --spacing-md: 6px;
-    --spacing-sm: 4px;
+    --spacing-md: 8px;
+    --spacing-sm: 6px;
     --card-radius: 12px;
-    --card-padding: 12px;
   }
 
-  /* 中央前車卡片 (flex 佈局，不再預留盲點空間) */
-  #center-lead-info {
-    top: calc(var(--spacing-lg) + 80px + var(--spacing-sm));   /* 8px + 80px + 4px */
-    bottom: calc(58px + 54px + var(--spacing-sm));             /* 58px (bottom) + 54px (高度) + 4px = 116px */
-    left: calc(var(--spacing-lg) + 90px + var(--spacing-sm));  /* 8px + 90px + 4px = 102px */
-    right: calc(var(--spacing-lg) + 90px + var(--spacing-sm)); /* 8px + 90px + 4px = 102px */
-    gap: 15px;  /* 盲點與卡片的間距 */
+  /* 頂部一排 */
+  #top-row {
+    gap: 4px;
   }
 
+  .top-card {
+    width: 55px;
+    padding: 5px 2px;
+  }
+
+  .top-card .label-small {
+    font-size: 8px;
+  }
+
+  .value-top {
+    font-size: 1.1rem;
+  }
+
+  /* 中間一排 */
+  #middle-row {
+    top: calc(var(--spacing-md) + 50px + var(--spacing-sm));
+    bottom: calc(var(--spacing-md) + 55px + var(--spacing-sm));
+    gap: 6px;
+  }
+
+  .side-card {
+    width: 70px;
+    padding: 8px 4px;
+  }
+
+  .side-card .label-small {
+    font-size: 8px;
+  }
+
+  .value-side {
+    font-size: 1.2rem;
+  }
+
+  #upcoming-distance {
+    font-size: 12px !important;
+  }
+
+  #experimental-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* 前車卡片 */
   .lead-info-card {
-    padding: 10px;
+    padding: 12px;
   }
 
-  /* 緊湊化文字 */
   .info-label {
     font-size: 14px;
-    margin-bottom: 2px;
-  }
-
-  .info-value-large {
-    font-size: 28px;
-    margin: 2px 0;
   }
 
   .info-value-medium {
-    font-size: 24px;
-    margin: 2px 0;
-  }
-
-  .info-sublabel {
-    font-size: 16px;
-    margin-top: 2px;
-  }
-
-  #has-lead-state {
-    gap: 8px;
-  }
-
-  .divider {
-    margin: 6px 0;
-  }
-
-  .info-row {
-    gap: 16px;
-  }
-
-  /* 盲點指示器 (flex 自動對齊) */
-  .blindspot-indicator {
-    width: 50px;
-    /* height 由 flex stretch 自動決定 */
-  }
-
-  /* 間距在父容器 gap 中設定 */
-
-  .blindspot-icon {
-    font-size: 36px;
-  }
-
-  .blindspot-label {
-    font-size: 14px;
-  }
-
-  #no-lead-state {
-    min-height: 22vh;  /* 手機：螢幕高度的 22% */
+    font-size: 1.2rem;
   }
 
   .no-lead-icon {
     font-size: 48px;
-    margin-bottom: 6px;
   }
 
   .no-lead-text {
-    font-size: 22px;
+    font-size: 20px;
   }
 
-  .info-value-large {
-    font-size: 30px;
+  .blindspot-indicator {
+    width: 40px;
   }
 
-  .info-label {
-    font-size: 16px;
+  .blindspot-icon {
+    font-size: 32px;
   }
 
-  .info-sublabel {
-    font-size: 18px;
-  }
-
-  .divider {
-    margin: 8px 0;
-  }
-
-  .value-large {
-    font-size: 48px;
-  }
-
-  .value-medium {
-    font-size: 28px;
-  }
-
-  .label-small {
+  .blindspot-label {
     font-size: 12px;
   }
 
-  .label-tiny {
-    font-size: 10px;
+  /* 底部 */
+  #bottom-row {
+    height: 50px;
   }
 
-  /* 中央速度 */
-  #center-top-speeds {
-    top: var(--spacing-lg);  /* 8px，與速限卡片對齊 */
-    gap: 6px;  /* 縮小間距 */
-  }
-
-  #center-top-speeds .card {
-    width: 80px;  /* 4個卡片 */
-    padding: 8px;
-  }
-
-  #center-top-speeds .value-large {
-    font-size: 1.2rem;
-  }
-
-  #center-top-speeds .label-small {
-    font-size: 0.6rem;
-  }
-
-  /* 左上角 */
-  #speed-limit-card {
-    width: 90px;
-    padding: 6px;
-  }
-
-  #upcoming-limit-card {
-    width: 90px;
-    padding: 6px;
-  }
-
-  #upcoming-value {
-    font-size: 28px;
-  }
-
-  /* 右下角（EXPERIMENTAL） */
-  #bottom-right-experimental {
-    gap: 6px;
-  }
-
-  .experimental-icon-card {
-    width: 90px;
-    height: 90px;
-    padding: 6px;
-  }
-
-  #experimental-icon {
-    width: 70px;          /* 按比例放大 */
-    height: 70px;
-  }
-
-  #compass-card {
-    width: 70px;
-    padding: 8px;
-  }
-
-  .compass-text {
-    font-size: 28px;
-  }
-
-  /* 頂部中央連接狀態 */
-  .connection-badge {
+  #bottom-row #road-name-card {
     padding: 8px 16px;
   }
 
-  #status-text {
-    font-size: 14px;
-  }
-
-  /* 底部元素位置調整 */
-  #bottom-center-road,
-  #bottom-left-info,
-  #bottom-left-acceleration,
-  #bottom-right-experimental {
-    bottom: var(--spacing-md);  /* 貼底邊界 */
-  }
-
-  /* 左下角 */
-  #current-speed-card {
-    width: 85px;
-    padding: 8px;
-  }
-
-  #current-speed-value {
-    font-size: 36px;
-  }
-
-  /* 左側控制加速 */
-  #control-accel-card {
-    width: 90px;
-    padding: 6px;
-  }
-
-  #control-accel-value {
-    font-size: 28px;
-  }
-
-  /* 右上角加減速度 - 與 EXPERIMENTAL 一致 */
-  #top-right-area #acceleration-card {
-    width: 90px;
-    padding: 6px;
-  }
-
-  #acceleration-value {
-    font-size: 28px;
-  }
-
-  /* 底部中央（保留，縮小） */
-  #bottom-center-road {
-    gap: 6px;
-  }
-
-  #road-name-card {
-    padding: 6px 16px;
-  }
-
   #road-name-text {
-    font-size: 18px;
-  }
-
-  /* 即將到來的距離 - Mobile */
-  #upcoming-distance {
-    font-size: 16px !important;
-  }
-
-  /* 右上角區域 - Mobile */
-  #top-right-area {
-    top: 12px;
-    right: 12px;
-  }
-
-  /* 右上角控制區 - Mobile */
-  #top-right-controls {
-    bottom: 30%;
-  }
-
-  #top-right-controls #control-accel-card,
-  #top-right-controls .experimental-icon-card {
-    width: 90px;
-    min-height: 80px;
-  }
-
-  /* 導航列 - Mobile */
-  #nav-row {
-    bottom: var(--spacing-lg);
-    gap: var(--spacing-sm);
-  }
-
-  #nav-row #nav-instruction-card,
-  #nav-row #road-name-card {
-    padding: var(--spacing-sm) var(--spacing-md);
-  }
-
-  .cem-icon {
-    font-size: 24px;
-  }
-
-  .cem-text {
     font-size: 16px;
   }
-
 }
 
 /* 極小螢幕 (< 480px) */
 @media (max-width: 480px) {
   :root {
-    --spacing-lg: 6px;
-    --spacing-md: 4px;
-    --spacing-sm: 3px;
+    --spacing-md: 6px;
+    --spacing-sm: 4px;
     --card-radius: 10px;
-    --card-padding: 8px;
   }
 
-  /* 中央前車卡片 (flex 佈局，不再預留盲點空間) */
-  #center-lead-info {
-    top: calc(var(--spacing-lg) + 70px + var(--spacing-sm));   /* 6px + 70px + 3px */
-    bottom: calc(58px + 44px + var(--spacing-sm));             /* 58px (bottom) + 44px (高度) + 3px = 105px */
-    left: calc(var(--spacing-lg) + 70px + var(--spacing-sm));  /* 6px + 70px + 3px = 79px */
-    right: calc(var(--spacing-lg) + 75px + var(--spacing-sm)); /* 6px + 75px + 3px = 84px */
-    gap: 10px;  /* 盲點與卡片的間距 */
+  /* 頂部一排 */
+  #top-row {
+    gap: 3px;
   }
 
+  .top-card {
+    width: 48px;
+    padding: 4px 2px;
+  }
+
+  .top-card .label-small {
+    font-size: 7px;
+  }
+
+  .value-top {
+    font-size: 0.95rem;
+  }
+
+  /* 中間一排 */
+  #middle-row {
+    top: calc(var(--spacing-md) + 42px + var(--spacing-sm));
+    bottom: calc(var(--spacing-md) + 48px + var(--spacing-sm));
+    gap: 4px;
+  }
+
+  .side-card {
+    width: 60px;
+    padding: 6px 3px;
+  }
+
+  .side-card .label-small {
+    font-size: 7px;
+  }
+
+  .value-side {
+    font-size: 1rem;
+  }
+
+  #upcoming-distance {
+    font-size: 10px !important;
+  }
+
+  #experimental-icon {
+    width: 35px;
+    height: 35px;
+  }
+
+  /* 前車卡片 */
   .lead-info-card {
     padding: 8px;
   }
 
-  /* 緊湊化文字 */
   .info-label {
-    font-size: 11px;
-    margin-bottom: 2px;
-  }
-
-  .info-value-large {
-    font-size: 22px;
-    margin: 1px 0;
-  }
-
-  .info-value-medium {
-    font-size: 18px;
-    margin: 1px 0;
-  }
-
-  .info-sublabel {
-    font-size: 13px;
-    margin-top: 2px;
-  }
-
-  #has-lead-state {
-    gap: 6px;
-  }
-
-  .divider {
-    margin: 4px 0;
-  }
-
-  .info-row {
-    gap: 12px;
-  }
-
-  /* 盲點指示器 (flex 自動對齊) */
-  .blindspot-indicator {
-    width: 40px;
-    /* height 由 flex stretch 自動決定 */
-  }
-
-  /* 間距在父容器 gap 中設定 */
-
-  .blindspot-icon {
-    font-size: 28px;
-  }
-
-  .blindspot-label {
     font-size: 12px;
   }
 
-  #no-lead-state {
-    min-height: 20vh;  /* 極小螢幕：螢幕高度的 20% */
+  .info-value-medium {
+    font-size: 1rem;
   }
 
   .no-lead-icon {
     font-size: 36px;
-    margin-bottom: 4px;
   }
 
   .no-lead-text {
-    font-size: 18px;
+    font-size: 16px;
   }
 
-  .info-value-large {
+  .blindspot-indicator {
+    width: 35px;
+  }
+
+  .blindspot-icon {
     font-size: 24px;
   }
 
-  .info-label {
-    font-size: 13px;
-  }
-
-  .info-sublabel {
-    font-size: 15px;
-  }
-
-  .info-row {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .divider {
-    margin: 6px 0;
-  }
-
-  .label-small {
+  .blindspot-label {
     font-size: 10px;
   }
 
-  .label-tiny {
-    font-size: 8px;
+  /* 底部 */
+  #bottom-row {
+    height: 44px;
   }
 
-  /* 中央速度 */
-  #center-top-speeds {
-    top: var(--spacing-lg);  /* 6px，與速限卡片對齊 */
-    gap: 4px;  /* 縮小間距 */
-  }
-
-  #center-top-speeds .card {
-    width: 65px;  /* 4個卡片 */
-    padding: 6px;
-  }
-
-  #center-top-speeds .value-large {
-    font-size: 1rem;
-  }
-
-  #center-top-speeds .label-small {
-    font-size: 0.5rem;
-  }
-
-  #center-top-speeds .label-tiny {
-    font-size: 0.4rem;
-  }
-
-  /* 左上角 */
-  #top-left-controls {
-    gap: 4px;
-  }
-
-  #speed-limit-card {
-    width: 70px;
-    padding: 5px;
-  }
-
-  #upcoming-limit-card {
-    width: 70px;
-    padding: 5px;
-  }
-
-  #upcoming-value {
-    font-size: 22px;
-  }
-
-  /* 右下角（EXPERIMENTAL） */
-  #bottom-right-experimental {
-    gap: 4px;
-  }
-
-  .experimental-icon-card {
-    width: 75px;
-    height: 75px;
-    padding: 4px;
-  }
-
-  #experimental-icon {
-    width: 60px;          /* 按比例放大 */
-    height: 60px;
-  }
-
-  #compass-card {
-    width: 55px;
-    padding: 4px;
-  }
-
-  .compass-text {
-    font-size: 22px;
-  }
-
-  /* 頂部中央連接狀態 */
-  .connection-badge {
+  #bottom-row #road-name-card {
     padding: 6px 12px;
-  }
-
-  #status-text {
-    font-size: 12px;
-  }
-
-  /* 底部元素位置調整 */
-  #bottom-center-road,
-  #bottom-left-info,
-  #bottom-left-acceleration,
-  #bottom-right-experimental {
-    bottom: var(--spacing-md);  /* 貼底邊界 */
-  }
-
-  /* 左下角 */
-  #current-speed-card {
-    width: 70px;
-    padding: 6px;
-  }
-
-  #current-speed-value {
-    font-size: 28px;
-  }
-
-  /* 左側控制加速 */
-  #control-accel-card {
-    width: 70px;
-    padding: 5px;
-  }
-
-  #control-accel-value {
-    font-size: 22px;
-  }
-
-  /* 右上角加減速度 - 與 EXPERIMENTAL 一致 */
-  #top-right-area #acceleration-card {
-    width: 75px;
-    padding: 4px;
-  }
-
-  #acceleration-value {
-    font-size: 22px;
-  }
-
-  /* 底部中央（保留，超小） */
-  #bottom-center-road {
-    gap: 4px;
-  }
-
-  #road-name-card {
-    padding: 4px 12px;
   }
 
   #road-name-text {
     font-size: 14px;
-    max-width: 200px;
+    max-width: 180px;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
   }
-
-  /* 即將到來的距離 - Small */
-  #upcoming-distance {
-    font-size: 14px !important;
-  }
-
-  /* 右上角區域 - Small */
-  #top-right-area {
-    top: 10px;
-    right: 10px;
-  }
-
-  /* 右上角控制區 - Small */
-  #top-right-controls {
-    bottom: 28%;
-  }
-
-  #top-right-controls #control-accel-card,
-  #top-right-controls .experimental-icon-card {
-    width: 75px;
-    min-height: 70px;
-  }
-
-  /* 導航列 - Small */
-  #nav-row {
-    bottom: var(--spacing-lg);
-    gap: var(--spacing-xs);
-    flex-wrap: wrap;
-  }
-
-  #nav-row #nav-instruction-card,
-  #nav-row #road-name-card {
-    padding: var(--spacing-xs) var(--spacing-sm);
-    flex: 1 1 auto;
-    min-width: 100px;
-  }
-
-  #cem-card {
-    min-width: 80px;
-    padding: 6px 10px;
-  }
-
-  .cem-icon {
-    font-size: 20px;
-  }
-
-  .cem-text {
-    font-size: 14px;
-  }
-
 }
 
 /* ===== 飛機儀表板啟動效果 ===== */
@@ -1759,7 +1138,10 @@ body::after {
 /* 啟動模式：所有數值元素全亮（顯示 8） */
 body.startup-mode .value-large,
 body.startup-mode .value-medium,
-body.startup-mode .info-value-large {
+body.startup-mode .value-top,
+body.startup-mode .value-side,
+body.startup-mode .info-value-large,
+body.startup-mode .info-value-medium {
   color: var(--status-warning) !important;
   text-shadow: 0 0 20px var(--status-warning-glow) !important;
 }

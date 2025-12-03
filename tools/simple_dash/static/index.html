@@ -22,112 +22,106 @@
       </div>
     </div>
 
-    <!-- 中央上方: MAX + 彎道 + VSC + 漸進 (並排，最低值會有動畫標示) -->
-    <div id="center-top-speeds">
-      <div id="max-speed-card" class="card">
+    <!-- 頂部一排: 速限 + MAX + 彎道 + VSC + 漸進 + 控制加速 (6個統一大小) -->
+    <div id="top-row">
+      <div id="speed-limit-card" class="card top-card">
+        <div class="label-small">速限</div>
+        <div id="speed-limit-value" class="value-top">--</div>
+      </div>
+
+      <div id="max-speed-card" class="card top-card">
         <div class="label-small">MAX</div>
-        <div id="max-speed-value" class="value-large">--</div>
+        <div id="max-speed-value" class="value-top">--</div>
       </div>
 
-      <div id="csc-card" class="card">
+      <div id="csc-card" class="card top-card">
         <div class="label-small">彎道</div>
-        <div id="csc-speed" class="value-large">--</div>
+        <div id="csc-speed" class="value-top">--</div>
       </div>
 
-      <div id="vsc-card" class="card">
+      <div id="vsc-card" class="card top-card">
         <div class="label-small">VSC</div>
-        <div id="vsc-speed" class="value-large">--</div>
+        <div id="vsc-speed" class="value-top">--</div>
       </div>
 
-      <div id="progressive-card" class="card">
+      <div id="progressive-card" class="card top-card">
         <div class="label-small">漸進</div>
-        <div id="progressive-speed" class="value-large">--</div>
+        <div id="progressive-speed" class="value-top">--</div>
+      </div>
+
+      <div id="control-accel-card" class="card top-card">
+        <div class="label-small">控制加速</div>
+        <div id="control-accel-value" class="value-top neutral">--</div>
       </div>
     </div>
 
-    <!-- 左側控制區: 速限 + 即將到來 (平均分配) -->
-    <div id="top-left-controls">
-      <div id="speed-limit-card" class="card">
-        <div class="label-small">速限</div>
-        <div id="speed-limit-value" class="value-medium">--</div>
-      </div>
-
-      <!-- 即將到來的速限 -->
-      <div id="upcoming-limit-card" class="card">
+    <!-- 中間一排: 即將到來 + 前車卡片 + EXPERIMENTAL (垂直對齊) -->
+    <div id="middle-row">
+      <!-- 左側: 即將到來的速限 -->
+      <div id="upcoming-limit-card" class="card side-card">
         <div class="label-small">即將到來</div>
-        <div id="upcoming-value" class="value-medium">--</div>
+        <div id="upcoming-value" class="value-side">--</div>
         <div id="upcoming-distance" class="label-tiny">--</div>
       </div>
-    </div>
 
-    <!-- 右側控制區: 控制加速 + EXPERIMENTAL MODE (與前車卡片底部齊平) -->
-    <div id="top-right-controls">
-      <!-- 控制加速 (actuatorsOutput.accel) -->
-      <div id="control-accel-card" class="card">
-        <div class="label-small">控制加速</div>
-        <div id="control-accel-value" class="value-medium neutral">--</div>
+      <!-- 中央: 前車資訊卡片 (含盲點警示) -->
+      <div id="center-lead-info">
+        <!-- 左側盲點警示 -->
+        <div id="left-blindspot" class="blindspot-indicator hidden">
+          <div class="blindspot-icon">⚠️</div>
+          <div class="blindspot-label">左側</div>
+        </div>
+
+        <div id="lead-card" class="card lead-info-card">
+          <!-- 無前車狀態 -->
+          <div id="no-lead-state">
+            <div class="no-lead-icon">🚗</div>
+            <div class="no-lead-text">無前車</div>
+          </div>
+
+          <!-- 有前車狀態 -->
+          <div id="has-lead-state" class="hidden">
+            <div class="info-row-flex">
+              <div class="info-col">
+                <div class="info-label">距離</div>
+                <div id="lead-distance" class="info-value-medium">--</div>
+              </div>
+              <div class="info-col">
+                <div class="info-label">期望</div>
+                <div id="desired-distance" class="info-value-medium">--</div>
+              </div>
+              <div class="info-col">
+                <div class="info-label">速度</div>
+                <div id="lead-speed" class="info-value-medium">--</div>
+              </div>
+              <div class="info-col">
+                <div class="info-label">時間</div>
+                <div id="follow-time" class="info-value-medium">--</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右側盲點警示 -->
+        <div id="right-blindspot" class="blindspot-indicator hidden">
+          <div class="blindspot-icon">⚠️</div>
+          <div class="blindspot-label">右側</div>
+        </div>
       </div>
 
-      <!-- EXPERIMENTAL MODE 圖示 -->
-      <div id="experimental-card" class="card experimental-icon-card">
+      <!-- 右側: EXPERIMENTAL MODE 圖示 -->
+      <div id="experimental-card" class="card side-card experimental-icon-card">
         <img id="experimental-icon" src="/static/assets/img_experimental_white.svg" alt="Experimental Mode" />
       </div>
     </div>
 
-    <!-- 中央: 前車資訊卡片 (主要顯示) -->
-    <div id="center-lead-info">
-      <!-- 左側盲點警示 -->
-      <div id="left-blindspot" class="blindspot-indicator hidden">
-        <div class="blindspot-icon">⚠️</div>
-        <div class="blindspot-label">左側</div>
-      </div>
-
-      <div id="lead-card" class="card lead-info-card">
-
-        <!-- 無前車狀態 -->
-        <div id="no-lead-state">
-          <div class="no-lead-icon">🚗</div>
-          <div class="no-lead-text">無前車</div>
-        </div>
-
-        <!-- 有前車狀態 -->
-        <div id="has-lead-state" class="hidden">
-          <!-- 4個資訊水平排列，手機時自動換行 -->
-          <div class="info-row-flex">
-            <div class="info-col">
-              <div class="info-label">距離</div>
-              <div id="lead-distance" class="info-value-medium">--</div>
-            </div>
-            <div class="info-col">
-              <div class="info-label">期望</div>
-              <div id="desired-distance" class="info-value-medium">--</div>
-            </div>
-            <div class="info-col">
-              <div class="info-label">速度</div>
-              <div id="lead-speed" class="info-value-medium">--</div>
-            </div>
-            <div class="info-col">
-              <div class="info-label">時間</div>
-              <div id="follow-time" class="info-value-medium">--</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 右側盲點警示 -->
-      <div id="right-blindspot" class="blindspot-indicator hidden">
-        <div class="blindspot-icon">⚠️</div>
-        <div class="blindspot-label">右側</div>
-      </div>
-    </div>
-
-    <!-- 前車下方: 導航資訊列 (全寬，與左右側卡片齊平) -->
-    <div id="nav-row">
-      <!-- 導航佔位區域 (固定高度，供 NavDash App 原生 overlay 疊加) -->
-      <div id="nav-placeholder" class="card nav-placeholder">
+    <!-- 底部: 導航佔位 + 道路名稱 (道路名稱置中) -->
+    <div id="bottom-row">
+      <!-- 導航佔位區域 (供 NavDash App overlay) -->
+      <div id="nav-placeholder" class="nav-placeholder">
         <!-- 空白透明區域 -->
       </div>
-      <!-- 道路名稱卡片 (固定顯示) -->
+      <!-- 道路名稱卡片 (置中) -->
       <div id="road-name-card" class="card">
         <div id="road-name-text">--</div>
       </div>
