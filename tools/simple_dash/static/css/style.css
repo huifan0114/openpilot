@@ -285,22 +285,22 @@ body::after {
 /* ===== 統一數值字體大小 (與 MAX/彎道/VSC/漸進 一致) ===== */
 /* 速限數值 */
 #speed-limit-value {
-  font-size: 2rem !important;
+  font-size: 2rem;
 }
 
 /* 即將到來數值 */
 #upcoming-value {
-  font-size: 2rem !important;
+  font-size: 2rem;
 }
 
 /* 控制加速數值 */
 #control-accel-value {
-  font-size: 2rem !important;
+  font-size: 2rem;
 }
 
 /* 前車資訊數值 (距離、期望、速度、時間) */
 #center-lead-info .info-value-medium {
-  font-size: 2rem !important;
+  font-size: 2rem;
 }
 
 /* ===== 左側控制區: 速限 + 即將到來 + 加減速度 (平均分配) ===== */
@@ -317,7 +317,7 @@ body::after {
 }
 
 #speed-limit-card {
-  width: 180px;
+  width: 150px;  /* 與 MAX 卡片寬度一致 */
   flex: 1;
   padding: var(--spacing-md);
   text-align: center;
@@ -328,7 +328,7 @@ body::after {
 
 /* 即將到來的速限 */
 #upcoming-limit-card {
-  width: 180px;
+  width: 150px;  /* 與 MAX 卡片寬度一致 */
   flex: 1;
   text-align: center;
   border-color: var(--status-info);
@@ -340,7 +340,7 @@ body::after {
 
 /* 加減速度卡片移到左側控制區 */
 #acceleration-card-left {
-  width: 180px;
+  width: 150px;  /* 與 MAX 卡片寬度一致 */
   flex: 1;
   text-align: center;
   border: 2px solid rgba(255, 255, 255, 0.15);
@@ -377,7 +377,7 @@ body::after {
 
 /* 右上角的控制加速卡片 */
 #top-right-controls #control-accel-card {
-  width: 180px;
+  width: 150px;  /* 與 MAX 卡片寬度一致 */
   flex: 1;
   text-align: center;
   border: 2px solid rgba(255, 255, 255, 0.15);
@@ -389,7 +389,7 @@ body::after {
 
 /* 右上角的 EXPERIMENTAL 圖示卡片 */
 #top-right-controls .experimental-icon-card {
-  width: 180px;
+  width: 150px;  /* 與 MAX 卡片寬度一致 */
   height: auto;
   min-height: 150px;
   flex: 1;
@@ -450,8 +450,8 @@ body::after {
 
 /* EXPERIMENTAL MODE 圖示卡片 */
 .experimental-icon-card {
-  width: 180px;           /* 與左側卡片寬度一致 */
-  height: 180px;          /* 保持正方形 */
+  width: 150px;           /* 與 MAX 卡片寬度一致 */
+  height: 150px;          /* 保持正方形 */
   padding: var(--spacing-md);
   display: flex;
   align-items: center;
@@ -530,7 +530,7 @@ body::after {
     0 0 60px var(--status-safe-glow),
     0 12px 48px rgba(0, 0, 0, 0.8),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  padding: 40px;
+  padding: 24px;  /* 從 40px 縮小到 24px，讓內容更緊湊 */
   display: flex;
   flex-direction: column;
   justify-content: space-around;
@@ -634,20 +634,20 @@ body::after {
   flex: 1;
 }
 
-/* 前車資訊 flex 布局 - 水平排列，自動換行 */
+/* 前車資訊 flex 布局 - 水平排列，不換行 */
 .info-row-flex {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-wrap: nowrap;  /* 不換行，確保4個項目都在同一行 */
+  justify-content: space-between;
   align-items: flex-start;
-  gap: 20px;
+  gap: 12px;  /* 縮小間距，從 20px 降到 12px */
   width: 100%;
 }
 
 .info-row-flex .info-col {
-  flex: 1 1 auto;
-  min-width: 60px;
-  max-width: 120px;
+  flex: 1 1 0;  /* 平均分配寬度 */
+  min-width: 0;  /* 允許壓縮 */
+  max-width: none;
   text-align: center;
 }
 
@@ -861,7 +861,7 @@ body::after {
 
 /* 控制加速卡片 (左側控制區) */
 #control-accel-card {
-  width: 180px;
+  width: 150px;  /* 與 MAX 卡片寬度一致 */
   flex: 1;
   text-align: center;
   border: 2px solid rgba(255, 255, 255, 0.15);

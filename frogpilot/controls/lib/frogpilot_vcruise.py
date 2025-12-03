@@ -190,7 +190,7 @@ class FrogPilotVCruise:
 
     # ========== Progressive Speed ==========
     STEP_SIZE = 10 * CV.KPH_TO_MS
-    APPROACH_THRESHOLD = 3 * CV.KPH_TO_MS
+    APPROACH_THRESHOLD = (3 if v_ego < 40 * CV.KPH_TO_MS else 2) * CV.KPH_TO_MS
     MIN_STEP_TRIGGER = 10 * CV.KPH_TO_MS
 
     # Progressive 基於原始 v_cruise，與 VSC 獨立運作
