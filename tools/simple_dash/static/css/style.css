@@ -282,6 +282,27 @@ body::after {
   font-size: 2rem;  /* 縮小字體配合卡片寬度 */
 }
 
+/* ===== 統一數值字體大小 (與 MAX/彎道/VSC/漸進 一致) ===== */
+/* 速限數值 */
+#speed-limit-value {
+  font-size: 2rem !important;
+}
+
+/* 即將到來數值 */
+#upcoming-value {
+  font-size: 2rem !important;
+}
+
+/* 控制加速數值 */
+#control-accel-value {
+  font-size: 2rem !important;
+}
+
+/* 前車資訊數值 (距離、期望、速度、時間) */
+#center-lead-info .info-value-medium {
+  font-size: 2rem !important;
+}
+
 /* ===== 左側控制區: 速限 + 即將到來 + 加減速度 (平均分配) ===== */
 #top-left-controls {
   position: absolute;
@@ -330,7 +351,7 @@ body::after {
 }
 
 #upcoming-value {
-  font-size: 40px;    /* 明確設定字體大小 */
+  font-size: 2rem;    /* 與 MAX/彎道/VSC/漸進 一致 */
   margin: var(--spacing-xs) 0;
 }
 
