@@ -300,8 +300,8 @@ body::after {
 /* ===== 中間一排: 即將到來 + 前車卡片 + EXPERIMENTAL ===== */
 #middle-row {
   position: absolute;
-  top: calc(var(--spacing-md) + 70px + var(--spacing-md));  /* 頂部卡片下方 */
-  bottom: calc(var(--spacing-md) + 80px + var(--spacing-md));  /* 底部道路名稱上方 */
+  top: calc(var(--spacing-md) + 55px + var(--spacing-sm));  /* 頂部卡片下方 (卡片高度約 55px) */
+  bottom: calc(var(--spacing-md) + 60px + var(--spacing-sm));  /* 底部道路名稱上方 */
   left: var(--spacing-md);
   right: var(--spacing-md);
   display: flex;
@@ -311,11 +311,18 @@ body::after {
   z-index: 50;
 }
 
-/* 側邊卡片 (即將到來、EXPERIMENTAL) */
-.side-card {
-  width: 100px;
+/* ===== 側邊垂直容器 ===== */
+.side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   flex-shrink: 0;
-  padding: 12px 8px;
+}
+
+/* ===== 小卡片 (與頂部卡片統一大小) ===== */
+.mini-card {
+  width: 100px;
+  padding: 8px 4px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -323,45 +330,25 @@ body::after {
   justify-content: center;
 }
 
-.side-card .label-small {
+.mini-card .label-small {
   font-size: 12px;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
-/* 側邊數值樣式 */
-.value-side {
-  font-size: 1.6rem;
-  font-weight: 600;
-  line-height: 1.1;
-  color: var(--text-primary);
-  font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', monospace;
-  font-variant-numeric: tabular-nums;
-}
-
-/* 即將到來的距離 */
-#upcoming-distance {
-  font-size: 16px !important;
-  font-weight: 600;
-  color: var(--text-primary) !important;
-  margin-top: 4px;
-}
-
-/* 即將到來卡片藍色邊框 */
-#upcoming-limit-card {
+/* 即將速限卡片 - 藍色邊框 */
+#upcoming-speed-card {
   border-color: var(--status-info);
 }
 
-/* EXPERIMENTAL 圖示卡片 */
-.experimental-icon-card {
-  padding: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* 即將距離卡片 - 藍色邊框 */
+#upcoming-distance-card {
+  border-color: var(--status-info);
 }
 
+/* EXPERIMENTAL 圖示 */
 #experimental-icon {
-  width: 60px;
-  height: 60px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
   transition: all var(--transition-normal);
 }
@@ -726,17 +713,8 @@ body::after {
   50% { opacity: 0.3; }
 }
 
-/* 控制加速卡片 (左側控制區) */
-#control-accel-card {
-  width: 150px;  /* 與 MAX 卡片寬度一致 */
-  flex: 1;
-  text-align: center;
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  padding: var(--spacing-md);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
+/* 控制加速卡片 - 已移至 #top-row，不需要額外樣式覆蓋 .top-card */
+/* #control-accel-card 現在使用 .top-card 的統一樣式 */
 
 #control-accel-value {
   margin: var(--spacing-xs) 0;
@@ -864,27 +842,27 @@ body::after {
 
   /* 中間一排 */
   #middle-row {
-    top: calc(var(--spacing-md) + 60px + var(--spacing-sm));
-    bottom: calc(var(--spacing-md) + 70px + var(--spacing-sm));
+    top: calc(var(--spacing-md) + 50px + var(--spacing-sm));
+    bottom: calc(var(--spacing-md) + 55px + var(--spacing-sm));
     gap: 8px;
   }
 
-  .side-card {
-    width: 85px;
-    padding: 10px 6px;
+  .side-column {
+    gap: 6px;
   }
 
-  .side-card .label-small {
+  .mini-card {
+    width: 85px;
+    padding: 6px 3px;
+  }
+
+  .mini-card .label-small {
     font-size: 10px;
   }
 
-  .value-side {
-    font-size: 1.4rem;
-  }
-
   #experimental-icon {
-    width: 50px;
-    height: 50px;
+    width: 35px;
+    height: 35px;
   }
 
   /* 前車卡片 */
@@ -954,31 +932,27 @@ body::after {
 
   /* 中間一排 */
   #middle-row {
-    top: calc(var(--spacing-md) + 50px + var(--spacing-sm));
-    bottom: calc(var(--spacing-md) + 55px + var(--spacing-sm));
+    top: calc(var(--spacing-md) + 42px + var(--spacing-sm));
+    bottom: calc(var(--spacing-md) + 45px + var(--spacing-sm));
     gap: 6px;
   }
 
-  .side-card {
-    width: 70px;
-    padding: 8px 4px;
+  .side-column {
+    gap: 4px;
   }
 
-  .side-card .label-small {
+  .mini-card {
+    width: 55px;
+    padding: 5px 2px;
+  }
+
+  .mini-card .label-small {
     font-size: 8px;
   }
 
-  .value-side {
-    font-size: 1.2rem;
-  }
-
-  #upcoming-distance {
-    font-size: 12px !important;
-  }
-
   #experimental-icon {
-    width: 40px;
-    height: 40px;
+    width: 28px;
+    height: 28px;
   }
 
   /* 前車卡片 */
@@ -1056,31 +1030,27 @@ body::after {
 
   /* 中間一排 */
   #middle-row {
-    top: calc(var(--spacing-md) + 42px + var(--spacing-sm));
-    bottom: calc(var(--spacing-md) + 48px + var(--spacing-sm));
+    top: calc(var(--spacing-md) + 36px + var(--spacing-sm));
+    bottom: calc(var(--spacing-md) + 40px + var(--spacing-sm));
     gap: 4px;
   }
 
-  .side-card {
-    width: 60px;
-    padding: 6px 3px;
+  .side-column {
+    gap: 3px;
   }
 
-  .side-card .label-small {
+  .mini-card {
+    width: 48px;
+    padding: 4px 2px;
+  }
+
+  .mini-card .label-small {
     font-size: 7px;
   }
 
-  .value-side {
-    font-size: 1rem;
-  }
-
-  #upcoming-distance {
-    font-size: 10px !important;
-  }
-
   #experimental-icon {
-    width: 35px;
-    height: 35px;
+    width: 24px;
+    height: 24px;
   }
 
   /* 前車卡片 */

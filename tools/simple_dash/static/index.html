@@ -55,13 +55,19 @@
       </div>
     </div>
 
-    <!-- 中間一排: 即將到來 + 前車卡片 + EXPERIMENTAL (垂直對齊) -->
+    <!-- 中間一排: 左側卡片 + 前車卡片 + 右側卡片 -->
     <div id="middle-row">
-      <!-- 左側: 即將到來的速限 -->
-      <div id="upcoming-limit-card" class="card side-card">
-        <div class="label-small">即將到來</div>
-        <div id="upcoming-value" class="value-side">--</div>
-        <div id="upcoming-distance" class="label-tiny">--</div>
+      <!-- 左側: 垂直排列的小卡片 -->
+      <div class="side-column">
+        <div id="upcoming-speed-card" class="card mini-card">
+          <div class="label-small">即將速限</div>
+          <div id="upcoming-value" class="value-top">--</div>
+        </div>
+        <div id="upcoming-distance-card" class="card mini-card">
+          <div class="label-small">即將距離</div>
+          <div id="upcoming-distance" class="value-top">--</div>
+        </div>
+        <!-- 未來可在此新增更多卡片 -->
       </div>
 
       <!-- 中央: 前車資訊卡片 (含盲點警示) -->
@@ -109,9 +115,12 @@
         </div>
       </div>
 
-      <!-- 右側: EXPERIMENTAL MODE 圖示 -->
-      <div id="experimental-card" class="card side-card experimental-icon-card">
-        <img id="experimental-icon" src="/static/assets/img_experimental_white.svg" alt="Experimental Mode" />
+      <!-- 右側: 垂直排列的小卡片 -->
+      <div class="side-column">
+        <div id="experimental-card" class="card mini-card">
+          <img id="experimental-icon" src="/static/assets/img_experimental_white.svg" alt="Experimental Mode" />
+        </div>
+        <!-- 未來可在此新增更多卡片 -->
       </div>
     </div>
 

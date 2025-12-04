@@ -24,8 +24,9 @@ export class DashboardUI {
       speedLimitCard: document.getElementById('speed-limit-card'),
       speedLimitValue: document.getElementById('speed-limit-value'),
 
-      // 即將到來的速限
-      upcomingLimitCard: document.getElementById('upcoming-limit-card'),
+      // 即將到來的速限和距離
+      upcomingSpeedCard: document.getElementById('upcoming-speed-card'),
+      upcomingDistanceCard: document.getElementById('upcoming-distance-card'),
       upcomingValue: document.getElementById('upcoming-value'),
       upcomingDistance: document.getElementById('upcoming-distance'),
 
@@ -110,7 +111,7 @@ export class DashboardUI {
     // 速限
     this.elements.speedLimitValue.textContent = testValues.medium;
     this.elements.upcomingValue.textContent = testValues.medium;
-    this.elements.upcomingDistance.textContent = `${testValues.distance} ${this.units.distance}`;
+    this.elements.upcomingDistance.textContent = testValues.distance;  // 現在有標籤，不需要單位
 
     // CSC
     this.elements.cscSpeed.textContent = testValues.medium;
