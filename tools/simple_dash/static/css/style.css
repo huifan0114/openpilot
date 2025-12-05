@@ -161,7 +161,7 @@ body {
   z-index: 60;
 }
 
-/* ===== 小卡片樣式 ===== */
+/* ===== 小卡片樣式 - 字體跟頂部一樣大 ===== */
 .mini-card {
   width: 100%;
   height: 70px;
@@ -192,17 +192,18 @@ body {
 }
 
 .mini-card .label-small {
-  font-size: clamp(9px, 1.5vh, 13px);
+  font-size: clamp(10px, 1.8vh, 16px);
   font-weight: 600;
   color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  margin-bottom: 1px;
+  margin-bottom: 2px;
   line-height: 1;
 }
 
+/* 即將速限/即將距離 字體跟頂部一樣大 */
 .mini-card .value-top {
-  font-size: clamp(0.9rem, 3.5vh, 1.6rem) !important;
+  font-size: clamp(1.5rem, 6vh, 3rem) !important;
 }
 
 /* ===== 右側實驗模式卡片 ===== */
@@ -228,9 +229,10 @@ body {
   border: 2px solid var(--hfop-red);
 }
 
+/* EXPERIMENTAL 圖示放大 */
 #experimental-icon {
-  width: clamp(20px, 3.5vh, 36px);
-  height: clamp(20px, 3.5vh, 36px);
+  width: clamp(32px, 5vh, 50px);
+  height: clamp(32px, 5vh, 50px);
   object-fit: contain;
   filter: brightness(0) invert(1);
   opacity: 0.8;
@@ -362,13 +364,13 @@ body {
 .status-warning { color: #FF4444 !important; }
 .status-danger { color: #FF0000 !important; }
 
-/* ===== 盲點警示 - 現在在 #dashboard 層級，用 absolute 定位 ===== */
+/* ===== 盲點警示 - 跟前車卡片框一樣高 ===== */
 .blindspot-indicator {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   width: 38px;
-  height: 28%;
+  height: 42%;
   background: linear-gradient(180deg, 
     #E30613 0%, 
     #B00510 50%, 
@@ -390,13 +392,11 @@ body {
 }
 
 /* 左側盲點：緊貼左側卡片右邊 + 小間距 */
-/* 左側欄: left 0.5% + width 9% = 9.5%, 加間距 0.8% */
 #left-blindspot {
   left: 10.3%;
 }
 
 /* 右側盲點：緊貼右側卡片左邊 + 小間距 */
-/* 右側欄: right 0.5% + width 9% = 9.5%, 加間距 0.8% */
 #right-blindspot {
   right: 10.3%;
 }
@@ -657,21 +657,20 @@ body.startup-mode #experimental-card {
   }
   
   .mini-card { height: 60px; }
-  .mini-card .value-top { font-size: clamp(0.8rem, 3vh, 1.4rem) !important; }
-  .mini-card .label-small { font-size: clamp(7px, 1.3vh, 10px); }
+  .mini-card .value-top { font-size: clamp(1.2rem, 5vh, 2.5rem) !important; }
+  .mini-card .label-small { font-size: clamp(8px, 1.5vh, 12px); }
   
   #experimental-card { height: 60px; }
+  #experimental-icon { width: 28px; height: 28px; }
   
   .info-value-medium { font-size: 24px; }
   .info-label { font-size: 10px; }
   
-  .blindspot-indicator { width: 32px; height: 25%; }
+  .blindspot-indicator { width: 32px; height: 38%; }
   #left-blindspot { left: 11%; }
   #right-blindspot { right: 11%; }
   .blindspot-icon { font-size: 18px; }
   .blindspot-label { font-size: 9px; }
-  
-  #experimental-icon { width: 18px; height: 18px; }
   
   .no-lead-icon { font-size: 38px; }
   .no-lead-text { font-size: 16px; }
@@ -684,14 +683,15 @@ body.startup-mode #experimental-card {
   }
   
   .mini-card { height: 50px; }
-  .mini-card .value-top { font-size: clamp(0.7rem, 2.5vh, 1.2rem) !important; }
+  .mini-card .value-top { font-size: clamp(1rem, 4vh, 2rem) !important; }
   
   #experimental-card { height: 50px; }
+  #experimental-icon { width: 22px; height: 22px; }
   
   .info-value-medium { font-size: 20px; }
   .info-label { font-size: 9px; }
   
-  .blindspot-indicator { width: 26px; height: 22%; }
+  .blindspot-indicator { width: 26px; height: 35%; }
   #left-blindspot { left: 12%; }
   #right-blindspot { right: 12%; }
   .blindspot-icon { font-size: 14px; }
@@ -699,8 +699,6 @@ body.startup-mode #experimental-card {
   
   .no-lead-icon { font-size: 32px; }
   .no-lead-text { font-size: 14px; }
-  
-  #experimental-icon { width: 14px; height: 14px; }
 }
 
 @media (min-aspect-ratio: 18/10) {
