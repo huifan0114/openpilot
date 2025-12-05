@@ -229,7 +229,7 @@ export class DashboardUI {
       this.elements.vscSpeed.textContent = '--';
       this.elements.progressiveSpeed.textContent = '--';
       this.elements.controlAccelValue.textContent = '--';
-      this.elements.controlAccelValue.className = 'value-medium neutral';
+      this.elements.controlAccelValue.className = 'value-top neutral';
       this.elements.roadNameText.textContent = '--';
 
       console.log('[Dashboard] ✓ Startup sequence completed');
@@ -435,7 +435,7 @@ export class DashboardUI {
   updateControlAccel(accel) {
     if (accel === undefined || accel === null) {
       this.elements.controlAccelValue.textContent = '--';
-      this.elements.controlAccelValue.className = 'value-medium neutral';
+      this.elements.controlAccelValue.className = 'value-top neutral';
       return;
     }
 

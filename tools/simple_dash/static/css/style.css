@@ -1,6 +1,6 @@
 /**
  * FrogPilot Dashboard - 現代化儀表板樣式
- * 前車資訊為核心的數位儀表板
+ * 專為 1280x640 車載螢幕優化
  */
 
 /* ===== CSS 變數定義 ===== */
@@ -9,13 +9,11 @@
   --bg-primary: #000000;
   --bg-gradient-start: #0a0a0a;
   --bg-gradient-end: #000000;
-  --bg-card: rgba(15, 15, 15, 0.9);
-  --bg-card-hover: rgba(25, 25, 25, 0.95);
   --text-primary: #ffffff;
   --text-secondary: #b0b0b0;
   --text-dim: #707070;
 
-  /* 狀態顏色 - 更飽和的霓虹色系 */
+  /* 狀態顏色 */
   --status-safe: #00ff88;
   --status-safe-glow: rgba(0, 255, 136, 0.4);
   --status-warning: #ffaa00;
@@ -25,23 +23,22 @@
   --status-info: #00ccff;
   --status-info-glow: rgba(0, 204, 255, 0.4);
 
-  /* 尺寸 */
-  --card-radius: 20px;
-  --card-padding: 24px;
-  --spacing-xs: 8px;
-  --spacing-sm: 12px;
-  --spacing-md: 20px;
-  --spacing-lg: 32px;
+  /* 尺寸 - 1280x640 車載螢幕優化 */
+  --card-radius: 12px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 10px;
+  --spacing-lg: 16px;
 
-  /* 陰影 - 增強深度和發光效果 */
-  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.1);
-  --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.8), 0 0 2px rgba(255, 255, 255, 0.15);
+  /* 頂部卡片尺寸 - 統一變數控制 */
+  --top-card-width: 95px;
+  --top-card-height: 48px;
+  --top-card-font: 1.5rem;
+  --top-card-label: 10px;
 
   /* 過渡 */
-  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
 }
 
 /* ===== 基礎重置 ===== */
@@ -55,26 +52,20 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   background: radial-gradient(ellipse at center, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
-  background-attachment: fixed;
   color: var(--text-primary);
-  position: relative;
 }
 
-/* 網格背景效果 */
+/* 網格背景 */
 body::after {
   content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background-image:
     linear-gradient(rgba(0, 255, 255, 0.015) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 255, 255, 0.015) 1px, transparent 1px);
@@ -88,327 +79,162 @@ body::after {
   position: relative;
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 2;
 }
 
-/* ===== 通用工具類 ===== */
+/* ===== 工具類 ===== */
 .hidden {
   display: none !important;
 }
 
+/* ===== 通用卡片樣式 ===== */
 .card {
   background: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(25, 25, 25, 0.9) 100%);
   border-radius: var(--card-radius);
-  padding: var(--card-padding);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.6),
-    0 0 1px rgba(255, 255, 255, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: all var(--transition-normal);
-  position: relative;
-}
-
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: var(--card-radius);
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-.card:hover {
-  background: linear-gradient(135deg, rgba(20, 20, 20, 0.95) 0%, rgba(30, 30, 30, 0.9) 100%);
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
-  box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.7),
-    0 0 2px rgba(255, 255, 255, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
-/* ===== 文字樣式 ===== */
-.value-large {
-  font-size: 90px;
-  font-weight: 300;
-  line-height: 1;
-  color: var(--text-primary);
-  font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', monospace;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-  transition: all var(--transition-fast);
-}
-
-.value-medium {
-  font-size: 50px;
-  font-weight: 400;
-  line-height: 1;
-  color: var(--text-primary);
-  font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', monospace;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
-  text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-  transition: all var(--transition-fast);
-}
-
-.label-small {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.label-tiny {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--text-dim);
-  letter-spacing: 0.1em;
-}
-
-/* ===== 頂部中央: 連接狀態 ===== */
-#top-center-status {
-  position: absolute;
-  top: var(--spacing-lg);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 200;
-}
-
-.connection-badge {
-  padding: 12px 24px;
-  background: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(25, 25, 25, 0.9) 100%);
-  border-radius: 24px;
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(10px);
   transition: all var(--transition-normal);
 }
 
-#status-text {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 0.05em;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-/* 已連接狀態 */
-.connection-badge.connected {
-  border-color: var(--status-safe);
-  background: linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(0, 255, 136, 0.05) 100%);
-  box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
-}
-
-.connection-badge.connected #status-text {
-  color: var(--status-safe);
-  text-shadow: 0 0 10px var(--status-safe-glow);
-}
-
-/* 連接中狀態（脈衝動畫） */
-.connection-badge.connecting {
-  border-color: var(--status-warning);
-  animation: pulse-connecting 1.5s ease-in-out infinite;
-}
-
-.connection-badge.connecting #status-text {
-  color: var(--status-warning);
-}
-
-@keyframes pulse-connecting {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(0.98);
-  }
-}
-
-/* ===== 頂部一排: 6個卡片統一大小 ===== */
+/* ===== 頂部一排: 6個統一卡片 (30% 高度) ===== */
 #top-row {
   position: absolute;
-  top: var(--spacing-md);
+  top: 0;
   left: var(--spacing-md);
   right: var(--spacing-md);
+  height: 30%;
   display: flex;
-  flex-direction: row;
   justify-content: center;
+  align-items: center;
   gap: 8px;
   z-index: 100;
 }
 
-/* 頂部卡片統一樣式 */
+/* 頂部卡片 - 統一尺寸，高度自適應 */
 .top-card {
-  width: 100px;
-  padding: 8px 4px;
-  text-align: center;
+  width: clamp(70px, 8vw, 120px);
+  height: 70%;
+  padding: 4px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
 }
 
 .top-card .label-small {
-  font-size: 12px;
+  font-size: clamp(8px, 1.5vh, 14px);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin-bottom: 2px;
+  line-height: 1;
 }
 
-/* 頂部數值統一樣式 */
+/* 頂部數值 - 統一樣式，所有頂部卡片數值都用這個 */
 .value-top {
-  font-size: 1.8rem;
+  font-size: clamp(1rem, 3vh, 2rem) !important;
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 1;
   color: var(--text-primary);
-  font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', monospace;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
   font-variant-numeric: tabular-nums;
 }
 
-/* 最低值卡片標示動畫 */
+/* 控制加速顏色 */
+.value-top.positive { color: var(--status-safe); }
+.value-top.negative { color: var(--status-danger); }
+.value-top.neutral { color: var(--text-dim); }
+
+/* 最低值標示 */
 .top-card.controlling {
   border-color: var(--status-warning);
-  box-shadow: 0 0 20px var(--status-warning-glow);
-  animation: controlling-pulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 15px var(--status-warning-glow);
 }
 
-@keyframes controlling-pulse {
-  0%, 100% {
-    box-shadow: 0 0 20px var(--status-warning-glow);
-  }
-  50% {
-    box-shadow: 0 0 35px var(--status-warning-glow);
-  }
-}
-
-/* ===== 中間一排: 即將到來 + 前車卡片 + EXPERIMENTAL ===== */
+/* ===== 中間一排 (40% 高度) ===== */
 #middle-row {
   position: absolute;
-  top: calc(var(--spacing-md) + 55px + var(--spacing-sm));  /* 頂部卡片下方 (卡片高度約 55px) */
-  bottom: calc(var(--spacing-md) + 60px + var(--spacing-sm));  /* 底部道路名稱上方 */
+  top: 30%;
+  bottom: 30%;
   left: var(--spacing-md);
   right: var(--spacing-md);
   display: flex;
-  flex-direction: row;
-  align-items: stretch;  /* 垂直對齊拉伸 */
+  align-items: stretch;
   gap: var(--spacing-sm);
   z-index: 50;
 }
 
-/* ===== 側邊垂直容器 ===== */
+/* 側邊欄 */
 .side-column {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
-/* ===== 小卡片 (與頂部卡片統一大小) ===== */
+/* 側邊小卡片 - 與頂部卡片相同寬度，高度自適應 */
 .mini-card {
-  width: 100px;
-  padding: 8px 4px;
-  text-align: center;
+  width: clamp(70px, 8vw, 120px);
+  flex: 1;
+  padding: 4px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
 }
 
 .mini-card .label-small {
-  font-size: 12px;
+  font-size: clamp(8px, 1.5vh, 14px);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin-bottom: 2px;
+  line-height: 1;
 }
 
 /* 即將速限卡片 - 藍色邊框 */
-#upcoming-speed-card {
-  border-color: var(--status-info);
-}
-
-/* 即將距離卡片 - 藍色邊框 */
+#upcoming-speed-card,
 #upcoming-distance-card {
   border-color: var(--status-info);
 }
 
 /* EXPERIMENTAL 圖示 */
 #experimental-icon {
-  width: 40px;
-  height: 40px;
+  width: clamp(24px, 4vh, 48px);
+  height: clamp(24px, 4vh, 48px);
   object-fit: contain;
-  transition: all var(--transition-normal);
 }
 
-/* EXPERIMENTAL MODE 啟動狀態 */
 #experimental-card.active {
   border-color: var(--status-warning);
   background: linear-gradient(135deg, rgba(255, 170, 0, 0.2) 0%, rgba(255, 170, 0, 0.1) 100%);
-  box-shadow: 0 0 30px var(--status-warning-glow);
+  box-shadow: 0 0 20px var(--status-warning-glow);
 }
 
-#experimental-card.active #experimental-icon {
-  filter: drop-shadow(0 0 8px rgba(255, 170, 0, 0.6));
-}
-
-/* ===== 中央: 前車資訊卡片區域 (在 middle-row 內) ===== */
+/* ===== 前車資訊區域 ===== */
 #center-lead-info {
-  flex: 1;  /* 填滿中間剩餘空間 */
+  flex: 1;
   min-width: 0;
   display: flex;
   align-items: stretch;
-  gap: 12px;
+  gap: 10px;
 }
 
 .lead-info-card {
-  flex: 1;            /* 填滿 flex 容器的剩餘空間 */
-  min-width: 0;       /* 防止 flex item 溢出 */
-  pointer-events: auto;  /* 卡片本身可點擊 */
+  flex: 1;
+  min-width: 0;
   background: linear-gradient(135deg, rgba(15, 15, 15, 0.98) 0%, rgba(25, 25, 25, 0.95) 100%);
-  border-radius: 32px;
-  border: 3px solid var(--status-safe);
-  box-shadow:
-    0 0 60px var(--status-safe-glow),
-    0 12px 48px rgba(0, 0, 0, 0.8),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  padding: 24px;  /* 從 40px 縮小到 24px，讓內容更緊湊 */
+  border-radius: 16px;
+  border: 2px solid var(--status-safe);
+  box-shadow: 0 0 40px var(--status-safe-glow);
+  padding: 12px 20px;
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
-  transition: all var(--transition-normal);
-  position: relative;
-  overflow: hidden;
-}
-
-/* 內部光暈效果 */
-.lead-info-card::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(0, 255, 136, 0.1) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity var(--transition-slow);
-  pointer-events: none;
-}
-
-.lead-info-card:hover::after {
-  opacity: 1;
+  justify-content: center;
 }
 
 /* 無前車狀態 */
@@ -418,18 +244,17 @@ body::after {
   align-items: center;
   justify-content: center;
   height: 100%;
-  min-height: 30vh;  /* 響應式：螢幕高度的 30% */
 }
 
 .no-lead-icon {
-  font-size: 80px;    /* 從 120px 縮小 */
+  font-size: 50px;
   opacity: 0.25;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: 8px;
   filter: grayscale(100%);
 }
 
 .no-lead-text {
-  font-size: 36px;    /* 從 48px 縮小 */
+  font-size: 24px;
   font-weight: 500;
   color: var(--text-dim);
   opacity: 0.6;
@@ -439,209 +264,74 @@ body::after {
 #has-lead-state {
   display: flex;
   flex-direction: column;
-  gap: 16px;                 /* 從 var(--spacing-lg) (32px) 縮小 */
+  justify-content: center;
 }
 
-.info-section {
-  text-align: center;
-}
-
-.info-label {
-  font-size: 20px;           /* 從 28px 縮小 */
-  color: var(--text-secondary);
-  margin-bottom: 4px;        /* 從 var(--spacing-sm) (12px) 縮小 */
-  font-weight: 500;
-}
-
-.info-value-large {
-  font-size: 56px;           /* 從 60px 縮小 */
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 2px 0;             /* 從 var(--spacing-xs) (8px) 縮小 */
-  transition: color var(--transition-fast);
-}
-
-/* 前車資訊數值 - 中等大小 */
-.info-value-medium {
-  font-size: 48px;           /* 比 large 稍小，但足夠清楚 */
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 2px 0;
-  transition: color var(--transition-fast);
-  font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', monospace;
-}
-
-.info-sublabel {
-  font-size: 24px;           /* 從 32px 縮小 */
-  color: var(--text-dim);
-  margin-top: 4px;           /* 從 var(--spacing-xs) (8px) 縮小 */
-  font-weight: 400;
-}
-
-.info-row {
-  display: flex;
-  justify-content: space-around;
-  gap: 24px;                 /* 從 40px 縮小 */
-}
-
-.info-col {
-  flex: 1;
-}
-
-/* 前車資訊 flex 布局 - 水平排列，不換行 */
 .info-row-flex {
   display: flex;
-  flex-wrap: nowrap;  /* 不換行，確保4個項目都在同一行 */
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;  /* 縮小間距，從 20px 降到 12px */
+  justify-content: space-around;
+  align-items: center;
+  gap: 16px;
   width: 100%;
 }
 
 .info-row-flex .info-col {
-  flex: 1 1 0;  /* 平均分配寬度 */
-  min-width: 0;  /* 允許壓縮 */
-  max-width: none;
+  flex: 1;
   text-align: center;
 }
 
-/* 手機極小螢幕時：強制換行（每行最多2個） */
-@media (max-width: 480px) {
-  .info-row-flex {
-    gap: 12px;
-  }
-
-  .info-row-flex .info-col {
-    flex: 1 1 40%;
-    min-width: 80px;
-  }
+.info-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+  font-weight: 500;
 }
 
-.divider {
-  height: 2px;
-  background: rgba(255, 255, 255, 0.15);
-  margin: 12px 0;            /* 從 var(--spacing-md) (20px) 縮小 */
+.info-value-medium {
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  line-height: 1;
 }
 
-/* 狀態顏色類 */
-.status-safe {
-  color: var(--status-safe) !important;
-}
-
-.status-warning {
-  color: var(--status-warning) !important;
-}
-
-.status-danger {
-  color: var(--status-danger) !important;
-}
-
+/* 前車卡片狀態 */
 .lead-info-card.status-safe {
   border-color: var(--status-safe);
-  box-shadow:
-    0 0 60px var(--status-safe-glow),
-    0 12px 48px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 40px var(--status-safe-glow);
 }
 
 .lead-info-card.status-warning {
   border-color: var(--status-warning);
-  box-shadow:
-    0 0 70px var(--status-warning-glow),
-    0 12px 48px rgba(0, 0, 0, 0.8);
-  animation: pulse-warning 2s ease-in-out infinite;
+  box-shadow: 0 0 50px var(--status-warning-glow);
 }
 
 .lead-info-card.status-danger {
   border-color: var(--status-danger);
-  box-shadow:
-    0 0 100px var(--status-danger-glow),
-    0 0 150px rgba(255, 51, 102, 0.3),
-    0 12px 48px rgba(0, 0, 0, 0.8);
-  animation: pulse-danger 1.2s ease-in-out infinite;
+  box-shadow: 0 0 60px var(--status-danger-glow);
 }
 
-@keyframes pulse-warning {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow:
-      0 0 70px var(--status-warning-glow),
-      0 12px 48px rgba(0, 0, 0, 0.8);
-  }
-  50% {
-    transform: scale(1.01);
-    box-shadow:
-      0 0 90px var(--status-warning-glow),
-      0 12px 48px rgba(0, 0, 0, 0.8);
-  }
-}
+/* 狀態顏色類 */
+.status-safe { color: var(--status-safe) !important; }
+.status-warning { color: var(--status-warning) !important; }
+.status-danger { color: var(--status-danger) !important; }
 
-@keyframes pulse-danger {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow:
-      0 0 100px var(--status-danger-glow),
-      0 0 150px rgba(255, 51, 102, 0.3);
-  }
-  50% {
-    transform: scale(1.02);
-    box-shadow:
-      0 0 120px var(--status-danger-glow),
-      0 0 180px rgba(255, 51, 102, 0.4);
-  }
-}
-
-/* ===== 左下角: 當前速度 ===== */
-#bottom-left-info {
-  position: absolute;
-  bottom: 65px;  /* 50px (GIF) + 15px (間距) */
-  left: var(--spacing-lg);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  z-index: 100;
-}
-
-.small-card {
-  width: 150px;
-  text-align: center;
-  padding: var(--spacing-md);
-}
-
-#current-speed-card {
-  border: 2px solid rgba(255, 255, 255, 0.15);
-}
-
-#current-speed-value {
-  font-size: 50px;
-  margin: var(--spacing-xs) 0;
-}
-
-/* ===== 盲點警示指示器 (與前車卡片同高，使用 flex 對齊) ===== */
+/* ===== 盲點警示 ===== */
 .blindspot-indicator {
-  /* 使用 flex 佈局，自動與前車卡片高度對齊 */
-  width: 70px;
+  width: 55px;
   flex-shrink: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 51, 102, 0.95) 0%,
-    rgba(255, 51, 102, 0.75) 50%,
-    rgba(255, 51, 102, 0.95) 100%
-  );
-  border-radius: 20px;
-  border: 3px solid var(--status-danger);
-  box-shadow:
-    0 0 40px var(--status-danger-glow),
-    0 8px 32px rgba(0, 0, 0, 0.6),
-    inset 0 2px 10px rgba(255, 255, 255, 0.2);
+  background: linear-gradient(180deg, rgba(255, 51, 102, 0.95) 0%, rgba(255, 51, 102, 0.75) 50%, rgba(255, 51, 102, 0.95) 100%);
+  border-radius: 14px;
+  border: 2px solid var(--status-danger);
+  box-shadow: 0 0 30px var(--status-danger-glow);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 8px;
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
-  z-index: 65;
 }
 
 .blindspot-indicator.active {
@@ -649,569 +339,171 @@ body::after {
   animation: blindspot-pulse 500ms ease-in-out infinite alternate;
 }
 
-/* 盲點隱藏時仍然佔據空間，防止前車卡片寬度變動 */
 .blindspot-indicator.hidden {
-  display: flex !important;  /* 覆蓋全局 .hidden 的 display: none */
-  visibility: hidden;        /* 隱藏但佔據空間 */
+  display: flex !important;
+  visibility: hidden;
   opacity: 0;
 }
 
-#left-blindspot {
-  order: -1;  /* 放在最左邊 */
-}
-
-#right-blindspot {
-  order: 1;   /* 放在最右邊 */
-}
+#left-blindspot { order: -1; }
+#right-blindspot { order: 1; }
 
 .blindspot-icon {
-  font-size: 56px;
+  font-size: 40px;
   line-height: 1;
-  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.9));
 }
 
 .blindspot-label {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 700;
   color: #ffffff;
-  text-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.9),
-    0 0 20px rgba(255, 51, 102, 0.8);
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   writing-mode: vertical-rl;
   text-orientation: upright;
 }
 
 @keyframes blindspot-pulse {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-    box-shadow:
-      0 0 40px var(--status-danger-glow),
-      0 8px 32px rgba(0, 0, 0, 0.6),
-      inset 0 2px 10px rgba(255, 255, 255, 0.2);
-  }
-  100% {
-    opacity: 0.7;
-    transform: scale(0.97);
-    box-shadow:
-      0 0 60px var(--status-danger-glow),
-      0 8px 32px rgba(0, 0, 0, 0.6),
-      inset 0 2px 10px rgba(255, 255, 255, 0.2);
-  }
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0.7; transform: scale(0.97); }
 }
 
-/* CSC 樣式已移至 #bottom-right-csc 區塊 */
-
-@keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(74, 144, 226, 0.4); }
-  50% { box-shadow: 0 0 40px rgba(74, 144, 226, 0.8); }
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-
-/* 控制加速卡片 - 已移至 #top-row，不需要額外樣式覆蓋 .top-card */
-/* #control-accel-card 現在使用 .top-card 的統一樣式 */
-
-#control-accel-value {
-  margin: var(--spacing-xs) 0;
-  font-weight: 700;
-  transition: color var(--transition-fast);
-}
-
-/* 加速度顏色編碼 (通用) */
-#acceleration-value,
-#control-accel-value {
-  margin: var(--spacing-xs) 0;
-  font-weight: 700;
-  transition: color var(--transition-fast);
-}
-
-/* 加速度顏色編碼 (右上角 aEgo + 左下角 控制加速) */
-#acceleration-value.positive,
-#control-accel-value.positive {
-  color: var(--status-safe);
-}
-
-#acceleration-value.negative,
-#control-accel-value.negative {
-  color: var(--status-danger);
-}
-
-#acceleration-value.neutral,
-#control-accel-value.neutral {
-  color: var(--text-dim);
-}
-
-/* ===== 底部區域: 導航佔位 + 道路名稱 (道路名稱置中) ===== */
+/* ===== 底部區域 (30% 高度) ===== */
 #bottom-row {
   position: absolute;
-  bottom: var(--spacing-md);
+  bottom: 0;
   left: var(--spacing-md);
   right: var(--spacing-md);
-  height: 70px;
+  height: 30%;
   display: flex;
-  flex-direction: row;
   align-items: center;
-  justify-content: center;  /* 整體置中 */
+  justify-content: center;
   z-index: 60;
 }
 
-/* 導航佔位區域（透明，供 NavDash App overlay） */
 .nav-placeholder {
   flex: 1;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 0 !important;
   pointer-events: none;
 }
 
-.nav-placeholder::before {
-  display: none !important;
-}
+.nav-placeholder::before { display: none !important; }
 
-/* 道路名稱卡片 (置中) */
 #bottom-row #road-name-card {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  min-width: 120px;
-  max-width: 300px;
-  padding: 12px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* ===== 底部中央: 導航 + 道路名稱 (舊版，保留相容) ===== */
-#bottom-center-road {
-  position: absolute;
-  bottom: var(--spacing-md);  /* 貼底邊界 */
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: row;  /* 水平並排 */
-  gap: var(--spacing-md);
-  align-items: center;
-  z-index: 100;
+  padding: 16px 32px;
 }
 
 #road-name-card {
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 16px 32px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 #road-name-text {
-  font-size: 24px;
+  font-size: clamp(24px, 6vh, 56px);
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
-  text-align: center;
 }
 
-/* ===== 響應式設計 ===== */
-
-/* 平板 (768px - 1200px) */
-@media (max-width: 1200px) {
-  :root {
-    --spacing-md: 12px;
-    --spacing-sm: 8px;
-  }
-
-  /* 頂部一排 */
-  #top-row {
-    gap: 6px;
-  }
-
-  .top-card {
-    width: 85px;
-    padding: 6px 3px;
-  }
-
-  .top-card .label-small {
-    font-size: 10px;
-  }
-
-  .value-top {
-    font-size: 1.5rem;
-  }
-
-  /* 中間一排 */
-  #middle-row {
-    top: calc(var(--spacing-md) + 50px + var(--spacing-sm));
-    bottom: calc(var(--spacing-md) + 55px + var(--spacing-sm));
-    gap: 8px;
-  }
-
-  .side-column {
-    gap: 6px;
-  }
-
-  .mini-card {
-    width: 85px;
-    padding: 6px 3px;
-  }
-
-  .mini-card .label-small {
-    font-size: 10px;
-  }
-
-  #experimental-icon {
-    width: 35px;
-    height: 35px;
-  }
-
-  /* 前車卡片 */
-  .lead-info-card {
-    padding: 16px;
-  }
-
-  .info-label {
-    font-size: 16px;
-  }
-
-  .info-value-medium {
-    font-size: 1.5rem;
-  }
-
-  .blindspot-indicator {
-    width: 50px;
-  }
-
-  .blindspot-icon {
-    font-size: 40px;
-  }
-
-  .blindspot-label {
-    font-size: 14px;
-  }
-
-  /* 底部 */
-  #bottom-row {
-    height: 60px;
-  }
-
-  #bottom-row #road-name-card {
-    padding: 10px 20px;
-  }
-
-  #road-name-text {
-    font-size: 20px;
-  }
+/* ===== 連接狀態 ===== */
+#top-center-status {
+  position: absolute;
+  top: var(--spacing-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
 }
 
-/* 手機 (< 768px) */
-@media (max-width: 768px) {
-  :root {
-    --spacing-md: 8px;
-    --spacing-sm: 6px;
-    --card-radius: 12px;
-  }
-
-  /* 頂部一排 */
-  #top-row {
-    gap: 4px;
-  }
-
-  .top-card {
-    width: 55px;
-    padding: 5px 2px;
-  }
-
-  .top-card .label-small {
-    font-size: 8px;
-  }
-
-  .value-top {
-    font-size: 1.1rem;
-  }
-
-  /* 中間一排 */
-  #middle-row {
-    top: calc(var(--spacing-md) + 42px + var(--spacing-sm));
-    bottom: calc(var(--spacing-md) + 45px + var(--spacing-sm));
-    gap: 6px;
-  }
-
-  .side-column {
-    gap: 4px;
-  }
-
-  .mini-card {
-    width: 55px;
-    padding: 5px 2px;
-  }
-
-  .mini-card .label-small {
-    font-size: 8px;
-  }
-
-  #experimental-icon {
-    width: 28px;
-    height: 28px;
-  }
-
-  /* 前車卡片 */
-  .lead-info-card {
-    padding: 12px;
-  }
-
-  .info-label {
-    font-size: 14px;
-  }
-
-  .info-value-medium {
-    font-size: 1.2rem;
-  }
-
-  .no-lead-icon {
-    font-size: 48px;
-  }
-
-  .no-lead-text {
-    font-size: 20px;
-  }
-
-  .blindspot-indicator {
-    width: 40px;
-  }
-
-  .blindspot-icon {
-    font-size: 32px;
-  }
-
-  .blindspot-label {
-    font-size: 12px;
-  }
-
-  /* 底部 */
-  #bottom-row {
-    height: 50px;
-  }
-
-  #bottom-row #road-name-card {
-    padding: 8px 16px;
-  }
-
-  #road-name-text {
-    font-size: 16px;
-  }
+.connection-badge {
+  padding: 8px 16px;
+  background: rgba(15, 15, 15, 0.95);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-/* 極小螢幕 (< 480px) */
-@media (max-width: 480px) {
-  :root {
-    --spacing-md: 6px;
-    --spacing-sm: 4px;
-    --card-radius: 10px;
-  }
-
-  /* 頂部一排 */
-  #top-row {
-    gap: 3px;
-  }
-
-  .top-card {
-    width: 48px;
-    padding: 4px 2px;
-  }
-
-  .top-card .label-small {
-    font-size: 7px;
-  }
-
-  .value-top {
-    font-size: 0.95rem;
-  }
-
-  /* 中間一排 */
-  #middle-row {
-    top: calc(var(--spacing-md) + 36px + var(--spacing-sm));
-    bottom: calc(var(--spacing-md) + 40px + var(--spacing-sm));
-    gap: 4px;
-  }
-
-  .side-column {
-    gap: 3px;
-  }
-
-  .mini-card {
-    width: 48px;
-    padding: 4px 2px;
-  }
-
-  .mini-card .label-small {
-    font-size: 7px;
-  }
-
-  #experimental-icon {
-    width: 24px;
-    height: 24px;
-  }
-
-  /* 前車卡片 */
-  .lead-info-card {
-    padding: 8px;
-  }
-
-  .info-label {
-    font-size: 12px;
-  }
-
-  .info-value-medium {
-    font-size: 1rem;
-  }
-
-  .no-lead-icon {
-    font-size: 36px;
-  }
-
-  .no-lead-text {
-    font-size: 16px;
-  }
-
-  .blindspot-indicator {
-    width: 35px;
-  }
-
-  .blindspot-icon {
-    font-size: 24px;
-  }
-
-  .blindspot-label {
-    font-size: 10px;
-  }
-
-  /* 底部 */
-  #bottom-row {
-    height: 44px;
-  }
-
-  #bottom-row #road-name-card {
-    padding: 6px 12px;
-  }
-
-  #road-name-text {
-    font-size: 14px;
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+#status-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
 }
 
-/* ===== 飛機儀表板啟動效果 ===== */
+.connection-badge.connected {
+  border-color: var(--status-safe);
+  background: rgba(0, 255, 136, 0.1);
+}
 
-/* 啟動模式：所有數值元素全亮（顯示 8） */
-body.startup-mode .value-large,
-body.startup-mode .value-medium,
+.connection-badge.connected #status-text {
+  color: var(--status-safe);
+}
+
+.connection-badge.connecting {
+  border-color: var(--status-warning);
+}
+
+.connection-badge.connecting #status-text {
+  color: var(--status-warning);
+}
+
+/* ===== 啟動效果 ===== */
 body.startup-mode .value-top,
-body.startup-mode .value-side,
-body.startup-mode .info-value-large,
 body.startup-mode .info-value-medium {
   color: var(--status-warning) !important;
-  text-shadow: 0 0 20px var(--status-warning-glow) !important;
+  text-shadow: 0 0 15px var(--status-warning-glow) !important;
 }
 
-/* 啟動模式：盲點警示強制顯示 */
 body.startup-mode .blindspot-indicator {
   opacity: 1 !important;
-  animation: blindspot-pulse 1000ms ease-in-out infinite alternate;
 }
 
-/* 啟動模式：EXPERIMENTAL MODE 強制顯示並發光 */
 body.startup-mode #experimental-card {
   border-color: var(--status-warning) !important;
-  background: linear-gradient(135deg, rgba(255, 170, 0, 0.3) 0%, rgba(255, 170, 0, 0.15) 100%) !important;
-  box-shadow: 0 0 40px var(--status-warning-glow) !important;
+  box-shadow: 0 0 30px var(--status-warning-glow) !important;
 }
 
-/* 啟動淡出動畫 */
-@keyframes startup-fadeout {
-  0% {
-    opacity: 1;
-    color: var(--status-warning);
-    text-shadow: 0 0 20px var(--status-warning-glow);
-  }
-  50% {
-    opacity: 0.5;
-  }
-  100% {
-    opacity: 1;
-    color: var(--text-primary);
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-  }
+body.startup-mode .lead-info-card {
+  border-color: var(--status-warning) !important;
+  box-shadow: 0 0 60px var(--status-warning-glow) !important;
 }
 
-/* 盲點淡出動畫 */
-@keyframes blindspot-fadeout {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-/* 應用淡出動畫的類 */
 .startup-fadeout {
   animation: startup-fadeout 1.6s ease-out forwards;
+}
+
+@keyframes startup-fadeout {
+  0% { color: var(--status-warning); }
+  100% { color: var(--text-primary); }
 }
 
 .blindspot-fadeout {
   animation: blindspot-fadeout 1.6s ease-out forwards;
 }
 
-/* 卡片閃爍效果 */
-@keyframes card-flash {
-  0%, 100% {
-    border-color: rgba(255, 255, 255, 0.15);
-  }
-  50% {
-    border-color: var(--status-warning);
-    box-shadow: 0 0 30px var(--status-warning-glow);
-  }
+@keyframes blindspot-fadeout {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
-body.startup-mode .card {
-  animation: card-flash 1.0s ease-in-out;
-}
-
-/* 前車卡片啟動模式特殊發光 */
-body.startup-mode .lead-info-card {
-  border-color: var(--status-warning) !important;
-  box-shadow: 0 0 80px var(--status-warning-glow) !important;
-}
-
-/* ========== 頁面切換按鈕 ========== */
-
+/* ===== 頁面切換按鈕 ===== */
 .page-switch-btn {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: 10px;
+  right: 10px;
   z-index: 9999;
-
   display: flex;
   align-items: center;
-  gap: 8px;
-
-  padding: 12px 20px;
+  gap: 6px;
+  padding: 8px 14px;
   background: rgba(0, 0, 0, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-
+  border-radius: 10px;
   color: #ffffff;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
-
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-
-  transition: all 0.3s ease;
   cursor: pointer;
 }
 
@@ -1219,70 +511,60 @@ body.startup-mode .lead-info-card {
   background: rgba(76, 175, 80, 0.3);
   border-color: #4CAF50;
   color: #4CAF50;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
 }
 
-.page-switch-btn svg {
-  flex-shrink: 0;
-}
-
-/* 響應式：Mobile */
-@media (max-width: 768px) {
-  .page-switch-btn {
-    top: 12px;
-    right: 12px;
-    padding: 10px 16px;
-    font-size: 12px;
-  }
-
-  .page-switch-btn span {
-    display: none; /* 手機版只顯示圖示 */
-  }
-}
-
-/* ===== NavBridge 導航指示卡片 ===== */
-
+/* ===== 導航卡片 ===== */
 .nav-card {
-  padding: var(--spacing-md) 32px;
+  padding: 10px 24px;
   border: 2px solid var(--status-safe);
   background: linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(0, 255, 136, 0.05) 100%);
-  box-shadow: 0 0 30px var(--status-safe-glow);
-  transition: all var(--transition-normal);
+  box-shadow: 0 0 20px var(--status-safe-glow);
 }
 
 .nav-content {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .nav-icon {
-  font-size: 48px;
+  font-size: 36px;
   font-weight: bold;
   color: var(--status-safe);
-  text-shadow: 0 0 15px var(--status-safe-glow);
-  min-width: 60px;
+  min-width: 45px;
   text-align: center;
-  transition: all var(--transition-fast);
 }
 
-/* 左轉圖示 - 橙色 */
-.nav-icon.nav-left {
-  color: var(--status-warning);
-  text-shadow: 0 0 15px var(--status-warning-glow);
+.nav-icon.nav-left { color: var(--status-warning); }
+.nav-icon.nav-right { color: var(--status-info); }
+.nav-icon.nav-uturn { color: var(--status-danger); }
+
+.nav-distance {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
 }
 
-/* 右轉圖示 - 藍色 */
-.nav-icon.nav-right {
-  color: var(--status-info);
-  text-shadow: 0 0 15px var(--status-info-glow);
+.nav-instruction {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
-/* 迴轉圖示 - 紅色 */
-.nav-icon.nav-uturn {
-  color: var(--status-danger);
-  text-shadow: 0 0 15px var(--status-danger-glow);
+.nav-road-name {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.nav-card.nav-warning {
+  border-color: var(--status-warning);
+  box-shadow: 0 0 30px var(--status-warning-glow);
+}
+
+.nav-card.nav-urgent {
+  border-color: var(--status-danger);
+  box-shadow: 0 0 40px var(--status-danger-glow);
 }
 
 .nav-info {
@@ -1297,193 +579,81 @@ body.startup-mode .lead-info-card {
   gap: 12px;
 }
 
-.nav-distance {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--text-primary);
-  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-}
-
-.nav-instruction {
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.nav-road-name {
-  font-size: 20px;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-/* 導航緊急程度樣式 */
-
-/* 一般 (綠色) - 距離 > 300m */
-.nav-card.nav-normal {
-  border-color: var(--status-safe);
-  background: linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(0, 255, 136, 0.05) 100%);
-  box-shadow: 0 0 30px var(--status-safe-glow);
-}
-
-/* 警告 (橙色) - 距離 100-300m */
-.nav-card.nav-warning {
-  border-color: var(--status-warning);
-  background: linear-gradient(135deg, rgba(255, 170, 0, 0.2) 0%, rgba(255, 170, 0, 0.1) 100%);
-  box-shadow: 0 0 40px var(--status-warning-glow);
-  animation: nav-pulse-warning 1.5s ease-in-out infinite;
-}
-
-/* 緊急 (紅色) - 距離 < 100m */
-.nav-card.nav-urgent {
-  border-color: var(--status-danger);
-  background: linear-gradient(135deg, rgba(255, 51, 102, 0.25) 0%, rgba(255, 51, 102, 0.15) 100%);
-  box-shadow: 0 0 60px var(--status-danger-glow);
-  animation: nav-pulse-urgent 0.8s ease-in-out infinite;
-}
-
-.nav-card.nav-warning .nav-distance,
-.nav-card.nav-warning .nav-instruction {
-  color: var(--status-warning);
-}
-
-.nav-card.nav-urgent .nav-distance,
-.nav-card.nav-urgent .nav-instruction {
-  color: var(--status-danger);
-}
-
-/* 行程資訊列 */
 .nav-trip-row {
   display: flex;
   gap: 12px;
-  margin-top: 4px;
 }
 
 .nav-remaining {
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 14px;
   color: var(--text-secondary);
 }
 
 .nav-eta {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 14px;
   color: var(--status-info);
 }
 
-@keyframes nav-pulse-warning {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 40px var(--status-warning-glow);
+/* ========================================
+   響應式設計 - 小螢幕
+   ======================================== */
+
+@media (max-width: 800px) {
+  :root {
+    --top-card-width: 70px;
+    --top-card-font: 1.1rem;
+    --top-card-label: 8px;
+    --spacing-md: 6px;
   }
-  50% {
-    transform: scale(1.02);
-    box-shadow: 0 0 60px var(--status-warning-glow);
-  }
+
+  #top-row { gap: 4px; }
+  
+  .info-value-medium { font-size: 28px; }
+  .info-label { font-size: 12px; }
+  
+  .blindspot-indicator { width: 40px; }
+  .blindspot-icon { font-size: 28px; }
+  .blindspot-label { font-size: 10px; }
+  
+  #experimental-icon { width: 24px; height: 24px; }
+
+  .no-lead-icon { font-size: 40px; }
+  .no-lead-text { font-size: 18px; }
 }
 
-@keyframes nav-pulse-urgent {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 60px var(--status-danger-glow);
+@media (max-width: 600px) {
+  :root {
+    --top-card-width: 55px;
+    --top-card-font: 0.9rem;
+    --top-card-label: 7px;
+    --spacing-md: 4px;
   }
-  50% {
-    transform: scale(1.03);
-    box-shadow: 0 0 80px var(--status-danger-glow);
-  }
+
+  #top-row { gap: 3px; }
+  
+  .info-value-medium { font-size: 22px; }
+  .info-label { font-size: 10px; }
+  
+  .blindspot-indicator { width: 35px; }
+  .blindspot-icon { font-size: 22px; }
+  .blindspot-label { font-size: 8px; }
+  
+  .no-lead-icon { font-size: 36px; }
+  .no-lead-text { font-size: 16px; }
+  
+  #experimental-icon { width: 18px; height: 18px; }
 }
 
-/* 導航卡片響應式 */
-
-@media (max-width: 1200px) {
-  .nav-icon {
-    font-size: 40px;
-    min-width: 50px;
+/* ========================================
+   超寬螢幕優化 (比例 > 1.8:1)
+   ======================================== */
+@media (min-aspect-ratio: 18/10) {
+  #center-lead-info {
+    max-width: 70%;
+    margin: 0 auto;
   }
 
-  .nav-distance {
-    font-size: 28px;
-  }
-
-  .nav-instruction {
-    font-size: 24px;
-  }
-
-  .nav-road-name {
-    font-size: 18px;
-  }
-
-  .nav-remaining,
-  .nav-eta {
-    font-size: 14px;
+  .info-row-flex {
+    gap: 32px;
   }
 }
-
-@media (max-width: 768px) {
-  .nav-card {
-    padding: var(--spacing-sm) 20px;
-  }
-
-  .nav-content {
-    gap: 12px;
-  }
-
-  .nav-icon {
-    font-size: 32px;
-    min-width: 40px;
-  }
-
-  .nav-distance {
-    font-size: 22px;
-  }
-
-  .nav-instruction {
-    font-size: 18px;
-  }
-
-  .nav-road-name {
-    font-size: 14px;
-  }
-
-  .nav-remaining,
-  .nav-eta {
-    font-size: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .nav-card {
-    padding: var(--spacing-xs) 12px;
-  }
-
-  .nav-content {
-    gap: 8px;
-  }
-
-  .nav-icon {
-    font-size: 24px;
-    min-width: 30px;
-  }
-
-  .nav-distance {
-    font-size: 18px;
-  }
-
-  .nav-instruction {
-    font-size: 14px;
-  }
-
-  .nav-road-name {
-    font-size: 12px;
-  }
-
-  .nav-remaining,
-  .nav-eta {
-    font-size: 10px;
-  }
-
-  .nav-main-row {
-    gap: 8px;
-  }
-}
-
