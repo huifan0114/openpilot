@@ -1,42 +1,21 @@
 /**
- * FrogPilot Dashboard - 現代化儀表板樣式
+ * FrogPilot Dashboard - HFOP 運動風格
+ * 使用底圖背景 + CSS 元件
  * 專為 1280x640 車載螢幕優化
  */
 
 /* ===== CSS 變數定義 ===== */
 :root {
-  /* 顏色 */
-  --bg-primary: #000000;
-  --bg-gradient-start: #0a0a0a;
-  --bg-gradient-end: #000000;
   --text-primary: #ffffff;
-  --text-secondary: #b0b0b0;
+  --text-secondary: #c0c0c0;
   --text-dim: #707070;
-
-  /* 狀態顏色 */
-  --status-safe: #00ff88;
-  --status-safe-glow: rgba(0, 255, 136, 0.4);
-  --status-warning: #ffaa00;
-  --status-warning-glow: rgba(255, 170, 0, 0.4);
-  --status-danger: #ff3366;
-  --status-danger-glow: rgba(255, 51, 102, 0.5);
-  --status-info: #00ccff;
-  --status-info-glow: rgba(0, 204, 255, 0.4);
-
-  /* 尺寸 - 1280x640 車載螢幕優化 */
-  --card-radius: 12px;
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
+  --hfop-red: #E30613;
+  --hfop-red-bright: #FF1A2D;
+  --hfop-red-dark: #B00510;
+  
+  --card-radius: 10px;
   --spacing-md: 10px;
-  --spacing-lg: 16px;
-
-  /* 頂部卡片尺寸 - 統一變數控制 */
-  --top-card-width: 95px;
-  --top-card-height: 48px;
-  --top-card-font: 1.5rem;
-  --top-card-label: 10px;
-
-  /* 過渡 */
+  
   --transition-fast: 0.2s ease;
   --transition-normal: 0.3s ease;
 }
@@ -56,22 +35,11 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ===== 使用底圖背景 ===== */
 body {
-  background: radial-gradient(ellipse at center, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+  background: #000 url('/static/assets/hfop_bg.png') no-repeat center center;
+  background-size: cover;
   color: var(--text-primary);
-}
-
-/* 網格背景 */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(0, 255, 255, 0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 255, 255, 0.015) 1px, transparent 1px);
-  background-size: 50px 50px;
-  pointer-events: none;
-  z-index: 1;
 }
 
 /* ===== 主容器 ===== */
@@ -82,162 +50,235 @@ body::after {
   z-index: 2;
 }
 
-/* ===== 工具類 ===== */
+#dashboard::before {
+  display: none;
+}
+
 .hidden {
   display: none !important;
 }
 
-/* ===== 通用卡片樣式 ===== */
-.card {
-  background: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(25, 25, 25, 0.9) 100%);
-  border-radius: var(--card-radius);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
-  transition: all var(--transition-normal);
-}
-
-/* ===== 頂部一排: 6個統一卡片 (30% 高度) ===== */
+/* ===== 頂部卡片區域 ===== */
 #top-row {
   position: absolute;
-  top: 0;
-  left: var(--spacing-md);
-  right: var(--spacing-md);
-  height: 30%;
+  top: 3.5%;
+  left: 1.8%;
+  right: 1.8%;
+  height: 17%;
   display: flex;
-  justify-content: stretch;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: 1.2%;
   z-index: 100;
 }
 
-/* 頂部卡片 - 平均分配寬度 */
 .top-card {
   flex: 1;
-  height: 70%;
-  padding: 4px 8px;
+  height: 100%;
+  padding: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .top-card .label-small {
-  font-size: clamp(12px, 3vh, 24px);
+  font-size: clamp(14px, 2.5vh, 22px);
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
   line-height: 1;
 }
 
-/* 頂部數值 - 統一樣式，所有頂部卡片數值都用這個 */
 .value-top {
-  font-size: clamp(1.5rem, 6vh, 3rem) !important;
-  font-weight: 600;
+  font-size: clamp(1.8rem, 7vh, 3.5rem) !important;
+  font-weight: 700;
   line-height: 1;
-  color: var(--text-primary);
+  color: var(--hfop-red);
   font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
   font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 15px rgba(227, 6, 19, 0.6);
 }
 
-/* 控制加速顏色 */
-.value-top.positive { color: var(--status-safe); }
-.value-top.negative { color: var(--status-danger); }
-.value-top.neutral { color: var(--text-dim); }
-
-/* 最低值標示 */
-.top-card.controlling {
-  border-color: var(--status-warning);
-  box-shadow: 0 0 15px var(--status-warning-glow);
+.value-top.positive { 
+  color: #00FF66;
+  text-shadow: 0 0 15px rgba(0, 255, 102, 0.6);
+}
+.value-top.negative { 
+  color: #FF0000; 
+  text-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+}
+.value-top.neutral { 
+  color: var(--text-dim); 
+  text-shadow: none;
 }
 
-/* ===== 中間一排 (40% 高度) ===== */
+.top-card.controlling .value-top {
+  color: #FF0000;
+  text-shadow: 
+    0 0 20px rgba(255, 0, 0, 0.8),
+    0 0 40px rgba(255, 0, 0, 0.5);
+}
+
+/* ===== 中間一排 ===== */
 #middle-row {
   position: absolute;
-  top: 30%;
-  bottom: 30%;
-  left: var(--spacing-md);
-  right: var(--spacing-md);
+  top: 22%;
+  bottom: 17%;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: stretch;
-  gap: var(--spacing-sm);
   z-index: 50;
 }
 
-/* 側邊欄 */
-.side-column {
+/* ===== 左側欄位置 ===== */
+.side-column:first-child {
+  position: absolute;
+  left: 0.5%;
+  top: 18%;
+  width: 9%;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  flex-shrink: 0;
+  gap: 2%;
+  z-index: 60;
 }
 
-/* 側邊小卡片 - 與頂部卡片相同寬度，高度自適應 */
+/* ===== 右側欄位置 ===== */
+.side-column:last-child {
+  position: absolute;
+  right: 0.5%;
+  top: 18%;
+  width: 9%;
+  display: flex;
+  flex-direction: column;
+  z-index: 60;
+}
+
+/* ===== 小卡片樣式 ===== */
 .mini-card {
-  width: clamp(70px, 8vw, 120px);
-  flex: 1;
-  padding: 4px 8px;
+  width: 100%;
+  height: 70px;
+  padding: 4px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
+  background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+  border: 2px solid var(--hfop-red);
+  border-radius: var(--card-radius);
+  box-shadow: 
+    0 0 15px rgba(227, 6, 19, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.mini-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
 }
 
 .mini-card .label-small {
-  font-size: clamp(12px, 3vh, 24px);
+  font-size: clamp(9px, 1.5vh, 13px);
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 2px;
+  letter-spacing: 0.02em;
+  margin-bottom: 1px;
   line-height: 1;
 }
 
-/* 即將速限卡片 - 藍色邊框 */
-#upcoming-speed-card,
-#upcoming-distance-card {
-  border-color: var(--status-info);
+.mini-card .value-top {
+  font-size: clamp(0.9rem, 3.5vh, 1.6rem) !important;
 }
 
-/* EXPERIMENTAL 圖示 */
+/* ===== 右側實驗模式卡片 ===== */
+#experimental-card {
+  width: 100%;
+  height: 70px;
+  background: 
+    repeating-linear-gradient(
+      45deg,
+      #1a1a1a 0px,
+      #1a1a1a 8px,
+      #222 8px,
+      #222 16px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      #1a1a1a 0px,
+      #1a1a1a 8px,
+      #1f1f1f 8px,
+      #1f1f1f 16px
+    );
+  background-blend-mode: overlay;
+  border: 2px solid var(--hfop-red);
+}
+
 #experimental-icon {
-  width: clamp(24px, 4vh, 48px);
-  height: clamp(24px, 4vh, 48px);
+  width: clamp(20px, 3.5vh, 36px);
+  height: clamp(20px, 3.5vh, 36px);
   object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
 }
 
 #experimental-card.active {
-  border-color: var(--status-warning);
-  background: linear-gradient(135deg, rgba(255, 170, 0, 0.2) 0%, rgba(255, 170, 0, 0.1) 100%);
-  box-shadow: 0 0 20px var(--status-warning-glow);
+  border-color: var(--hfop-red-bright);
+  box-shadow: 
+    0 0 25px rgba(227, 6, 19, 0.6),
+    0 0 50px rgba(227, 6, 19, 0.3);
+}
+
+#experimental-card.active #experimental-icon {
+  filter: none;
+  opacity: 1;
 }
 
 /* ===== 前車資訊區域 ===== */
 #center-lead-info {
-  flex: 1;
-  min-width: 0;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 52%;
+  height: 100%;
   display: flex;
-  align-items: stretch;
-  gap: 10px;
-}
-
-.lead-info-card {
-  flex: 1;
-  min-width: 0;
-  background: linear-gradient(135deg, rgba(15, 15, 15, 0.98) 0%, rgba(25, 25, 25, 0.95) 100%);
-  border-radius: 16px;
-  border: 2px solid var(--status-safe);
-  box-shadow: 0 0 40px var(--status-safe-glow);
-  padding: 12px 20px;
-  display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
 }
 
-/* 無前車狀態 */
+/* ===== 中央核心數據框 ===== */
+.lead-info-card {
+  width: 100%;
+  height: 85%;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 10px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 0;
+}
+
+.lead-info-card::before,
+.lead-info-card::after {
+  display: none;
+}
+
 #no-lead-state {
   display: flex;
   flex-direction: column;
@@ -248,7 +289,7 @@ body::after {
 
 .no-lead-icon {
   font-size: 50px;
-  opacity: 0.25;
+  opacity: 0.3;
   margin-bottom: 8px;
   filter: grayscale(100%);
 }
@@ -260,18 +301,18 @@ body::after {
   opacity: 0.6;
 }
 
-/* 有前車狀態 */
 #has-lead-state {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  height: 100%;
 }
 
 .info-row-flex {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
   width: 100%;
 }
 
@@ -281,99 +322,124 @@ body::after {
 }
 
 .info-label {
-  font-size: 14px;
-  color: var(--text-secondary);
+  font-size: clamp(12px, 1.8vh, 18px);
+  color: var(--hfop-red);
   margin-bottom: 4px;
-  font-weight: 500;
+  font-weight: 600;
+  text-shadow: 0 0 8px rgba(227, 6, 19, 0.5);
 }
 
 .info-value-medium {
-  font-size: 42px;
+  font-size: clamp(26px, 5.5vh, 46px);
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--hfop-red);
   font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
   line-height: 1;
+  text-shadow: 0 0 20px rgba(227, 6, 19, 0.6);
 }
 
-/* 前車卡片狀態 */
-.lead-info-card.status-safe {
-  border-color: var(--status-safe);
-  box-shadow: 0 0 40px var(--status-safe-glow);
+.lead-info-card.status-safe .info-value-medium {
+  color: var(--hfop-red);
 }
 
-.lead-info-card.status-warning {
-  border-color: var(--status-warning);
-  box-shadow: 0 0 50px var(--status-warning-glow);
+.lead-info-card.status-warning .info-value-medium {
+  color: #FF4444;
+  text-shadow: 0 0 25px rgba(255, 68, 68, 0.7);
 }
 
-.lead-info-card.status-danger {
-  border-color: var(--status-danger);
-  box-shadow: 0 0 60px var(--status-danger-glow);
+.lead-info-card.status-danger .info-value-medium {
+  color: #FF0000;
+  text-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+  animation: danger-text-pulse 0.5s ease-in-out infinite alternate;
 }
 
-/* 狀態顏色類 */
-.status-safe { color: var(--status-safe) !important; }
-.status-warning { color: var(--status-warning) !important; }
-.status-danger { color: var(--status-danger) !important; }
+@keyframes danger-text-pulse {
+  0% { text-shadow: 0 0 30px rgba(255, 0, 0, 0.8); }
+  100% { text-shadow: 0 0 50px rgba(255, 0, 0, 1); }
+}
 
-/* ===== 盲點警示 ===== */
+.status-safe { color: var(--hfop-red) !important; }
+.status-warning { color: #FF4444 !important; }
+.status-danger { color: #FF0000 !important; }
+
+/* ===== 盲點警示 - 現在在 #dashboard 層級，用 absolute 定位 ===== */
 .blindspot-indicator {
-  width: 55px;
-  flex-shrink: 0;
-  background: linear-gradient(180deg, rgba(255, 51, 102, 0.95) 0%, rgba(255, 51, 102, 0.75) 50%, rgba(255, 51, 102, 0.95) 100%);
-  border-radius: 14px;
-  border: 2px solid var(--status-danger);
-  box-shadow: 0 0 30px var(--status-danger-glow);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 28%;
+  background: linear-gradient(180deg, 
+    #E30613 0%, 
+    #B00510 50%, 
+    #E30613 100%);
+  border-radius: 8px;
+  border: 2px solid #FF0000;
+  box-shadow: 
+    0 0 20px rgba(255, 0, 0, 0.6),
+    inset 0 0 15px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
+  z-index: 200;
+}
+
+/* 左側盲點：緊貼左側卡片右邊 + 小間距 */
+/* 左側欄: left 0.5% + width 9% = 9.5%, 加間距 0.8% */
+#left-blindspot {
+  left: 10.3%;
+}
+
+/* 右側盲點：緊貼右側卡片左邊 + 小間距 */
+/* 右側欄: right 0.5% + width 9% = 9.5%, 加間距 0.8% */
+#right-blindspot {
+  right: 10.3%;
 }
 
 .blindspot-indicator.active {
   opacity: 1;
-  animation: blindspot-pulse 500ms ease-in-out infinite alternate;
+  animation: blindspot-pulse 400ms ease-in-out infinite alternate;
 }
 
+/* 重要：覆蓋 .hidden 讓盲點能被 JS 控制顯示 */
 .blindspot-indicator.hidden {
   display: flex !important;
-  visibility: hidden;
   opacity: 0;
 }
 
-#left-blindspot { order: -1; }
-#right-blindspot { order: 1; }
-
 .blindspot-icon {
-  font-size: 40px;
+  font-size: 22px;
   line-height: 1;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
 }
 
 .blindspot-label {
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 700;
   color: #ffffff;
   letter-spacing: 2px;
   writing-mode: vertical-rl;
   text-orientation: upright;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 @keyframes blindspot-pulse {
-  0% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0.7; transform: scale(0.97); }
+  0% { opacity: 1; transform: translateY(-50%) scale(1); box-shadow: 0 0 20px rgba(255, 0, 0, 0.6); }
+  100% { opacity: 0.85; transform: translateY(-50%) scale(0.98); box-shadow: 0 0 35px rgba(255, 0, 0, 0.8); }
 }
 
-/* ===== 底部區域 (30% 高度) ===== */
+/* ===== 底部區域 ===== */
 #bottom-row {
   position: absolute;
   bottom: 0;
-  left: var(--spacing-md);
-  right: var(--spacing-md);
-  height: 30%;
+  left: 0;
+  right: 0;
+  height: 17%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -381,78 +447,82 @@ body::after {
 }
 
 .nav-placeholder {
-  flex: 1;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  pointer-events: none;
+  display: none !important;
 }
-
-.nav-placeholder::before { display: none !important; }
 
 #bottom-row #road-name-card {
   position: absolute;
   left: 50%;
+  bottom: 15%;
   transform: translateX(-50%);
-  padding: 16px 32px;
 }
 
 #road-name-card {
-  padding: 16px 32px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 30px;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 #road-name-text {
-  font-size: clamp(24px, 6vh, 56px);
+  font-size: clamp(24px, 5vh, 48px);
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
-/* ===== 連接狀態 ===== */
+/* ===== 連接狀態 Badge ===== */
 #top-center-status {
   position: absolute;
-  top: var(--spacing-lg);
+  top: 1%;
   left: 50%;
   transform: translateX(-50%);
   z-index: 200;
 }
 
 .connection-badge {
-  padding: 8px 16px;
-  background: rgba(15, 15, 15, 0.95);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 6px 14px;
+  background: rgba(10, 10, 10, 0.9);
+  border-radius: 16px;
+  border: 2px solid var(--hfop-red);
+  box-shadow: 0 0 10px rgba(227, 6, 19, 0.4);
 }
 
 #status-text {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--hfop-red);
 }
 
 .connection-badge.connected {
-  border-color: var(--status-safe);
-  background: rgba(0, 255, 136, 0.1);
+  border-color: var(--hfop-red);
+  background: rgba(227, 6, 19, 0.15);
+  box-shadow: 0 0 15px rgba(227, 6, 19, 0.5);
 }
 
 .connection-badge.connected #status-text {
-  color: var(--status-safe);
+  color: var(--hfop-red);
 }
 
 .connection-badge.connecting {
-  border-color: var(--status-warning);
+  animation: connecting-pulse 1s ease-in-out infinite;
+}
+
+@keyframes connecting-pulse {
+  0%, 100% { border-color: rgba(227, 6, 19, 0.4); box-shadow: 0 0 10px rgba(227, 6, 19, 0.3); }
+  50% { border-color: var(--hfop-red); box-shadow: 0 0 20px rgba(227, 6, 19, 0.6); }
 }
 
 .connection-badge.connecting #status-text {
-  color: var(--status-warning);
+  color: var(--hfop-red);
 }
 
 /* ===== 啟動效果 ===== */
 body.startup-mode .value-top,
 body.startup-mode .info-value-medium {
-  color: var(--status-warning) !important;
-  text-shadow: 0 0 15px var(--status-warning-glow) !important;
+  color: var(--hfop-red-bright) !important;
+  text-shadow: 0 0 30px rgba(255, 26, 45, 0.9) !important;
 }
 
 body.startup-mode .blindspot-indicator {
@@ -460,13 +530,8 @@ body.startup-mode .blindspot-indicator {
 }
 
 body.startup-mode #experimental-card {
-  border-color: var(--status-warning) !important;
-  box-shadow: 0 0 30px var(--status-warning-glow) !important;
-}
-
-body.startup-mode .lead-info-card {
-  border-color: var(--status-warning) !important;
-  box-shadow: 0 0 60px var(--status-warning-glow) !important;
+  border-color: var(--hfop-red-bright) !important;
+  box-shadow: 0 0 40px rgba(227, 6, 19, 0.7) !important;
 }
 
 .startup-fadeout {
@@ -474,8 +539,8 @@ body.startup-mode .lead-info-card {
 }
 
 @keyframes startup-fadeout {
-  0% { color: var(--status-warning); }
-  100% { color: var(--text-primary); }
+  0% { color: var(--hfop-red-bright); }
+  100% { color: var(--hfop-red); }
 }
 
 .blindspot-fadeout {
@@ -490,35 +555,36 @@ body.startup-mode .lead-info-card {
 /* ===== 頁面切換按鈕 ===== */
 .page-switch-btn {
   position: fixed;
-  top: 10px;
-  right: 10px;
+  top: 8px;
+  right: 8px;
   z-index: 9999;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
-  background: rgba(0, 0, 0, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 2px solid var(--hfop-red);
+  border-radius: 8px;
   color: #ffffff;
   text-decoration: none;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 0 12px rgba(227, 6, 19, 0.4);
 }
 
 .page-switch-btn:hover {
-  background: rgba(76, 175, 80, 0.3);
-  border-color: #4CAF50;
-  color: #4CAF50;
+  background: rgba(227, 6, 19, 0.3);
+  box-shadow: 0 0 20px rgba(227, 6, 19, 0.6);
 }
 
 /* ===== 導航卡片 ===== */
 .nav-card {
   padding: 10px 24px;
-  border: 2px solid var(--status-safe);
-  background: linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(0, 255, 136, 0.05) 100%);
-  box-shadow: 0 0 20px var(--status-safe-glow);
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid var(--hfop-red);
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(227, 6, 19, 0.4);
 }
 
 .nav-content {
@@ -530,14 +596,10 @@ body.startup-mode .lead-info-card {
 .nav-icon {
   font-size: 36px;
   font-weight: bold;
-  color: var(--status-safe);
+  color: var(--hfop-red);
   min-width: 45px;
   text-align: center;
 }
-
-.nav-icon.nav-left { color: var(--status-warning); }
-.nav-icon.nav-right { color: var(--status-info); }
-.nav-icon.nav-uturn { color: var(--status-danger); }
 
 .nav-distance {
   font-size: 24px;
@@ -555,16 +617,6 @@ body.startup-mode .lead-info-card {
 .nav-road-name {
   font-size: 14px;
   color: var(--text-secondary);
-}
-
-.nav-card.nav-warning {
-  border-color: var(--status-warning);
-  box-shadow: 0 0 30px var(--status-warning-glow);
-}
-
-.nav-card.nav-urgent {
-  border-color: var(--status-danger);
-  box-shadow: 0 0 40px var(--status-danger-glow);
 }
 
 .nav-info {
@@ -591,69 +643,68 @@ body.startup-mode .lead-info-card {
 
 .nav-eta {
   font-size: 14px;
-  color: var(--status-info);
+  color: var(--hfop-red);
 }
 
 /* ========================================
-   響應式設計 - 小螢幕
+   響應式設計
    ======================================== */
 
 @media (max-width: 800px) {
-  :root {
-    --top-card-width: 70px;
-    --top-card-font: 1.1rem;
-    --top-card-label: 8px;
-    --spacing-md: 6px;
+  .side-column:first-child,
+  .side-column:last-child { 
+    width: 10%; 
   }
-
-  #top-row { gap: 4px; }
   
-  .info-value-medium { font-size: 28px; }
-  .info-label { font-size: 12px; }
+  .mini-card { height: 60px; }
+  .mini-card .value-top { font-size: clamp(0.8rem, 3vh, 1.4rem) !important; }
+  .mini-card .label-small { font-size: clamp(7px, 1.3vh, 10px); }
   
-  .blindspot-indicator { width: 40px; }
-  .blindspot-icon { font-size: 28px; }
-  .blindspot-label { font-size: 10px; }
+  #experimental-card { height: 60px; }
   
-  #experimental-icon { width: 24px; height: 24px; }
-
-  .no-lead-icon { font-size: 40px; }
-  .no-lead-text { font-size: 18px; }
+  .info-value-medium { font-size: 24px; }
+  .info-label { font-size: 10px; }
+  
+  .blindspot-indicator { width: 32px; height: 25%; }
+  #left-blindspot { left: 11%; }
+  #right-blindspot { right: 11%; }
+  .blindspot-icon { font-size: 18px; }
+  .blindspot-label { font-size: 9px; }
+  
+  #experimental-icon { width: 18px; height: 18px; }
+  
+  .no-lead-icon { font-size: 38px; }
+  .no-lead-text { font-size: 16px; }
 }
 
 @media (max-width: 600px) {
-  :root {
-    --top-card-width: 55px;
-    --top-card-font: 0.9rem;
-    --top-card-label: 7px;
-    --spacing-md: 4px;
+  .side-column:first-child,
+  .side-column:last-child { 
+    width: 11%; 
   }
-
-  #top-row { gap: 3px; }
   
-  .info-value-medium { font-size: 22px; }
-  .info-label { font-size: 10px; }
+  .mini-card { height: 50px; }
+  .mini-card .value-top { font-size: clamp(0.7rem, 2.5vh, 1.2rem) !important; }
   
-  .blindspot-indicator { width: 35px; }
-  .blindspot-icon { font-size: 22px; }
-  .blindspot-label { font-size: 8px; }
+  #experimental-card { height: 50px; }
   
-  .no-lead-icon { font-size: 36px; }
-  .no-lead-text { font-size: 16px; }
+  .info-value-medium { font-size: 20px; }
+  .info-label { font-size: 9px; }
   
-  #experimental-icon { width: 18px; height: 18px; }
+  .blindspot-indicator { width: 26px; height: 22%; }
+  #left-blindspot { left: 12%; }
+  #right-blindspot { right: 12%; }
+  .blindspot-icon { font-size: 14px; }
+  .blindspot-label { font-size: 7px; }
+  
+  .no-lead-icon { font-size: 32px; }
+  .no-lead-text { font-size: 14px; }
+  
+  #experimental-icon { width: 14px; height: 14px; }
 }
 
-/* ========================================
-   超寬螢幕優化 (比例 > 1.8:1)
-   ======================================== */
 @media (min-aspect-ratio: 18/10) {
   #center-lead-info {
-    max-width: 70%;
-    margin: 0 auto;
-  }
-
-  .info-row-flex {
-    gap: 32px;
+    width: 48%;
   }
 }

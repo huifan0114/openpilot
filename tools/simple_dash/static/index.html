@@ -55,6 +55,16 @@
       </div>
     </div>
 
+    <!-- 盲點警示 - 獨立於其他容器 -->
+    <div id="left-blindspot" class="blindspot-indicator hidden">
+      <div class="blindspot-icon">⚠️</div>
+      <div class="blindspot-label">左側</div>
+    </div>
+    <div id="right-blindspot" class="blindspot-indicator hidden">
+      <div class="blindspot-icon">⚠️</div>
+      <div class="blindspot-label">右側</div>
+    </div>
+
     <!-- 中間一排: 左側卡片 + 前車卡片 + 右側卡片 -->
     <div id="middle-row">
       <!-- 左側: 垂直排列的小卡片 -->
@@ -70,14 +80,8 @@
         <!-- 未來可在此新增更多卡片 -->
       </div>
 
-      <!-- 中央: 前車資訊卡片 (含盲點警示) -->
+      <!-- 中央: 前車資訊卡片 -->
       <div id="center-lead-info">
-        <!-- 左側盲點警示 -->
-        <div id="left-blindspot" class="blindspot-indicator hidden">
-          <div class="blindspot-icon">⚠️</div>
-          <div class="blindspot-label">左側</div>
-        </div>
-
         <div id="lead-card" class="card lead-info-card">
           <!-- 無前車狀態 -->
           <div id="no-lead-state">
@@ -106,12 +110,6 @@
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- 右側盲點警示 -->
-        <div id="right-blindspot" class="blindspot-indicator hidden">
-          <div class="blindspot-icon">⚠️</div>
-          <div class="blindspot-label">右側</div>
         </div>
       </div>
 
