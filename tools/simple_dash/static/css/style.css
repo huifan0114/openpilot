@@ -1,23 +1,17 @@
 /**
- * FrogPilot Dashboard - HFOP 運動風格
- * 使用底圖背景 + CSS 元件
+ * FrogPilot Dashboard - HFOP Style (Background Image Aligned)
  * 專為 1280x640 車載螢幕優化
  */
 
 /* ===== CSS 變數定義 ===== */
 :root {
   --text-primary: #ffffff;
-  --text-secondary: #c0c0c0;
-  --text-dim: #707070;
+  --text-secondary: #e0e0e0;
+  --text-dim: #909090;
   --hfop-red: #E30613;
   --hfop-red-bright: #FF1A2D;
-  --hfop-red-dark: #B00510;
-  
-  --card-radius: 10px;
+
   --spacing-md: 10px;
-  
-  --transition-fast: 0.2s ease;
-  --transition-normal: 0.3s ease;
 }
 
 /* ===== 基礎重置 ===== */
@@ -27,18 +21,21 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: "Eurostile", "Microgramma", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
+  background-color: #000;
 }
 
 /* ===== 使用底圖背景 ===== */
 body {
   background: #000 url('/static/assets/hfop_bg.png') no-repeat center center;
   background-size: cover;
+  /* 1280x640 should fit perfectly */
   color: var(--text-primary);
 }
 
@@ -48,10 +45,7 @@ body {
   width: 100%;
   height: 100%;
   z-index: 2;
-}
-
-#dashboard::before {
-  display: none;
+  /* padding: 10px; Avoid padding to match background exact pixels */
 }
 
 .hidden {
@@ -61,224 +55,160 @@ body {
 /* ===== 頂部卡片區域 ===== */
 #top-row {
   position: absolute;
-  top: 3.5%;
-  left: 1.8%;
-  right: 1.8%;
-  height: 17%;
+  top: 15px;
+  /* Adjust based on background slots */
+  left: 20px;
+  right: 20px;
+  height: 110px;
+  /* Estimated slot height */
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 1.2%;
+  gap: 15px;
+  /* Spacing between slots */
   z-index: 100;
 }
 
 .top-card {
   flex: 1;
   height: 100%;
-  padding: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
+
+  /* IMPORTANT: Transparent to show background slots */
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
+  backdrop-filter: none !important;
 }
 
 .top-card .label-small {
-  font-size: clamp(14px, 2.5vh, 22px);
-  font-weight: 600;
-  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 4px;
-  line-height: 1;
 }
 
 .value-top {
-  font-size: clamp(1.8rem, 7vh, 3.5rem) !important;
+  font-size: 42px;
   font-weight: 700;
   line-height: 1;
   color: var(--hfop-red);
   font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-  font-variant-numeric: tabular-nums;
-  text-shadow: 0 0 15px rgba(227, 6, 19, 0.6);
+  text-shadow: 0 0 10px rgba(227, 6, 19, 0.5);
 }
 
-.value-top.positive { 
-  color: #00FF66;
-  text-shadow: 0 0 15px rgba(0, 255, 102, 0.6);
-}
-.value-top.negative { 
-  color: #FF0000; 
-  text-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
-}
-.value-top.neutral { 
-  color: var(--text-dim); 
-  text-shadow: none;
+#max-speed-value {
+  font-size: 46px;
 }
 
-.top-card.controlling .value-top {
-  color: #FF0000;
-  text-shadow: 
-    0 0 20px rgba(255, 0, 0, 0.8),
-    0 0 40px rgba(255, 0, 0, 0.5);
-}
-
-/* ===== 中間一排 ===== */
+/* ===== 中間一排 (左右卡片 + 中央面板) ===== */
 #middle-row {
   position: absolute;
-  top: 22%;
-  bottom: 17%;
-  left: 0;
-  right: 0;
+  top: 140px;
+  /* Estimated start of middle row */
+  bottom: 110px;
+  /* Reserve bottom nav space */
+  left: 20px;
+  right: 20px;
   display: flex;
+  justify-content: space-between;
   align-items: stretch;
   z-index: 50;
 }
 
-/* ===== 左側欄位置 ===== */
-.side-column:first-child {
-  position: absolute;
-  left: 0.5%;
-  top: 18%;
-  width: 9%;
+/* 左右側欄容器 */
+.side-column {
+  width: 140px;
+  /* Fixed width for side slots */
   display: flex;
   flex-direction: column;
-  gap: 2%;
+  justify-content: flex-start;
+  /* Align to top of middle row */
+  gap: 20px;
+  /* Gap between the two side cards */
   z-index: 60;
 }
 
-/* ===== 右側欄位置 ===== */
-.side-column:last-child {
-  position: absolute;
-  right: 0.5%;
-  top: 18%;
-  width: 9%;
-  display: flex;
-  flex-direction: column;
-  z-index: 60;
-}
-
-/* ===== 小卡片樣式 - 字體跟頂部一樣大 ===== */
+/* 小卡片樣式 - Transparent */
 .mini-card {
   width: 100%;
-  height: 70px;
-  padding: 4px 4px;
+  height: 100px;
+  /* Estimated slot height */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
-  border: 2px solid var(--hfop-red);
-  border-radius: var(--card-radius);
-  box-shadow: 
-    0 0 15px rgba(227, 6, 19, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  position: relative;
-  overflow: hidden;
-}
 
-.mini-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 10%;
-  right: 10%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-}
-
-.mini-card .label-small {
-  font-size: clamp(10px, 1.8vh, 16px);
-  font-weight: 600;
-  color: var(--text-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  margin-bottom: 2px;
-  line-height: 1;
-}
-
-/* 即將速限/即將距離 字體跟頂部一樣大 */
-.mini-card .value-top {
-  font-size: clamp(1.5rem, 6vh, 3rem) !important;
-}
-
-/* ===== 右側實驗模式卡片 ===== */
-#experimental-card {
-  width: 100%;
-  height: 70px;
-  background: 
-    repeating-linear-gradient(
-      45deg,
-      #1a1a1a 0px,
-      #1a1a1a 8px,
-      #222 8px,
-      #222 16px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      #1a1a1a 0px,
-      #1a1a1a 8px,
-      #1f1f1f 8px,
-      #1f1f1f 16px
-    );
-  background-blend-mode: overlay;
-  border: 2px solid var(--hfop-red);
-}
-
-/* EXPERIMENTAL 圖示放大 */
-#experimental-icon {
-  width: clamp(32px, 5vh, 50px);
-  height: clamp(32px, 5vh, 50px);
-  object-fit: contain;
-  filter: brightness(0) invert(1);
-  opacity: 0.8;
-}
-
-#experimental-card.active {
-  border-color: var(--hfop-red-bright);
-  box-shadow: 
-    0 0 25px rgba(227, 6, 19, 0.6),
-    0 0 50px rgba(227, 6, 19, 0.3);
-}
-
-#experimental-card.active #experimental-icon {
-  filter: none;
-  opacity: 1;
-}
-
-/* ===== 前車資訊區域 ===== */
-#center-lead-info {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 52%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* ===== 中央核心數據框 ===== */
-.lead-info-card {
-  width: 100%;
-  height: 85%;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 10px 18px;
+}
+
+.mini-card .label-small {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+
+.mini-card .value-top {
+  font-size: 32px !important;
+}
+
+/* 右側實驗按鈕 */
+#experimental-card {
+  height: 100px;
+  background: transparent !important;
+  /* Assume BG has slot */
+  border: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#experimental-icon {
+  width: 60px;
+  height: 60px;
+  opacity: 0.8;
+}
+
+#experimental-card.active #experimental-icon {
+  opacity: 1;
+  filter: drop-shadow(0 0 5px rgba(227, 6, 19, 0.8));
+}
+
+/* ===== 中央面板 (最重要) ===== */
+#center-lead-info {
+  flex: 1;
+  margin: 0 40px;
+  /* Give space for blind spot pillars */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lead-info-card {
+  width: 100%;
+  height: 100%;
+
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border-radius: 0;
+  padding-bottom: 40px;
+  /* Shift content up */
+  position: relative;
 }
 
-.lead-info-card::before,
 .lead-info-card::after {
   display: none;
+  /* No internal border */
 }
 
 #no-lead-state {
@@ -290,419 +220,191 @@ body {
 }
 
 .no-lead-icon {
-  font-size: 50px;
-  opacity: 0.3;
-  margin-bottom: 8px;
-  filter: grayscale(100%);
+  font-size: 60px;
+  opacity: 0.2;
+  color: #fff;
+  margin-bottom: 10px;
 }
 
 .no-lead-text {
   font-size: 24px;
-  font-weight: 500;
   color: var(--text-dim);
-  opacity: 0.6;
 }
 
 #has-lead-state {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
   justify-content: center;
   height: 100%;
+  width: 100%;
 }
 
 .info-row-flex {
   display: flex;
-  justify-content: space-around;
-  align-items: center;
-  gap: 8px;
+  justify-content: space-evenly;
   width: 100%;
+  align-items: center;
 }
 
-.info-row-flex .info-col {
-  flex: 1;
-  text-align: center;
+.info-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
 }
 
 .info-label {
-  font-size: clamp(12px, 1.8vh, 18px);
-  color: var(--hfop-red);
-  margin-bottom: 4px;
-  font-weight: 600;
-  text-shadow: 0 0 8px rgba(227, 6, 19, 0.5);
+  font-size: 16px;
+  color: var(--text-secondary);
 }
 
 .info-value-medium {
-  font-size: clamp(26px, 5.5vh, 46px);
+  font-size: 56px;
   font-weight: 700;
-  color: var(--hfop-red);
-  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-  line-height: 1;
-  text-shadow: 0 0 20px rgba(227, 6, 19, 0.6);
+  color: var(--hfop-red-bright);
+  text-shadow: 0 0 20px rgba(255, 26, 45, 0.6);
+  font-family: 'SF Mono', 'Monaco', monospace;
 }
 
-.lead-info-card.status-safe .info-value-medium {
-  color: var(--hfop-red);
-}
-
-.lead-info-card.status-warning .info-value-medium {
-  color: #FF4444;
-  text-shadow: 0 0 25px rgba(255, 68, 68, 0.7);
-}
-
-.lead-info-card.status-danger .info-value-medium {
-  color: #FF0000;
-  text-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
-  animation: danger-text-pulse 0.5s ease-in-out infinite alternate;
-}
-
-@keyframes danger-text-pulse {
-  0% { text-shadow: 0 0 30px rgba(255, 0, 0, 0.8); }
-  100% { text-shadow: 0 0 50px rgba(255, 0, 0, 1); }
-}
-
-.status-safe { color: var(--hfop-red) !important; }
-.status-warning { color: #FF4444 !important; }
-.status-danger { color: #FF0000 !important; }
-
-/* ===== 盲點警示 - 跟前車卡片框一樣高 ===== */
+/* ===== 盲點指示器 (垂直條) ===== */
 .blindspot-indicator {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 38px;
-  height: 42%;
-  background: linear-gradient(180deg, 
-    #E30613 0%, 
-    #B00510 50%, 
-    #E30613 100%);
-  border-radius: 8px;
-  border: 2px solid #FF0000;
-  box-shadow: 
-    0 0 20px rgba(255, 0, 0, 0.6),
-    inset 0 0 15px rgba(0, 0, 0, 0.3);
+  width: 40px;
+  height: 40%;
+
+  /* Assuming BG might NOT have these indicator bars active, so we keep the drawing */
+  background: rgba(30, 0, 0, 0.4);
+  border: 1px solid var(--hfop-red-dark);
+  border-radius: 20px;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  z-index: 200;
+  gap: 10px;
+  transition: all 0.2s ease;
+  z-index: 90;
 }
 
-/* 左側盲點：緊貼左側卡片右邊 + 小間距 */
+/* Positioning next to side columns */
 #left-blindspot {
-  left: 10.3%;
+  left: 162px;
 }
 
-/* 右側盲點：緊貼右側卡片左邊 + 小間距 */
 #right-blindspot {
-  right: 10.3%;
+  right: 162px;
 }
 
 .blindspot-indicator.active {
-  opacity: 1;
-  animation: blindspot-pulse 400ms ease-in-out infinite alternate;
+  background: var(--hfop-red);
+  box-shadow: 0 0 30px #FF0000;
+  border-color: #fff;
+  animation: pulse-red 0.5s infinite alternate;
 }
 
-/* 重要：覆蓋 .hidden 讓盲點能被 JS 控制顯示 */
-.blindspot-indicator.hidden {
-  display: flex !important;
-  opacity: 0;
+@keyframes pulse-red {
+  from {
+    box-shadow: 0 0 20px #FF0000;
+  }
+
+  to {
+    box-shadow: 0 0 50px #FF0000;
+  }
 }
 
 .blindspot-icon {
-  font-size: 22px;
-  line-height: 1;
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+  font-size: 24px;
+  color: #fff;
 }
 
 .blindspot-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: 2px;
+  font-size: 14px;
   writing-mode: vertical-rl;
   text-orientation: upright;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-weight: bold;
+  letter-spacing: 4px;
 }
 
-@keyframes blindspot-pulse {
-  0% { opacity: 1; transform: translateY(-50%) scale(1); box-shadow: 0 0 20px rgba(255, 0, 0, 0.6); }
-  100% { opacity: 0.85; transform: translateY(-50%) scale(0.98); box-shadow: 0 0 35px rgba(255, 0, 0, 0.8); }
+.blindspot-indicator.hidden {
+  opacity: 0.1;
+  /* Keep faintly visible to show the "slot" if BG doesn't have it */
+  border-color: transparent;
+  background: transparent;
+}
+
+.blindspot-indicator.hidden .blindspot-icon,
+.blindspot-indicator.hidden .blindspot-label {
+  opacity: 0.1;
 }
 
 /* ===== 底部區域 ===== */
 #bottom-row {
   position: absolute;
-  bottom: 0;
+  bottom: 10px;
   left: 0;
   right: 0;
-  height: 17%;
+  height: 100px;
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 60;
-}
-
-.nav-placeholder {
-  display: none !important;
-}
-
-#bottom-row #road-name-card {
-  position: absolute;
-  left: 50%;
-  bottom: 15%;
-  transform: translateX(-50%);
+  align-items: center;
+  z-index: 200;
+  pointer-events: none;
 }
 
 #road-name-card {
-  padding: 10px 30px;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
+  /* Keep this one styled as an overlay since road names usually don't have a fixed slot */
+  background: rgba(0, 0, 0, 0.8);
+  padding: 8px 40px;
+  border: 1px solid var(--hfop-red);
+  border-radius: 40px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
 }
 
 #road-name-text {
-  font-size: clamp(24px, 5vh, 48px);
+  font-size: 28px;
+  color: #fff;
   font-weight: 600;
-  color: var(--text-primary);
-  white-space: nowrap;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  letter-spacing: 1px;
 }
 
-/* ===== 連接狀態 Badge ===== */
+#nav-placeholder,
 #top-center-status {
-  position: absolute;
-  top: 1%;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 200;
+  display: none;
 }
 
-.connection-badge {
-  padding: 6px 14px;
-  background: rgba(10, 10, 10, 0.9);
-  border-radius: 16px;
-  border: 2px solid var(--hfop-red);
-  box-shadow: 0 0 10px rgba(227, 6, 19, 0.4);
-}
-
-#status-text {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--hfop-red);
-}
-
-.connection-badge.connected {
-  border-color: var(--hfop-red);
-  background: rgba(227, 6, 19, 0.15);
-  box-shadow: 0 0 15px rgba(227, 6, 19, 0.5);
-}
-
-.connection-badge.connected #status-text {
-  color: var(--hfop-red);
-}
-
-.connection-badge.connecting {
-  animation: connecting-pulse 1s ease-in-out infinite;
-}
-
-@keyframes connecting-pulse {
-  0%, 100% { border-color: rgba(227, 6, 19, 0.4); box-shadow: 0 0 10px rgba(227, 6, 19, 0.3); }
-  50% { border-color: var(--hfop-red); box-shadow: 0 0 20px rgba(227, 6, 19, 0.6); }
-}
-
-.connection-badge.connecting #status-text {
-  color: var(--hfop-red);
-}
-
-/* ===== 啟動效果 ===== */
-body.startup-mode .value-top,
-body.startup-mode .info-value-medium {
-  color: var(--hfop-red-bright) !important;
-  text-shadow: 0 0 30px rgba(255, 26, 45, 0.9) !important;
-}
-
-body.startup-mode .blindspot-indicator {
-  opacity: 1 !important;
-}
-
-body.startup-mode #experimental-card {
-  border-color: var(--hfop-red-bright) !important;
-  box-shadow: 0 0 40px rgba(227, 6, 19, 0.7) !important;
-}
-
-.startup-fadeout {
-  animation: startup-fadeout 1.6s ease-out forwards;
-}
-
-@keyframes startup-fadeout {
-  0% { color: var(--hfop-red-bright); }
-  100% { color: var(--hfop-red); }
-}
-
-.blindspot-fadeout {
-  animation: blindspot-fadeout 1.6s ease-out forwards;
-}
-
-@keyframes blindspot-fadeout {
-  0% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-/* ===== 頁面切換按鈕 ===== */
-.page-switch-btn {
-  position: fixed;
-  top: 8px;
-  right: 8px;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: rgba(0, 0, 0, 0.85);
-  border: 2px solid var(--hfop-red);
-  border-radius: 8px;
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 0 12px rgba(227, 6, 19, 0.4);
-}
-
-.page-switch-btn:hover {
-  background: rgba(227, 6, 19, 0.3);
-  box-shadow: 0 0 20px rgba(227, 6, 19, 0.6);
-}
-
-/* ===== 導航卡片 ===== */
-.nav-card {
-  padding: 10px 24px;
-  background: rgba(0, 0, 0, 0.8);
-  border: 2px solid var(--hfop-red);
-  border-radius: 10px;
-  box-shadow: 0 0 20px rgba(227, 6, 19, 0.4);
-}
-
-.nav-content {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.nav-icon {
-  font-size: 36px;
-  font-weight: bold;
-  color: var(--hfop-red);
-  min-width: 45px;
-  text-align: center;
-}
-
-.nav-distance {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-}
-
-.nav-instruction {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.nav-road-name {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.nav-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.nav-main-row {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-}
-
-.nav-trip-row {
-  display: flex;
-  gap: 12px;
-}
-
-.nav-remaining {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.nav-eta {
-  font-size: 14px;
-  color: var(--hfop-red);
-}
-
-/* ========================================
-   響應式設計
-   ======================================== */
-
-@media (max-width: 800px) {
-  .side-column:first-child,
-  .side-column:last-child { 
-    width: 10%; 
+/* Media Query Refinements */
+@media (max-height: 700px) {
+  .top-card {
+    height: 90px;
   }
-  
-  .mini-card { height: 60px; }
-  .mini-card .value-top { font-size: clamp(1.2rem, 5vh, 2.5rem) !important; }
-  .mini-card .label-small { font-size: clamp(8px, 1.5vh, 12px); }
-  
-  #experimental-card { height: 60px; }
-  #experimental-icon { width: 28px; height: 28px; }
-  
-  .info-value-medium { font-size: 24px; }
-  .info-label { font-size: 10px; }
-  
-  .blindspot-indicator { width: 32px; height: 38%; }
-  #left-blindspot { left: 11%; }
-  #right-blindspot { right: 11%; }
-  .blindspot-icon { font-size: 18px; }
-  .blindspot-label { font-size: 9px; }
-  
-  .no-lead-icon { font-size: 38px; }
-  .no-lead-text { font-size: 16px; }
-}
 
-@media (max-width: 600px) {
-  .side-column:first-child,
-  .side-column:last-child { 
-    width: 11%; 
+  .value-top {
+    font-size: 38px;
   }
-  
-  .mini-card { height: 50px; }
-  .mini-card .value-top { font-size: clamp(1rem, 4vh, 2rem) !important; }
-  
-  #experimental-card { height: 50px; }
-  #experimental-icon { width: 22px; height: 22px; }
-  
-  .info-value-medium { font-size: 20px; }
-  .info-label { font-size: 9px; }
-  
-  .blindspot-indicator { width: 26px; height: 35%; }
-  #left-blindspot { left: 12%; }
-  #right-blindspot { right: 12%; }
-  .blindspot-icon { font-size: 14px; }
-  .blindspot-label { font-size: 7px; }
-  
-  .no-lead-icon { font-size: 32px; }
-  .no-lead-text { font-size: 14px; }
-}
 
-@media (min-aspect-ratio: 18/10) {
-  #center-lead-info {
-    width: 48%;
+  #middle-row {
+    top: 115px;
+    bottom: 85px;
+  }
+
+  .mini-card {
+    height: 85px;
+  }
+
+  .mini-card .value-top {
+    font-size: 30px !important;
+  }
+
+  .info-value-medium {
+    font-size: 50px;
+  }
+
+  .info-label {
+    font-size: 14px;
   }
 }
