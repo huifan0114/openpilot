@@ -139,8 +139,11 @@ body {
   justify-content: flex-start;
   align-items: flex-end;
   padding-right: 0px;
+  /* Reduced from 20px to avoid being too close to center */
   margin-left: 15px;
   /* Adjusted to 15px */
+  gap: 0px;
+  /* Tighten vertical gap to 0 */
 }
 
 /* Right Column: Align to Left (stick to center frame) */
@@ -287,7 +290,39 @@ body {
   font-family: 'SF Mono', 'Monaco', monospace;
 }
 
-/* ===== 盲點指示器 (垂直條) ===== */
+
+
+/* ===== 狀態顏色邏輯 ===== */
+/* 安全 (綠色) */
+.status-safe,
+.status-safe .info-value-medium,
+.status-safe .value-top {
+  color: #2ecc71 !important;
+  text-shadow: 0 0 10px rgba(46, 204, 113, 0.4);
+}
+
+/* 警告 (黃色) */
+.status-warning,
+.status-warning .info-value-medium,
+.status-warning .value-top {
+  color: #f1c40f !important;
+  text-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
+}
+
+/* 危險 (紅色) */
+.status-danger,
+.status-danger .info-value-medium,
+.status-danger .value-top {
+  color: #e74c3c !important;
+  text-shadow: 0 0 10px rgba(231, 76, 60, 0.4);
+}
+
+/* 控制中 (橘色 - 用於 VSC/Curve/Progressive) */
+.controlling .value-top {
+  color: #e67e22 !important;
+  text-shadow: 0 0 10px rgba(230, 126, 34, 0.4);
+}
+
 .blindspot-indicator {
   position: absolute;
   top: 50%;
@@ -325,6 +360,11 @@ body {
   box-shadow: 0 0 30px #FF0000;
   border-color: #fff;
   animation: pulse-red 0.5s infinite alternate;
+}
+
+.blindspot-indicator.hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
 }
 
 @keyframes pulse-red {

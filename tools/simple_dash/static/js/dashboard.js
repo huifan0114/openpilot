@@ -603,6 +603,7 @@ export class DashboardUI {
       this.elements.leftBlindspot.classList.add('active');
     } else {
       this.elements.leftBlindspot.classList.remove('active');
+      this.elements.leftBlindspot.classList.add('hidden'); // Ensure text disappears
     }
 
     // 右側盲點
@@ -611,6 +612,7 @@ export class DashboardUI {
       this.elements.rightBlindspot.classList.add('active');
     } else {
       this.elements.rightBlindspot.classList.remove('active');
+      this.elements.rightBlindspot.classList.add('hidden'); // Ensure text disappears
     }
   }
 
