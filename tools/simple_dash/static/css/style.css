@@ -120,16 +120,36 @@ body {
 }
 
 /* 左右側欄容器 */
+/* 左右側欄容器 */
 .side-column {
   width: 140px;
   /* Fixed width for side slots */
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  /* Align to top of middle row */
+  padding-top: 15px;
+  /* Push content down vertically */
   gap: 20px;
   /* Gap between the two side cards */
   z-index: 60;
+}
+
+/* Left Column: Align to Right (stick to center frame) */
+/* Left Column: Align to Right (stick to center frame) */
+.side-column:first-child {
+  justify-content: flex-start;
+  align-items: flex-end;
+  padding-right: 0px;
+  margin-left: 15px;
+  /* Adjusted to 15px */
+}
+
+/* Right Column: Align to Left (stick to center frame) */
+.side-column:last-child {
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding-left: 0px;
+  margin-right: 15px;
+  /* Adjusted to 15px */
 }
 
 /* 小卡片樣式 - Transparent */
@@ -273,7 +293,7 @@ body {
   top: 50%;
   transform: translateY(-50%);
   width: 40px;
-  height: 40%;
+  height: 30%;
 
   /* Assuming BG might NOT have these indicator bars active, so we keep the drawing */
   background: rgba(30, 0, 0, 0.4);
@@ -291,11 +311,13 @@ body {
 
 /* Positioning next to side columns */
 #left-blindspot {
-  left: 162px;
+  left: 195px;
+  /* Moved outwards to clear text */
 }
 
 #right-blindspot {
-  right: 162px;
+  right: 195px;
+  /* Moved outwards to clear text */
 }
 
 .blindspot-indicator.active {
