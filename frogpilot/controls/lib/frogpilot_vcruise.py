@@ -129,57 +129,64 @@ class FrogPilotVCruise:
         ttc = dRel / abs(vRel) if vRel < -0.1 else 99
 
         # === 持續接近計數 ===
-        if vRel < -1.5:
+        if vRel < -0.5:  # 放寬條件，更早開始計數
           self.approaching_frames += 1
         else:
-          self.approaching_frames = max(0, self.approaching_frames - 2)
+          self.approaching_frames = max(0, self.approaching_frames - 1)
 
         # === 冷卻時間處理 ===
         if self.vsc_cooldown > 0:
           self.vsc_cooldown -= 1
 
-        # === 當距離偏近時，取消冷卻 ===
-        if dist_ratio < 0.9 and self.vsc_cooldown > 0:
+        # === 當距離開始偏近時，取消冷卻 (放寬到 0.97) ===
+        if dist_ratio < 0.97 and vRel < -0.3 and self.vsc_cooldown > 0:
           self.vsc_cooldown = 0
 
-        # === 基於距離比例的風險判斷 ===
-        if dist_ratio >= 1.0:
-          # 距離已達理想，不需要 VSC
+        # === 基於距離比例的漸進式風險判斷 ===
+        # 核心理念：早減速、小力道，避免晚減速、大力道
+
+        if dist_ratio >= 1.0 and vRel >= -0.5:
+          # 距離足夠且沒有明顯接近，不需要 VSC
           self.vsc_target = v_cruise
           self.vsc_active = False
-          # 設定冷卻時間，防止立即重新觸發
-          self.vsc_cooldown = 10  # 0.5 秒冷卻
+          self.vsc_cooldown = 5  # 0.25 秒短冷卻
 
-        elif self.vsc_cooldown > 0:
-          # 冷卻中，不觸發 VSC
+        elif self.vsc_cooldown > 0 and dist_ratio >= 0.95:
+          # 冷卻中且距離還行，不觸發
           self.vsc_target = v_cruise
           self.vsc_active = False
 
         else:
-          # 高風險: 距離 < 70% 且快速接近，或 TTC < 3.5，或前車急煞
-          high_risk = (dist_ratio < 0.7 and vRel < -2.0) or ttc < 3.5 or delta_vLead < -5.0
+          # === 五級漸進式減速 (基於百分比，不依賴前車速度) ===
+          # 核心：dist_ratio 越小，減速百分比越大
 
-          # 中風險: 距離 < 80% (太近了!)，或 距離 < 90% 且正在接近，或 TTC < 5 且距離偏近
-          medium_risk = dist_ratio < 0.8 or (dist_ratio < 0.9 and vRel < -1.0) or (ttc < 5 and dist_ratio < 0.9)
-
-          # 低風險: 距離 < 95% 且持續接近 (需要累積一段時間)
-          low_risk = dist_ratio < 0.95 and vRel < -0.5 and self.approaching_frames >= 10
-
-          # === 動作 ===
-          if high_risk:
-            # 高風險: 目標 = 前車速度 (積極減速)
-            self.vsc_target = max(lead.vLead, 30 * CV.KPH_TO_MS)
+          # 緊急 (dist < 60%): 減速 20%
+          if dist_ratio < 0.6 or ttc < 3.0:
+            self.vsc_target = max(v_ego * 0.80, 30 * CV.KPH_TO_MS)
             self.vsc_active = True
-          elif medium_risk:
-            # 中風險: 減速 10%
-            self.vsc_target = max(v_ego * 0.9, 30 * CV.KPH_TO_MS)
+
+          # 危險 (dist < 70%): 減速 15%
+          elif dist_ratio < 0.7 or ttc < 4.0:
+            self.vsc_target = max(v_ego * 0.85, 30 * CV.KPH_TO_MS)
             self.vsc_active = True
-          elif low_risk:
-            # 低風險: 維持現速
+
+          # 偏近 (dist < 80%): 減速 10%
+          elif dist_ratio < 0.8 or (ttc < 5.0 and dist_ratio < 0.85):
+            self.vsc_target = max(v_ego * 0.90, 30 * CV.KPH_TO_MS)
+            self.vsc_active = True
+
+          # 警戒 (dist < 90%): 減速 5%
+          elif dist_ratio < 0.9 or (dist_ratio < 0.95 and vRel < -1.0):
+            self.vsc_target = max(v_ego * 0.95, 30 * CV.KPH_TO_MS)
+            self.vsc_active = True
+
+          # 預警 (dist < 97% 且持續接近): 不加速，維持現速
+          elif dist_ratio < 0.97 and vRel < -0.5 and self.approaching_frames >= 3:
             self.vsc_target = v_ego
             self.vsc_active = True
+
+          # 正常
           else:
-            # 正常
             self.vsc_target = v_cruise
             self.vsc_active = False
 
