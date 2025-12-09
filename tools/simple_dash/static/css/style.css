@@ -127,9 +127,9 @@ body {
   /* Fixed width for side slots */
   display: flex;
   flex-direction: column;
-  padding-top: 15px;
+  padding-top: 0px;
   /* Push content down vertically */
-  gap: 20px;
+  gap: 10px;
   /* Gap between the two side cards */
   z-index: 60;
 }
