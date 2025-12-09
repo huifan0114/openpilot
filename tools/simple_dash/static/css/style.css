@@ -366,12 +366,12 @@ body {
 
 /* Positioning next to side columns */
 #left-blindspot {
-  left: 165px;
+  left: 180px;
   /* Moved further outwards */
 }
 
 #right-blindspot {
-  right: 165px;
+  right: 180px;
   /* Moved further outwards */
 }
 
