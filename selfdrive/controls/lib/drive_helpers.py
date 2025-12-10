@@ -63,29 +63,28 @@ class VCruiseHelper:
     if CS.cruiseState.available:
       if not self.CP.pcmCruise:
         # MAPD automatic cruise control - only adjust when speed limit actually changes
-        if enabled:
           # Read MAPD speed limit from cereal (unified data source)
-          mapd_speed_limit_ms = sm['frogpilotPlan'].mapdSpeedLimit  # m/s
+        mapd_speed_limit_ms = sm['frogpilotPlan'].mapdSpeedLimit  # m/s
 
           # Only update cruise speed when MAPD speed limit actually changes
-          if mapd_speed_limit_ms > 0:
-            speed_changed = abs(mapd_speed_limit_ms - self.previous_mapd_speed_limit) >= 1
-            first_time = self.previous_mapd_speed_limit == 0
+        if mapd_speed_limit_ms > 0:
+          speed_changed = abs(mapd_speed_limit_ms - self.previous_mapd_speed_limit) >= 1
+          first_time = self.previous_mapd_speed_limit == 0
 
             # Skip adjustment on first_time to avoid interfering with curve speed control
-            if speed_changed and not first_time:
+          if speed_changed and not first_time:
               # Convert to km/h, round up to nearest 10 (MAPD already includes offset)
-              speed_kph = mapd_speed_limit_ms * CV.MS_TO_KPH
-              new_speed_kph = math.ceil(speed_kph / 10) * 10
-              current_speed_kph = self.v_cruise_kph
+            speed_kph = mapd_speed_limit_ms * CV.MS_TO_KPH
+            new_speed_kph = math.ceil(speed_kph / 10) * 10
+            current_speed_kph = self.v_cruise_kph
 
               # Only adjust if difference is within 60 km/h
-              diff = abs(new_speed_kph - current_speed_kph)
-              if diff <= 60:
-                self.v_cruise_kph = new_speed_kph
+            diff = abs(new_speed_kph - current_speed_kph)
+            if diff <= 60:
+              self.v_cruise_kph = new_speed_kph
 
             # Always track the current MAPD speed limit
-            self.previous_mapd_speed_limit = mapd_speed_limit_ms
+          self.previous_mapd_speed_limit = mapd_speed_limit_ms
 
         # if stock cruise is completely disabled, then we can use our own set speed logic
         self._update_v_cruise_non_pcm(CS, enabled, is_metric)

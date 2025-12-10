@@ -161,7 +161,7 @@ class FrogPilotPlanner:
 
   def update_lead_status(self):
     following_lead = self.lead_one.status
-    #following_lead &= self.lead_one.dRel < self.model_length + 2
+    following_lead &= self.lead_one.dRel < 7
     #following_lead &= self.lead_one.dRel < self.model_length + STOP_DISTANCE
 
     self.tracking_lead_filter.update(following_lead)
