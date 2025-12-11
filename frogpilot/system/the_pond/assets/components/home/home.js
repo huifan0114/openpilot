@@ -116,8 +116,8 @@ export function Home() {
             <h1>The Pond</h1>
 
             <div class="drivingStats">
-              ${DriveStat("All Time", driveStats?.all, state.unit)}
-              ${DriveStat("Past Week", driveStats?.week, state.unit)}
+              ${DriveStat("全部旅程", driveStats?.all, state.unit)}
+              ${DriveStat("過去一周", driveStats?.week, state.unit)}
               ${DriveStat("FrogPilot", driveStats?.frogpilot, state.unit)}
             </div>
 

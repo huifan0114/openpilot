@@ -268,7 +268,7 @@ void OffroadHome::hideEvent(QHideEvent *event) {
 }
 
 void OffroadHome::refresh() {
-  date->setText(QLocale(uiState()->language.mid(5)).toString(QDateTime::currentDateTime(), "dddd, MMMM d"));
+  date->setText(QLocale(uiState()->language.mid(5)).toString(QDateTime::currentDateTime(), "yyyy, MMMM dd, dddd, hh:mm:ss"));
   date->setVisible(util::system_time_valid());
 
   version->setText(getBrand() + " v" + getVersion().left(14).trimmed() + " - " + processModelName(frogpilotUIState()->frogpilot_toggles.value("model_name").toString()));

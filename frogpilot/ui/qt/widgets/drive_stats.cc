@@ -15,8 +15,8 @@ DriveStats::DriveStats(QWidget *parent) : QFrame(parent) {
   QVBoxLayout *main_layout = new QVBoxLayout(this);
   main_layout->setContentsMargins(50, 25, 50, 20);
 
-  addStatsLayouts(tr(konik ? "ALL TIME (KONIK)" : "ALL TIME"), all);
-  addStatsLayouts(tr(konik ? "PAST WEEK (KONIK)" : "PAST WEEK"), week);
+  addStatsLayouts(tr(konik ? "全部旅程 (KONIK)" : "全部旅程"), all);
+  addStatsLayouts(tr(konik ? "過去一週 (KONIK)" : "過去一週"), week);
   addStatsLayouts(tr("FROGPILOT"), frogPilot, true);
 
   std::optional<QString> dongleId = getDongleId();
