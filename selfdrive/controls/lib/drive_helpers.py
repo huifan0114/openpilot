@@ -12,9 +12,9 @@ from openpilot.selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_G
 # V_CRUISE's are in kph
 V_CRUISE_MIN = 0
 V_CRUISE_MAX = 120
-V_CRUISE_UNSET = 40
-V_CRUISE_INITIAL = 40
-V_CRUISE_INITIAL_EXPERIMENTAL_MODE = 40
+V_CRUISE_UNSET = 50
+V_CRUISE_INITIAL = 50
+V_CRUISE_INITIAL_EXPERIMENTAL_MODE = 50
 IMPERIAL_INCREMENT = round(CV.MPH_TO_KPH, 1)  # round here to avoid rounding errors incrementing set speed
 
 MIN_SPEED = 1.0
@@ -72,7 +72,7 @@ class VCruiseHelper:
           first_time = self.previous_mapd_speed_limit == 0
 
             # Skip adjustment on first_time to avoid interfering with curve speed control
-          if speed_changed and not first_time:
+          if speed_changed :
               # Convert to km/h, round up to nearest 10 (MAPD already includes offset)
             speed_kph = mapd_speed_limit_ms * CV.MS_TO_KPH
             new_speed_kph = math.ceil(speed_kph / 10) * 10
