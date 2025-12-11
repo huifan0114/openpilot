@@ -223,7 +223,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   connect(dcamBtn, &ButtonControl::clicked, [=]() { emit showDriverView(); });
   addItem(dcamBtn);
 
-  resetCalibBtn = new ButtonControl(tr("重設校正"), tr("重設"), "");
+  auto resetCalibBtn = new ButtonControl(tr("重設校正"), tr("重設"), "");
   connect(resetCalibBtn, &ButtonControl::showDescriptionEvent, this, &DevicePanel::updateCalibDescription);
   connect(resetCalibBtn, &ButtonControl::clicked, [&]() {
     if (ConfirmationDialog::confirm(tr("是否確定要重設校正?"), tr("重設"), this)) {
