@@ -68,7 +68,7 @@ void AnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState
   speed *= s.scene.is_metric ? MS_TO_KPH : MS_TO_MPH;
 
   is_metric = s.scene.is_metric;
-  speedUnit =  s.scene.is_metric ? tr("km/h") : tr("mph");
+  speedUnit =  s.scene.is_metric ? tr("公里/小時") : tr("mph");
   hideBottomIcons = (cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE);
   hideBottomIcons |= (frogpilot_nvg->signalStyle == "traditional" || frogpilot_nvg->signalStyle == "traditional_gif") && (car_state.getLeftBlinker() || car_state.getRightBlinker());
   status = s.status;
@@ -175,10 +175,10 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
       max_color = QColor(0xa6, 0xa6, 0xa6, 0xff);
       set_speed_color = QColor(0x72, 0x72, 0x72, 0xff);
     }
-    p.setFont(InterFont(40, QFont::DemiBold));
+    p.setFont(InterFont(40, QFont::Normal));
     p.setPen(max_color);
-    p.drawText(set_speed_rect.adjusted(0, 27, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("MAX"));
-    p.setFont(InterFont(90, QFont::Bold));
+    p.drawText(set_speed_rect.adjusted(0, 27, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("最高"));
+    p.setFont(InterFont(90, QFont::Normal));
     p.setPen(set_speed_color);
     p.drawText(set_speed_rect.adjusted(0, 77, 0, 0), Qt::AlignTop | Qt::AlignHCenter, setSpeedStr);
   }
@@ -224,10 +224,10 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
       vcruise_value_color = QColor(0x72, 0x72, 0x72, 0xff);
     }
 
-    p.setFont(InterFont(40, QFont::DemiBold));
+    p.setFont(InterFont(40, QFont::Normal));
     p.setPen(vcruise_label_color);
     p.drawText(vcruise_rect.adjusted(0, 27, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("VCRUISE"));
-    p.setFont(InterFont(90, QFont::Bold));
+    p.setFont(InterFont(90, QFont::Normal));
     p.setPen(vcruise_value_color);
     p.drawText(vcruise_rect.adjusted(0, 77, 0, 0), Qt::AlignTop | Qt::AlignHCenter, vCruiseStr);
   }
@@ -242,9 +242,9 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
     p.drawRoundedRect(sign_rect.adjusted(9, 9, -9, -9), 16, 16);
 
     p.setPen(blackColor());
-    p.setFont(InterFont(28, QFont::DemiBold));
-    p.drawText(sign_rect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("SPEED"));
-    p.drawText(sign_rect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("LIMIT"));
+    p.setFont(InterFont(28, QFont::Normal));
+    p.drawText(sign_rect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("速度"));
+    p.drawText(sign_rect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("速限"));
     p.setFont(InterFont(70, QFont::Bold));
     p.drawText(sign_rect.adjusted(0, 85, 0, 0), Qt::AlignTop | Qt::AlignHCenter, speedLimitStr);
   }
@@ -258,7 +258,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
     p.drawEllipse(sign_rect.adjusted(16, 16, -16, -16));
 
     p.setPen(blackColor());
-    p.setFont(InterFont((speedLimitStr.size() >= 3) ? 60 : 70, QFont::Bold));
+    p.setFont(InterFont((speedLimitStr.size() >= 3) ? 60 : 70, QFont::Normal));
     p.drawText(sign_rect, Qt::AlignCenter, speedLimitStr);
   }
 
@@ -291,10 +291,10 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
       if (upcomingDistance > 0) {
         if (upcomingDistance >= 1000) {
           distanceStr = QString::number(upcomingDistance / 1000.0, 'f', 1);
-          distanceUnit = "km";
+          distanceUnit = "公里";
         } else {
           distanceStr = QString::number(std::nearbyint(upcomingDistance));
-          distanceUnit = "m";
+          distanceUnit = "公尺";
         }
       } else {
         distanceStr = "–";
@@ -310,7 +310,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
         p.drawEllipse(upcomingRect.adjusted(8, 8, -8, -8));
 
         p.setPen(blackColor());
-        p.setFont(InterFont((upcomingStr.size() >= 3) ? 60 : 70, QFont::Bold));  // Increased font
+        p.setFont(InterFont((upcomingStr.size() >= 3) ? 60 : 70, QFont::Normal));  // Increased font
         p.drawText(upcomingRect, Qt::AlignCenter, upcomingStr);
       } else {
         // MUTCD style - Rectangle with BLUE border (larger font)
@@ -321,9 +321,9 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
         p.drawRoundedRect(upcomingRect.adjusted(6, 6, -6, -6), 12, 12);
 
         p.setPen(blackColor());
-        p.setFont(InterFont(28, QFont::DemiBold));  // Increased from 20 to 28
-        p.drawText(upcomingRect.adjusted(0, 15, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("NEXT"));
-        p.setFont(InterFont(70, QFont::Bold));  // Increased from 50 to 70
+        p.setFont(InterFont(28, QFont::Normal));  // Increased from 20 to 28
+        p.drawText(upcomingRect.adjusted(0, 15, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("下個"));
+        p.setFont(InterFont(70, QFont::Normal));  // Increased from 50 to 70
         p.drawText(upcomingRect.adjusted(0, 50, 0, 0), Qt::AlignTop | Qt::AlignHCenter, upcomingStr);
       }
 
@@ -334,19 +334,19 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
 
       p.setPen(QPen(whiteColor(), 4));
       // Draw distance number (same size as speed limit value: 60-70pt Bold)
-      p.setFont(InterFont((distanceStr.size() >= 3) ? 60 : 70, QFont::Bold));
+      p.setFont(InterFont((distanceStr.size() >= 3) ? 60 : 70, QFont::Normal));
       p.drawText(distanceRect.adjusted(0, 0, 0, -30), Qt::AlignCenter, distanceStr);
 
       // Draw distance unit on next line (smaller font)
       if (!distanceUnit.isEmpty()) {
-        p.setFont(InterFont(24, QFont::DemiBold));
+        p.setFont(InterFont(24, QFont::Normal));
         p.drawText(distanceRect.adjusted(0, 55, 0, 0), Qt::AlignCenter, distanceUnit);
       }
   }
 
   // current speed
   if (!frogpilot_nvg->bigMapOpen && frogpilot_nvg->standstillDuration == 0 && !frogpilot_toggles.value("hide_speed").toBool()) {
-    p.setFont(InterFont(176, QFont::Bold));
+    p.setFont(InterFont(176, QFont::Normal));
     drawText(p, rect().center().x(), 210, speedStr);
     p.setFont(InterFont(66));
     drawText(p, rect().center().x(), 290, speedUnit, 200);

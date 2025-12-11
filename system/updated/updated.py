@@ -409,7 +409,7 @@ class Updater:
       handle_agnos_update()
 
     # Create the finalized, ready-to-swap update
-    self.params.put("UpdaterState", "finalizing update...")
+    self.params.put("UpdaterState", "完成更新...")
     finalize_update(self.params)
     cloudlog.info("finalize success!")
 
@@ -481,7 +481,7 @@ def main() -> None:
         update_failed_count += 1
 
         # check for update
-        params.put("UpdaterState", "checking...")
+        params.put("UpdaterState", "確認中...")
         updater.check_for_update()
 
         # download update
