@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import math
 import numpy as np
+from collections import deque
 
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.realtime import DT_MDL
@@ -26,18 +27,34 @@ class FrogPilotVCruise:
     self.force_stop_timer = 0
     self.tracked_model_length = 0
 
-    # Vision Safety Controller (VSC)
-    self.vrel_history = []
-    self.drel_history = []
-    self.vsc_history_size = 50  # 約 2.5 秒 (20Hz)
+    # Vision Safety Controller (VSC) - 使用平滑值 + 趨勢判斷
+    self.vsc_dRel_history = deque(maxlen=10)   # 0.5 秒窗口 (20Hz)
+    self.vsc_vRel_history = deque(maxlen=10)
+    self.vsc_dist_ratio_history = deque(maxlen=40)  # 2 秒窗口，用於趨勢判斷
     self.vsc_target = 0
     self.vsc_active = False
 
     # VSC 狀態變數
-    self.prev_vLead = None
-    self.prev_vRel = None
-    self.approaching_frames = 0
-    self.vsc_cooldown = 0  # 冷卻計時器 (防止震盪)
+    self.vsc_approaching_frames = 0
+
+  def get_vsc_smoothed(self):
+    """取得平滑值 (移動中位數) - 過濾視覺跳動"""
+    if len(self.vsc_dRel_history) < 3:
+      return None, None
+    return np.median(list(self.vsc_dRel_history)), np.median(list(self.vsc_vRel_history))
+
+  def is_vsc_trend_decreasing(self):
+    """判斷 dist_ratio 是否持續下降 (趨勢預警)"""
+    if len(self.vsc_dist_ratio_history) < 20:  # 至少 1 秒數據
+      return False
+    # 比較前半和後半的平均值
+    mid = len(self.vsc_dist_ratio_history) // 2
+    first_half = list(self.vsc_dist_ratio_history)[:mid]
+    second_half = list(self.vsc_dist_ratio_history)[mid:]
+    avg_first = np.mean(first_half)
+    avg_second = np.mean(second_half)
+    # 如果後半比前半低 5% 以上，視為下降趨勢
+    return avg_second < avg_first * 0.95
 
   def update(self, gps_position, now, time_validated, v_cruise, v_ego, sm, frogpilot_toggles):
 
@@ -89,108 +106,91 @@ class FrogPilotVCruise:
 
 
     # ========== VSC (Vision Safety Controller) ==========
+    # 設計原則：
+    # 1. 使用平滑值 (移動中位數) 過濾視覺跳動
+    # 2. dist_ratio 為主要指標，不依賴 TTC (視覺數據下太不穩定)
+    # 3. 底線保護：絕對不低於 MPC 跟車距離
+    # 4. 趨勢預警：持續接近時提前介入
+    # 5. 與 MPC 協調：不牴觸正常跟車
+
     if sm["controlsState"].enabled:
       if not sm["radarState"].leadOne.status:
         # 無前車時重置所有狀態
-        self.vrel_history.clear()
-        self.drel_history.clear()
-        self.prev_vLead = None
-        self.prev_vRel = None
-        self.approaching_frames = 0
+        self.vsc_dRel_history.clear()
+        self.vsc_vRel_history.clear()
+        self.vsc_dist_ratio_history.clear()
+        self.vsc_approaching_frames = 0
         self.vsc_active = False
         v_cruise_vsc = v_cruise
       else:
         lead = sm["radarState"].leadOne
         dRel = lead.dRel
         vRel = lead.vRel
-        vLead = lead.vLead * CV.MS_TO_KPH  # 轉換為 km/h
         v_ego_kph = v_ego * CV.MS_TO_KPH
 
-        # 更新歷史
-        self.vrel_history.append(vRel)
-        self.drel_history.append(dRel)
-        if len(self.vrel_history) > self.vsc_history_size:
-          self.vrel_history.pop(0)
-          self.drel_history.pop(0)
+        # 更新歷史 (使用 deque，自動維護大小)
+        self.vsc_dRel_history.append(dRel)
+        self.vsc_vRel_history.append(vRel)
 
-        # 計算變化率
-        delta_vLead = vLead - self.prev_vLead if self.prev_vLead is not None else 0
-        delta_vRel = vRel - self.prev_vRel if self.prev_vRel is not None else 0
-        self.prev_vLead = vLead
-        self.prev_vRel = vRel
+        # 取得平滑值
+        dRel_smooth, vRel_smooth = self.get_vsc_smoothed()
 
-        # 計算跟車距離設定: dRel = (0.576 × v_kph + 2.96) × 0.8
-        follow_dist = min((0.576 * v_ego_kph + 2.96) * 0.8, 60.0)
-
-        # 計算距離比例 (核心指標)
-        dist_ratio = dRel / follow_dist if follow_dist > 0 else 99
-
-        # 計算 TTC
-        ttc = dRel / abs(vRel) if vRel < -0.1 else 99
-
-        # === 持續接近計數 ===
-        if vRel < -0.5:  # 放寬條件，更早開始計數
-          self.approaching_frames += 1
-        else:
-          self.approaching_frames = max(0, self.approaching_frames - 1)
-
-        # === 冷卻時間處理 ===
-        if self.vsc_cooldown > 0:
-          self.vsc_cooldown -= 1
-
-        # === 當距離開始偏近時，取消冷卻 (放寬到 0.97) ===
-        if dist_ratio < 0.97 and vRel < -0.3 and self.vsc_cooldown > 0:
-          self.vsc_cooldown = 0
-
-        # === 基於距離比例的漸進式風險判斷 ===
-        # 核心理念：早減速、小力道，避免晚減速、大力道
-
-        if dist_ratio >= 1.0 and vRel >= -0.5:
-          # 距離足夠且沒有明顯接近，不需要 VSC
+        if dRel_smooth is None:
+          # 數據不足，不觸發 VSC
           self.vsc_target = v_cruise
           self.vsc_active = False
-          self.vsc_cooldown = 5  # 0.25 秒短冷卻
-
-        elif self.vsc_cooldown > 0 and dist_ratio >= 0.95:
-          # 冷卻中且距離還行，不觸發
-          self.vsc_target = v_cruise
-          self.vsc_active = False
-
+          v_cruise_vsc = v_cruise
         else:
-          # === 五級漸進式減速 (基於百分比，不依賴前車速度) ===
-          # 核心：dist_ratio 越小，減速百分比越大
+          # 計算跟車距離底線: dRel = (0.576 × v_kph + 2.96) × 0.8
+          follow_dist = min((0.576 * v_ego_kph + 2.96) * 0.8, 60.0)
 
-          # 緊急 (dist < 60%): 減速 20%
-          if dist_ratio < 0.6 or ttc < 3.0:
-            self.vsc_target = max(v_ego * 0.80, 30 * CV.KPH_TO_MS)
-            self.vsc_active = True
+          # 使用平滑值計算 dist_ratio
+          dist_ratio = dRel_smooth / follow_dist if follow_dist > 0 else 99
+          self.vsc_dist_ratio_history.append(dist_ratio)
 
-          # 危險 (dist < 70%): 減速 15%
-          elif dist_ratio < 0.7 or ttc < 4.0:
+          # === 持續接近計數 (使用平滑值) ===
+          if vRel_smooth < -0.8:
+            self.vsc_approaching_frames += 1
+          elif vRel_smooth > -0.3:
+            self.vsc_approaching_frames = max(0, self.vsc_approaching_frames - 2)
+
+          # 趨勢判斷
+          trend_decreasing = self.is_vsc_trend_decreasing()
+
+          # === 基於平滑 dist_ratio 的漸進式風險判斷 ===
+
+          # 1. 緊急：dist_ratio < 0.7 → 減速 15%
+          if dist_ratio < 0.7:
             self.vsc_target = max(v_ego * 0.85, 30 * CV.KPH_TO_MS)
             self.vsc_active = True
 
-          # 偏近 (dist < 80%): 減速 10%
-          elif dist_ratio < 0.8 or (ttc < 5.0 and dist_ratio < 0.85):
+          # 2. 危險：dist_ratio < 0.8 → 減速 10%
+          elif dist_ratio < 0.8:
             self.vsc_target = max(v_ego * 0.90, 30 * CV.KPH_TO_MS)
             self.vsc_active = True
 
-          # 警戒 (dist < 90%): 減速 5%
-          elif dist_ratio < 0.9 or (dist_ratio < 0.95 and vRel < -1.0):
+          # 3. 警戒：dist_ratio < 0.9 → 減速 5%
+          elif dist_ratio < 0.9:
             self.vsc_target = max(v_ego * 0.95, 30 * CV.KPH_TO_MS)
             self.vsc_active = True
 
-          # 預警 (dist < 97% 且持續接近): 不加速，維持現速
-          elif dist_ratio < 0.97 and vRel < -0.5 and self.approaching_frames >= 3:
+          # 4. 預警：dist_ratio < 1.0 且在接近 → 維持現速
+          elif dist_ratio < 1.0 and vRel_smooth < -0.5:
             self.vsc_target = v_ego
             self.vsc_active = True
 
-          # 正常
+          # 5. 趨勢預警：dist_ratio < 1.15 且持續下降且在接近
+          elif dist_ratio < 1.15 and trend_decreasing and vRel_smooth < -0.8 and self.vsc_approaching_frames >= 10:
+            # 輕微減速，不干擾 MPC
+            self.vsc_target = max(v_ego * 0.98, v_cruise * 0.95)
+            self.vsc_active = True
+
+          # 6. 正常：讓 MPC 控制
           else:
             self.vsc_target = v_cruise
             self.vsc_active = False
 
-        v_cruise_vsc = self.vsc_target
+          v_cruise_vsc = self.vsc_target
     else:
       v_cruise_vsc = v_cruise
       self.vsc_active = False
@@ -212,7 +212,9 @@ class FrogPilotVCruise:
     speed_diff = v_cruise_final - v_ego
 
     if speed_diff < MIN_STEP_TRIGGER:
+      # 接近目標，直接使用最終目標速度
       v_cruise_prog = v_cruise_final
+      self.progressive_target = v_cruise_final  # 同步更新 progressive_target 供 UI 顯示
     else:
       reset_target = False
 
