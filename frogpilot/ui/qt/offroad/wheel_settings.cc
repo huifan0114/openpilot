@@ -11,27 +11,27 @@ FrogPilotWheelPanel::FrogPilotWheelPanel(FrogPilotSettingsWindow *parent) : Frog
   }
 
   const std::vector<std::tuple<QString, QString, QString, QString>> wheelToggles {
-    {"DistanceButtonControl", tr("Distance Button"), tr("<b>Action performed when the \"Distance\" button is pressed.</b>"), "../../frogpilot/assets/toggle_icons/icon_mute.png"},
-    {"LongDistanceButtonControl", tr("Distance Button (Long Press)"), tr("<b>Action performed when the \"Distance\" button is pressed for more than 0.5 seconds.</b>"), "../../frogpilot/assets/toggle_icons/icon_mute.png"},
-    {"VeryLongDistanceButtonControl", tr("Distance Button (Very Long Press)"), tr("<b>Action performed when the \"Distance\" button is pressed for more than 2.5 seconds.</b>"), "../../frogpilot/assets/toggle_icons/icon_mute.png"},
-    {"LKASButtonControl", tr("LKAS Button"), tr("<b>Action performed when the \"LKAS\" button is pressed.</b>"), "../../frogpilot/assets/toggle_icons/icon_mute.png"}
+    {"DistanceButtonControl", tr("距離按鈕"), tr("<b>按下 \"距離\" 按鈕時執行的操作。</b>"), "../../frogpilot/assets/toggle_icons/icon_mute.png"},
+    {"LongDistanceButtonControl", tr("距離按鈕（長按）"), tr("<b>按住 \"距離\" 按鈕超過 0.5 秒事执行的操作。</b>"), "../../frogpilot/assets/toggle_icons/icon_mute.png"},
+    {"VeryLongDistanceButtonControl", tr("距離按鈕（非常長按）"), tr("<b>按住 \"距離\" 按鈕超過 2.5 秒事执行的操作。</b>"), "../../frogpilot/assets/toggle_icons/icon_mute.png"},
+    {"LKASButtonControl", tr("LKAS 按鈕"), tr("<b>按下 \"LKAS\" 按鈕時執行的操作。</b>"), "../../frogpilot/assets/toggle_icons/icon_mute.png"}
   };
 
   for (const auto &[param, title, desc, icon] : wheelToggles) {
     QMap<int, QString> functionsMap {
-      {0, tr("No Action")},
-      {3, tr("Pause Steering")}
+      {0, tr("無動作")},
+      {3, tr("暫停轉向")}
     };
 
     QMap<int, QString> longitudinalFunctionsMap {
-      {1, tr("Change \"Personality Profile\"")},
-      {2, tr("Force openpilot to Coast")},
-      {4, tr("Pause Acceleration/Braking")},
-      {5, tr("Toggle \"Experimental Mode\" On/Off")},
-      {6, tr("Toggle \"Traffic Mode\" On/Off")}
+      {1, tr("變更 \"個人駕駛檔\"" )},
+      {2, tr("強制 openpilot COAST")},
+      {4, tr("暫停加速/制動")},
+      {5, tr("切換 \"實驗模式\" 開/關")},
+      {6, tr("切換 \"流量模式\" 開/關")}
     };
 
-    ButtonControl *wheelToggle = new ButtonControl(title, tr("SELECT"), desc);
+    ButtonControl *wheelToggle = new ButtonControl(title, tr("選擇"), desc);
     QObject::connect(wheelToggle, &ButtonControl::clicked, [functionsMap, longitudinalFunctionsMap, key = param, parent, wheelToggle, this]() mutable {
       if (parent->hasOpenpilotLongitudinal) {
         QMap<int, QString>::const_iterator it;
@@ -40,7 +40,7 @@ FrogPilotWheelPanel::FrogPilotWheelPanel(FrogPilotSettingsWindow *parent) : Frog
         }
       }
 
-      QString selection = MultiOptionDialog::getSelection(tr("Select a function to assign to this button"), functionsMap.values(), functionsMap[params.getInt(key.toStdString())], this);
+      QString selection = MultiOptionDialog::getSelection(tr("選擇要分類到此按鈕的功能"), functionsMap.values(), functionsMap[params.getInt(key.toStdString())], this);
       if (!selection.isEmpty()) {
         params.putInt(key.toStdString(), functionsMap.key(selection));
 

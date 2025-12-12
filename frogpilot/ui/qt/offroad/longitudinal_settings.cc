@@ -65,107 +65,107 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
   longitudinalLayout->addWidget(trafficPersonalityPanel);
 
   const std::vector<std::tuple<QString, QString, QString, QString>> longitudinalToggles {
-    {"AdvancedLongitudinalTune", tr("Advanced Longitudinal Tuning"), tr("<b>Advanced acceleration and braking control changes</b> to fine-tune how openpilot drives."), "../../frogpilot/assets/toggle_icons/icon_advanced_longitudinal_tune.png"},
-    {"LongitudinalActuatorDelay", parent->longitudinalActuatorDelay != 0 ? QString(tr("Actuator Delay (Default: %1)")).arg(QString::number(parent->longitudinalActuatorDelay, 'f', 2)) : tr("Actuator Delay"), tr("<b>The time between openpilot's throttle or brake command and the vehicle's response.</b> Increase if the vehicle feels slow to react; decrease if it feels too eager or overshoots."), ""},
-    {"MaxDesiredAcceleration", tr("Maximum Acceleration"), tr("<b>Limit the strongest acceleration</b> openpilot can command."), ""},
-    {"StartAccel", parent->startAccel != 0 ? QString(tr("Start Acceleration (Default: %1)")).arg(QString::number(parent->startAccel, 'f', 2)) : tr("Start Acceleration"), tr("<b>Extra acceleration applied when starting from a stop.</b> Increase for quicker takeoffs; decrease for smoother, gentler starts."), ""},
-    {"VEgoStarting", parent->vEgoStarting != 0 ? QString(tr("Start Speed (Default: %1)")).arg(QString::number(parent->vEgoStarting, 'f', 2)) : tr("Start Speed"), tr("<b>The speed at which openpilot exits the stopped state.</b> Increase to reduce creeping; decrease to move sooner after stopping."), ""},
-    {"StopAccel", parent->stopAccel != 0 ? QString(tr("Stop Acceleration (Default: %1)")).arg(QString::number(parent->stopAccel, 'f', 2)) : tr("Stop Acceleration"), tr("<b>Brake force applied to hold the vehicle at a standstill.</b> Increase to prevent rolling on hills; decrease for smoother, softer stops."), ""},
-    {"StoppingDecelRate", parent->stoppingDecelRate != 0 ? QString(tr("Stopping Rate (Default: %1)")).arg(QString::number(parent->stoppingDecelRate, 'f', 2)) : tr("Stopping Rate"), tr("<b>How quickly braking ramps up when stopping.</b> Increase for shorter, firmer stops; decrease for smoother, longer stops."), ""},
-    {"VEgoStopping", parent->vEgoStopping != 0 ? QString(tr("Stop Speed (Default: %1)")).arg(QString::number(parent->vEgoStopping, 'f', 2)) : tr("Stop Speed"), tr("<b>The speed at which openpilot considers the vehicle stopped.</b> Increase to brake earlier and stop smoothly; decrease to wait longer but risk overshooting."), ""},
+    {"AdvancedLongitudinalTune", tr("進階縱向調校"), tr("<b>進階的加速與煞車控制設定</b> 用於微調 openpilot 的駕駛行為。"), "../../frogpilot/assets/toggle_icons/icon_advanced_longitudinal_tune.png"},
+    {"LongitudinalActuatorDelay", parent->longitudinalActuatorDelay != 0 ? QString(tr("執行器延遲（預設：%1）")).arg(QString::number(parent->longitudinalActuatorDelay, 'f', 2)) : tr("執行器延遲"), tr("<b>openpilot 發出油門或煞車命令到車輛反應之間的時間。</b> 車輛反應遲鈍請增加；若反應過度或過衝請減少。"), ""},
+    {"MaxDesiredAcceleration", tr("最大加速"), tr("<b>限制 openpilot 可要求的最大加速度</b>。"), ""},
+    {"StartAccel", parent->startAccel != 0 ? QString(tr("起步加速度（預設：%1）")).arg(QString::number(parent->startAccel, 'f', 2)) : tr("起步加速度"), tr("<b>從靜止起步時額外加速度。</b> 增加可更快起步；減少可讓起步更平順。"), ""},
+    {"VEgoStarting", parent->vEgoStarting != 0 ? QString(tr("起步速度（預設：%1）")).arg(QString::number(parent->vEgoStarting, 'f', 2)) : tr("起步速度"), tr("<b>openpilot 判定離開停車狀態的速度。</b> 增加可減少慢爬；減少則可更快起步。"), ""},
+    {"StopAccel", parent->stopAccel != 0 ? QString(tr("停止加速度（預設：%1）")).arg(QString::number(parent->stopAccel, 'f', 2)) : tr("停止加速度"), tr("<b>用於在靜止時保持車輛的煞車力。</b> 增加以防止車輛在坡道滑動；減少以獲得更平緩停止。"), ""},
+    {"StoppingDecelRate", parent->stoppingDecelRate != 0 ? QString(tr("停止速率（預設：%1）")).arg(QString::number(parent->stoppingDecelRate, 'f', 2)) : tr("停止速率"), tr("<b>停止時煞車上升的速度。</b> 增加可縮短停止距離並更有力；減少則較平順。"), ""},
+    {"VEgoStopping", parent->vEgoStopping != 0 ? QString(tr("停止速度（預設：%1）")).arg(QString::number(parent->vEgoStopping, 'f', 2)) : tr("停止速度"), tr("<b>openpilot 判定車輛已停下的速度。</b> 增加可較早煞車並平順停止；減少會延後但可能過頭。"), ""},
 
-    {"ConditionalExperimental", tr("Conditional Experimental Mode"), tr("<b>Automatically switch to \"Experimental Mode\" when set conditions are met.</b> Allows the model to handle challenging situations with smarter decision making."), "../../frogpilot/assets/toggle_icons/icon_conditional.png"},
-    {"CESpeed", tr("Below"), tr("<b>Switch to \"Experimental Mode\" when driving below this speed without a lead</b> to help openpilot handle low-speed situations more smoothly."), ""},
-    {"CECurves", tr("Curve Detected Ahead"), tr("<b>Switch to \"Experimental Mode\" when a curve is detected</b> to allow the model to set an appropriate speed for the curve."), ""},
-    {"CELead", tr("Lead Detected Ahead"), tr("<b>Switch to \"Experimental Mode\" when a slower or stopped vehicle is detected.</b> Can make braking smoother and more reliable on some vehicles."), ""},
-    {"CENavigation", tr("Navigation-Based"), tr("<b>Switch to \"Experimental Mode\" when approaching intersections or turns on the active route</b> while using \"Navigate on openpilot\" (NOO) to allow the model to set an appropriate speed for upcoming maneuvers."), ""},
-    {"CEModelStopTime", tr("Predicted Stop In"), tr("<b>Switch to \"Experimental Mode\" when openpilot predicts a stop within the set time.</b> This is usually triggered when the model \"sees\" a red light or stop sign ahead.<br><br><i><b>Disclaimer</b>: openpilot does not explicitly detect traffic lights or stop signs. In \"Experimental Mode\", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason.</i>"), ""},
-    {"CESignalSpeed", tr("Turn Signal Below"), tr("<b>Switch to \"Experimental Mode\" when using a turn signal below the set speed</b> to allow the model to choose an appropriate speed for smoother left and right turns."), ""},
-    {"ShowCEMStatus", tr("Status Widget"), tr("<b>Show which condition triggered \"Experimental Mode\"</b> on the driving screen."), ""},
+    {"ConditionalExperimental", tr("條件式實驗模式"), tr("<b>當達成設置條件時自動切換為\"實驗模式\"。</b> 使模型能在挑戰情境下做出更智慧的決策。"), "../../frogpilot/assets/toggle_icons/icon_conditional.png"},
+    {"CESpeed", tr("低於"), tr("<b>當在無前車情況且速限低於此值時切換為\"實驗模式\"</b>，以協助 openpilot 更順暢處理低速情境。"), ""},
+    {"CECurves", tr("前方偵測到彎道"), tr("<b>當偵測到彎道時切換為\"實驗模式\"</b>，讓模型為彎道設定適當速度。"), ""},
+    {"CELead", tr("前方偵測到前車"), tr("<b>當偵測到較慢或靜止車輛時切換為\"實驗模式\"。</b> 在某些車輛上可使煞車更平順且更可靠。"), ""},
+    {"CENavigation", tr("基於導航"), tr("<b>在使用 \"Navigate on openpilot\" (NOO) 且接近路線上的交叉路口或轉彎時切換為\"實驗模式\"</b>，讓模型為即將到來的動作設定適當速度。"), ""},
+    {"CEModelStopTime", tr("預測停車時間"), tr("<b>當 openpilot 預測在設定時間內會停車時切換為\"實驗模式\"。</b> 此通常由模型偵測到紅燈或停車標誌觸發。<br><br><i><b>免責聲明</b>：openpilot 並不會明確偵測紅綠燈或停車標誌。在\"實驗模式\"中，openpilot 會根據相機輸入做端到端的駕駛決策，因此可能在沒有明確理由時停車。</i>"), ""},
+    {"CESignalSpeed", tr("方向燈低於"), tr("<b>在使用方向燈且速度低於設定值時切換為\"實驗模式\"</b>，讓模型為左右轉彎選擇更平順的速度。"), ""},
+    {"ShowCEMStatus", tr("狀態小工具"), tr("<b>在行車畫面顯示觸發\"實驗模式\"的條件</b>。"), ""},
 
-    {"CurveSpeedController", tr("Curve Speed Controller"), tr("<b>Automatically slow down for upcoming curves</b> using data learned from your driving style, adapting to curves as you would."), "../../frogpilot/assets/toggle_icons/icon_speed_map.png"},
-    {"CalibratedLateralAcceleration", tr("Calibrated Lateral Acceleration"), tr("<b>The learned lateral acceleration from collected driving data.</b> This sets how fast openpilot will take curves. Higher values allow faster cornering; lower values slow the vehicle for gentler turns."), ""},
-    {"CalibrationProgress", tr("Calibration Progress"), tr("<b>How much curve data has been collected.</b> This is a progress meter; it is normal for the value to stay low and rarely reach 100%."), ""},
-    {"ResetCurveData", tr("Reset Curve Data"), tr("<b>Reset collected user data for \"Curve Speed Controller\".</b>"), ""},
-    {"ShowCSCStatus", tr("Status Widget"), tr("<b>Show the \"Curve Speed Controller\" target speed on the driving screen.</b>"), ""},
+    {"CurveSpeedController", tr("彎道速度控制器"), tr("<b>使用從你的駕駛習慣學到的資料自動減速以應對即將到來的彎道</b>，像你平常駕駛時一樣調整過彎速度。"), "../../frogpilot/assets/toggle_icons/icon_speed_map.png"},
+    {"CalibratedLateralAcceleration", tr("校正側向加速度"), tr("<b>從收集的行車資料學到的側向加速度。</b> 此值決定 openpilot 過彎速度。數值越高允許更快過彎；數值越低則減速以獲得更平順的轉向。"), ""},
+    {"CalibrationProgress", tr("校正進度"), tr("<b>已收集到多少彎道資料。</b> 這是一個進度指示；數值保持較低且很少到達 100% 是正常現象。"), ""},
+    {"ResetCurveData", tr("重設彎道資料"), tr("<b>重設為 \"彎道速度控制器\" 收集的使用者資料。</b>"), ""},
+    {"ShowCSCStatus", tr("狀態小工具"), tr("<b>在行車畫面顯示 \"彎道速度控制器\" 的目標速度。</b>"), ""},
 
-    {"CustomPersonalities", tr("Driving Personalities"), tr("<b>Customize the \"Driving Personalities\"</b> to better match your driving style."), "../../frogpilot/assets/toggle_icons/icon_personality.png"},
+    {"CustomPersonalities", tr("駕駛風格"), tr("<b>自訂 \"駕駛風格\"，以更符合你的駕駛習慣。</b>"), "../../frogpilot/assets/toggle_icons/icon_personality.png"},
 
-    {"TrafficPersonalityProfile", tr("Traffic Mode"), tr("<b>Customize the \"Traffic Mode\" personality profile.</b> Designed for stop-and-go driving."), "../../frogpilot/assets/stock_theme/distance_icons/traffic.png"},
-    {"TrafficFollow", tr("Following Distance"), tr("<b>The minimum following distance to the lead vehicle in \"Traffic Mode\".</b> openpilot blends between this value and the \"Aggressive\" profile as speed increases. Increase for more space; decrease for tighter gaps."), ""},
-    {"TrafficJerkAcceleration", tr("Acceleration Smoothness"), tr("<b>How smoothly openpilot accelerates in \"Traffic Mode\".</b> Increase for gentler starts; decrease for faster but more abrupt takeoffs."), ""},
-    {"TrafficJerkDeceleration", tr("Braking Smoothness"), tr("<b>How smoothly openpilot brakes in \"Traffic Mode\".</b> Increase for gentler stops; decrease for quicker but sharper braking."), ""},
-    {"TrafficJerkDanger", tr("Safety Gap Bias"), tr("<b>How much extra space openpilot keeps from the vehicle ahead in \"Traffic Mode\".</b> Increase for larger gaps and more cautious following; decrease for tighter gaps and closer following."), ""},
-    {"TrafficJerkSpeedDecrease", tr("Slowdown Response"), tr("<b>How smoothly openpilot slows down in \"Traffic Mode\".</b> Increase for more gradual deceleration; decrease for faster but sharper slowdowns."), ""},
-    {"TrafficJerkSpeed", tr("Speed-Up Response"), tr("<b>How smoothly openpilot speeds up in \"Traffic Mode\".</b> Increase for more gradual acceleration; decrease for quicker but more jolting acceleration."), ""},
-    {"ResetTrafficPersonality", tr("Reset to Defaults"), tr("<b>Reset \"Traffic Mode\" settings to defaults.</b>"), ""},
+    {"TrafficPersonalityProfile", tr("交通模式"), tr("<b>自訂 \"交通模式\" 的風格設定。</b> 適用於頻繁停走的路況。"), "../../frogpilot/assets/stock_theme/distance_icons/traffic.png"},
+    {"TrafficFollow", tr("跟車距離"), tr("<b>在 \"交通模式\" 下與前車的最小跟車距離。</b> 隨速度提升，openpilot 會在此值與 \"進取\" 檔案之間調整。增加可獲得更大空間；減少可縮短間距。"), ""},
+    {"TrafficJerkAcceleration", tr("加速平順度"), tr("<b>在 \"交通模式\" 中 openpilot 加速的平順程度。</b> 增加可獲得較溫和的起步；減少則更快但較突兀。"), ""},
+    {"TrafficJerkDeceleration", tr("煞車平順度"), tr("<b>在 \"交通模式\" 中 openpilot 煞車的平順程度。</b> 增加可獲得較溫和的停止；減少則更迅速但較激烈。"), ""},
+    {"TrafficJerkDanger", tr("安全間隙偏好"), tr("<b>在 \"交通模式\" 中 openpilot 與前車保持的額外安全距離。</b> 增加可獲得更保守的間距；減少則更接近前車。"), ""},
+    {"TrafficJerkSpeedDecrease", tr("減速反應"), tr("<b>在 \"交通模式\" 中 openpilot 減速的平順程度。</b> 增加可獲得較緩和的減速；減少則較快但較突兀。"), ""},
+    {"TrafficJerkSpeed", tr("加速反應"), tr("<b>在 \"交通模式\" 中 openpilot 加速的反應程度。</b> 增加可獲得較平順的加速；減少則較快但較突兀。"), ""},
+    {"ResetTrafficPersonality", tr("重設為預設"), tr("<b>將 \"交通模式\" 設定重設為預設值。</b>"), ""},
 
-    {"AggressivePersonalityProfile", tr("Aggressive"), tr("<b>Customize the \"Aggressive\" personality profile.</b> Designed for assertive driving with tighter gaps."), "../../frogpilot/assets/stock_theme/distance_icons/aggressive.png"},
-    {"AggressiveFollow", tr("Following Distance"), tr("<b>How many seconds openpilot follows behind lead vehicles when using the \"Aggressive\" profile.</b> Increase for more space; decrease for tighter gaps.<br><br>Default: 1.25 seconds."), ""},
-    {"AggressiveJerkAcceleration", tr("Acceleration Smoothness"), tr("<b>How smoothly openpilot accelerates with the \"Aggressive\" profile.</b> Increase for gentler starts; decrease for faster but more abrupt takeoffs."), ""},
-    {"AggressiveJerkDeceleration", tr("Braking Smoothness"), tr("<b>How smoothly openpilot brakes with the \"Aggressive\" profile.</b> Increase for gentler stops; decrease for quicker but sharper braking."), ""},
-    {"AggressiveJerkDanger", tr("Safety Gap Bias"), tr("<b>How much extra space openpilot keeps from the vehicle ahead with the \"Aggressive\" profile.</b> Increase for larger gaps and more cautious following; decrease for tighter gaps and closer following."), ""},
-    {"AggressiveJerkSpeedDecrease", tr("Slowdown Response"), tr("<b>How smoothly openpilot slows down with the \"Aggressive\" profile.</b> Increase for more gradual deceleration; decrease for faster but sharper slowdowns."), ""},
-    {"AggressiveJerkSpeed", tr("Speed-Up Response"), tr("<b>How smoothly openpilot speeds up with the \"Aggressive\" profile.</b> Increase for more gradual acceleration; decrease for quicker but more jolting acceleration."), ""},
-    {"ResetAggressivePersonality", tr("Reset to Defaults"), tr("<b>Reset the \"Aggressive\" profile to defaults.</b>"), ""},
+    {"AggressivePersonalityProfile", tr("進取"), tr("<b>自訂 \"進取\" 風格設定。</b> 適合較積極的駕駛，保持較小車距。"), "../../frogpilot/assets/stock_theme/distance_icons/aggressive.png"},
+    {"AggressiveFollow", tr("跟車距離"), tr("<b>使用 \"進取\" 檔案時 openpilot 跟隨前車的秒數。</b> 增加可獲得更多空間；減少則間距更緊密。<br><br>預設：1.25 秒。"), ""},
+    {"AggressiveJerkAcceleration", tr("加速平順度"), tr("<b>使用 \"進取\" 檔案時 openpilot 加速的平順程度。</b> 增加可獲得較溫和的起步；減少則更快但較突兀。"), ""},
+    {"AggressiveJerkDeceleration", tr("煞車平順度"), tr("<b>使用 \"進取\" 檔案時 openpilot 煞車的平順程度。</b> 增加可獲得較溫和的停止；減少則更迅速但較激烈。"), ""},
+    {"AggressiveJerkDanger", tr("安全間隙偏好"), tr("<b>使用 \"進取\" 檔案時 openpilot 與前車保持的額外空間。</b> 增加可獲得更保守的間距；減少則更接近前車。"), ""},
+    {"AggressiveJerkSpeedDecrease", tr("減速反應"), tr("<b>使用 \"進取\" 檔案時 openpilot 減速的平順程度。</b> 增加可獲得較緩和的減速；減少則較快但較突兀。"), ""},
+    {"AggressiveJerkSpeed", tr("加速反應"), tr("<b>使用 \"進取\" 檔案時 openpilot 加速的反應程度。</b> 增加可獲得較平順的加速；減少則較快但較突兀。"), ""},
+    {"ResetAggressivePersonality", tr("重設為預設"), tr("<b>將 \"進取\" 風格重設為預設值。</b>"), ""},
 
-    {"StandardPersonalityProfile", tr("Standard"), tr("<b>Customize the \"Standard\" personality profile.</b> Designed for balanced driving with moderate gaps."), "../../frogpilot/assets/stock_theme/distance_icons/standard.png"},
-    {"StandardFollow", tr("Following Distance"), tr("<b>How many seconds openpilot follows behind lead vehicles when using the \"Standard\" profile.</b> Increase for more space; decrease for tighter gaps.<br><br>Default: 1.45 seconds."), ""},
-    {"StandardJerkAcceleration", tr("Acceleration Smoothness"), tr("<b>How smoothly openpilot accelerates with the \"Standard\" profile.</b> Increase for gentler starts; decrease for faster but more abrupt takeoffs."), ""},
-    {"StandardJerkDeceleration", tr("Braking Smoothness"), tr("<b>How smoothly openpilot brakes with the \"Standard\" profile.</b> Increase for gentler stops; decrease for quicker but sharper braking."), ""},
-    {"StandardJerkDanger", tr("Safety Gap Bias"), tr("<b>How much extra space openpilot keeps from the vehicle ahead with the \"Standard\" profile.</b> Increase for larger gaps and more cautious following; decrease for tighter gaps and closer following."), ""},
-    {"StandardJerkSpeedDecrease", tr("Slowdown Response"), tr("<b>How smoothly openpilot slows down with the \"Standard\" profile.</b> Increase for more gradual deceleration; decrease for faster but sharper slowdowns."), ""},
-    {"StandardJerkSpeed", tr("Speed-Up Response"), tr("<b>How smoothly openpilot speeds up with the \"Standard\" profile.</b> Increase for more gradual acceleration; decrease for quicker but more jolting acceleration."), ""},
-    {"ResetStandardPersonality", tr("Reset to Defaults"), tr("<b>Reset the \"Standard\" profile to defaults.</b>"), ""},
+    {"StandardPersonalityProfile", tr("標準"), tr("<b>自訂 \"標準\" 風格設定。</b> 適合平衡的駕駛風格與中等車距。"), "../../frogpilot/assets/stock_theme/distance_icons/standard.png"},
+    {"StandardFollow", tr("跟車距離"), tr("<b>使用 \"標準\" 檔案時 openpilot 跟隨前車的秒數。</b> 增加可獲得更多空間；減少則間距更緊密。<br><br>預設：1.45 秒。"), ""},
+    {"StandardJerkAcceleration", tr("加速平順度"), tr("<b>使用 \"標準\" 檔案時 openpilot 加速的平順程度。</b> 增加可獲得較溫和的起步；減少則更快但較突兀。"), ""},
+    {"StandardJerkDeceleration", tr("煞車平順度"), tr("<b>使用 \"標準\" 檔案時 openpilot 煞車的平順程度。</b> 增加可獲得較溫和的停止；減少則更迅速但較激烈。"), ""},
+    {"StandardJerkDanger", tr("安全間隙偏好"), tr("<b>使用 \"標準\" 檔案時 openpilot 與前車保持的額外空間。</b> 增加可獲得更保守的間距；減少則更接近前車。"), ""},
+    {"StandardJerkSpeedDecrease", tr("減速反應"), tr("<b>使用 \"標準\" 檔案時 openpilot 減速的平順程度。</b> 增加可獲得較緩和的減速；減少則較快但較突兀。"), ""},
+    {"StandardJerkSpeed", tr("加速反應"), tr("<b>使用 \"標準\" 檔案時 openpilot 加速的反應程度。</b> 增加可獲得較平順的加速；減少則較快但較突兀。"), ""},
+    {"ResetStandardPersonality", tr("重設為預設"), tr("<b>將 \"標準\" 風格重設為預設值。</b>"), ""},
 
-    {"RelaxedPersonalityProfile", tr("Relaxed"), tr("<b>Customize the \"Relaxed\" personality profile.</b> Designed for smoother, more comfortable driving with larger gaps."), "../../frogpilot/assets/stock_theme/distance_icons/relaxed.png"},
-    {"RelaxedFollow", tr("Following Distance"), tr("<b>How many seconds openpilot follows behind lead vehicles when using the \"Relaxed\" profile.</b> Increase for more space; decrease for tighter gaps.<br><br>Default: 1.75 seconds."), ""},
-    {"RelaxedJerkAcceleration", tr("Acceleration Smoothness"), tr("<b>How smoothly openpilot accelerates with the \"Relaxed\" profile.</b> Increase for gentler starts; decrease for faster but more abrupt takeoffs."), ""},
-    {"RelaxedJerkDeceleration", tr("Braking Smoothness"), tr("<b>How smoothly openpilot brakes with the \"Relaxed\" profile.</b> Increase for gentler stops; decrease for quicker but sharper braking."), ""},
-    {"RelaxedJerkDanger", tr("Safety Gap Bias"), tr("<b>How much extra space openpilot keeps from the vehicle ahead with the \"Relaxed\" profile.</b> Increase for larger gaps and more cautious following; decrease for tighter gaps and closer following."), ""},
-    {"RelaxedJerkSpeedDecrease", tr("Slowdown Response"), tr("<b>How smoothly openpilot slows down with the \"Relaxed\" profile.</b> Increase for more gradual deceleration; decrease for faster but sharper slowdowns."), ""},
-    {"RelaxedJerkSpeed", tr("Speed-Up Response"), tr("<b>How smoothly openpilot speeds up with the \"Relaxed\" profile.</b> Increase for more gradual acceleration; decrease for quicker but more jolting acceleration."), ""},
-    {"ResetRelaxedPersonality", tr("Reset to Defaults"), tr("<b>Reset the \"Relaxed\" profile to defaults.</b>"), ""},
+    {"RelaxedPersonalityProfile", tr("舒適"), tr("<b>自訂 \"舒適\" 風格設定。</b> 適合較平順、舒適的駕駛並保持較大車距。"), "../../frogpilot/assets/stock_theme/distance_icons/relaxed.png"},
+    {"RelaxedFollow", tr("跟車距離"), tr("<b>使用 \"舒適\" 檔案時 openpilot 跟隨前車的秒數。</b> 增加可獲得更多空間；減少則間距更緊密。<br><br>預設：1.75 秒。"), ""},
+    {"RelaxedJerkAcceleration", tr("加速平順度"), tr("<b>使用 \"舒適\" 檔案時 openpilot 加速的平順程度。</b> 增加可獲得較溫和的起步；減少則更快但較突兀。"), ""},
+    {"RelaxedJerkDeceleration", tr("煞車平順度"), tr("<b>使用 \"舒適\" 檔案時 openpilot 煞車的平順程度。</b> 增加可獲得較溫和的停止；減少則更迅速但較激烈。"), ""},
+    {"RelaxedJerkDanger", tr("安全間隙偏好"), tr("<b>使用 \"舒適\" 檔案時 openpilot 與前車保持的額外空間。</b> 增加可獲得更保守的間距；減少則更接近前車。"), ""},
+    {"RelaxedJerkSpeedDecrease", tr("減速反應"), tr("<b>使用 \"舒適\" 檔案時 openpilot 減速的平順程度。</b> 增加可獲得較緩和的減速；減少則較快但較突兀。"), ""},
+    {"RelaxedJerkSpeed", tr("加速反應"), tr("<b>使用 \"舒適\" 檔案時 openpilot 加速的反應程度。</b> 增加可獲得較平順的加速；減少則較快但較突兀。"), ""},
+    {"ResetRelaxedPersonality", tr("重設為預設"), tr("<b>將 \"舒適\" 風格重設為預設值。</b>"), ""},
 
-    {"LongitudinalTune", tr("Longitudinal Tuning"), tr("<b>Acceleration and braking control changes</b> to fine-tune how openpilot drives."), "../../frogpilot/assets/toggle_icons/icon_longitudinal_tune.png"},
-    {"AccelerationProfile", tr("Acceleration Profile"), tr("<b>How quickly openpilot speeds up.</b> \"Eco\" is gentle and efficient, \"Sport\" is firmer and more responsive, and \"Sport+\" accelerates at the maximum rate allowed."), ""},
-    {"DecelerationProfile", tr("Deceleration Profile"), tr("<b>How firmly openpilot slows down.</b> \"Eco\" favors coasting, \"Sport\" applies stronger braking."), ""},
-    {"HumanAcceleration", tr("Human-Like Acceleration"), tr("<b>Acceleration that mimics human behavior</b> by easing the throttle at low speeds and adding extra power when taking off from a stop."), ""},
-    {"HumanFollowing", tr("Human-Like Following"), tr("<b>Following behavior that mimics human drivers</b> by closing gaps behind faster vehicles for quicker takeoffs and dynamically adjusting the desired following distance for gentler, more efficient braking."), ""},
-    {"LeadDetectionThreshold", tr("Lead Detection Sensitivity"), tr("<b>How sensitive openpilot is to detecting vehicles.</b> Higher sensitivity allows quicker detection at longer distances but may react to non-vehicle objects; lower sensitivity is more conservative and reduces false detections."), ""},
+    {"LongitudinalTune", tr("縱向調校"), tr("<b>加速與煞車控制設定</b> 用於微調 openpilot 的駕駛表現。"), "../../frogpilot/assets/toggle_icons/icon_longitudinal_tune.png"},
+    {"AccelerationProfile", tr("加速設定"), tr("<b>openpilot 加速的快慢設定。</b> \"節能\" 輕柔且省油，\"運動\" 較有力且反應快，\"運動+\" 為允許的最大加速率。"), ""},
+    {"DecelerationProfile", tr("減速設定"), tr("<b>openpilot 減速的力度設定。</b> \"節能\" 偏向滑行，\"運動\" 則採用較強的煞車。"), ""},
+    {"HumanAcceleration", tr("類人加速"), tr("<b>模仿人類駕駛的加速行為</b>，在低速時平順放油門，並在起步時給予額外動力。"), ""},
+    {"HumanFollowing", tr("類人跟車"), tr("<b>模仿人類駕駛的跟車行為</b>，在較快車輛前方縮短距離以快速起步，並動態調整跟車距離以達到更平順與高效率的煞車。"), ""},
+    {"LeadDetectionThreshold", tr("前車偵測靈敏度"), tr("<b>openpilot 偵測車輛的靈敏度。</b> 靈敏度提高可以在較遠距離更早偵測，但可能對非車輛物體也有反應；降低則較保守並減少誤偵測。"), ""},
     {"TacoTune", tr("\"Taco Bell Run\" Turn Speed Hack"), tr("<b>The turn-speed hack from comma's 2022 \"Taco Bell Run\".</b> Designed to slow down for left and right turns."), ""},
 
-    {"QOLLongitudinal", tr("Quality of Life"), tr("<b>Miscellaneous acceleration and braking control changes</b> to fine-tune how openpilot drives."), "../../frogpilot/assets/toggle_icons/icon_quality_of_life.png"},
-    {"CustomCruise", tr("Cruise Interval"), tr("<b>How much the set speed increases or decreases</b> for each + or – cruise control button press."), ""},
-    {"CustomCruiseLong", tr("Cruise Interval (Hold)"), tr("<b>How much the set speed increases or decreases while holding the + or – cruise control buttons.</b>"), ""},
-    {"ForceStops", tr("Force Stop at \"Detected\" Stop Lights/Signs"), tr("<b>Force openpilot to stop whenever the driving model \"detects\" a red light or stop sign.</b><br><br><i><b>Disclaimer</b>: openpilot does not explicitly detect traffic lights or stop signs. In \"Experimental Mode\", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason.</i>"), ""},
-    {"IncreasedStoppedDistance", tr("Increase Stopped Distance by:"), tr("<b>Add extra space when stopped behind vehicles.</b> Increase for more room; decrease for shorter gaps."), ""},
-    {"MapGears", tr("Map Accel/Decel to Gears"), tr("<b>Map the Acceleration or Deceleration profiles to the vehicle's \"Eco\" and \"Sport\" gear modes.</b>"), ""},
-    {"SetSpeedOffset", tr("Offset Set Speed by:"), tr("<b>Increase the set speed by the chosen offset.</b> For example, set +5 if you usually drive 5 over the limit."), ""},
-    {"ReverseCruise", tr("Reverse Cruise Increase"), tr("<b>Reverse the cruise control button behavior</b> so a short press increases the set speed by 5 instead of 1."), ""},
+    {"QOLLongitudinal", tr("便利功能"), tr("<b>各種加速與煞車的雜項調整</b>，用於微調 openpilot 的駕駛感受。"), "../../frogpilot/assets/toggle_icons/icon_quality_of_life.png"},
+    {"CustomCruise", tr("巡航增減值"), tr("<b>每次按下 + 或 - 巡航按鈕時，設定速度增加或減少多少。</b>"), ""},
+    {"CustomCruiseLong", tr("長按巡航增減值"), tr("<b>長按 + 或 - 巡航按鈕時，設定速度增加或減少多少。</b>"), ""},
+    {"ForceStops", tr("強制於偵測到的紅綠燈/停車標誌停車"), tr("<b>當駕駛模型 \"偵測到\" 紅燈或停車標誌時強制 openpilot 停車。</b><br><br><i><b>免責聲明</b>：openpilot 並不會明確偵測紅綠燈或停車標誌。在 \"實驗模式\" 中，openpilot 會基於相機輸入做端到端的駕駛決策，因此可能在沒有明確理由時停車。</i>"), ""},
+    {"IncreasedStoppedDistance", tr("增加停車時距離："), tr("<b>在停車時增加與前車的空間。</b> 增加可獲得更多空間；減少則距離較短。"), ""},
+    {"MapGears", tr("將加減速對應至檔位"), tr("<b>將加速或減速檔案對應到車輛的 \"節能\" 或 \"運動\" 檔位。</b>"), ""},
+    {"SetSpeedOffset", tr("設定速度偏移量："), tr("<b>將設定速度增加所選的偏移量。</b> 例如，若你通常超速 5 mph，則設定 +5。"), ""},
+    {"ReverseCruise", tr("反向巡航增量"), tr("<b>反轉巡航按鈕的行為</b>，讓短按增加 5 而非 1。"), ""},
 
-    {"SpeedLimitController", tr("Speed Limit Controller"), tr("<b>Limit openpilot's maximum driving speed to the current speed limit</b> obtained from downloaded maps, Mapbox, Navigate on openpilot, or the dashboard for supported vehicles (Ford, Genesis, Hyundai, Kia, Lexus, Toyota)."), "../../frogpilot/assets/toggle_icons/icon_speed_limit.png"},
-    {"SLCFallback", tr("Fallback Speed"), tr("<b>The speed used by \"Speed Limit Controller\" when no speed limit is found.</b><br><br>- <b>Set Speed</b>: Use the cruise set speed<br>- <b>Experimental Mode</b>: Estimate the limit using the driving model<br>- <b>Previous Limit</b>: Keep using the last confirmed limit"), ""},
-    {"SLCOverride", tr("Override Speed"), tr("<b>The speed used by \"Speed Limit Controller\" after you manually drive faster than the posted limit.</b><br><br>- <b>Set with Gas Pedal</b>: Use the highest speed reached while pressing the gas<br>- <b>Max Set Speed</b>: Use the cruise set speed<br><br>Overrides clear when openpilot disengages."), ""},
-    {"SLCQOL", tr("Quality of Life"), tr("<b>Miscellaneous \"Speed Limit Controller\" changes</b> to fine-tune how openpilot drives."), ""},
-    {"SLCConfirmation", tr("Confirm New Speed Limits"), tr("<b>Ask before changing to a new speed limit.</b> To accept, tap the flashing on-screen widget or press the Cruise Increase button. To deny, press the Cruise Decrease button or ignore the prompt for 30 seconds."), ""},
-    {"ForceMPHDashboard", tr("Force MPH from Dashboard"), tr("<b>Always read dashboard speed limit signs in mph.</b> Turn this on if the cluster shows mph but the limit is interpreted as km/h."), ""},
-    {"SLCLookaheadHigher", tr("Higher Limit Lookahead Time"), tr("<b>How far ahead openpilot anticipates upcoming higher speed limits</b> from downloaded map data."), ""},
-    {"SLCLookaheadLower", tr("Lower Limit Lookahead Time"), tr("<b>How far ahead openpilot anticipates upcoming lower speed limits</b> from downloaded map data."), ""},
-    {"SetSpeedLimit", tr("Match Speed Limit on Engage"), tr("<b>When openpilot is first enabled, automatically set the max speed to the current posted limit.</b>"), ""},
-    {"SLCMapboxFiller", tr("Use Mapbox as Fallback"), tr("<b>Use Mapbox speed-limit data when no other source is available.</b>"), ""},
-    {"SLCPriority", tr("Speed Limit Source Priority"), tr("<b>The source order for speed limits</b> when more than one is available."), ""},
-    {"SLCOffsets", tr("Speed Limit Offsets"), tr("<b>Add an offset to the posted speed limit</b> to better match your driving style."), ""},
-    {"Offset1", tr("Speed Offset (0–24 mph)"), tr("<b>How much to offset posted speed-limits</b> between 0 and 24 mph."), ""},
-    {"Offset2", tr("Speed Offset (25–34 mph)"), tr("<b>How much to offset posted speed-limits</b> between 25 and 34 mph."), ""},
-    {"Offset3", tr("Speed Offset (35–44 mph)"), tr("<b>How much to offset posted speed-limits</b> between 35 and 44 mph."), ""},
-    {"Offset4", tr("Speed Offset (45–54 mph)"), tr("<b>How much to offset posted speed-limits</b> between 45 and 54 mph."), ""},
-    {"Offset5", tr("Speed Offset (55–64 mph)"), tr("<b>How much to offset posted speed-limits</b> between 55 and 64 mph."), ""},
-    {"Offset6", tr("Speed Offset (65–74 mph)"), tr("<b>How much to offset posted speed-limits</b> between 65 and 74 mph."), ""},
-    {"Offset7", tr("Speed Offset (75–99 mph)"), tr("<b>How much to offset posted speed-limits</b> between 75 and 99 mph."), ""},
-    {"SLCVisuals", tr("Visual Settings"), tr("<b>Visual \"Speed Limit Controller\" changes</b> to fine-tune how the driving screen looks."), ""},
-    {"ShowSLCOffset", tr("Show Speed Limit Offset"), tr("<b>Show the current offset from the posted limit</b> on the driving screen."), ""},
-    {"SpeedLimitSources", tr("Show Speed Limit Sources"), tr("<b>Display the speed-limit sources and their current values</b> on the driving screen."), ""}
+    {"SpeedLimitController", tr("速限控制器"), tr("<b>限制 openpilot 的最大駕駛速度為當前速限</b>，來自下載的地圖、Mapbox、Navigate on openpilot 或支援車輛的儀錶板（福特、貴乘、亞五洲、起亞、雷克薩斯、豐田）。"), "../../frogpilot/assets/toggle_icons/icon_speed_limit.png"},
+    {"SLCFallback", tr("備用速度"), tr("<b>當找不到速限時 \"速限控制器\" 使用的速度。</b><br><br>- <b>設定速度</b>：使用巡航設定速度<br>- <b>實驗模式</b>：使用駕駛模型估計限速<br>- <b>上一個限速</b>：繼續使用上次確認的限速"), ""},
+    {"SLCOverride", tr("超速覆蓋"), tr("<b>你手動駕駛超過貼示限速後 \"速限控制器\" 使用的速度。</b><br><br>- <b>用油門决定</b>：使用按壓油門時達成的最高速度<br>- <b>最大設定速度</b>：使用巡航設定速度<br><br>openpilot 關閉時覆蓋會清除。"), ""},
+    {"SLCQOL", tr("便利功能"), tr("<b>雜項 \"速限控制器\" 設定調整</b>，用於微調 openpilot 的駕駛感受。"), ""},
+    {"SLCConfirmation", tr("確認新的速限"), tr("<b>按簡了新的速限前詢問。</b> 接受，觸按閃閉的佢面小元件但是或點擊巡航增免孔。手擋，按巡航減免孔或 30 秒後佢面多工詢問。"), ""},
+    {"ForceMPHDashboard", tr("強制佢銘盤住英里"), tr("<b>永遠以英里/小時讀取佢銘盤速限標誌。</b> 若佢銘盤顯示英里但限速婪蝻為八千米/小時，請開啟此選項。"), ""},
+    {"SLCLookaheadHigher", tr("較高速限預視時間"), tr("<b>openpilot 提前多遠時間預測從下載的地圖資料取得的較高速限</b>"), ""},
+    {"SLCLookaheadLower", tr("較低速限預視時間"), tr("<b>openpilot 提前多遠時間預測從下載的地圖資料取得的較低速限</b>"), ""},
+    {"SetSpeedLimit", tr("啟用時比照速限"), tr("<b>當 openpilot 首次啟用時，自動將最大速度設定為目前的速限。</b>"), ""},
+    {"SLCMapboxFiller", tr("使用 Mapbox 作為備用"), tr("<b>當沒有其他來源可用時，使用 Mapbox 速限資料。</b>"), ""},
+    {"SLCPriority", tr("速限來源優先級"), tr("<b>當有多個來源可用時的速限來源順序</b>"), ""},
+    {"SLCOffsets", tr("速限偏移"), tr("<b>為發佈的速限增加偏移</b>以更符合您的駕駛風格。"), ""},
+    {"Offset1", tr("速度偏移 (0–24 英里/小時)"), tr("<b>0 到 24 英里/小時之間發佈的速限偏移量</b>"), ""},
+    {"Offset2", tr("速度偏移 (25–34 英里/小時)"), tr("<b>25 到 34 英里/小時之間發佈的速限偏移量</b>"), ""},
+    {"Offset3", tr("速度偏移 (35–44 英里/小時)"), tr("<b>35 到 44 英里/小時之間發佈的速限偏移量</b>"), ""},
+    {"Offset4", tr("速度偏移 (45–54 英里/小時)"), tr("<b>45 到 54 英里/小時之間發佈的速限偏移量</b>"), ""},
+    {"Offset5", tr("速度偏移 (55–64 英里/小時)"), tr("<b>55 到 64 英里/小時之間發佈的速限偏移量</b>"), ""},
+    {"Offset6", tr("速度偏移 (65–74 英里/小時)"), tr("<b>65 到 74 英里/小時之間發佈的速限偏移量</b>"), ""},
+    {"Offset7", tr("速度偏移 (75–99 英里/小時)"), tr("<b>75 到 99 英里/小時之間發佈的速限偏移量</b>"), ""},
+    {"SLCVisuals", tr("視覺設定"), tr("<b>視覺 \"速限控制器\" 變更</b>以微調行車螢幕的外觀。"), ""},
+    {"ShowSLCOffset", tr("顯示速限偏移"), tr("<b>在行車螢幕上顯示與發佈速限的目前偏移</b>"), ""},
+    {"SpeedLimitSources", tr("顯示速限來源"), tr("<b>在行車螢幕上顯示速限來源及其目前值</b>"), ""}
   };
 
   for (const auto &[param, title, desc, icon] : longitudinalToggles) {
@@ -205,31 +205,31 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       });
       longitudinalToggle = conditionalExperimentalToggle;
     } else if (param == "CESpeed") {
-      FrogPilotParamValueControl *CESpeed = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr(" mph"), std::map<float, QString>(), 1, true, 175);
-      FrogPilotParamValueControl *CESpeedLead = new FrogPilotParamValueControl("CESpeedLead", tr("With Lead"), tr("<b>Switch to \"Experimental Mode\" when driving below this speed with a lead</b> to help openpilot handle low-speed situations more smoothly."), icon, 0, 99, tr(" mph"), std::map<float, QString>(), 1, true, 175);
+      FrogPilotParamValueControl *CESpeed = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr(" 英里/小時"), std::map<float, QString>(), 1, true, 175);
+      FrogPilotParamValueControl *CESpeedLead = new FrogPilotParamValueControl("CESpeedLead", tr("有前車"), tr("<b>當在有前車情況且速度低於此值時切換為\"實驗模式\"</b>，以協助 openpilot 更順暢處理低速情境。"), icon, 0, 99, tr(" 英里/小時"), std::map<float, QString>(), 1, true, 175);
       FrogPilotDualParamValueControl *conditionalSpeeds = new FrogPilotDualParamValueControl(CESpeed, CESpeedLead);
       longitudinalToggle = reinterpret_cast<AbstractControl*>(conditionalSpeeds);
     } else if (param == "CECurves") {
       std::vector<QString> curveToggles{"CECurvesLead"};
-      std::vector<QString> curveToggleNames{tr("With Lead")};
+      std::vector<QString> curveToggleNames{tr("有前車")};
       longitudinalToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, curveToggles, curveToggleNames);
     } else if (param == "CELead") {
       std::vector<QString> leadToggles{"CESlowerLead", "CEStoppedLead"};
-      std::vector<QString> leadToggleNames{tr("Slower Lead"), tr("Stopped Lead")};
+      std::vector<QString> leadToggleNames{tr("較慢前車"), tr("靜止前車")};
       longitudinalToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, leadToggles, leadToggleNames);
     } else if (param == "CENavigation") {
       std::vector<QString> navigationToggles{"CENavigationIntersections", "CENavigationTurns", "CENavigationLead"};
-      std::vector<QString> navigationToggleNames{tr("Intersections"), tr("Turns"), tr("With Lead")};
+      std::vector<QString> navigationToggleNames{tr("交叉路口"), tr("轉彎"), tr("有前車")};
       longitudinalToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, navigationToggles, navigationToggleNames);
     } else if (param == "CEModelStopTime") {
       std::map<float, QString> stopTimeLabels;
       for (int i = 0; i <= 10; ++i) {
-        stopTimeLabels[i] = i == 0 ? tr("Off") : i == 1 ? QString::number(i) + tr(" second") : QString::number(i) + tr(" seconds");
+        stopTimeLabels[i] = i == 0 ? tr("關閉") : i == 1 ? QString::number(i) + tr(" 秒") : QString::number(i) + tr(" 秒");
       }
       longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 9, QString(), stopTimeLabels);
     } else if (param == "CESignalSpeed") {
       std::vector<QString> ceSignalToggles{"CESignalLaneDetection"};
-      std::vector<QString> ceSignalToggleNames{tr("Not For Detected Lanes")};
+      std::vector<QString> ceSignalToggleNames{tr("未偵測到車道時禁用")};
       longitudinalToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 0, 99, tr(" mph"), std::map<float, QString>(), 1.0, true, ceSignalToggles, ceSignalToggleNames, true);
 
     } else if (param == "CurveSpeedController") {
@@ -245,9 +245,9 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       calibratedLateralAccelerationLabel = new LabelControl(title, QString::number(params.getFloat("CalibratedLateralAcceleration"), 'f', 2) + tr(" m/s²"), desc);
       longitudinalToggle = calibratedLateralAccelerationLabel;
     } else if (param == "ResetCurveData") {
-      ButtonControl *resetCurveDataButton = new ButtonControl(title, tr("RESET"), desc);
+      ButtonControl *resetCurveDataButton = new ButtonControl(title, tr("重設"), desc);
       QObject::connect(resetCurveDataButton, &ButtonControl::clicked, [this]() {
-        if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your curvature data?"), this)) {
+        if (FrogPilotConfirmationDialog::yesorno(tr("您確定要完全重設您的曲率資料嗎？"), this)) {
           params.putFloat("CalibratedLateralAcceleration", 2.00);
           params.remove("CalibrationProgress");
           params.remove("CurvatureData");
@@ -269,7 +269,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       });
       longitudinalToggle = customPersonalitiesToggle;
     } else if (param == "ResetTrafficPersonality" || param == "ResetAggressivePersonality" || param == "ResetStandardPersonality" || param == "ResetRelaxedPersonality") {
-      ButtonControl *resetButton = new ButtonControl(title, tr("RESET"), desc);
+      ButtonControl *resetButton = new ButtonControl(title, tr("重設"), desc);
       longitudinalToggle = resetButton;
     } else if (param == "TrafficPersonalityProfile") {
       FrogPilotManageControl *trafficPersonalityToggle = new FrogPilotManageControl(param, title, desc, icon);
@@ -333,11 +333,11 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       });
       longitudinalToggle = longitudinalTuneToggle;
     } else if (param == "AccelerationProfile") {
-      std::vector<QString> accelerationProfiles{tr("Standard"), tr("Eco"), tr("Sport"), tr("Sport+")};
+      std::vector<QString> accelerationProfiles{tr("標準"), tr("節能"), tr("運動"), tr("運動+")};
       ButtonParamControl *accelerationProfileToggle = new ButtonParamControl(param, title, desc, icon, accelerationProfiles);
       longitudinalToggle = accelerationProfileToggle;
     } else if (param == "DecelerationProfile") {
-      std::vector<QString> decelerationProfiles{tr("Standard"), tr("Eco"), tr("Sport")};
+      std::vector<QString> decelerationProfiles{tr("標準"), tr("節能"), tr("運動")};
       ButtonParamControl *decelerationProfileToggle = new ButtonParamControl(param, title, desc, icon, decelerationProfiles);
       longitudinalToggle = decelerationProfileToggle;
     } else if (param == "LeadDetectionThreshold") {
@@ -357,7 +357,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, tr(" feet"));
     } else if (param == "MapGears") {
       std::vector<QString> mapGearsToggles{"MapAcceleration", "MapDeceleration"};
-      std::vector<QString> mapGearsToggleNames{tr("Acceleration"), tr("Deceleration")};
+      std::vector<QString> mapGearsToggleNames{tr("加速"), tr("減速")};
       longitudinalToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, mapGearsToggles, mapGearsToggleNames);
     } else if (param == "SetSpeedOffset") {
       longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr(" mph"));
@@ -369,18 +369,18 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       });
       longitudinalToggle = speedLimitControllerToggle;
     } else if (param == "SLCFallback") {
-      std::vector<QString> fallbackOptions{tr("Set Speed"), tr("Experimental Mode"), tr("Previous Limit")};
+      std::vector<QString> fallbackOptions{tr("使用設定速度"), tr("實驗模式"), tr("先前速限")};
       ButtonParamControl *fallbackSelection = new ButtonParamControl(param, title, desc, icon, fallbackOptions);
       longitudinalToggle = fallbackSelection;
     } else if (param == "SLCOverride") {
-      std::vector<QString> overrideOptions{tr("None"), tr("Set With Gas Pedal"), tr("Max Set Speed")};
+      std::vector<QString> overrideOptions{tr("無"), tr("以油門設定"), tr("最大設定速度")};
       ButtonParamControl *overrideSelection = new ButtonParamControl(param, title, desc, icon, overrideOptions);
       longitudinalToggle = overrideSelection;
     } else if (param == "SLCPriority") {
-      ButtonControl *slcPriorityButton = new ButtonControl(title, tr("SELECT"), desc);
-      QStringList primaryPriorities = {tr("Dashboard"), tr("Map Data"), tr("Navigation"), tr("Highest"), tr("Lowest")};
-      QStringList otherPriorities = {tr("None"), tr("Dashboard"), tr("Map Data"), tr("Navigation")};
-      QStringList priorityPrompts = {tr("Select your primary priority"), tr("Select your secondary priority"), tr("Select your tertiary priority")};
+      ButtonControl *slcPriorityButton = new ButtonControl(title, tr("選擇"), desc);
+      QStringList primaryPriorities = {tr("儀表板"), tr("地圖資料"), tr("導航"), tr("最高"), tr("最低")};
+      QStringList otherPriorities = {tr("無"), tr("儀表板"), tr("地圖資料"), tr("導航")};
+      QStringList priorityPrompts = {tr("選擇主要優先項"), tr("選擇次要優先項"), tr("選擇第三優先項")};
 
       QObject::connect(slcPriorityButton, &ButtonControl::clicked, [=]() {
         QStringList selectedPriorities;

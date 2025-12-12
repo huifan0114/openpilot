@@ -58,9 +58,9 @@ void DriveStats::addStatsLayouts(const QString &title, StatsLabels &labels, bool
   grid_layout->addWidget(labels.distance = newLabel("0", "number"), row, 1, Qt::AlignLeft);
   grid_layout->addWidget(labels.hours = newLabel("0", "number"), row, 2, Qt::AlignLeft);
 
-  grid_layout->addWidget(newLabel(tr("Drives"), "unit"), row + 1, 0, Qt::AlignLeft);
-  grid_layout->addWidget(labels.distance_unit = newLabel(isMetric ? tr("KM") : tr("Miles"), "unit"), row + 1, 1, Qt::AlignLeft);
-  grid_layout->addWidget(newLabel(tr("Hours"), "unit"), row + 1, 2, Qt::AlignLeft);
+  grid_layout->addWidget(newLabel(tr("行程"), "unit"), row + 1, 0, Qt::AlignLeft);
+  grid_layout->addWidget(labels.distance_unit = newLabel(isMetric ? tr("公里") : tr("英里"), "unit"), row + 1, 1, Qt::AlignLeft);
+  grid_layout->addWidget(newLabel(tr("小時"), "unit"), row + 1, 2, Qt::AlignLeft);
 
   QVBoxLayout *main_layout = static_cast<QVBoxLayout *>(layout());
   main_layout->addLayout(grid_layout);
@@ -83,7 +83,7 @@ void DriveStats::parseResponse(const QString &response, bool success) {
 
 void DriveStats::updateStatsForLabel(const QJsonObject &obj, StatsLabels &labels) {
   labels.distance->setText(QString::number(int(obj["distance"].toDouble() * (isMetric ? MILE_TO_KM : 1))));
-  labels.distance_unit->setText(isMetric ? tr("KM") : tr("Miles"));
+  labels.distance_unit->setText(isMetric ? tr("公里") : tr("英里"));
   labels.hours->setText(QString::number((int)(obj["minutes"].toDouble() / 60)));
   labels.routes->setText(QString::number((int)obj["routes"].toDouble()));
 }
@@ -92,7 +92,7 @@ void DriveStats::updateFrogPilotStatsForLabel(StatsLabels &labels) {
   QJsonObject frogpilot_stats = QJsonDocument::fromJson(QString::fromStdString(params.get("FrogPilotStats")).toUtf8()).object();
 
   labels.distance->setText(QString::number(int(frogpilot_stats.value("FrogPilotMeters").toDouble() * (isMetric ? 0.001 : METER_TO_MILE))));
-  labels.distance_unit->setText(isMetric ? tr("KM") : tr("Miles"));
+  labels.distance_unit->setText(isMetric ? tr("公里") : tr("英里"));
   labels.hours->setText(QString::number(int(frogpilot_stats.value("FrogPilotSeconds").toDouble() / (60 * 60))));
   labels.routes->setText(QString::number(frogpilot_stats.value("FrogPilotDrives").toInt()));
 }

@@ -14,13 +14,12 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   addItem(primelessLayout);
 
   FrogPilotListWidget *settingsList = new FrogPilotListWidget(this);
-  ipLabel = new LabelControl(tr("Manage Your Settings At"), tr("Offline..."));
+  ipLabel = new LabelControl(tr("在此管理您的設定"), tr("離線..."));
   settingsList->addItem(ipLabel);
 
   std::vector<QString> searchOptions{tr("Mapbox"), tr("Amap")};
-  searchInput = new FrogPilotButtonsControl(tr("Destination Search Provider"),
-                                            tr("<b>The search provider used for destination queries</b> in \"Navigate on Openpilot\". "
-                                               "Options include Mapbox (recommended) and Amap."),
+  searchInput = new FrogPilotButtonsControl(tr("目的地搜尋服務提供者"),
+                                            tr("<b>用於「在 Openpilot 上導航」目的地查詢的搜尋服務提供者</b>。選項包括 Mapbox（推薦）和 Amap。"),
                                                "", searchOptions, true);
   QObject::connect(searchInput, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
     amapKeyControl1->setVisible(id == 1);
@@ -33,25 +32,24 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   searchInput->setCheckedButton(params.getInt("SearchInput"));
   settingsList->addItem(searchInput);
 
-  createKeyControl(amapKeyControl1, tr("Amap Key #1"), "AMapKey1", "", 39, settingsList);
-  createKeyControl(amapKeyControl2, tr("Amap Key #2"), "AMapKey2", "", 39, settingsList);
+  createKeyControl(amapKeyControl1, tr("Amap 金鑰 #1"), "AMapKey1", "", 39, settingsList);
+  createKeyControl(amapKeyControl2, tr("Amap 金鑰 #2"), "AMapKey2", "", 39, settingsList);
 
-  createKeyControl(publicMapboxKeyControl, tr("Public Mapbox Key"), "MapboxPublicKey", "pk.", 80, settingsList);
-  createKeyControl(secretMapboxKeyControl, tr("Secret Mapbox Key"), "MapboxSecretKey", "sk.", 80, settingsList);
+  createKeyControl(publicMapboxKeyControl, tr("Mapbox 公開金鑰"), "MapboxPublicKey", "pk.", 80, settingsList);
+  createKeyControl(secretMapboxKeyControl, tr("Mapbox 私密金鑰"), "MapboxSecretKey", "sk.", 80, settingsList);
 
   // NavBridge 設定區塊
-  navBridgeToggle = new ParamControl("NavBridgeEnabled", tr("NavBridge (Google Maps)"),
-    tr("<b>Enable NavBridge to receive navigation data from Google Maps</b> via the NavBridge Android app. "
-       "This allows conditional experimental mode to activate based on upcoming turns and intersections."), "", this);
+  navBridgeToggle = new ParamControl("NavBridgeEnabled", tr("NavBridge（Google 地圖）"),
+    tr("<b>啟用 NavBridge 以透過 NavBridge Android 應用接收來自 Google 地圖的導航資料</b>。這可讓依據即將到來的轉彎與交叉路口啟用條件性實驗模式。"), "", this);
   settingsList->addItem(navBridgeToggle);
 
-  navBridgeHostControl = new ButtonControl(tr("NavBridge Host IP"), "", tr("<b>Set the IP address of the NavBridge Android device.</b> Default is \"localhost\" for same device."));
+  navBridgeHostControl = new ButtonControl(tr("NavBridge 主機 IP"), "", tr("<b>設定 NavBridge Android 裝置的 IP 位址。</b> 預設若為同一裝置為 \"localhost\"。"));
   QObject::connect(navBridgeHostControl, &ButtonControl::clicked, [this]() {
     QString currentHost = QString::fromStdString(params.get("NavBridgeHost"));
     if (currentHost.isEmpty()) {
       currentHost = "localhost";
     }
-    QString newHost = InputDialog::getText(tr("Enter NavBridge IP"), this, tr("Current: %1").arg(currentHost), false, 1, currentHost).trimmed();
+    QString newHost = InputDialog::getText(tr("輸入 NavBridge IP"), this, tr("目前：%1").arg(currentHost), false, 1, currentHost).trimmed();
     if (!newHost.isEmpty()) {
       params.put("NavBridgeHost", newHost.toStdString());
       updateNavBridgeHostLabel();
@@ -59,7 +57,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   });
   settingsList->addItem(navBridgeHostControl);
 
-  setupButton = new ButtonControl(tr("Mapbox Setup Instructions"), tr("VIEW"), tr("<b>Instructions on how to set up Mapbox</b> for \"Primeless Navigation\"."), this);
+  setupButton = new ButtonControl(tr("Mapbox 設定說明"), tr("檢視"), tr("<b>設定 Mapbox（用於「無儀表導航」）的操作說明</b>。"), this);
   QObject::connect(setupButton, &ButtonControl::clicked, [this]() {
     openSubPanel();
 
@@ -69,22 +67,20 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   });
   settingsList->addItem(setupButton);
 
-  std::vector<QString> filterButtonNames{tr("CANCEL"), tr("Manually Update Speed Limits")};
-  updateSpeedLimitsToggle = new FrogPilotButtonControl("SpeedLimitFiller", tr("Speed Limit Filler"),
-                                                    tr("<b>Automatically collect missing or incorrect speed limits while you drive</b> using speeds limits sourced from your dashboard (if supported), "
-                                                       "Mapbox, and \"Navigate on openpilot\".<br><br>"
-                                                       "When you're parked and connected to Wi-Fi, FrogPilot will automatically processes this data into a file "
-                                                       "to be used with the tool located at \"SpeedLimitFiller.frogpilot.download\".<br><br>"
-                                                       "You can download this file from \"The Pond\" in the \"Download Speed Limits\" menu.<br><br>"
-                                                       "Need a step-by-step guide? Visit <b>#speed-limit-filler</b> in the FrogPilot Discord!"),
-                                                       "", filterButtonNames);
+    std::vector<QString> filterButtonNames{tr("取消"), tr("手動更新速限")};
+    updateSpeedLimitsToggle = new FrogPilotButtonControl("SpeedLimitFiller", tr("速限補全"),
+                                     tr("<b>在您行駛時自動收集遺失或錯誤的速限資料</b>，資料來源包含車儀（若支援）、Mapbox 與「在 Openpilot 上導航」。<br><br>"
+                                       "當您停好車並連上 Wi‑Fi 時，FrogPilot 會自動將這些資料處理成檔案，供位於 \"SpeedLimitFiller.frogpilot.download\" 的工具使用。<br><br>"
+                                       "您可以在「下載速限」選單的 \"The Pond\" 下載此檔案。<br><br>"
+                                       "需要步驟教學？請至 FrogPilot Discord 的 <b>#speed-limit-filler</b> 頻道查看！"),
+                                       "", filterButtonNames);
   QObject::connect(updateSpeedLimitsToggle, &FrogPilotButtonControl::buttonClicked, [this](int id) {
     if (id == 0) {
-      if (FrogPilotConfirmationDialog::yesorno(tr("Cancel the speed-limit update?"), this)) {
+      if (FrogPilotConfirmationDialog::yesorno(tr("取消速限更新嗎？"), this)) {
         updatingLimits = false;
 
         updateSpeedLimitsToggle->setEnabledButton(0, false);
-        updateSpeedLimitsToggle->setValue(tr("Cancelled..."));
+        updateSpeedLimitsToggle->setValue(tr("已取消..."));
 
         params_memory.remove("UpdateSpeedLimits");
 
@@ -118,7 +114,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
         int hours = secondsUntilMidnight / 3600;
         int minutes = (secondsUntilMidnight % 3600) / 60;
 
-        ConfirmationDialog::alert(QString(tr("You've hit today's request limit.\n\nIt will reset in %1 hours and %2 minutes.")).arg(hours).arg(minutes), this);
+        ConfirmationDialog::alert(QString(tr("您已達到今日的請求上限。\n\n將在 %1 小時 %2 分鐘後重置。")).arg(hours).arg(minutes), this);
 
         updateSpeedLimitsToggle->clearCheckedButtons(true);
         return;
@@ -127,7 +123,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
       updateSpeedLimitsToggle->setVisibleButton(0, true);
       updateSpeedLimitsToggle->setVisibleButton(1, false);
 
-      if (FrogPilotConfirmationDialog::yesorno(tr("This process takes a while. It's recommended to start when you're done driving and connected to stable Wi-Fi. Continue?"), this)) {
+      if (FrogPilotConfirmationDialog::yesorno(tr("此過程需要一些時間，建議在行程結束且連上穩定 Wi‑Fi 時開始。是否繼續？"), this)) {
         updatingLimits = true;
 
         updateSpeedLimitsToggle->setValue("Calculating...");
@@ -201,7 +197,7 @@ void FrogPilotNavigationPanel::showEvent(QShowEvent *event) {
   FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
 
   QString ipAddress = fs.wifi->getIp4Address();
-  ipLabel->setText(ipAddress.isEmpty() ? tr("Offline...") : QString("%1:8082").arg(ipAddress));
+  ipLabel->setText(ipAddress.isEmpty() ? tr("離線...") : QString("%1:8082").arg(ipAddress));
 
   updateButtons();
 
@@ -222,7 +218,7 @@ void FrogPilotNavigationPanel::showEvent(QShowEvent *event) {
     updateSpeedLimitsToggle->setValue(QString::fromStdString(params_memory.get("UpdateSpeedLimitsStatus")));
   } else {
     updateSpeedLimitsToggle->setEnabledButton(1, frogpilot_scene.online && util::system_time_valid() && parked);
-    updateSpeedLimitsToggle->setValue(frogpilot_scene.online ? (parked ? "" : "Not parked") : tr("Offline..."));
+    updateSpeedLimitsToggle->setValue(frogpilot_scene.online ? (parked ? "" : "Not parked") : tr("離線..."));
     updateSpeedLimitsToggle->setVisible(parent->tuningLevel >= parent->frogpilotToggleLevels["SpeedLimitFiller"].toDouble());
   }
 }
@@ -252,9 +248,9 @@ void FrogPilotNavigationPanel::mousePressEvent(QMouseEvent *event) {
 }
 
 void FrogPilotNavigationPanel::createKeyControl(ButtonControl *&control, const QString &label, const std::string &paramKey, const QString &prefix, const int &minLength, FrogPilotListWidget *list) {
-  control = new ButtonControl(label, "", tr("<b>Manage your \"%1\".</b>").arg(label));
+  control = new ButtonControl(label, "", tr("<b>管理您的「%1」。</b>").arg(label));
   QObject::connect(control, &ButtonControl::clicked, [=] {
-    if (control->text() == tr("ADD")) {
+    if (control->text() == tr("加入")) {
       QString key = InputDialog::getText(tr("Enter your %1").arg(label), this).trimmed();
 
       if (!key.startsWith(prefix)) {
@@ -264,10 +260,10 @@ void FrogPilotNavigationPanel::createKeyControl(ButtonControl *&control, const Q
       if (key.length() >= minLength) {
         params.put(paramKey, key.toStdString());
       } else {
-        ConfirmationDialog::alert(tr("Inputted key is invalid or too short!"), this);
+        ConfirmationDialog::alert(tr("輸入的金鑰無效或太短！"), this);
       }
     } else {
-      if (FrogPilotConfirmationDialog::yesorno(tr("Remove your %1?").arg(label), this)) {
+      if (FrogPilotConfirmationDialog::yesorno(tr("您要移除 %1 嗎？").arg(label), this)) {
         control->setText(tr("ADD"));
 
         params.remove(paramKey);
@@ -277,7 +273,7 @@ void FrogPilotNavigationPanel::createKeyControl(ButtonControl *&control, const Q
       }
     }
   });
-  control->setText(QString::fromStdString(params.get(paramKey)).startsWith(prefix) ? tr("REMOVE") : tr("ADD"));
+  control->setText(QString::fromStdString(params.get(paramKey)).startsWith(prefix) ? tr("移除") : tr("加入"));
   list->addItem(control);
 }
 

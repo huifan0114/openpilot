@@ -48,7 +48,7 @@ void FrogPilotAnnotatedCameraWidget::showEvent(QShowEvent *event) {
 
   if (scene.is_metric || frogpilot_toggles.value("use_si_metrics").toBool()) {
     accelerationUnit = tr(" m/s²");
-    leadDistanceUnit = tr(" meters");
+    leadDistanceUnit = tr(" 公尺");
     leadSpeedUnit = frogpilot_toggles.value("use_si_metrics").toBool() ? tr(" m/s") : tr(" km/h");
 
     distanceConversion = 1.0f;
@@ -56,7 +56,7 @@ void FrogPilotAnnotatedCameraWidget::showEvent(QShowEvent *event) {
     speedConversionMetrics = frogpilot_toggles.value("use_si_metrics").toBool() ? 1.0f : MS_TO_KPH;
   } else {
     accelerationUnit = tr(" ft/s²");
-    leadDistanceUnit = tr(" feet");
+    leadDistanceUnit = tr(" 英尺");
     leadSpeedUnit = tr(" mph");
 
     distanceConversion = METER_TO_FOOT;
@@ -274,7 +274,7 @@ void FrogPilotAnnotatedCameraWidget::paintAdjacentPaths(QPainter &p, const cerea
   };
 
   std::function<void(bool, float, const QPolygonF &)> drawAdjacentPathMetric = [&p, &frogpilot_toggles, this](bool isBlindSpot, float width, const QPolygonF &polygon) {
-    QString text = isBlindSpot && frogpilot_toggles.value("blind_spot_path").toBool() ? tr("Vehicle in blind spot") : QString::number(width * distanceConversion, 'f', 2) + leadDistanceUnit;
+    QString text = isBlindSpot && frogpilot_toggles.value("blind_spot_path").toBool() ? tr("車輛在盲點中") : QString::number(width * distanceConversion, 'f', 2) + leadDistanceUnit;
 
     p.setFont(InterFont(40, QFont::DemiBold));
     p.setPen(QPen(whiteColor()));
@@ -696,8 +696,8 @@ void FrogPilotAnnotatedCameraWidget::paintPendingSpeedLimit(QPainter &p, const c
     p.drawRoundedRect(newSpeedLimitRect.adjusted(9, 9, -9, -9), 16, 16);
 
     p.setFont(InterFont(28, QFont::DemiBold));
-    p.drawText(newSpeedLimitRect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("PENDING"));
-    p.drawText(newSpeedLimitRect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("LIMIT"));
+    p.drawText(newSpeedLimitRect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("待定"));
+    p.drawText(newSpeedLimitRect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("限制"));
     p.setFont(InterFont(70, QFont::Bold));
     p.drawText(newSpeedLimitRect.adjusted(0, 85, 0, 0), Qt::AlignTop | Qt::AlignHCenter, newSpeedLimitStr);
   } else {

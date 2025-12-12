@@ -1,0 +1,36 @@
+翻譯對照表 - Qt .cc 檔案中文化
+
+# model_reviewer.cc
+"Drive Rating Selection" → "行駛評分選擇"
+"How would you rate that drive?" → "您如何評分本次駕駛？"
+
+# navigation_functions.cc
+無需翻譯 - 該檔案暫無 tr() 字符串
+
+# frogpilot_controls.cc - 需要查看內容
+
+# drive_stats.cc - 需要查看內容
+
+# frogpilot_onroad.cc - 需要查看內容
+
+# frogpilot_buttons.cc - 需要查看內容
+
+# visual_settings.cc - 需要查看內容
+
+# vehicle_settings.cc - 需要查看內容
+
+# utilities.cc - 需要查看內容
+
+# theme_settings.cc - 需要查看內容
+
+# sounds_settings.cc - 需要查看內容
+
+# navigation_settings.cc - 需要查看內容
+
+# model_settings.cc - 需要查看內容
+
+# maps_settings.cc - 需要查看內容
+
+# longitudinal_settings.cc - 需要查看內容
+
+# lateral_settings.cc - 需要查看內容
