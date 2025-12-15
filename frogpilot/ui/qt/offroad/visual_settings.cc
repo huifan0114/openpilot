@@ -64,7 +64,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     {"DeveloperMetrics", tr("開發者度量"), tr("<b>性能資料、感測器讀數與系統度量</b>，用於偵錯與優化 openpilot。"), ""},
     {"BorderMetrics", tr("邊框度量"), tr("<b>在畫面邊框顯示狀態。</b><br><br><b>盲點</b>：當有車輛在盲點時邊框會變紅<br><b>轉向力矩</b>：邊框會依使用的轉向力矩從綠到紅變化<br><b>方向燈</b>：方向燈開啟時邊框會閃爍黃色"), ""},
     {"LeadInfo", tr("前車資訊"), tr("<b>在標記下方顯示每輛被追蹤車輛的距離與速度</b>。"), ""},
-    {"FPSCounter", tr("FPS 顯示"), tr("<b>在駕駛畫面底部顯示每秒影格數 (FPS)</b>。"), ""},{
+    {"FPSCounter", tr("FPS 顯示"), tr("<b>在駕駛畫面底部顯示每秒影格數 (FPS)</b>。"), ""},
     {"NumericalTemp", tr("數值溫度計"), tr("<b>在側欄顯示數值溫度</b>，取代狀態標籤。"), ""},
     {"SidebarMetrics", tr("側欄度量"), tr("<b>在側欄顯示系統資訊</b>（CPU、GPU、記憶體使用、IP 位址、儲存空間）。"), ""},
     {"UseSI", tr("使用國際單位制"), tr("<b>使用「國際單位制 (SI)」</b> 顯示測量值。"), ""},
@@ -79,7 +79,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     {"DeveloperWidgets", tr("開發者小工具"), tr("<b>在駕駛畫面上顯示偵錯視覺、內部狀態和模型預測的覆蓋圖層</b>。"), ""},
     {"AdjacentLeadsUI", tr("鄰車追蹤"), tr("<b>在當前行駛路徑左右顯示車輛雷達偵測到的鄰側前車</b>。"), ""},
     {"ShowStoppingPoint", tr("模型停車點"), tr("<b>顯示模型預計停車的位置（停止標記）</b>。"), ""},
-    {"RadarTracksUI", tr("雷達追蹤點"), tr("<b>顯示車用雷達產生的所有雷達點</b>。"), ""}]}]}
+    {"RadarTracksUI", tr("雷達追蹤點"), tr("<b>顯示車用雷達產生的所有雷達點</b>。"), ""}
 
     {"CustomUI", tr("駕駛畫面小工具"), tr("<b>用於駕駛畫面的自訂 FrogPilot 小工具</b>。"), "../assets/offroad/icon_road.png"},
     {"AccelerationPath", tr("加速度路徑"), tr("<b>依據規劃的加減速為行駛路徑著色</b>。"), ""},
