@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 
   QPushButton *btn = new QPushButton();
 #ifdef __aarch64__
-  btn->setText(QObject::tr("重新安裝並重啟"));
+  btn->setText(QObject::tr("恢復安裝並重啟"));
   QObject::connect(btn, &QPushButton::clicked, [=]() {
     btn->setEnabled(false);
 
