@@ -104,9 +104,9 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
     "Volkswagen"
   };
 
-  ButtonControl *selectMakeButton = new ButtonControl(tr("Car Make"), tr("SELECT"));
+  ButtonControl *selectMakeButton = new ButtonControl(tr("車輛廠牌"), tr("選擇"));
   QObject::connect(selectMakeButton, &ButtonControl::clicked, [makes, selectMakeButton, this]() {
-    QString makeSelection = MultiOptionDialog::getSelection(tr("Choose your car make"), makes, "", this);
+    QString makeSelection = MultiOptionDialog::getSelection(tr("選擇您的車輛廠牌"), makes, "", this);
     if (!makeSelection.isEmpty()) {
       params.put("CarMake", makeSelection.toStdString());
       selectMakeButton->setValue(makeSelection);
@@ -114,9 +114,9 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
   });
   settingsList->addItem(selectMakeButton);
 
-  ButtonControl *selectModelButton = new ButtonControl(tr("Car Model"), tr("SELECT"));
+  ButtonControl *selectModelButton = new ButtonControl(tr("車款"), tr("選擇"));
   QObject::connect(selectModelButton, &ButtonControl::clicked, [selectModelButton, this]() {
-    QString modelSelection = MultiOptionDialog::getSelection(tr("Choose your car model"), getCarNames(QString::fromStdString(params.get("CarMake")).toLower(), carModels), "", this);
+    QString modelSelection = MultiOptionDialog::getSelection(tr("選擇您的車款"), getCarNames(QString::fromStdString(params.get("CarMake")).toLower(), carModels), "", this);
     if (!modelSelection.isEmpty()) {
       params.put("CarModel", carModels.value(modelSelection).toStdString());
       params.put("CarModelName", modelSelection.toStdString());
@@ -125,13 +125,13 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
   });
   settingsList->addItem(selectModelButton);
 
-  forceFingerprint = new ParamControl("ForceFingerprint", tr("Disable Automatic Fingerprint Detection"), tr("<b>Force the selected fingerprint</b> and prevent it from ever changing."), "");
+  forceFingerprint = new ParamControl("ForceFingerprint", tr("停用自動車款指紋辨識"), tr("<b>強制使用所選指紋</b>，並防止其更改。"), "");
   settingsList->addItem(forceFingerprint);
 
-  disableOpenpilotLong = new ParamControl("DisableOpenpilotLongitudinal", tr("Disable openpilot Longitudinal Control"), tr("<b>Disable openpilot longitudinal</b> and use the car's stock ACC instead."), "");
+  disableOpenpilotLong = new ParamControl("DisableOpenpilotLongitudinal", tr("停用 openpilot 縱向控制"), tr("<b>停用 openpilot 的縱向控制</b>，改為使用車輛原廠 ACC。"), "");
   QObject::connect(disableOpenpilotLong, &ToggleControl::toggleFlipped, [parent, this](bool state) {
     if (state) {
-      if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely disable openpilot longitudinal control?"), this)) {
+      if (FrogPilotConfirmationDialog::yesorno(tr("確定要完全停用 openpilot 的縱向控制嗎？"), this)) {
         if (started) {
           if (FrogPilotConfirmationDialog::toggleReboot(this)) {
             Hardware::reboot();
@@ -164,37 +164,37 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
   vehiclesLayout->addWidget(vehicleInfoPanel);
 
   std::vector<std::tuple<QString, QString, QString, QString>> vehicleToggles {
-    {"GMToggles", tr("General Motors Settings"), tr("<b>FrogPilot features for General Motors vehicles.</b>"), ""},
-    {"ExperimentalGMTune", tr("FrogsGoMoo's Experimental Tune"), tr("<b>Experimental GM tune by FrogsGoMoo</b> that attempts to smoothen stopping and takeoff control. Use at your own risk!"), ""},
-    {"LongPitch", tr("Smooth Pedal Response on Hills"), tr("<b>Smoothen acceleration and braking</b> when driving downhill/uphill."), ""},
-    {"VoltSNG", tr("Stop-and-Go Hack"), tr("<b>Force stop-and-go</b> on the 2017 Chevy Volt."), ""},
+    {"GMToggles", tr("通用汽車設定"), tr("<b>針對 General Motors 車輛的 FrogPilot 功能。</b>"), ""},
+    {"ExperimentalGMTune", tr("FrogsGoMoo 的實驗性調校"), tr("<b>FrogsGoMoo 的實驗性 GM 調校</b>，嘗試讓停車與起步控制更平順。風險自負！"), ""},
+    {"LongPitch", tr("坡道油門平順化"), tr("<b>在上下坡行駛時讓加速與制動更平順</b>。"), ""},
+    {"VoltSNG", tr("停走強制 (Stop-and-Go Hack)"), tr("<b>在 2017 Chevy Volt 強制啟用停走功能</b>。"), ""},
 
-    {"HKGToggles", tr("Hyundai/Kia/Genesis Settings"), tr("<b>FrogPilot features for Genesis, Hyundai, and Kia vehicles.</b>"), ""},
-    {"NewLongAPI", tr("comma's New Longitudinal API"), tr("<b>comma's new gas and brake control system</b> that improves acceleration and braking but may cause issues on some Genesis/Hyundai/Kia vehicles."), ""},
-    {"TacoTuneHacks", tr("\"Taco Bell Run\" Torque Hack"), tr("<b>The steering torque hack from comma's 2022 \"Taco Bell Run\".</b> Designed to increase steering torque at low speeds for left and right turns."), ""},
+    {"HKGToggles", tr("Hyundai/Kia/Genesis 設定"), tr("<b>針對 Genesis、Hyundai、Kia 車輛的 FrogPilot 功能。</b>"), ""},
+    {"NewLongAPI", tr("comma 的新縱向 API"), tr("<b>comma 的新油門與煞車控制系統</b>，可改善加減速，但可能在部分 Genesis/Hyundai/Kia 車輛造成問題。"), ""},
+    {"TacoTuneHacks", tr("\"Taco Bell Run\" 轉向力矩修改"), tr("<b>來自 comma 2022 年 \"Taco Bell Run\" 的轉向力矩修改。</b> 設計於低速左/右轉時增加轉向力矩。"), ""},
 
-    {"ToyotaToggles", tr("Toyota/Lexus Settings"), tr("<b>FrogPilot features for Lexus and Toyota vehicles.</b>"), ""},
-    {"ToyotaDoors", tr("Automatically Lock/Unlock Doors"), tr("<b>Automatically lock/unlock doors</b> when shifting in and out of drive."), ""},
-    {"ClusterOffset", tr("Dashboard Speed Offset"), tr("<b>The speed offset openpilot uses to match the speed on the dashboard display.</b>"), ""},
-    {"FrogsGoMoosTweak", tr("FrogsGoMoo's Personal Tweaks"), tr("<b>Personal tweaks by FrogsGoMoo for quicker acceleration and smoother braking.</b>"), ""},
-    {"LockDoorsTimer", tr("Lock Doors On Ignition Off After"), tr("<b>Automatically lock the doors on ignition off</b> when no one is detected in the front seats."), ""},
-    {"SNGHack", tr("Stop-and-Go Hack"), tr("<b>Force stop-and-go</b> on Lexus/Toyota vehicles without stock stop-and-go functionality."), ""},
+    {"ToyotaToggles", tr("Toyota / Lexus 設定"), tr("<b>針對 Lexus 與 Toyota 車輛的 FrogPilot 功能。</b>"), ""},
+    {"ToyotaDoors", tr("自動鎖/解鎖車門"), tr("<b>換檔進出檔位時自動鎖定/解鎖車門</b>。"), ""},
+    {"ClusterOffset", tr("儀錶板速度校正"), tr("<b>openpilot 用於配合儀錶板速度顯示的速度偏移值。</b>"), ""},
+    {"FrogsGoMoosTweak", tr("FrogsGoMoo 的個人調整"), tr("<b>FrogsGoMoo 的個人調整，用於更快的加速與更平順的煞車。</b>"), ""},
+    {"LockDoorsTimer", tr("熄火後自動鎖門 (秒)"), tr("<b>當前座無人時，熄火後自動鎖門</b>。"), ""},
+    {"SNGHack", tr("停走強制 (Stop-and-Go Hack)"), tr("<b>在沒有原廠停走功能的 Lexus / Toyota 車輛上強制啟用停走功能</b>。"), ""},
 
-    {"VehicleInfo", tr("Vehicle Info"), tr("<b>Information about your vehicle in regards to openpilot support and functionality.</b>"), ""},
-    {"HardwareDetected", tr("3rd Party Hardware Detected"), tr("<b>Detected 3rd party hardware.</b>"), ""},
-    {"BlindSpotSupport", tr("Blind Spot Support"), tr("<b>Does openpilot use the vehicle's blind spot data?</b>"), ""},
-    {"PedalSupport", tr("comma Pedal Support"), tr("<b>Does your vehicle support the \"comma pedal\"?</b>"), ""},
-    {"OpenpilotLongitudinal", tr("openpilot Longitudinal Support"), tr("<b>Can openpilot control the vehicle's acceleration and braking?</b>"), ""},
-    {"RadarSupport", tr("Radar Support"), tr("<b>Does openpilot use the vehicle's radar data</b> alongside the device's camera for tracking lead vehicles?"), ""},
-    {"SDSUSupport", tr("SDSU Support"), tr("<b>Does your vehicle support \"SDSUs\"?</b>"), ""},
-    {"SNGSupport", tr("Stop-and-Go Support"), tr("<b>Does your vehicle support stop-and-go driving?</b>"), ""}
+    {"VehicleInfo", tr("車輛資訊"), tr("<b>關於您車輛在 openpilot 支援與功能方面的資訊。</b>"), ""},
+    {"HardwareDetected", tr("偵測到第三方硬體"), tr("<b>偵測到第三方硬體。</b>"), ""},
+    {"BlindSpotSupport", tr("盲點支援"), tr("<b>openpilot 是否使用車輛的盲點資料？</b>"), ""},
+    {"PedalSupport", tr("comma pedal 支援"), tr("<b>您的車輛是否支援 \"comma pedal\"？</b>"), ""},
+    {"OpenpilotLongitudinal", tr("openpilot 縱向支援"), tr("<b>openpilot 是否能控制車輛的加速與煞車？</b>"), ""},
+    {"RadarSupport", tr("雷達支援"), tr("<b>openpilot 是否結合車輛雷達資料與裝置攝影機來追蹤前方車輛？</b>"), ""},
+    {"SDSUSupport", tr("SDSU 支援"), tr("<b>您的車輛是否支援 \"SDSU\"？</b>"), ""},
+    {"SNGSupport", tr("停走支援"), tr("<b>您的車輛是否支援停走 (Stop-and-Go) 駕駛？</b>"), ""}
   };
 
   for (const auto &[param, title, desc, icon] : vehicleToggles) {
     AbstractControl *vehicleToggle;
 
     if (param == "GMToggles") {
-      ButtonControl *gmButton = new ButtonControl(title, tr("MANAGE"), desc);
+      ButtonControl *gmButton = new ButtonControl(title, tr("管理"), desc);
       QObject::connect(gmButton, &ButtonControl::clicked, [vehiclesLayout, gmPanel, this]() {
         openDescriptions(forceOpenDescriptions, toggles);
         vehiclesLayout->setCurrentWidget(gmPanel);
@@ -202,7 +202,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
       vehicleToggle = gmButton;
 
     } else if (param == "HKGToggles") {
-      ButtonControl *hkgButton = new ButtonControl(title, tr("MANAGE"), desc);
+      ButtonControl *hkgButton = new ButtonControl(title, tr("管理"), desc);
       QObject::connect(hkgButton, &ButtonControl::clicked, [vehiclesLayout, hkgPanel, this]() {
         openDescriptions(forceOpenDescriptions, toggles);
         vehiclesLayout->setCurrentWidget(hkgPanel);
@@ -210,7 +210,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
       vehicleToggle = hkgButton;
 
     } else if (param == "ToyotaToggles") {
-      ButtonControl *toyotaButton = new ButtonControl(title, tr("MANAGE"), desc);
+      ButtonControl *toyotaButton = new ButtonControl(title, tr("管理"), desc);
       QObject::connect(toyotaButton, &ButtonControl::clicked, [vehiclesLayout, toyotaPanel, this]() {
         openDescriptions(forceOpenDescriptions, toggles);
         vehiclesLayout->setCurrentWidget(toyotaPanel);
@@ -218,16 +218,16 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
       vehicleToggle = toyotaButton;
     } else if (param == "ToyotaDoors") {
       std::vector<QString> lockToggles{"LockDoors", "UnlockDoors"};
-      std::vector<QString> lockToggleNames{tr("Lock"), tr("Unlock")};
+      std::vector<QString> lockToggleNames{tr("鎖定"), tr("解鎖")};
       vehicleToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, lockToggles, lockToggleNames);
     } else if (param == "LockDoorsTimer") {
       std::map<float, QString> autoLockLabels;
       for (int i = 0; i <= 300; ++i) {
-        autoLockLabels[i] = i == 0 ? tr("Never") : QString::number(i) + tr(" seconds");
+        autoLockLabels[i] = i == 0 ? tr("永不") : QString::number(i) + tr(" 秒");
       }
       vehicleToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 300, QString(), autoLockLabels, 5);
     } else if (param == "ClusterOffset") {
-      std::vector<QString> clusterOffsetButton{"Reset"};
+      std::vector<QString> clusterOffsetButton{"重設"};
       FrogPilotParamValueButtonControl *clusterOffsetToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 1.000, 1.050, "x", std::map<float, QString>(), 0.001, false, {}, clusterOffsetButton, false, false);
       QObject::connect(clusterOffsetToggle, &FrogPilotParamValueButtonControl::buttonClicked, [clusterOffsetToggle, this]() {
         params.putFloat("ClusterOffset", params_default.getFloat("ClusterOffset"));
@@ -236,7 +236,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
       vehicleToggle = clusterOffsetToggle;
 
     } else if (param == "VehicleInfo") {
-      ButtonControl *VehicleInfoButton = new ButtonControl(title, tr("VIEW"), desc);
+      ButtonControl *VehicleInfoButton = new ButtonControl(title, tr("檢視"), desc);
       QObject::connect(VehicleInfoButton, &ButtonControl::clicked, [vehiclesLayout, vehicleInfoPanel, this]() {
         openDescriptions(forceOpenDescriptions, toggles);
         vehiclesLayout->setCurrentWidget(vehicleInfoPanel);
@@ -329,14 +329,14 @@ void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
   if (parent->hasPedal) detected << "comma Pedal";
   if (parent->hasSDSU) detected << "SDSU";
   if (parent->hasZSS) detected << "ZSS";
-  static_cast<LabelControl*>(toggles["HardwareDetected"])->setText(detected.isEmpty() ? tr("None") : detected.join(", "));
+  static_cast<LabelControl*>(toggles["HardwareDetected"])->setText(detected.isEmpty() ? tr("無") : detected.join(", "));
 
-  static_cast<LabelControl*>(toggles["BlindSpotSupport"])->setText(parent->hasBSM ? tr("Yes") : tr("No"));
-  static_cast<LabelControl*>(toggles["OpenpilotLongitudinal"])->setText(parent->hasOpenpilotLongitudinal ? tr("Yes") : tr("No"));
-  static_cast<LabelControl*>(toggles["PedalSupport"])->setText(parent->canUsePedal ? tr("Yes") : tr("No"));
-  static_cast<LabelControl*>(toggles["RadarSupport"])->setText(parent->hasRadar ? tr("Yes") : tr("No"));
-  static_cast<LabelControl*>(toggles["SDSUSupport"])->setText(parent->canUseSDSU ? tr("Yes") : tr("No"));
-  static_cast<LabelControl*>(toggles["SNGSupport"])->setText(parent->hasSNG ? tr("Yes") : tr("No"));
+  static_cast<LabelControl*>(toggles["BlindSpotSupport"])->setText(parent->hasBSM ? tr("是") : tr("否"));
+  static_cast<LabelControl*>(toggles["OpenpilotLongitudinal"])->setText(parent->hasOpenpilotLongitudinal ? tr("是") : tr("否"));
+  static_cast<LabelControl*>(toggles["PedalSupport"])->setText(parent->canUsePedal ? tr("是") : tr("否"));
+  static_cast<LabelControl*>(toggles["RadarSupport"])->setText(parent->hasRadar ? tr("是") : tr("否"));
+  static_cast<LabelControl*>(toggles["SDSUSupport"])->setText(parent->canUseSDSU ? tr("是") : tr("否"));
+  static_cast<LabelControl*>(toggles["SNGSupport"])->setText(parent->hasSNG ? tr("是") : tr("否"));
 
   updateToggles();
 }
