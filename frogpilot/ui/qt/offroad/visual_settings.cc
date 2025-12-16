@@ -79,7 +79,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     {"DeveloperWidgets", tr("開發者小工具"), tr("<b>在駕駛畫面上顯示偵錯視覺、內部狀態和模型預測的覆蓋圖層</b>。"), ""},
     {"AdjacentLeadsUI", tr("鄰車追蹤"), tr("<b>在當前行駛路徑左右顯示車輛雷達偵測到的鄰側前車</b>。"), ""},
     {"ShowStoppingPoint", tr("模型停車點"), tr("<b>顯示模型預計停車的位置（停止標記）</b>。"), ""},
-    {"RadarTracksUI", tr("雷達追蹤點"), tr("<b>顯示車用雷達產生的所有雷達點</b>。"), ""}
+    {"RadarTracksUI", tr("雷達追蹤點"), tr("<b>顯示車用雷達產生的所有雷達點</b>。"), ""},
 
     {"CustomUI", tr("駕駛畫面小工具"), tr("<b>用於駕駛畫面的自訂 FrogPilot 小工具</b>。"), "../assets/offroad/icon_road.png"},
     {"AccelerationPath", tr("加速度路徑"), tr("<b>依據規劃的加減速為行駛路徑著色</b>。"), ""},
