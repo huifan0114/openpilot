@@ -46,6 +46,50 @@ def manager_init() -> None:
     ("LanguageSetting", "main_en"),
     ("OpenpilotEnabledToggle", "1"),
     ("LongitudinalPersonality", str(log.LongitudinalPersonality.standard)),
+##############################################
+    ("SshEnabled","1"),
+    ("GithubSshKeys","ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC1El7gjK66tGrdaFUyVs44DKi9Ny7BHd4UI9NYAwUNs1pH4MCpOUyZ37Y9lGv4dc4Nh7TY/IE1CUoXcX4JJrdTONHwWMDNx9BOl0zITWNfm05Xko/DeNJEKEkSpu+KpVjYhbZ6ggosdQDLNUFdI/KHKa8MQc1J5H2+mJzTm0GO+u7dOzrTPpZ14Qc2VXxo3KyRWsWKB35RF71YoKQclOe2vIX/GWQk50bKk/eRZzJJhYn0EFEjjsGxhbcfHpFUeq4eLw43uGTvfqyCzGZqBvYew2zPM2ULzfmX/6x8fXXydqH9ma7uSCjKk+H+Mj8LmtWMrXkQco/QVoPtHcZaEd+DmTN+DLNGtq3TADo+Q+B+5bMyO7rqOhOzDQ1tSeCumsq+GE7MqNi2rHSTHZhsWhkHCMbJL3/x3+PZZmXkN51CA11kzHXPbtaR9QTDY9b/vZqztOp8rP4HsHDVZqhxQZ/Tb9B5OLXEg74nHqf3dn+rYv1odPzACovDhp4vMtbGBKGl38ce9Q2pW6xCXDgzwEK+IE6TUBz54dDPIFceWpnEfID2mghWfiyKMggamAG/walAmsOHZRiMeME6Q+lxdYBHDSGy4lvEGh0V2MeG/HG8kn+hgbDHz9BX0wx58rbPld4UGCN3jT2XZnz9YYBcr2oAlKRwnuwZaZZEYcHSjO9uAQ=="),
+    ("GithubUsername", "huifan0114"),
+##############################################
+
+##############################################
+    # Default hfop parameters
+    ("AutoACC", "1"),
+    ("AutoACCspeed", "20"),
+    ("AutoACCCarAway", "1"),
+    ("AutoACCCarAwaystatus", "0"),
+    ("AutoACCGreenLight", "1"),
+    ("AutoACCGreenLightstatus", "0"),
+    ("Dooropen", "1"),
+    ("DriverdoorOpen", "1"),
+    ("CodriverdoorOpen", "0"),
+    ("LpassengerdoorOpen", "0"),
+    ("RpassengerdoorOpen", "0"),
+    ("LuggagedoorOpen", "1"),
+    ("Disablestartstop", "1"),
+    # ("Faststart", "0"),
+    ("Fuelprice", "1"),
+    ("Fuelcosts", "330"),
+    ("Fuelcostsweek", "0"),
+    ("Fuelconsumptionweek", "0"),
+    ("GreenLightReminderstatus", "0"),
+    ("GooffScreen", "0"),
+    ("HFOPinf", "1"),
+    ("NavReminderstatus", "0"),
+    ("Navspeed", "1"),
+    ("NavReminder", "1"),
+    ("Roadtype", "1"),
+    ("AutoRoadtype", "1"),
+    ("RoadtypeProfile", "1"),
+    ("speedoverreminder", "1"),
+    ("speedreminderreset", "1"),
+    ("ChangeLaneReminder", "1"),
+    ("Speeddistance", "1"),
+    ("speedoverreminderstatus", "0"),
+    ("TrafficModespeed", "50"),
+    ("VagSpeed", "1"),
+    ("VagSpeedFactor", "13"),
+##############################################
   ]
   if not PC:
     default_params.append(("LastUpdateTime", datetime.datetime.utcnow().isoformat().encode('utf8')))
