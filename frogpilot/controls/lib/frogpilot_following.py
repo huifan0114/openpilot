@@ -71,9 +71,9 @@ class FrogPilotFollowing:
         else:
             # 無前車：溫和激進模式（目標實際 jerk ≈ 1.6 m/s³）
             # 用戶要求不要太快，設定為 1.2
-            self.acceleration_jerk = 1.2
-            self.speed_jerk = 1.2
-            self.danger_jerk = 1.2
+            self.acceleration_jerk = 1.6
+            self.speed_jerk = 1.6
+            self.danger_jerk = 1.6
 
     # 擴大閾值從 +1 → +5，減少 47.1% 誤判（有前車但 following_lead = False）
     self.following_lead = self.frogpilot_planner.tracking_lead and self.frogpilot_planner.lead_one.dRel < (self.t_follow + 5) * v_ego

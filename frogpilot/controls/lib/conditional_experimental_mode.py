@@ -44,13 +44,13 @@ class ConditionalExperimentalMode:
       # else:
       #   should_release = False
 
-      if self.frogpilot_planner.tracking_lead and self.frogpilot_planner.lead_one.dRel < 7.0:
+      if self.frogpilot_planner.tracking_lead:
         should_release = True
       else:
         should_release = False
 
       # 如果是紅綠燈模式且應該解除，解除 experimental_mode
-      if traffic_light_mode and should_release:
+      if traffic_light_mode and should_release and self.frogpilot_planner.lead_one.dRel < 7.0:
         self.experimental_mode = False
       else:
         # 原邏輯：status_value == 2 (手動) 或 standstill 時保持
