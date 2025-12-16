@@ -217,7 +217,7 @@ std::unordered_map<std::string, uint32_t> keys = {
 
 /////////////////////////////////////////////
     {"HFOPinf", PERSISTENT},
-    {"GooffScreen", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_VISUALS},
+    {"GooffScreen", PERSISTENT},
     // {"Faststart", PERSISTENT},
     {"Fuelprice", PERSISTENT},
     {"Fuelcosts", PERSISTENT},
