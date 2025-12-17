@@ -501,6 +501,83 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.LOW, VisualAlert.ldw, AudibleAlert.none, 3.),
   },
 
+##################NAV語音#####################################################
+  EventName.navturn: {
+    ET.WARNING: Alert(
+      "準備轉彎!!",
+      "",
+      AlertStatus.userPrompt, AlertSize.none,
+      Priority.LOW, VisualAlert.none, AudibleAlert.navturn, 1.),
+  },
+
+  EventName.navuturn: {
+    ET.WARNING: Alert(
+      "準備迴轉!!",
+      "",
+      AlertStatus.userPrompt, AlertSize.none,
+      Priority.LOW, VisualAlert.none, AudibleAlert.navuturn, 1.),
+  },
+
+  EventName.navturnleft: {
+    ET.WARNING: Alert(
+      "準備左轉!!",
+      "",
+      AlertStatus.userPrompt, AlertSize.none,
+      Priority.LOW, VisualAlert.none, AudibleAlert.navturnleft, 1.),
+  },
+
+  EventName.navturnright: {
+    ET.WARNING: Alert(
+      "準備右轉!!",
+      "",
+      AlertStatus.userPrompt, AlertSize.none,
+      Priority.LOW, VisualAlert.none, AudibleAlert.navturnright, 1.),
+  },
+
+  EventName.navsharpleft: {
+    ET.WARNING: Alert(
+      "準備緊急左轉!!",
+      "",
+      AlertStatus.userPrompt, AlertSize.none,
+      Priority.LOW, VisualAlert.none, AudibleAlert.navsharpleft, 1.),
+  },
+
+  EventName.navsharpright: {
+    ET.WARNING: Alert(
+      "準備緊急右轉!!",
+      "",
+      AlertStatus.userPrompt, AlertSize.none,
+      Priority.LOW, VisualAlert.none, AudibleAlert.navsharpright, 1.),
+  },
+
+  EventName.navofframp: {
+    ET.WARNING: Alert(
+      "準備下交流道!!",
+      "",
+      AlertStatus.userPrompt, AlertSize.none,
+      Priority.LOW, VisualAlert.none, AudibleAlert.navofframp, 1.),
+  },
+  ##################NAV語音#####################################################
+  EventName.speedover: {
+    ET.WARNING: Alert(
+      "注意!!   超速了!!!",
+      "",
+      AlertStatus.userPrompt, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 1.),
+  },
+
+  EventName.doorOpen1: {
+    ET.PERMANENT: Alert(
+      "記得熄火",
+      "",
+      AlertStatus.normal, AlertSize.full,
+      Priority.LOWEST, VisualAlert.none, AudibleAlert.warningSoft, .2, creation_delay=0.5),
+    ET.USER_DISABLE: ImmediateDisableAlert("記得熄火"),
+    ET.NO_ENTRY: NoEntryAlert("記得熄火"),
+  },
+
+###############################
+
   # ********** events only containing alerts that display while engaged **********
 
   EventName.steerTempUnavailableSilent: {

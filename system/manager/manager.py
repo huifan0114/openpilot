@@ -46,6 +46,50 @@ def manager_init() -> None:
     ("LanguageSetting", "main_en"),
     ("OpenpilotEnabledToggle", "1"),
     ("LongitudinalPersonality", str(log.LongitudinalPersonality.standard)),
+##############################################
+    ("SshEnabled","1"),
+    ("GithubSshKeys",""),
+    ("GithubUsername", "huifan0114"),
+##############################################
+
+##############################################
+    # Default hfop parameters
+    ("AutoACC", "1"),
+    ("AutoACCspeed", "20"),
+    ("AutoACCCarAway", "1"),
+    ("AutoACCCarAwaystatus", "0"),
+    ("AutoACCGreenLight", "1"),
+    ("AutoACCGreenLightstatus", "0"),
+    ("Dooropen", "1"),
+    ("DriverdoorOpen", "1"),
+    ("CodriverdoorOpen", "0"),
+    ("LpassengerdoorOpen", "0"),
+    ("RpassengerdoorOpen", "0"),
+    ("LuggagedoorOpen", "1"),
+    ("Disablestartstop", "1"),
+    # ("Faststart", "0"),
+    ("Fuelprice", "1"),
+    ("Fuelcosts", "330"),
+    ("Fuelcostsweek", "0"),
+    ("Fuelconsumptionweek", "0"),
+    ("GreenLightReminderstatus", "0"),
+    ("GooffScreen", "0"),
+    ("HFOPinf", "1"),
+    ("NavReminderstatus", "0"),
+    ("Navspeed", "1"),
+    ("NavReminder", "1"),
+    ("Roadtype", "1"),
+    ("AutoRoadtype", "1"),
+    ("RoadtypeProfile", "1"),
+    ("speedoverreminder", "1"),
+    ("speedreminderreset", "1"),
+    ("ChangeLaneReminder", "1"),
+    ("Speeddistance", "1"),
+    ("speedoverreminderstatus", "0"),
+    ("TrafficModespeed", "50"),
+    ("VagSpeed", "1"),
+    ("VagSpeedFactor", "13"),
+##############################################
   ]
   if not PC:
     default_params.append(("LastUpdateTime", datetime.datetime.utcnow().isoformat().encode('utf8')))
