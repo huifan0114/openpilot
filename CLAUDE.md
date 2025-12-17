@@ -11,63 +11,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **架構**: 分散式進程架構,使用訊息傳遞 (cereal/msgq)
 - **主要分支**: FrogPilot (穩定), FrogPilot-Staging (測試), FrogPilot-Development (開發)
 
-## 建構與開發環境
-
-### 建構系統
-
-專案使用 **SCons** 作為主要建構工具:
-
-```bash
-# 完整建構
-scons -j$(nproc)
-
-# 最小建構 (不包含工具和測試)
-scons --minimal
-
-# 特定選項
-scons --asan          # 使用 Address Sanitizer
-scons --ubsan         # 使用 UndefinedBehavior Sanitizer
-scons --compile_db    # 生成 compile_commands.json
-```
-
-### 測試
-
-使用 **pytest** 進行測試:
-
-```bash
-# 執行所有測試
-pytest
-
-# 跳過慢速測試
-pytest -m "not slow"
-
-# 執行特定模組測試
-pytest selfdrive/car
-pytest selfdrive/controls
-
-# C++ 測試會透過 pytest-cpp 自動處理
-```
-
-### Python 環境
-
-- Python 版本: **3.11**
-- 套件管理: **Poetry** (pyproject.toml)
-- 依賴安裝: `poetry install`
-- 虛擬環境: 建議使用 venv 或 poetry shell
-
-### 程式碼風格與檢查
-
-```bash
-# Linting (使用 ruff)
-ruff check .
-
-# 型別檢查 (使用 mypy)
-mypy .
-
-# Pre-commit hooks
-pre-commit run --all-files
-```
-
 ## 專案結構
 
 ### 核心目錄
@@ -159,9 +102,36 @@ pre-commit run --all-files
 由於這是在 Windows 環境開發:
 
 1. **編碼問題**: BAT 和 PS1 檔案可能有中文編碼衝突
-2. **Shell 腳本**: .sh 檔案需要在 WSL 或 Git Bash 中執行
-3. **Python 執行**: 使用 venv 進行測試
-4. **不要直接執行**: 請先在 venv 中測試,確認無誤後再進行編譯和製作安裝程式
+
+2. **Python UTF-8 編碼修復**: 寫有中文輸出的 Python 程式時，必須在程式最開頭加入：
+
+```python
+import os
+import sys
+
+# ========== Windows UTF-8 編碼修復 ==========
+if sys.platform == 'win32':
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
+    try:
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        kernel32.SetConsoleOutputCP(65001)
+        kernel32.SetConsoleCP(65001)
+    except Exception:
+        pass
+    try:
+        sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf-8', buffering=1, errors='replace')
+        sys.stderr = open(sys.stderr.fileno(), mode='w', encoding='utf-8', buffering=1, errors='replace')
+    except Exception:
+        pass
+
+# 其他 import 放在這之後
+```
+
+關鍵點：
+- 必須在其他 import 之前設定
+- `SetConsoleOutputCP(65001)` 設定 console 為 UTF-8
+- `errors='replace'` 避免編碼錯誤中斷程式
 
 ## 常見開發任務
 
@@ -202,7 +172,7 @@ pre-commit run --all-files
 
 ### 文件位置
 
-所有開發文件位於 `docs/` 目錄:
+所有開發文件位於 `E:\Documents\GitHub\openpilot_doc` 目錄(以下docs就是指E:\Documents\GitHub\openpilot_doc):
 - **主入口**: `docs/README-DEV.md` - 從這裡開始查找
 - **主題文件**: `docs/01-*.md` 到 `docs/12-*.md` - 按功能分類
 - **變更紀錄**: `docs/CHANGELOG.md`
@@ -221,6 +191,7 @@ pre-commit run --all-files
    - 文件中已包含檔案位置、行數、實作細節
 
 3. **若知識庫沒有內容**
+   - 利用E:\Documents\GitHub\openpilot_log_tools\claudechat 裡面的工具搜尋本專案的對話紀錄索引找到相對應的程式碼
    - 深入研究程式碼
    - **立即更新對應的文件**
    - 記錄到 `docs/CHANGELOG.md`
@@ -260,6 +231,56 @@ pre-commit run --all-files
 3. **遵循規範**: 使用 pre-commit hooks 確保程式碼品質
 4. **不要破壞相容性**: FrogPilot 需要與不同硬體和車輛保持相容
 5. **保持文件更新**: 重大變更應更新相關文件
+
+## 分析RLOG
+
+1.分析程式都儲存在E:\Documents\GitHub\openpilot_log_tools裡
+2.有需要進行分析時要參考上述目錄裡的程式寫法
+3.可以直接執行腳本或分析程式
+
+## 搜尋 Claude Code 對話紀錄
+
+當用戶要求搜尋之前的對話紀錄時，使用 `claudechat` 工具：
+
+### 工具位置
+
+`E:\Documents\GitHub\openpilot_log_tools\claudechat\claude_history_search.py`
+
+### 使用方式
+
+```bash
+cd /e/Documents/GitHub/openpilot_log_tools/claudechat
+
+# 搜尋關鍵字（使用 --search 參數避免中文編碼問題）
+python claude_history_search.py --search "關鍵字" --limit 20
+
+# 顯示完整內容
+python claude_history_search.py --search "關鍵字" --limit 10 --full
+
+# 列出所有專案
+python claude_history_search.py --list
+
+# 重建索引
+python claude_history_search.py --index
+```
+
+### 搜尋範例
+
+```bash
+# 搜尋 ACC 加速相關
+python claude_history_search.py --search "max_accel lead" --limit 20
+
+# 搜尋 CSC 彎道控制
+python claude_history_search.py --search "curve_speed_controller" --limit 15
+
+# 搜尋 Jerk 設定
+python claude_history_search.py --search "jerk_with_lead" --limit 10 --full
+```
+
+### 注意事項
+
+- `--full` 會顯示完整內容，否則只顯示摘要
+- 搜尋結果會標示來源（native/vscode）和專案名稱
 
 ## 參考資源
 

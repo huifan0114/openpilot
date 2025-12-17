@@ -152,7 +152,9 @@ class FrogPilotPlanner:
     time_trigger = self.time_to_curve < TIME_BUFFER and v_ego > csc_trigger_speed * 0.9
 
     early_trigger = speed_trigger or time_trigger
-    self.road_curvature_detected = early_trigger and v_ego > CRUISING_SPEED and not (sm["carState"].leftBlinker or sm["carState"].rightBlinker)
+    # 方向燈抑制：只有在 40 km/h 以上打方向燈時才停用 CSC（低速彎道仍需減速）
+    blinker_suppress = (sm["carState"].leftBlinker or sm["carState"].rightBlinker) and v_ego > 40 * CV.KPH_TO_MS
+    self.road_curvature_detected = early_trigger and v_ego > CRUISING_SPEED and not blinker_suppress
 
     #if not sm["carState"].standstill:
     self.tracking_lead = self.update_lead_status()
@@ -161,7 +163,7 @@ class FrogPilotPlanner:
 
   def update_lead_status(self):
     following_lead = self.lead_one.status
-    following_lead &= self.lead_one.dRel < self.model_length + 2
+    #following_lead &= self.lead_one.dRel < self.model_length + 2
     #following_lead &= self.lead_one.dRel < self.model_length + STOP_DISTANCE
 
     self.tracking_lead_filter.update(following_lead)
