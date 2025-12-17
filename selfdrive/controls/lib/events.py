@@ -238,7 +238,7 @@ def startup_master_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
   if "REPLAY" in os.environ:
     branch = "replay"
 
-  return StartupAlert(""~行車平安 旅途愉快~"", branch, alert_status=AlertStatus.userPrompt)
+  return StartupAlert("~行車平安 旅途愉快~", branch, alert_status=AlertStatus.userPrompt)
 
 def below_engage_speed_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
   return NoEntryAlert(f"提高速度至 {get_display_speed(CP.minEnableSpeed, metric)} 開始使用")
