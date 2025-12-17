@@ -350,8 +350,8 @@ class CarInterfaceBase(ABC):
     fp_ret.ecoGear |= ret.gearShifter == GearShifter.eco
     fp_ret.sportGear |= ret.gearShifter == GearShifter.sport
 ####################################
-    traffic_mode_speed = self.params.get_int("TrafficModespeed")
-    fp_ret.trafficModeActive = frogpilot_toggles.traffic_mode and (self.traffic_mode_active or ret.vEgo * 3.6 < traffic_mode_speed)
+ #   traffic_mode_speed = self.params.get_int("TrafficModespeed")
+#    fp_ret.trafficModeActive = frogpilot_toggles.traffic_mode and (self.traffic_mode_active or #ret.vEgo * 3.6 < traffic_mode_speed)
 ####################################
 
     # copy back for next iteration
