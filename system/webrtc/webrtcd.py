@@ -103,7 +103,7 @@ class CerealProxyRunner:
         break
       except Exception:
         self.logger.exception("Cereal outgoing proxy failure")
-      await asyncio.sleep(0.01)
+      await asyncio.sleep(0.05)  # 20Hz (原 100Hz)
 
 
 class DynamicPubMaster(messaging.PubMaster):
@@ -121,7 +121,7 @@ class DynamicPubMaster(messaging.PubMaster):
 class StreamSession:
   shared_pub_master = DynamicPubMaster([])
 
-  def __init__(self, sdp: str, cameras: list[str], incoming_services: list[str], outgoing_services: list[str], debug_mode: bool = False):
+  def __init__(self, sdp: str, cameras: list[str], incoming_services: list[str], outgoing_services: list[str], debug_mode: bool = False, on_end_callback=None):
     from aiortc.mediastreams import VideoStreamTrack, AudioStreamTrack
     from aiortc.contrib.media import MediaBlackhole
     from openpilot.system.webrtc.device.video import LiveStreamVideoStreamTrack
@@ -145,6 +145,7 @@ class StreamSession:
 
     self.stream = builder.stream()
     self.identifier = str(uuid.uuid4())
+    self.on_end_callback = on_end_callback
 
     self.incoming_bridge: CerealIncomingMessageProxy | None = None
     self.incoming_bridge_services = incoming_services
@@ -201,11 +202,14 @@ class StreamSession:
       self.logger.info("Stream session (%s) connected", self.identifier)
 
       await self.stream.wait_for_disconnection()
-      await self.post_run_cleanup()
-
-      self.logger.info("Stream session (%s) ended", self.identifier)
     except Exception:
       self.logger.exception("Stream session failure")
+    finally:
+      await self.post_run_cleanup()
+      self.logger.info("Stream session (%s) ended", self.identifier)
+      # 通知移除 session
+      if self.on_end_callback:
+        self.on_end_callback(self.identifier)
 
   async def post_run_cleanup(self):
     await self.stream.stop()
@@ -228,7 +232,12 @@ async def get_stream(request: 'web.Request'):
   raw_body = await request.json()
   body = StreamRequestBody(**raw_body)
 
-  session = StreamSession(body.sdp, body.cameras, body.bridge_services_in, body.bridge_services_out, debug_mode)
+  # 建立 callback 來移除結束的 session
+  def on_session_end(session_id):
+    if session_id in stream_dict:
+      del stream_dict[session_id]
+
+  session = StreamSession(body.sdp, body.cameras, body.bridge_services_in, body.bridge_services_out, debug_mode, on_end_callback=on_session_end)
   answer = await session.get_answer()
   session.start()
 
