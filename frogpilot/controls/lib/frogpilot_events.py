@@ -96,7 +96,7 @@ class FrogPilotEvents:
       self.played_events.add("holidayActive")
 
 ############
-    if self.tracking_lead_distance < 10 :
+    if self.tracked_lead_distance < 10 :
       if self.frogpilot_planner.tracking_lead and sm["carState"].standstill and sm["carState"].gearShifter not in NON_DRIVING_GEARS and frogpilot_toggles.lead_departing_alert:
         if self.tracked_lead_distance == 0:
           self.tracked_lead_distance = self.frogpilot_planner.lead_one.dRel
