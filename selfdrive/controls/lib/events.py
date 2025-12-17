@@ -238,7 +238,7 @@ def startup_master_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
   if "REPLAY" in os.environ:
     branch = "replay"
 
-  return StartupAlert("WARNING: This branch is not tested", branch, alert_status=AlertStatus.userPrompt)
+  return StartupAlert(""~行車平安 旅途愉快~"", branch, alert_status=AlertStatus.userPrompt)
 
 def below_engage_speed_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
   return NoEntryAlert(f"提高速度至 {get_display_speed(CP.minEnableSpeed, metric)} 開始使用")
@@ -677,7 +677,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "盲點偵測到車輛暫停變換車道",
       "",
       AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
+      Priority.LOW, VisualAlert.none, AudibleAlert.lanechangeblockedsound, .1),
   },
 
   EventName.laneChange: {
@@ -685,7 +685,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "變換車道中",
       "",
       AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
+      Priority.LOW, VisualAlert.none, AudibleAlert.lanechangesound, .1),
   },
 
   EventName.steerSaturated: {
@@ -693,7 +693,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "接管控制",
       "轉彎幅度超出轉向限制",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, 2.),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.promptRepeat, 2.),
   },
 
   # Thrown when the fan is driven at >50% but is not rotating
@@ -1145,7 +1145,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "綠燈 GO!!",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
-      Priority.MID, VisualAlert.none, AudibleAlert.none, 3.),
+      Priority.MID, VisualAlert.none, AudibleAlert.greenLight, 3.),
   },
 
   FrogPilotEventName.holidayActive: {
@@ -1157,7 +1157,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "盲點偵測到車輛暫停變換車道",
       "",
       AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
+      Priority.LOW, VisualAlert.none, AudibleAlert.lanechangeblockedsound, .1),
   },
 
   FrogPilotEventName.leadDeparting: {
@@ -1165,7 +1165,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "前車遠離",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
-      Priority.MID, VisualAlert.none, AudibleAlert.none, 3.),
+      Priority.MID, VisualAlert.none, AudibleAlert.carawayed, 3.),
   },
 
   FrogPilotEventName.noLaneAvailable: {
