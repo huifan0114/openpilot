@@ -228,6 +228,9 @@ struct FrogPilotPlan @0xa1680744031fdb2d {
   vscSpeed @38 :Float32;
   vscActive @39 :Bool;
   progressiveSpeed @40 :Float32;
+  #########################
+  speedover @41:Bool;
+  #############################
 }
 
 struct FrogPilotRadarState @0xcb9fd56c7057593a {
