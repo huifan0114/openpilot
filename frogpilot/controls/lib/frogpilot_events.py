@@ -8,6 +8,7 @@ from openpilot.selfdrive.controls.lib.events import ET, EventName, FrogPilotEven
 from openpilot.selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
 
 from openpilot.frogpilot.common.frogpilot_variables import CRUISING_SPEED, NON_DRIVING_GEARS, params, params_memory
+from openpilot.common.params import Params
 
 DEJA_VU_G_FORCE = 0.75
 RANDOM_EVENTS_CHANCE = 0.01 * DT_MDL
@@ -32,6 +33,12 @@ class FrogPilotEvents:
     self.tracked_lead_distance = 0
 
     self.played_events = set()
+    self.params = Params()
+    self.params_memory = Params("/dev/shm/params")
+###################################################
+    # self.params_memory.put_bool("KeyResume", False)
+    # self.params_memory.put_bool("KeyCancel", False)
+###################################################
 
   def update(self, v_cruise, sm, frogpilot_toggles):
     self.event_names = {event.name for event in sm["onroadEvents"]}
@@ -67,10 +74,18 @@ class FrogPilotEvents:
     if self.frogpilot_planner.frogpilot_vcruise.forcing_stop:
       self.events.add(FrogPilotEventName.forcingStop)
 
+##################################################################
+    # autoacc_caraway = self.params.get_bool("AutoACCCarAway")
+    # autoacc_greenlight = self.params.get_bool("AutoACCGreenLight")
+##################################################################
+
     if not self.frogpilot_planner.tracking_lead and sm["carState"].standstill and sm["carState"].gearShifter not in NON_DRIVING_GEARS:
       if not self.frogpilot_planner.model_stopped and self.stopped_for_light and frogpilot_toggles.green_light_alert:
         self.events.add(FrogPilotEventName.greenLight)
-
+##################################################################
+        # if autoacc_greenlight:
+        #   self.params_memory.put_int("AutoACCGreenLightstatus", 1)
+##################################################################
       self.stopped_for_light = self.frogpilot_planner.cem.stop_light_detected
     else:
       self.stopped_for_light = False
@@ -80,17 +95,25 @@ class FrogPilotEvents:
 
       self.played_events.add("holidayActive")
 
-    if self.frogpilot_planner.tracking_lead and sm["carState"].standstill and sm["carState"].gearShifter not in NON_DRIVING_GEARS and frogpilot_toggles.lead_departing_alert:
-      if self.tracked_lead_distance == 0:
-        self.tracked_lead_distance = self.frogpilot_planner.lead_one.dRel
+############
+    if self.tracking_lead_distance < 10 :
+      if self.frogpilot_planner.tracking_lead and sm["carState"].standstill and sm["carState"].gearShifter not in NON_DRIVING_GEARS and frogpilot_toggles.lead_departing_alert:
+        if self.tracked_lead_distance == 0:
+          self.tracked_lead_distance = self.frogpilot_planner.lead_one.dRel
 
-      lead_departing = self.frogpilot_planner.lead_one.dRel - self.tracked_lead_distance > 1
-      lead_departing &= self.frogpilot_planner.lead_one.vLead > 1
+        lead_departing = self.frogpilot_planner.lead_one.dRel - self.tracked_lead_distance > 1
+        lead_departing &= self.frogpilot_planner.lead_one.vLead > 1
 
-      if lead_departing:
-        self.events.add(FrogPilotEventName.leadDeparting)
-    else:
-      self.tracked_lead_distance = 0
+        if lead_departing:
+          self.events.add(FrogPilotEventName.leadDeparting)
+##################################################################
+          # if autoacc_caraway:
+          #   self.params_memory.put_int("AutoACCCarAwaystatus", 1)
+##################################################################
+      else:
+        lead_departing = False
+        self.tracked_lead_distance = 0
+############
 
     if "torqueNNLoad" not in self.played_events and self.startup_seen and alerts_empty and len(self.events) == 0 and params.get("NNFFModelName", encoding="utf-8") is not None and frogpilot_toggles.nnff:
       self.events.add(FrogPilotEventName.torqueNNLoad)
