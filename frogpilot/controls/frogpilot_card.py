@@ -33,6 +33,9 @@ class FrogPilotCard:
     self.prev_distance_button = False
     self.traffic_mode_enabled = False
 
+    # speed threshold (km/h) below which traffic mode can be toggled
+    self.traffic_mode_speed_threshold_kph = 50
+
     self.gap_counter = 0
 
   def update_distance_button(self, sm):
@@ -45,7 +48,9 @@ class FrogPilotCard:
     elif self.car.frogpilot_toggles.pause_longitudinal_via_distance:
       self.pause_longitudinal = not self.pause_longitudinal
     elif self.car.frogpilot_toggles.traffic_mode_via_distance and sm["carControl"].longActive:
-      self.traffic_mode_enabled = not self.traffic_mode_enabled
+      # only toggle traffic mode if current speed is below threshold (km/h)
+      if sm["carState"].vEgo * 3.6 < self.traffic_mode_speed_threshold_kph:
+        self.traffic_mode_enabled = not self.traffic_mode_enabled
 
   def update_distance_button_long(self, sm):
     if self.car.frogpilot_toggles.experimental_mode_via_distance_long and sm["carControl"].longActive:
@@ -57,7 +62,9 @@ class FrogPilotCard:
     elif self.car.frogpilot_toggles.pause_longitudinal_via_distance_long:
       self.pause_longitudinal = not self.pause_longitudinal
     elif self.car.frogpilot_toggles.traffic_mode_via_distance_long and sm["carControl"].longActive:
-      self.traffic_mode_enabled = not self.traffic_mode_enabled
+      # only toggle traffic mode if current speed is below threshold (km/h)
+      if sm["carState"].vEgo * 3.6 < self.traffic_mode_speed_threshold_kph:
+        self.traffic_mode_enabled = not self.traffic_mode_enabled
 
   def update_distance_button_very_long(self, sm):
     self.update_distance_button_long(sm)
@@ -71,7 +78,9 @@ class FrogPilotCard:
     elif self.car.frogpilot_toggles.pause_longitudinal_via_distance_very_long:
       self.pause_longitudinal = not self.pause_longitudinal
     elif self.car.frogpilot_toggles.traffic_mode_via_distance_very_long and sm["carControl"].longActive:
-      self.traffic_mode_enabled = not self.traffic_mode_enabled
+      # only toggle traffic mode if current speed is below threshold (km/h)
+      if sm["carState"].vEgo * 3.6 < self.traffic_mode_speed_threshold_kph:
+        self.traffic_mode_enabled = not self.traffic_mode_enabled
 
   def update_lkas_button(self, sm):
     if self.car.frogpilot_toggles.experimental_mode_via_lkas and sm["carControl"].longActive:
@@ -83,7 +92,9 @@ class FrogPilotCard:
     elif self.car.frogpilot_toggles.pause_longitudinal_via_lkas:
       self.pause_longitudinal = not self.pause_longitudinal
     elif self.car.frogpilot_toggles.traffic_mode_via_lkas and sm["carControl"].longActive:
-      self.traffic_mode_enabled = not self.traffic_mode_enabled
+      # only toggle traffic mode if current speed is below threshold (km/h)
+      if sm["carState"].vEgo * 3.6 < self.traffic_mode_speed_threshold_kph:
+        self.traffic_mode_enabled = not self.traffic_mode_enabled
 
   def update(self, carState, frogpilotCarState, sm):
     self.always_on_lateral_enabled = self.car.frogpilot_toggles.always_on_lateral_set
