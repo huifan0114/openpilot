@@ -440,12 +440,12 @@ class CarInterfaceBase(ABC):
         self.always_on_lateral_allowed = not self.always_on_lateral_allowed
 
 ###########################################################################
-    if not self.CP.pcmCruise and self.params_memory.get_bool("KeyResume") :
-      events.add(EventName.buttonEnable)
-    if self.params_memory.get_bool("KeyCancel"):
-        self.params_memory.put_bool("KeyResume",False)
-        events.add(EventName.buttonCancel)
-        self.params_memory.put_bool("KeyCancel",False)
+    # if not self.CP.pcmCruise and self.params_memory.get_bool("KeyResume") :
+    #   events.add(EventName.buttonEnable)
+    # if self.params_memory.get_bool("KeyCancel"):
+    #     self.params_memory.put_bool("KeyResume",False)
+    #     events.add(EventName.buttonCancel)
+    #     self.params_memory.put_bool("KeyCancel",False)
 ############################################################################
     # Handle permanent and temporary steering faults
     self.steering_unpressed = 0 if cs_out.steeringPressed else self.steering_unpressed + 1

@@ -43,7 +43,7 @@ class Car:
 
     self.params = Params()
     ################################################
-    self.params_memory = Params("/dev/shm/params")
+    # self.params_memory = Params("/dev/shm/params")
     ################################################
 
     if CI is None:
@@ -161,9 +161,9 @@ class Car:
       (CS.brakePressed and CS.vEgo <= 0.5 and (not self.CS_prev.brakePressed or not CS.standstill)):
       self.events.add(EventName.pedalPressed)
       ################################################
-      self.params_memory.put_bool("KeyResume", False)
-      self.params_memory.put_int('SpeedPrev',0)
-      self.params_memory.put_bool('KeyChanged', True)
+      # self.params_memory.put_bool("KeyResume", False)
+      # self.params_memory.put_int('SpeedPrev',0)
+      # self.params_memory.put_bool('KeyChanged', True)
       ################################################
 
     CS.events = self.events.to_msg()

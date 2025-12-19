@@ -1,7 +1,7 @@
 from cereal import car
 from opendbc.can.packer import CANPacker
 #############################
-from openpilot.common.numpy_fast import clip, interp
+from openpilot.common.numpy_fast import clip
 from openpilot.common.params import Params
 #############################
 from openpilot.common.conversions import Conversions as CV

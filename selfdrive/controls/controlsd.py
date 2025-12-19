@@ -70,8 +70,8 @@ class Controls:
     self.params = Params()
     self.params_memory = Params("/dev/shm/params")
 ###################################################
-    self.params_memory.put_bool("KeyResume", False)
-    self.params_memory.put_bool("KeyCancel", False)
+    # self.params_memory.put_bool("KeyResume", False)
+    # self.params_memory.put_bool("KeyCancel", False)
 ###################################################
 
     if CI is None:
@@ -384,60 +384,57 @@ class Controls:
     elif not CS.canValid and not self.frogpilot_toggles.force_onroad:
       self.events.add(EventName.canError)
 
-    ###################################################
-    speedover_reminder = self.params.get_bool('speedoverreminder')
-    nav_reminder = self.params.get_bool("NavReminder")
-    speedover_reminder_status = self.params_memory.get_int("speedoverreminderstatus")
-    nav_reminder_status = self.params_memory.get_int("NavReminderstatus")
-    ###################################################
-    #超速提醒
-    if speedover_reminder :
-      if self.sm['frogpilotPlan'].speedover:
-       self.events.add(EventName.speedover)
-       speedover_reminder_status = 1
-      #  print("[PONTEST][controlsd.py][update_events()] speedover_reminder_status1=", speedover_reminder_status)
-      else:
-        speedover_reminder_status = 0
-        # print("[PONTEST][controlsd.py][update_events()] speedover_reminder_status0=", speedover_reminder_status)
-      self.params_memory.put_int('speedoverreminderstatus',speedover_reminder_status)
+    # ###################################################
+    # speedover_reminder = self.params.get_
+    # ###################################################
+    # #超速提醒
+    # if speedover_reminder :
+    #   if self.sm['frogpilotPlan'].speedover:
+    #    self.events.add(EventName.speedover)
+    #    speedover_reminder_status = 1
+    #   #  print("[PONTEST][controlsd.py][update_events()] speedover_reminder_status1=", speedover_reminder_status)
+    #   else:
+    #     speedover_reminder_status = 0
+    #     # print("[PONTEST][controlsd.py][update_events()] speedover_reminder_status0=", speedover_reminder_status)
+    #   self.params_memory.put_int('speedoverreminderstatus',speedover_reminder_status)
 
-    # 依車速調整跟車距離
-    if self.params.get_bool("Speeddistance") :
-      v_ego_kph = CS.vEgo*3.6
-      if  v_ego_kph < 60:
-        if self.params.get_int("LongitudinalPersonality") != 0 :
-          self.params.put_int("LongitudinalPersonality", 0)
-      elif v_ego_kph > 60 and v_ego_kph < 90:
-        if self.params.get_int("LongitudinalPersonality") != 1 :
-          self.params.put_int("LongitudinalPersonality",1)
-      elif v_ego_kph > 90 and v_ego_kph < 120:
-        if self.params.get_int("LongitudinalPersonality") != 1 :
-          self.params.put_int("LongitudinalPersonality",1)
-      self.params_memory.put_bool("FrogPilotTogglesUpdated", True)
+    # # 依車速調整跟車距離
+    # if self.params.get_bool("Speeddistance") :
+    #   v_ego_kph = CS.vEgo*3.6
+    #   if  v_ego_kph < 60:
+    #     if self.params.get_int("LongitudinalPersonality") != 0 :
+    #       self.params.put_int("LongitudinalPersonality", 0)
+    #   elif v_ego_kph > 60 and v_ego_kph < 90:
+    #     if self.params.get_int("LongitudinalPersonality") != 1 :
+    #       self.params.put_int("LongitudinalPersonality",1)
+    #   elif v_ego_kph > 90 and v_ego_kph < 120:
+    #     if self.params.get_int("LongitudinalPersonality") != 1 :
+    #       self.params.put_int("LongitudinalPersonality",1)
+    #   self.params_memory.put_bool("FrogPilotTogglesUpdated", True)
 
-    ##################NAV語音#####################################################
-    if nav_reminder:
-      if self.params_memory.get_bool("navTurn") and nav_reminder_status == 0:
-        self.events.add(EventName.navturn)
-        nav_reminder_status = 1
-      elif nav_reminder_status == 1:
-        if self.params_memory.get_bool("navUturn"):
-          self.events.add(EventName.navuturn)
-        elif self.params_memory.get_bool("navturnRight"):
-          self.events.add(EventName.navturnright)
-        elif self.params_memory.get_bool("navturnLeft"):
-          self.events.add(EventName.navturnleft)
-        elif self.params_memory.get_bool("navSharpright"):
-          self.events.add(EventName.navsharpright)
-        elif self.params_memory.get_bool("navSharpleft"):
-          self.events.add(EventName.navsharpleft)
-        elif self.params_memory.get_bool("navOfframp"):
-          self.events.add(EventName.navofframp)
+    # ##################NAV語音#####################################################
+    # if nav_reminder:
+    #   if self.params_memory.get_bool("navTurn") and nav_reminder_status == 0:
+    #     self.events.add(EventName.navturn)
+    #     nav_reminder_status = 1
+    #   elif nav_reminder_status == 1:
+    #     if self.params_memory.get_bool("navUturn"):
+    #       self.events.add(EventName.navuturn)
+    #     elif self.params_memory.get_bool("navturnRight"):
+    #       self.events.add(EventName.navturnright)
+    #     elif self.params_memory.get_bool("navturnLeft"):
+    #       self.events.add(EventName.navturnleft)
+    #     elif self.params_memory.get_bool("navSharpright"):
+    #       self.events.add(EventName.navsharpright)
+    #     elif self.params_memory.get_bool("navSharpleft"):
+    #       self.events.add(EventName.navsharpleft)
+    #     elif self.params_memory.get_bool("navOfframp"):
+    #       self.events.add(EventName.navofframp)
 
-        nav_reminder_status = 0
-      self.params_memory.put_int('NavReminderstatus', nav_reminder_status)
+    #     nav_reminder_status = 0
+    #   self.params_memory.put_int('NavReminderstatus', nav_reminder_status)
 
-    #############################################################################
+    # #############################################################################
 
 
     # generic catch-all. ideally, a more specific event should be added above instead
