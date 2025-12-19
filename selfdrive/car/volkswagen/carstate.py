@@ -119,16 +119,16 @@ class CarState(CarStateBase):
 
     # Update door and trunk/hatch lid open status.
 ####################################
-    if self.params.get_bool("Dooropen"):
-      if self.params.get_bool("DriverdoorOpen"):
+    if frogpilot_toggles.dooropen:
+      if frogpilot_toggles.driver_dooropen:
         ret.driverdoorOpen = any([pt_cp.vl["Gateway_72"]["ZV_FT_offen"]])
-      if self.params.get_bool("CodriverdoorOpen"):
+      if frogpilot_toggles.codriver_dooropen:
         ret.codriverdOpen = any([pt_cp.vl["Gateway_72"]["ZV_BT_offen"]])
-      if self.params.get_bool("LpassengerdoorOpen"):
+      if frogpilot_toggles.lpassenger_dooropen:
         ret.lpassengerdoorOpen = any([pt_cp.vl["Gateway_72"]["ZV_HFS_offen"]])
-      if self.params.get_bool("RpassengerdoorOpen"):
+      if frogpilot_toggles.rpassenger_dooropen:
         ret.rpassengerdoorOpen = any([pt_cp.vl["Gateway_72"]["ZV_HBFS_offen"]])
-      if self.params.get_bool("LuggagedoorOpen"):
+      if frogpilot_toggles.luggage_dooropen:
         ret.luggagedoorOpen = any([pt_cp.vl["Gateway_72"]["ZV_HD_offen"]])
 ####################################
     ret.doorOpen = any([pt_cp.vl["Gateway_72"]["ZV_FT_offen"],##駕駛

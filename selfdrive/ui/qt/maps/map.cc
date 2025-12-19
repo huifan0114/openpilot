@@ -12,12 +12,16 @@
 
 
 const int INTERACTION_TIMEOUT = 100;
-
-const float MAX_ZOOM = 17;
-const float MIN_ZOOM = 14;
-const float MAX_PITCH = 50;
+//////////////////////
+const float MAX_ZOOM = 20;
+const float MIN_ZOOM = 15;
+const float MAX_PITCH = 60;
 const float MIN_PITCH = 0;
-const float MAP_SCALE = 2;
+const float MAP_SCALE = 1;
+float zoom;
+float pitch;
+int map_speed;
+//////////////////////
 
 MapWindow::MapWindow(const QMapLibre::Settings &settings) : m_settings(settings), velocity_filter(0, 10, 0.05, false) {
   QObject::connect(uiState(), &UIState::uiUpdate, this, &MapWindow::updateState);
@@ -40,9 +44,9 @@ MapWindow::MapWindow(const QMapLibre::Settings &settings) : m_settings(settings)
   error->setAlignment(Qt::AlignCenter);
 
   overlay_layout->addWidget(error);
-  overlay_layout->addWidget(map_instructions);
-  overlay_layout->addStretch(1);
   overlay_layout->addWidget(map_eta);
+  overlay_layout->addStretch(1);
+  overlay_layout->addWidget(map_instructions);
 
   last_position = coordinate_from_param("LastGPSPosition");
   grabGesture(Qt::GestureType::PinchGesture);
@@ -252,11 +256,37 @@ void MapWindow::updateState(const UIState &s) {
       m_map->setLayoutProperty("carPosLayer", "icon-rotate", *last_bearing - m_map->bearing());
     }
   }
+//////////////////////
+  map_speed = params_memory.getInt("MapSpeed");
+  // Zoom設定分段
+  if (map_speed == 0) {
+    zoom = MAX_ZOOM;
+  } else if (map_speed == 1) {
+    zoom = MIN_ZOOM + 4;
+  } else if (map_speed == 2) {
+    zoom = MIN_ZOOM + 3;
+  } else if (map_speed == 3) {
+    zoom = MIN_ZOOM + 2;
+  } else if (map_speed == 4) {
+    zoom = MIN_ZOOM + 1;
+  } else if (map_speed == 5) {
+    zoom = MIN_ZOOM;
+  }
+  // Pitch設定分段
+  if (map_speed == 0) {
+    pitch = MIN_PITCH;
+  } else if (map_speed >= 1) {
+    pitch = MAX_PITCH;
+  }
+//////////////////////
 
   if (interaction_counter == 0) {
     if (last_position) m_map->setCoordinate(*last_position);
     if (last_bearing) m_map->setBearing(*last_bearing);
-    m_map->setZoom(util::map_val<float>(velocity_filter.x(), 0, 30, MAX_ZOOM, MIN_ZOOM));
+//////////////////////
+    m_map->setZoom(zoom);
+    m_map->setPitch(pitch);
+//////////////////////
   } else {
     interaction_counter--;
   }
@@ -273,7 +303,9 @@ void MapWindow::updateState(const UIState &s) {
       map_eta->updateETA(i.getTimeRemaining(), i.getTimeRemainingTypical(), i.getDistanceRemaining());
 
       if (locationd_valid) {
-        m_map->setPitch(MAX_PITCH); // TODO: smooth pitching based on maneuver distance
+//////////////////////
+        // m_map->setPitch(MAX_PITCH); // TODO: smooth pitching based on maneuver distance
+//////////////////////
         map_instructions->updateInstructions(i);
       }
     } else {
@@ -342,7 +374,7 @@ void MapWindow::updateState(const UIState &s) {
 
   int map_style = frogpilotUIState()->frogpilot_toggles.value("map_style").toInt();
   if (map_style != previous_map_style) {
-    std::array<std::string, 12> styleUrls = {
+    std::array<std::string, 13> styleUrls = {
       "mapbox://styles/commaai/clkqztk0f00ou01qyhsa5bzpj",     // Stock openpilot
       "mapbox://styles/frogsgomoo/cmcfv151j000o01rcdxebhl76",  // FrogsGoMoo's Personalized Style
       "mapbox://styles/mapbox/streets-v11",                    // Mapbox Streets
@@ -355,6 +387,9 @@ void MapWindow::updateState(const UIState &s) {
       "mapbox://styles/mapbox/satellite-streets-v11",          // Mapbox Satellite Streets
       "mapbox://styles/mapbox/traffic-night-v2",               // Mapbox Traffic Night
       "mapbox://styles/mike854/clt0hm8mw01ok01p4blkr27jp"      // Mike854's Personalized Style
+      //////////////////////////////////////////////////////////
+      "mapbox://styles/huifan/cm100vqzq02bf01pqaurkfe25"
+      //////////////////////////////////////////////////////////
     };
 
     m_map->setStyleUrl(QString::fromStdString(styleUrls[map_style]));
@@ -377,15 +412,17 @@ void MapWindow::resizeGL(int w, int h) {
 
 void MapWindow::initializeGL() {
   m_map.reset(new QMapLibre::Map(this, m_settings, size(), 1));
-
+//////////////////////
   if (last_position) {
-    m_map->setCoordinateZoom(*last_position, MAX_ZOOM);
+    m_map->setCoordinateZoom(*last_position, zoom);
   } else {
-    m_map->setCoordinateZoom(QMapLibre::Coordinate(64.31990695292795, -149.79038934046247), MIN_ZOOM);
+    m_map->setCoordinateZoom(QMapLibre::Coordinate(64.31990695292795, -149.79038934046247), zoom);
   }
 
   m_map->setMargins({0, 350, 0, 50});
-  m_map->setPitch(MIN_PITCH);
+  //m_map->setPitch(MIN_PITCH);
+  m_map->setPitch(pitch);
+//////////////////////
   m_map->setStyleUrl("mapbox://styles/commaai/clkqztk0f00ou01qyhsa5bzpj");
 
   QObject::connect(m_map.data(), &QMapLibre::Map::mapChanged, [=](QMapLibre::Map::MapChange change) {
@@ -411,7 +448,10 @@ void MapWindow::paintGL() {
 void MapWindow::clearRoute() {
   if (!m_map.isNull()) {
     m_map->setLayoutProperty("navLayer", "visibility", "none");
-    m_map->setPitch(MIN_PITCH);
+//////////////////////
+    //m_map->setPitch(MIN_PITCH);
+    m_map->setPitch(pitch);
+//////////////////////
     updateDestinationMarker();
   }
 
@@ -428,7 +468,11 @@ void MapWindow::mousePressEvent(QMouseEvent *ev) {
 void MapWindow::mouseDoubleClickEvent(QMouseEvent *ev) {
   if (last_position) m_map->setCoordinate(*last_position);
   if (last_bearing) m_map->setBearing(*last_bearing);
-  m_map->setZoom(util::map_val<float>(velocity_filter.x(), 0, 30, MAX_ZOOM, MIN_ZOOM));
+  // m_map->setZoom(util::map_val<float>(velocity_filter.x(), 0, 30, MAX_ZOOM, MIN_ZOOM));
+//////////////////////
+  m_map->setZoom(zoom);
+  m_map->setPitch(pitch);
+//////////////////////
   update();
 
   interaction_counter = 0;

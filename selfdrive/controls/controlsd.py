@@ -306,9 +306,6 @@ class Controls:
         self.events.add(EventName.calibrationInvalid)
 
     # Handle lane change
-    ###############################################################
-    self.ChangeLane_Reminder = self.params.get_bool("ChangeLaneReminder")
-    ###############################################################
     if self.sm['modelV2'].meta.laneChangeState == LaneChangeState.preLaneChange:
       direction = self.sm['modelV2'].meta.laneChangeDirection
       if (CS.leftBlindspot and direction == LaneChangeDirection.left) or \
@@ -331,7 +328,7 @@ class Controls:
     elif self.sm['modelV2'].meta.laneChangeState in (LaneChangeState.laneChangeStarting,
                                                     LaneChangeState.laneChangeFinishing):
       ##########################################################
-      if self.ChangeLane_Reminder :
+      if self.frogpilot_toggles.changelane_reminder :
         self.events.add(EventName.laneChange)
       ##########################################################
 

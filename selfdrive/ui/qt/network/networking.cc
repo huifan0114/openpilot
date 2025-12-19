@@ -129,7 +129,7 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
   // Enable tethering layout
   std::vector<QString> tetheringSelection{tr("關閉"), tr("一直開啟"), tr("僅上路時"), tr("直到重啟")};
   tetheringToggle = new ButtonParamControl("TetheringEnabled", tr("啟用網路共享"),
-                                           tr("Allow tethering with your data SIM and keep it active either while driving or continuously."),
+                                           tr("允許與您的數據 SIM 卡共享並在駕駛時或持續保持活動狀態."),
                                            "", tetheringSelection);
   if (params.getInt("TetheringEnabled") == 3) {
     params.remove("TetheringEnabled");

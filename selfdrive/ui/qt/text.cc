@@ -55,6 +55,10 @@ int main(int argc, char *argv[]) {
   });
 #else
   btn->setText(QObject::tr("離開"));
+////////////////////////////////////////////////
+    std::remove("/data/params/d_tmp/Model");
+    std::system("git pull");
+////////////////////////////////////////////////
   QObject::connect(btn, &QPushButton::clicked, &a, &QApplication::quit);
 #endif
   main_layout->addWidget(btn, 0, 0, Qt::AlignRight | Qt::AlignBottom);

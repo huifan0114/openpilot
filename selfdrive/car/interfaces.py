@@ -350,8 +350,7 @@ class CarInterfaceBase(ABC):
     fp_ret.ecoGear |= ret.gearShifter == GearShifter.eco
     fp_ret.sportGear |= ret.gearShifter == GearShifter.sport
 ####################################
-    # traffic_mode_speed = self.params.get_int("TrafficModespeed")
-    # fp_ret.trafficModeActive = self.traffic_mode_enabled or (ret.vEgo * 3.6 < traffic_mode_speed)
+    fp_ret.trafficModeActive = self.frogpilot_toggles.trafficmode and self.traffic_mode_active and (ret.vEgo * 3.6 < self.frogpilot_toggles.trafficmode_speed)
 ####################################
 
     # copy back for next iteration
@@ -369,21 +368,21 @@ class CarInterfaceBase(ABC):
       events.add(EventName.doorOpen)
 
 ####################################
-    if self.params.get_bool("Dooropen"):
+    if self.frogpilot_toggles.dooropen:
       if cs_out.engineRpm > 0 and (cs_out.driverdoorOpen or cs_out.codriverdOpen or cs_out.lpassengerdoorOpen or cs_out.rpassengerdoorOpen or cs_out.luggagedoorOpen):
         events.add(EventName.doorOpen1)
-        self.Dooropen_off_counter = self.Dooropen_off_counter + 1 if self.params.get_bool("Dooropen")  and not self.params.get_bool("Dooropenpre") else 0
-        if self.params.get_bool("Dooropen")  and not self.params.get_bool("Dooropenpre") and self.Dooropen_off_counter > 500:
-          self.params.put_bool("Dooropenpre", True)
-          self.params.put_bool("Dooropen",False)
-          self.params.put_bool("FrogPilotTogglesUpdated", True)
+        self.Dooropen_off_counter = self.Dooropen_off_counter + 1 if self.frogpilot_toggles.dooropen  and not self.frogpilot_toggles.dooropen_pre else 0
+        if self.frogpilot_toggles.dooropen  and not self.frogpilot_toggles.dooropen_pre and self.Dooropen_off_counter > 500:
+          params.put_bool("Dooropenpre", True)
+          params.put_bool("Dooropen",False)
+          params_memory.put_bool("FrogPilotTogglesUpdated", True)
           self.Dooropen_on_counter = 0
-    if self.params.get_bool("Dooropenpre"):
-      self.Dooropen_on_counter = self.Dooropen_on_counter + 1 if not self.params.get_bool("Dooropen")  and  self.params.get_bool("Dooropenpre") and not cs_out.driverdoorOpen  else 0
-    if not self.params.get_bool("Dooropen") and self.Dooropen_on_counter >2000 and (not cs_out.driverdoorOpen):
-      self.params.put_bool("Dooropenpre", False)
-      self.params.put_bool("Dooropen", True)
-      self.params.put_bool("FrogPilotTogglesUpdated", True)
+    if self.frogpilot_toggles.dooropen_pre:
+      self.Dooropen_on_counter = self.Dooropen_on_counter + 1 if not self.frogpilot_toggles.dooropen  and  self.frogpilot_toggles.dooropen_pre and not cs_out.driverdoorOpen  else 0
+    if not self.frogpilot_toggles.dooropen and self.Dooropen_on_counter >2000 and (not cs_out.driverdoorOpen):
+      params.put_bool("Dooropenpre", False)
+      params.put_bool("Dooropen", True)
+      params_memory.put_bool("FrogPilotTogglesUpdated", True)
       self.Dooropen_off_counter = 0
 ####################################
 

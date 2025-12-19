@@ -29,6 +29,17 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   versionLbl = new LabelControl(tr("目前版本"), "");
   addItem(versionLbl);
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+  fastinstallBtn = new ButtonControl(tr("快速更新"), tr("更新"), "立刻進行更新並重啟機器.");
+  connect(fastinstallBtn, &ButtonControl::clicked, [=]() {
+    // params.putBool("Faststart", false);
+    // params.putBool("FrogPilotTogglesUpdated", true);
+    std::system("git pull");
+    Hardware::reboot();
+  });
+  addItem(fastinstallBtn);
+//////////////////////////////////////////////////////////////////////////////////////////////
+
   // automatic updates toggle
   ParamControl *automaticUpdatesToggle = new ParamControl("AutomaticUpdates", tr("自動更新"),
                                                        tr("待機熄火狀態若有連上網路會自動更新."), "");
@@ -103,6 +114,20 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
       if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to perform a full factory reset? All saved assets and settings will be permanently deleted!"), this)) {
         if (FrogPilotConfirmationDialog::yesorno(tr("This is a complete factory reset and cannot be undone. Are you absolutely sure you want to continue?"), this)) {
           std::system("rm -rf /cache/params/d");
+          std::system("rm -rf /persist/params");
+          std::system("rm -rf /cache/params");
+          std::system("rm -rf /persist/tracking");
+          std::system("rm -rf /cache/tracking");
+          std::system("rm -rf /data/backups");
+          std::system("rm -rf /data/crashes");
+          std::system("rm -rf /data/media/screen_recordings");
+          std::system("rm -rf /data/themes");
+          std::system("rm -rf /data/toggle_backups");
+          std::system("rm -rf /data/models");
+          std::system("rm -rf /data/media/0/osm/mapd");
+          std::system("rm -rf /data/media/0/osm/offline");
+          std::system("rm -rf /data/media/0/realdata");
+          std::system("rm -rf /data/media/screen_recordings");
         }
       }
       params.putBool("DoUninstall", true);
@@ -117,6 +142,14 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
     ConfirmationDialog::rich(QString::fromStdString(txt), this);
   });
   addItem(errorLogBtn);
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+  delLogBtn = new ButtonControl(tr("刪除訊息"), tr("刪除"), "刪除訊息.");
+  connect(delLogBtn, &ButtonControl::clicked, [=]() {
+    std::system("rm -r /data/crashes && mkdir -p /data/crashes/");
+  });
+  addItem(delLogBtn);
+//////////////////////////////////////////////////////////////////////////////////////////////
 
   fs_watch = new ParamWatcher(this);
   QObject::connect(fs_watch, &ParamWatcher::paramChanged, [=](const QString &param_name, const QString &param_value) {

@@ -297,7 +297,7 @@ QWidget * Setup::software_selection() {
   QObject::connect(back, &QPushButton::clicked, this, &Setup::prevPage);
   blayout->addWidget(back);
 
-  QPushButton *cont = new QPushButton(tr("Continue"));
+  QPushButton *cont = new QPushButton(tr("繼續"));
   cont->setObjectName("navBtn");
   cont->setEnabled(false);
   cont->setProperty("primary", true);
@@ -310,7 +310,7 @@ QWidget * Setup::software_selection() {
     });
     QString url = OPENPILOT_URL;
     if (group->checkedButton() != openpilot) {
-      url = InputDialog::getText(tr("Enter URL"), this, tr("for Custom Software"));
+      url = InputDialog::getText(tr("輸入網址"), this, tr("用於客製化軟體"));
     }
     if (!url.isEmpty()) {
       QTimer::singleShot(1000, this, [=]() {
