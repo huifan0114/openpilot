@@ -55,9 +55,9 @@ class CarState(CarStateBase):
 
 ####################################
   def update(self, pt_cp, body_cp, cam_cp, ext_cp, trans_type, frogpilot_toggles):
-    if self.start:
-      self.fuelt = body_cp.vl["Motor_04"]["MO_KVS"]/1000000
-      self.start = False
+  #  if self.start:
+ #     self.fuelt = body_cp.vl["Motor_04"]["MO_KVS"]/1000000
+   #   self.start = False
 ####################################
     if self.CP.flags & VolkswagenFlags.PQ:
       return self.update_pq(pt_cp, cam_cp, ext_cp, trans_type, frogpilot_toggles)
