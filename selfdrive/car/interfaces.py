@@ -28,7 +28,7 @@ from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX, get_fri
 from openpilot.selfdrive.controls.lib.events import Events
 from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles, params, params_memory
+from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles, params_memory
 from panda import Panda
 
 ButtonType = car.CarState.ButtonEvent.Type
