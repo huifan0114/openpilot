@@ -36,7 +36,7 @@ class CarState(CarStateBase):
     # self.usefuel_Tank = 0
     # self.fuelt = 0
     # self.oiltemperature = 0
-    # self.start = True
+    self.start = True
 #############################
 
   def create_button_events(self, pt_cp, buttons):
@@ -225,8 +225,8 @@ class CarState(CarStateBase):
     # ret.kpl = self.kpln
     # ret.fueltotal = self.fuelt
 
-    # self.bcm_01 = pt_cp.vl["BCM_01"]
-    # self.motor_18 = pt_cp.vl["Motor_18"]
+    self.bcm_01 = pt_cp.vl["BCM_01"]
+    self.motor_18 = pt_cp.vl["Motor_18"]
 
     # self.current_Tank = pt_cp.vl["Kombi_03"]["KBI_Tankinhalt_hochaufl"]
     # self.usetimeout += 1

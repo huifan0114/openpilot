@@ -384,16 +384,16 @@ class Controls:
     # ###################################################
     # speedover_reminder = self.params.get_
     # ###################################################
-    # #超速提醒
-    # if speedover_reminder :
-    #   if self.sm['frogpilotPlan'].speedover:
-    #    self.events.add(EventName.speedover)
-    #    speedover_reminder_status = 1
-    #   #  print("[PONTEST][controlsd.py][update_events()] speedover_reminder_status1=", speedover_reminder_status)
-    #   else:
-    #     speedover_reminder_status = 0
-    #     # print("[PONTEST][controlsd.py][update_events()] speedover_reminder_status0=", speedover_reminder_status)
-    #   self.params_memory.put_int('speedoverreminderstatus',speedover_reminder_status)
+    #超速提醒
+    if self.frogpilot_toggles.dooropen:
+      if self.sm['frogpilotPlan'].speedover:
+       self.events.add(EventName.speedover)
+       speedover_reminder_status = 1
+      #  print("[PONTEST][controlsd.py][update_events()] speedover_reminder_status1=", speedover_reminder_status)
+      else:
+        speedover_reminder_status = 0
+        # print("[PONTEST][controlsd.py][update_events()] speedover_reminder_status0=", speedover_reminder_status)
+      self.params_memory.put_int('speedoverreminderstatus',speedover_reminder_status)
 
     # # 依車速調整跟車距離
     # if self.params.get_bool("Speeddistance") :

@@ -27,6 +27,8 @@ from openpilot.selfdrive.car.values import PLATFORMS
 from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX, get_friction
 from openpilot.selfdrive.controls.lib.events import Events
 from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
+
+from openpilot.frogpilot.common.frogpilot_variables import ERROR_LOGS_PATH, FrogPilotVariables, get_frogpilot_toggles, params, params_cache, params_memory
 from panda import Panda
 
 ButtonType = car.CarState.ButtonEvent.Type
@@ -120,6 +122,7 @@ class CarInterfaceBase(ABC):
     ##############################################
     self.Dooropen_off_counter = 0
     self.Dooropen_on_counter = 0
+    self.frogpilot_toggles = get_frogpilot_toggles()
     ##############################################
     self.always_on_lateral_allowed = False
 
@@ -350,7 +353,7 @@ class CarInterfaceBase(ABC):
     fp_ret.ecoGear |= ret.gearShifter == GearShifter.eco
     fp_ret.sportGear |= ret.gearShifter == GearShifter.sport
 ####################################
-    fp_ret.trafficModeActive = self.frogpilot_toggles.trafficmode and self.traffic_mode_active and (ret.vEgo * 3.6 < self.frogpilot_toggles.trafficmode_speed)
+    fp_ret.trafficModeActive = self.traffic_mode_active and (ret.vEgo * 3.6 < self.frogpilot_toggles.trafficmode_speed)
 ####################################
 
     # copy back for next iteration
