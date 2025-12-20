@@ -58,6 +58,9 @@ def run_new_modeld(started, params, CP: car.CarParams, classic_model, tinygrad_m
 def run_speed_limit_filler(started, params, CP: car.CarParams, classic_model, tinygrad_model, frogpilot_toggles) -> bool:
   return frogpilot_toggles.speed_limit_filler
 
+def run_simple_dash(started, params, CP: car.CarParams, classic_model, tinygrad_model, frogpilot_toggles) -> bool:
+  return started and frogpilot_toggles.simple_dash_server
+
 def run_navbridge(started, params, CP: car.CarParams, classic_model, tinygrad_model, frogpilot_toggles) -> bool:
   return started and params.get_bool("NavBridgeEnabled")
 
@@ -123,7 +126,7 @@ procs = [
   NativeProcess("bridge", "cereal/messaging", ["./bridge"], notcar),
   PythonProcess("webrtcd", "system.webrtc.webrtcd", or_(notcar, only_onroad)),
   PythonProcess("webjoystick", "tools.bodyteleop.web", notcar),
-  PythonProcess("simple_dash", "tools.simple_dash.server", only_onroad),
+  PythonProcess("simple_dash", "tools.simple_dash.server", run_simple_dash),
 
   # FrogPilot processes
   NativeProcess("classic_modeld", "frogpilot/classic_modeld", ["./classic_modeld"], run_classic_modeld),

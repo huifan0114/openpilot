@@ -42,6 +42,12 @@ class NavBridge:
     self.approaching_intersection = False
     self.approaching_turn = False
 
+    # NavBridge 連線狀態 (供 UI 顯示)
+    self.connected = False
+    self.distance_to_maneuver = 0
+    self.maneuver_type = ""
+    self.maneuver_modifier = ""
+
   def fetch_nav_data(self):
     """從 NavBridge App 取得導航資料"""
     try:
@@ -58,12 +64,30 @@ class NavBridge:
     self.approaching_intersection = False
     self.approaching_turn = False
 
-    if nav_data is None or not nav_data.get("isNavigating", False):
+    if nav_data is None:
+      self.connected = False
+      self.distance_to_maneuver = 0
+      self.maneuver_type = ""
+      self.maneuver_modifier = ""
+      return
+
+    # 有收到資料就是已連接
+    self.connected = True
+
+    if not nav_data.get("isNavigating", False):
+      self.distance_to_maneuver = 0
+      self.maneuver_type = ""
+      self.maneuver_modifier = ""
       return
 
     distance = nav_data.get("distanceToNext", 0)
     maneuver_type = nav_data.get("maneuverType", "").lower()
     maneuver_modifier = nav_data.get("maneuverModifier", "").lower()
+
+    # 保存原始資料供 UI 顯示
+    self.distance_to_maneuver = distance
+    self.maneuver_type = maneuver_type
+    self.maneuver_modifier = maneuver_modifier
 
     # 檢查是否接近轉彎
     if distance > 0 and distance <= APPROACHING_TURN_DISTANCE:
@@ -84,6 +108,12 @@ class NavBridge:
     nav.approachingIntersection = self.approaching_intersection
     nav.approachingTurn = self.approaching_turn
     nav.navigationSpeedLimit = 0  # 不使用速限
+
+    # NavBridge 狀態 (供 UI 顯示)
+    nav.navBridgeConnected = self.connected
+    nav.distanceToManeuver = self.distance_to_maneuver
+    nav.maneuverType = self.maneuver_type
+    nav.maneuverModifier = self.maneuver_modifier
 
     self.pm.send('frogpilotNavigation', msg)
 
