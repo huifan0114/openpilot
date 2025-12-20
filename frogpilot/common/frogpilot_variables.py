@@ -946,6 +946,8 @@ class FrogPilotVariables:
 
     toggle.speed_limit_filler = params.get_bool("SpeedLimitFiller") if tuning_level >= level["SpeedLimitFiller"] else default.get_bool("SpeedLimitFiller")
 
+    toggle.simple_dash_server = params.get_bool("SimpleDashServer")  # 無 tuning_level 限制
+
     toggle.startup_alert_top = params.get("StartupMessageTop", encoding="utf-8") if tuning_level >= level["StartupMessageTop"] else default.get("StartupMessageTop", encoding="utf-8")
     toggle.startup_alert_bottom = params.get("StartupMessageBottom", encoding="utf-8") if tuning_level >= level["StartupMessageBottom"] else default.get("StartupMessageBottom", encoding="utf-8")
 
@@ -958,6 +960,37 @@ class FrogPilotVariables:
     toggle.unlock_doors = toyota_doors and (params.get_bool("UnlockDoors") if tuning_level >= level["UnlockDoors"] else default.get_bool("UnlockDoors"))
 
     toggle.volt_sng = toggle.car_model == "CHEVROLET_VOLT" and (params.get_bool("VoltSNG") if tuning_level >= level["VoltSNG"] else default.get_bool("VoltSNG"))
+###################################################################
+    toggle.hfop_inf = params.get_bool("HFOPinf")
+    toggle.gooff_screen = params.get_bool("GooffScreen")
+    toggle.disablestartstop = params.get_bool("Disablestartstop")
+    toggle.speedoverreminder = params.get_bool("speedoverreminder")
+    toggle.speedreminderreset = params.get_bool("speedreminderreset")
+    toggle.changelane_reminder = params.get_bool("ChangeLaneReminder")
+    toggle.navspeed = params.get_bool("Navspeed")
+    toggle.auto_speeddistance = params.get_bool("AutoSpeeddistance")
+    # toggle.trafficmode = params.get_bool("TrafficMode")
+    toggle.trafficmode_speed = params.get_int("TrafficModespeed")
 
+    toggle.autoacc = params.get_bool("AutoACC")
+    toggle.autoacc_speed = params.get_int("AutoACCspeed")
+    toggle.autoacc_caraway = params.get_bool("AutoACCCarAway")
+    toggle.autoacc_greenlight = params.get_bool("AutoACCGreenLight")
+
+    toggle.dooropen = params.get_bool("Dooropen")
+    toggle.dooropen_pre = params.get_bool("Dooropenpre")
+    toggle.driver_dooropen = params.get_bool("DriverdoorOpen")
+    toggle.codriver_dooropen = params.get_bool("CodriverdoorOpen")
+    toggle.lpassenger_dooropen = params.get_bool("LpassengerdoorOpen")
+    toggle.rpassenger_dooropen = params.get_bool("RpassengerdoorOpen")
+    toggle.luggage_dooropen = params.get_bool("LuggagedoorOpen")
+
+    toggle.roadtype = params.get_bool("Roadtype")
+    toggle.roadtype_profile = params.get_int("RoadtypeProfile")
+    toggle.autoroadtype = params.get_bool("AutoRoadtype")
+
+    toggle.navreminder = params.get_bool("NavReminder")
+
+###################################################################
     params_memory.put("FrogPilotToggles", json.dumps(toggle.__dict__))
     params_memory.remove("FrogPilotTogglesUpdated")

@@ -27,22 +27,35 @@ class FrogPilotVCruise:
     self.force_stop_timer = 0
     self.tracked_model_length = 0
 
-    # Vision Safety Controller (VSC) - 使用平滑值 + 趨勢判斷
-    self.vsc_dRel_history = deque(maxlen=10)   # 0.5 秒窗口 (20Hz)
+    # Vision Safety Controller (VSC) - 整合版
+    # 整合所有有用指標：dist_ratio, TTC, 趨勢, 快速接近, vRel_stuck, aRel
+    self.vsc_dRel_history = deque(maxlen=10)   # 0.5 秒窗口 (20Hz) - 平滑用
     self.vsc_vRel_history = deque(maxlen=10)
-    self.vsc_dist_ratio_history = deque(maxlen=40)  # 2 秒窗口，用於趨勢判斷
+    self.vsc_dist_ratio_history = deque(maxlen=40)  # 2 秒窗口 - 趨勢判斷用
+    self.vsc_aRel_history = deque(maxlen=5)  # 0.25 秒窗口 - 前車減速檢測
     self.vsc_active = False
-    # 注意：vsc_target 不在此設初始值，與 csc_target 一致
-    # 第一次 update() 時會根據 v_cruise 設定
 
     # VSC 狀態變數
-    self.vsc_approaching_frames = 0
+    self.vsc_last_vRel = None  # 用於計算相對加速度
+    self.vsc_approaching_frames = 0  # 持續接近計數
 
   def get_vsc_smoothed(self):
     """取得平滑值 (移動中位數) - 過濾視覺跳動"""
     if len(self.vsc_dRel_history) < 3:
       return None, None
     return np.median(list(self.vsc_dRel_history)), np.median(list(self.vsc_vRel_history))
+
+  def get_vsc_ttc(self, dRel, vRel):
+    """計算 Time To Collision (碰撞時間)"""
+    if vRel >= 0 or dRel <= 0:
+      return 99.0  # 沒有接近或無效距離
+    return dRel / abs(vRel)
+
+  def get_vsc_aRel(self):
+    """取得平滑的相對加速度"""
+    if len(self.vsc_aRel_history) < 2:
+      return 0.0
+    return np.median(list(self.vsc_aRel_history))
 
   def is_vsc_trend_decreasing(self):
     """判斷 dist_ratio 是否持續下降 (趨勢預警)"""
@@ -57,6 +70,75 @@ class FrogPilotVCruise:
     # 如果後半比前半低 5% 以上，視為下降趨勢
     return avg_second < avg_first * 0.95
 
+  def is_vsc_vrel_stuck(self):
+    """檢測 vRel 數據是否卡住 (視覺異常)"""
+    if len(self.vsc_vRel_history) < 10 or len(self.vsc_dRel_history) < 10:
+      return False
+    vrel_std = np.std(list(self.vsc_vRel_history))
+    drel_change = abs(self.vsc_dRel_history[0] - self.vsc_dRel_history[-1])
+    # vRel 變化很小但 dRel 變化很大 → 數據異常
+    return vrel_std < 0.5 and drel_change > 20
+
+  def get_vsc_integrated_threat(self, dist_ratio, ttc, vRel_smooth, aRel_smooth):
+    """
+    整合版威脅等級判斷 - 取所有指標的最高等級
+    返回: (level, reasons)
+    level: 0=正常, 0.5=預警, 1=警戒, 2=危險, 3=緊急
+    """
+    level = 0.0
+    reasons = []
+
+    # === 1. dist_ratio 威脅 (主要指標，VSC 規範) ===
+    if dist_ratio < 0.7:
+      level = max(level, 3)
+      reasons.append(f"ratio<0.7({dist_ratio:.2f})")
+    elif dist_ratio < 0.8:
+      level = max(level, 2)
+      reasons.append(f"ratio<0.8({dist_ratio:.2f})")
+    elif dist_ratio < 0.9:
+      level = max(level, 1)
+      reasons.append(f"ratio<0.9({dist_ratio:.2f})")
+    elif dist_ratio < 1.0 and vRel_smooth < -0.5:
+      level = max(level, 0.5)
+      reasons.append(f"ratio<1.0({dist_ratio:.2f})")
+
+    # === 2. TTC 威脅 (碰撞時間) ===
+    if ttc < 2.0:
+      level = max(level, 3)
+      reasons.append(f"TTC<2({ttc:.1f}s)")
+    elif ttc < 3.0:
+      level = max(level, 2)
+      reasons.append(f"TTC<3({ttc:.1f}s)")
+    elif ttc < 4.0 and dist_ratio < 1.2:
+      level = max(level, 1)
+      reasons.append(f"TTC<4({ttc:.1f}s)")
+
+    # === 3. vRel_stuck 威脅 (數據異常) ===
+    if self.is_vsc_vrel_stuck():
+      level = max(level, 2)
+      reasons.append("vRel_stuck")
+
+    # === 4. 趨勢預警 ===
+    trend_decreasing = self.is_vsc_trend_decreasing()
+    if dist_ratio < 1.15 and trend_decreasing and vRel_smooth < -0.8 and self.vsc_approaching_frames >= 10:
+      level = max(level, 0.5)
+      reasons.append(f"趨勢↓({dist_ratio:.2f})")
+
+    # === 5. 快速接近預警 ===
+    if dist_ratio < 1.5 and vRel_smooth < -2.0 and self.vsc_approaching_frames >= 5:
+      level = max(level, 0.5)
+      reasons.append(f"快接近(vRel={vRel_smooth:.1f})")
+
+    # === 6. aRel 加權 (前車減速時更敏感) ===
+    if aRel_smooth < -2.0:
+      level = min(level + 0.5, 3)
+      reasons.append(f"前車急煞(aRel={aRel_smooth:.1f})")
+    elif aRel_smooth < -1.0:
+      level = min(level + 0.25, 3)
+      reasons.append(f"前車減速(aRel={aRel_smooth:.1f})")
+
+    return level, reasons
+
   def update(self, gps_position, now, time_validated, v_cruise, v_ego, sm, frogpilot_toggles):
 
     v_cruise_cluster = max(sm["controlsState"].vCruiseCluster * CV.KPH_TO_MS, v_cruise)
@@ -69,7 +151,7 @@ class FrogPilotVCruise:
     if v_ego > CRUISING_SPEED and sm["controlsState"].enabled and self.frogpilot_planner.road_curvature_detected and frogpilot_toggles.curve_speed_controller:
       self.csc.update_target(v_ego)
       self.csc_controlling_speed = True
-      self.csc_target = self.csc.target  # csc.target 已在 curve_speed_controller.py 轉為 float
+      self.csc_target = min(self.csc.target, v_cruise)  # 不得超過定速上限
     else:
       # 過彎結束時評估並調整 lateral_acceleration (持久化學習)
       self.csc.end_curve_session()
@@ -106,12 +188,12 @@ class FrogPilotVCruise:
       self.slc_target = 0
 
 
-    # ========== VSC (Vision Safety Controller) ==========
-    # 設計原則 (嚴格遵守規範)：
-    # 1. 使用平滑值 (移動中位數) 過濾視覺跳動
-    # 2. 基於 gap (距離差距) 動態減速，而非固定百分比
-    # 3. 規範 1：低於跟車距離 (gap < 0) 就一定要動作
-    # 4. 規範 2：不能跟跟車牴觸 (gap >= 0 時不介入，完全交給 MPC)
+    # ========== VSC (Vision Safety Controller) - 整合版 ==========
+    # 設計原則：
+    # 1. 整合所有指標：dist_ratio, TTC, 趨勢, 快速接近, vRel_stuck, aRel
+    # 2. 取所有指標的最高威脅等級
+    # 3. 固定百分比減速（可預測）
+    # 4. VSC 規範：dist_ratio < 1.0 必須動作
 
     if sm["controlsState"].enabled:
       lead = sm["radarState"].leadOne
@@ -120,6 +202,8 @@ class FrogPilotVCruise:
         self.vsc_dRel_history.clear()
         self.vsc_vRel_history.clear()
         self.vsc_dist_ratio_history.clear()
+        self.vsc_aRel_history.clear()
+        self.vsc_last_vRel = None
         self.vsc_approaching_frames = 0
         self.vsc_active = False
         self.vsc_target = v_cruise
@@ -133,6 +217,13 @@ class FrogPilotVCruise:
         self.vsc_dRel_history.append(dRel)
         self.vsc_vRel_history.append(vRel)
 
+        # 計算相對加速度 (vRel 的變化率)
+        if self.vsc_last_vRel is not None:
+          # 20Hz -> dt = 0.05s
+          aRel = (vRel - self.vsc_last_vRel) / 0.05
+          self.vsc_aRel_history.append(aRel)
+        self.vsc_last_vRel = vRel
+
         # 取得平滑值
         dRel_smooth, vRel_smooth = self.get_vsc_smoothed()
 
@@ -145,40 +236,41 @@ class FrogPilotVCruise:
           # 計算跟車距離底線: dRel = (0.576 × v_kph + 2.96) × 0.8
           follow_dist = min((0.576 * v_ego_kph + 2.96) * 0.8, 60.0)
 
-          # 計算距離差距 (正值=安全，負值=不足)
-          gap = dRel_smooth - follow_dist
-
-          # 使用平滑值計算 dist_ratio (僅供記錄)
+          # 計算關鍵指標
           dist_ratio = dRel_smooth / follow_dist if follow_dist > 0 else 99
+          ttc = self.get_vsc_ttc(dRel_smooth, vRel_smooth)
+          aRel_smooth = self.get_vsc_aRel()
+
+          # 更新歷史
           self.vsc_dist_ratio_history.append(dist_ratio)
 
-          # === 持續接近計數 (使用平滑值) ===
+          # 更新持續接近計數
           if vRel_smooth < -0.8:
             self.vsc_approaching_frames += 1
           elif vRel_smooth > -0.3:
             self.vsc_approaching_frames = max(0, self.vsc_approaching_frames - 2)
 
-          # === 基於距離差距 (gap) 的動態減速 ===
-          # 規範 1：gap < 0 時必須動作
-          # 規範 2：gap >= 0 時不減速（只能維持現速或 MPC 控制）
+          # === 整合版威脅等級判斷 ===
+          threat_level, reasons = self.get_vsc_integrated_threat(dist_ratio, ttc, vRel_smooth, aRel_smooth)
 
-          if gap < -10:
-            # 嚴重不足：每差 1m 減速 2 km/h，最多 25 km/h
-            decel_kph = min(abs(gap) * 2, 25)
-            target_kph = v_ego_kph - decel_kph
-            self.vsc_target = float(max(target_kph * CV.KPH_TO_MS, v_ego * 0.75))
+          # === 根據威脅等級決定反應 (固定百分比，可預測) ===
+          if threat_level >= 3:
+            # 緊急：減速 15%
+            self.vsc_target = float(max(v_ego * 0.85, 30 * CV.KPH_TO_MS))
             self.vsc_active = True
 
-          elif gap < 0:
-            # 距離不足：每差 1m 減速 1.5 km/h
-            decel_kph = abs(gap) * 1.5
-            target_kph = v_ego_kph - decel_kph
-            self.vsc_target = float(max(target_kph * CV.KPH_TO_MS, v_ego * 0.85))
+          elif threat_level >= 2:
+            # 危險：減速 10%
+            self.vsc_target = float(max(v_ego * 0.90, 30 * CV.KPH_TO_MS))
             self.vsc_active = True
 
-          elif gap < 10 and vRel_smooth < -2.0 and self.vsc_approaching_frames >= 5:
-            # 快速接近預警：距離接近底線且快速接近
-            # 只維持現速，不減速（不跟跟車牴觸）
+          elif threat_level >= 1:
+            # 警戒：減速 5%
+            self.vsc_target = float(max(v_ego * 0.95, 30 * CV.KPH_TO_MS))
+            self.vsc_active = True
+
+          elif threat_level >= 0.5:
+            # 預警：維持現速 (不加速)
             self.vsc_target = float(v_ego)
             self.vsc_active = True
 
@@ -195,7 +287,7 @@ class FrogPilotVCruise:
 
     # ========== Progressive Speed ==========
     STEP_SIZE = 10 * CV.KPH_TO_MS
-    APPROACH_THRESHOLD = (3 if v_ego < 40 * CV.KPH_TO_MS else 2) * CV.KPH_TO_MS
+    APPROACH_THRESHOLD = (4 if v_ego < 40 * CV.KPH_TO_MS else 5) * CV.KPH_TO_MS
     MIN_STEP_TRIGGER = 10 * CV.KPH_TO_MS
 
     # Progressive 基於原始 v_cruise，與 VSC 獨立運作

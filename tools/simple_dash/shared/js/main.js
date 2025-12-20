@@ -17,23 +17,10 @@ const stateManager = {
   modelV2: null            // 視覺模型輸出 (停止距離)
 };
 
-// ==================== 節流控制 ====================
-
-const throttleState = {
-  lastUpdate: {},          // 各訊息類型的最後更新時間
-  pendingUpdates: {},      // 待處理的更新
-  rafId: null              // requestAnimationFrame ID
-};
-
-// 各訊息類型的最小更新間隔 (ms)
-const UPDATE_INTERVALS = {
-  carState: 100,           // 10Hz - 速度變化較快
-  controlsState: 200,      // 5Hz - 定速設定不常變
-  radarState: 100,         // 10Hz - 前車資訊重要
-  frogpilotPlan: 100,      // 10Hz - 控制狀態
-  carOutput: 100,          // 10Hz - 加速度
-  modelV2: 200             // 5Hz - 模型預測
-};
+// ==================== 節流控制（已停用）====================
+// cereal service 本身已有頻率限制，不需要額外節流
+// carState: 100Hz, controlsState: 100Hz, radarState: 20Hz
+// modelV2: 20Hz, frogpilotPlan: 20Hz
 
 // ==================== 初始化 Dashboard ====================
 
@@ -42,7 +29,8 @@ const dashboard = new DashboardUI();
 // ==================== WebRTC 訊息處理 ====================
 
 /**
- * 處理收到的訊息（帶節流）
+ * 處理收到的訊息（直接更新，不節流）
+ * cereal service 本身已有頻率限制，不需要額外節流
  */
 function handleMessage(msgType, msgData) {
   // 更新狀態管理器
@@ -50,54 +38,12 @@ function handleMessage(msgType, msgData) {
     stateManager[msgType] = msgData;
   }
 
-  // 節流檢查
-  const now = performance.now();
-  const lastUpdate = throttleState.lastUpdate[msgType] || 0;
-  const interval = UPDATE_INTERVALS[msgType] || 100;
-
-  if (now - lastUpdate < interval) {
-    // 時間未到，暫存更新
-    throttleState.pendingUpdates[msgType] = msgData;
-    scheduleUpdate();
-    return;
-  }
-
-  // 時間到了，立即更新
-  throttleState.lastUpdate[msgType] = now;
+  // 直接處理 UI 更新
   processUpdate(msgType, msgData);
 }
 
 /**
- * 排程待處理的更新
- */
-function scheduleUpdate() {
-  if (throttleState.rafId) return;
-
-  throttleState.rafId = requestAnimationFrame(() => {
-    throttleState.rafId = null;
-    const now = performance.now();
-
-    // 處理所有到期的待處理更新
-    for (const [msgType, msgData] of Object.entries(throttleState.pendingUpdates)) {
-      const lastUpdate = throttleState.lastUpdate[msgType] || 0;
-      const interval = UPDATE_INTERVALS[msgType] || 100;
-
-      if (now - lastUpdate >= interval) {
-        throttleState.lastUpdate[msgType] = now;
-        processUpdate(msgType, msgData);
-        delete throttleState.pendingUpdates[msgType];
-      }
-    }
-
-    // 如果還有待處理的更新，繼續排程
-    if (Object.keys(throttleState.pendingUpdates).length > 0) {
-      scheduleUpdate();
-    }
-  });
-}
-
-/**
- * 實際處理 UI 更新
+ * 處理 UI 更新
  */
 function processUpdate(msgType, msgData) {
   // 根據訊息類型更新對應的 UI

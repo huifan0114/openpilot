@@ -23,12 +23,19 @@ from cereal import messaging, log
 
 
 class CerealOutgoingMessageProxy:
+  # 緩衝區限制：modelV2 約 50-80KB/幀，20Hz → 每秒約 1.5MB
+  # 2MB 約可容忍 1.5 秒網路抖動
+  MAX_BUFFER_SIZE = 2 * 1024 * 1024  # 2MB
+
   def __init__(self, sm: messaging.SubMaster):
     self.sm = sm
     self.channels: list[RTCDataChannel] = []
 
   def add_channel(self, channel: 'RTCDataChannel'):
     self.channels.append(channel)
+
+  def clear_channels(self):
+    self.channels.clear()
 
   def to_json(self, msg_content: Any):
     if isinstance(msg_content, capnp._DynamicStructReader):
@@ -42,8 +49,15 @@ class CerealOutgoingMessageProxy:
 
     return msg_dict
 
+  def _is_buffer_full(self, channel) -> bool:
+    """檢查 DataChannel 緩衝區是否已滿"""
+    if isinstance(channel, web.WebSocketResponse):
+      return False
+    if hasattr(channel, 'bufferedAmount'):
+      return channel.bufferedAmount > self.MAX_BUFFER_SIZE
+    return False
+
   async def update(self):
-    # this is blocking in async context...
     self.sm.update(0)
     for service, updated in self.sm.updated.items():
       if not updated:
@@ -53,6 +67,8 @@ class CerealOutgoingMessageProxy:
       outgoing_msg = {"type": service, "logMonoTime": mono_time, "valid": valid, "data": msg_dict}
       encoded_msg = json.dumps(outgoing_msg).encode()
       for channel in self.channels:
+        if self._is_buffer_full(channel):
+          continue  # 緩衝區滿，丟棄數據保持實時性
         if isinstance(channel, web.WebSocketResponse):
           await channel.send_bytes(encoded_msg)
         else:
@@ -214,6 +230,8 @@ class StreamSession:
   async def post_run_cleanup(self):
     await self.stream.stop()
     if self.outgoing_bridge is not None:
+      # 清理 channel 列表，防止記憶體洩漏
+      self.outgoing_bridge.clear_channels()
       self.outgoing_bridge_runner.stop()
     if self.audio_output:
       self.audio_output.stop()

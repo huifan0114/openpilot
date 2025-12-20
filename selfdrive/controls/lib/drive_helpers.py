@@ -80,7 +80,7 @@ class VCruiseHelper:
 
               # Only adjust if difference is within 60 km/h
             diff = abs(new_speed_kph - current_speed_kph)
-            if diff <= 60:
+            if diff <= 50 and new_speed_kph > 40:
               self.v_cruise_kph = new_speed_kph
 
             # Always track the current MAPD speed limit

@@ -17,7 +17,7 @@ STEP = 0.001
 BASE_LATERAL_ACCELERATION = 2.58  # 預設基準值 (m/s²)
 STEER_USAGE_HIGH = 0.9   # 高使用率門檻
 STEER_USAGE_LOW = 0.5    # 低使用率門檻 (可考慮提高 lat_acc)
-MIN_LATERAL_ACCELERATION = 2.0   # 最低橫向加速度 (m/s²)
+MIN_LATERAL_ACCELERATION = 1.8   # 最低橫向加速度 (m/s²)
 MAX_LATERAL_ACCELERATION = 3.5   # 最高橫向加速度 (m/s²)
 LAT_ACC_ADJUST_STEP = 0.05       # 每次過彎後調整幅度 (m/s²)
 
@@ -141,12 +141,10 @@ class CurveSpeedController:
     distance_to_curve = v_ego * time_to_curve  # 到彎道的距離
 
     # ========== 舒適性參數 (基於研究) ==========
-    # 參考: PMC研究、MDPI 2024、Kollmorgen S-curve
-    COMFORT_DECEL = 2.0   # m/s² - 舒適減速 (研究建議上限)
-    MAX_DECEL = 2.5       # m/s² - 最大減速 (可接受上限)
-    EMERGENCY_DECEL = 1.0 # m/s² - 方向盤極限緊急減速 (從 2.5 降低)
-    SMOOTHING_DOWN = 0.15 # 減速平滑係數 (越大越快響應)
-    SMOOTHING_UP = 0.10   # 加速平滑係數 (較保守)
+    COMFORT_DECEL = 2.0   # m/s² - 舒適減速
+    MAX_DECEL = 2.5       # m/s² - 最大減速
+    EMERGENCY_DECEL = 1.0 # m/s² - 方向盤極限緊急減速
+    SMOOTHING = 0.15      # 減速平滑係數
 
     if self.target_set:
       # ===== 優先級 1: 方向盤極限 → 強制減速 =====
@@ -160,21 +158,21 @@ class CurveSpeedController:
 
         if distance_to_curve <= required_distance * 1.3:
           # 距離不夠 → 必須立即開始減速
-          # 使用基於距離的減速率: a = (v² - v_target²) / (2 * d)
           actual_decel = (v_ego**2 - csc_speed**2) / (2 * max(distance_to_curve, 5))
           actual_decel = float(np.clip(actual_decel, COMFORT_DECEL, MAX_DECEL))
           self.target -= actual_decel * DT_MDL
         else:
           # 還有足夠距離 → 平滑過渡到 csc_speed
-          self.target = self.target * (1 - SMOOTHING_DOWN) + csc_speed * SMOOTHING_DOWN
+          self.target = self.target * (1 - SMOOTHING) + csc_speed * SMOOTHING
 
-      # ===== 優先級 3: 出彎加速 (v_ego <= csc_speed) =====
+        # 減速時：下限 CRUISING_SPEED，上限 csc_speed
+        self.target = float(np.clip(self.target, CRUISING_SPEED, csc_speed))
+
+      # ===== 不需要減速 (v_ego <= csc_speed) → CSC 不限制 =====
       else:
-        # 曲率下降，csc_speed 上升 → 平滑跟隨上升
-        self.target = self.target * (1 - SMOOTHING_UP) + csc_speed * SMOOTHING_UP
-
-      # clip：下限 CRUISING_SPEED，上限 csc_speed
-      self.target = float(np.clip(self.target, CRUISING_SPEED, csc_speed))
+        # 出彎/彎中不需減速：target 設為無限大，讓 min() 選擇 v_cruise
+        # 這樣 Progressive 可以控制加速，CSC 不會擋住
+        self.target = float('inf')
 
     else:
       self.target_set = True
