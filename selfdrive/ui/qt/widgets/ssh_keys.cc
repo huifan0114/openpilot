@@ -10,8 +10,8 @@ SshControl::SshControl() :
   QObject::connect(this, &ButtonControl::clicked, [=]() {
     if (text() == tr("ADD")) {
       //////////////////////////////////////////////////////////////////////////////////////
-      //QString username = InputDialog::getText(tr("輸入您的 GitHub 帳號"), this);
-      QString username = "huifan0114";
+      QString username = InputDialog::getText(tr("輸入您的 GitHub 帳號"), this);
+      // QString username = "huifan0114";
       //////////////////////////////////////////////////////////////////////////////////////
       if (username.length() > 0) {
         setText(tr("載入中"));
