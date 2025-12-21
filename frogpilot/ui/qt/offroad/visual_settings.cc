@@ -109,6 +109,8 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     {"QOLVisuals", tr("體驗優化"), tr("<b>雜項視覺調整</b>，用以微調駕駛畫面外觀。"), "../../frogpilot/assets/toggle_icons/icon_quality_of_life.png"},
     {"CameraView", tr("相機檢視"), tr("<b>選擇啟用的相機檢視。</b> 這只是視覺變更，不會影響 openpilot 的行車。"), ""},
     {"DriverCamera", tr("倒車時顯示駕駛側相機"), tr("<b>在車輛倒車時顯示駕駛側相機影像</b>。"), ""},
+    {"SimpleDashServer", tr("Simple Dash Server"), tr("<b>Enable/Disable the Simple Dash web server.</b><br><br>When disabled, the server won't start - useful when using the native NavDashN app that connects directly to WebRTC.<br><br>Server runs on port 8000."), ""},
+    {"SimpleDashTheme", tr("Simple Dash Theme"), tr("<b>Select the Simple Dash theme.</b><br><br>Simple Dash is a web-based dashboard that can be accessed at port 8000."), ""},
     {"StoppedTimer", tr("停車計時"), tr("<b>停車時顯示計時器</b>，取代目前車速，顯示停車時長。"), ""}
   };
 
@@ -335,6 +337,27 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
       ButtonParamControl *cameraSelection = new ButtonParamControl(param, title, desc, icon, cameraOptions);
       visualToggle = cameraSelection;
 
+      } else if (param == "SimpleDashTheme") {
+      // Simple Dash 主題選擇器 - 硬編碼主題列表（新增主題時需更新此處）
+      QStringList themeList{"HFOP-GTI-NAVDASH", "SIMPLE-DASH"};
+
+      ButtonControl *themeButton = new ButtonControl(title, tr("SELECT"), desc);
+      QObject::connect(themeButton, &ButtonControl::clicked, [themeButton, themeList, this]() {
+        QString currentTheme = QString::fromStdString(params.get("SimpleDashTheme"));
+        if (currentTheme.isEmpty()) {
+          currentTheme = "HFOP-GTI-NAVDASH";
+        }
+        QString selection = MultiOptionDialog::getSelection(tr("Select a Simple Dash theme"), themeList, currentTheme, this);
+        if (!selection.isEmpty()) {
+          params.put("SimpleDashTheme", selection.toStdString());
+          themeButton->setValue(selection);
+        }
+      });
+
+      QString currentTheme = QString::fromStdString(params.get("SimpleDashTheme"));
+      themeButton->setValue(currentTheme.isEmpty() ? "HFOP-GTI-NAVDASH" : currentTheme);
+      visualToggle = themeButton;
+
     } else {
       visualToggle = new ParamControl(param, title, desc, icon);
     }
@@ -380,7 +403,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     });
   }
 
-  QSet<QString> forceUpdateKeys = {"HideLeadMarker", "ShowSpeedLimits"};
+  QSet<QString> forceUpdateKeys = {"HideLeadMarker", "ShowSpeedLimits", "SimpleDashServer"};
   for (const QString &key : forceUpdateKeys) {
     QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, this, &FrogPilotVisualsPanel::updateToggles);
   }
@@ -536,6 +559,10 @@ void FrogPilotVisualsPanel::updateToggles() {
     else if (key == "SLCMapboxFiller") {
       setVisible &= params.getBool("ShowSpeedLimits") && !(parent->hasOpenpilotLongitudinal && params.getBool("SpeedLimitController"));
       setVisible &= !params.get("MapboxSecretKey").empty();
+    }
+
+    else if (key == "SimpleDashTheme") {
+      setVisible &= params.getBool("SimpleDashServer");
     }
 
     toggle->setVisible(setVisible);
