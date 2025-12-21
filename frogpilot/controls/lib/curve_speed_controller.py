@@ -13,13 +13,23 @@ PERCENTILE = 90
 ROUNDING_PRECISION = 5
 STEP = 0.001
 
-# CSC 動態控制常數
+# ========== CSC 基礎常數 ==========
 BASE_LATERAL_ACCELERATION = 2.58  # 預設基準值 (m/s²)
-STEER_USAGE_HIGH = 0.9   # 高使用率門檻
-STEER_USAGE_LOW = 0.5    # 低使用率門檻 (可考慮提高 lat_acc)
-MIN_LATERAL_ACCELERATION = 1.8   # 最低橫向加速度 (m/s²)
-MAX_LATERAL_ACCELERATION = 3.5   # 最高橫向加速度 (m/s²)
-LAT_ACC_ADJUST_STEP = 0.05       # 每次過彎後調整幅度 (m/s²)
+MIN_LATERAL_ACCELERATION = 1.8    # 最低橫向加速度 (m/s²)
+MAX_LATERAL_ACCELERATION = 3.5    # 最高橫向加速度 (m/s²)
+
+# ========== 過彎後學習 (end_curve_session) ==========
+# 用於統計這次過彎的 steer_usage 分布，決定是否調整 adjustment
+SESSION_STEER_HIGH = 0.8    # 統計「高使用率」的門檻
+SESSION_STEER_LOW = 0.5     # 統計「低使用率」的門檻
+LAT_ACC_ADJUST_STEP = 0.08  # 每次過彎後調整幅度
+
+# ========== 即時動態調整 (update_target) ==========
+# 目標：讓 steer_usage 維持在 0.8~0.88（接近極限但不觸發 steer_saturated）
+# 只有在接近危險區域時才輕微減速，不要過度減速
+REALTIME_STEER_THRESHOLD = 0.75  # steer_usage 達到 75% 才開始調整（盡量用到極限）
+REALTIME_ADJUST_RATE = 2.0       # 調整係數 (steer_usage 每增加 0.1 → lat_acc 降低 20%)
+MAX_LAT_ACC_REDUCTION = 0.25     # 最多降低 25%（避免過度減速）
 
 class CurveSpeedController:
   def __init__(self, FrogPilotVCruise):
@@ -34,15 +44,27 @@ class CurveSpeedController:
 
     self.required_curvatures = [str(round(road_curvature, ROUNDING_PRECISION)) for road_curvature in np.arange(MIN_CURVATURE, MAX_CURVATURE + STEP, STEP)]
 
-    # 使用已校準值或預設基準值
+    # 兩層學習機制（分離儲存，避免互相覆蓋）:
+    # 1. calibrated_base: log_data 的 P90 結果（訓練學習）
+    # 2. adjustment: end_curve_session 的累積調整（過彎反饋）
     calibrated = params.get_float("CalibratedLateralAcceleration")
-    self.lateral_acceleration = calibrated if calibrated > 0 else BASE_LATERAL_ACCELERATION
+    self.calibrated_base = calibrated if calibrated > 0 else BASE_LATERAL_ACCELERATION
+
+    adjustment = params.get_float("LateralAccelerationAdjustment")
+    self.adjustment = adjustment if adjustment != 0 else 0.0
+
+    # 實際使用的 lateral_acceleration = base + adjustment
+    self.lateral_acceleration = float(np.clip(
+      self.calibrated_base + self.adjustment,
+      MIN_LATERAL_ACCELERATION,
+      MAX_LATERAL_ACCELERATION
+    ))
 
     # CSC 過彎期間的監控變數
     self.curve_session_active = False
     self.saturated_count = 0        # 這次過彎中 steer_saturated 發生次數
-    self.high_usage_count = 0       # 這次過彎中高使用率 (>=0.9) 次數
-    self.low_usage_count = 0        # 這次過彎中低使用率 (<0.5) 次數
+    self.high_usage_count = 0       # 這次過彎中高使用率 (>=SESSION_STEER_HIGH) 次數
+    self.low_usage_count = 0        # 這次過彎中低使用率 (<SESSION_STEER_LOW) 次數
     self.total_frames = 0           # 這次過彎的總幀數
 
   def log_data(self, v_ego, sm):
@@ -98,61 +120,86 @@ class CurveSpeedController:
       self.training_timer = 0
 
   def update_lateral_acceleration(self):
+    """更新 calibrated_base（訓練學習的 P90 值）"""
     if self.curvature_data:
       all_samples = [data["average"] for data in self.curvature_data.values()]
-      self.lateral_acceleration = float(np.percentile(all_samples, PERCENTILE))
+      self.calibrated_base = float(np.percentile(all_samples, PERCENTILE))
     else:
-      self.lateral_acceleration = DEFAULT_LATERAL_ACCELERATION
+      self.calibrated_base = DEFAULT_LATERAL_ACCELERATION
 
-    params.put_float_nonblocking("CalibratedLateralAcceleration", self.lateral_acceleration)
+    # 只更新 calibrated_base，不影響 adjustment
+    params.put_float_nonblocking("CalibratedLateralAcceleration", self.calibrated_base)
+
+    # 重新計算實際使用的 lateral_acceleration
+    self.lateral_acceleration = float(np.clip(
+      self.calibrated_base + self.adjustment,
+      MIN_LATERAL_ACCELERATION,
+      MAX_LATERAL_ACCELERATION
+    ))
 
   def update_target(self, v_ego):
     # ========== 記錄過彎期間的 steer 使用情況 ==========
     steer_usage = self.frogpilot_planner.steer_usage
     steer_saturated = self.frogpilot_planner.steer_saturated
+    driving_in_curve = self.frogpilot_planner.driving_in_curve
 
-    # 開始新的過彎 session
-    if not self.curve_session_active:
-      self.curve_session_active = True
-      self.saturated_count = 0
-      self.high_usage_count = 0
-      self.low_usage_count = 0
-      self.total_frames = 0
+    # 只有在實際轉彎時才統計（避免直路上誤統計）
+    if driving_in_curve:
+      # 開始新的過彎 session
+      if not self.curve_session_active:
+        self.curve_session_active = True
+        self.saturated_count = 0
+        self.high_usage_count = 0
+        self.low_usage_count = 0
+        self.total_frames = 0
 
-    # 統計這次過彎的 steer 使用情況
-    self.total_frames += 1
-    if steer_saturated:
-      self.saturated_count += 1
-    if steer_usage >= STEER_USAGE_HIGH:
-      self.high_usage_count += 1
-    elif steer_usage < STEER_USAGE_LOW:
-      self.low_usage_count += 1
+      # 統計這次過彎的 steer 使用情況
+      self.total_frames += 1
+      if steer_saturated:
+        self.saturated_count += 1
+      if steer_usage >= SESSION_STEER_HIGH:
+        self.high_usage_count += 1
+      elif steer_usage < SESSION_STEER_LOW:
+        self.low_usage_count += 1
 
-    # ========== 計算 CSC 目標速度 ==========
-    lateral_acceleration = self.lateral_acceleration
+    # ========== 計算有效 lateral_acceleration ==========
+    # 核心思路：當 steer_usage 高時，代表當前的 lateral_acceleration 設定太樂觀
+    # 動態降低有效值，讓 csc_speed 更保守，自然觸發減速
+    # 這個方法天然考慮了彎道曲率（通過 csc_speed 公式）
+    base_lat_acc = self.lateral_acceleration
     road_curvature = abs(self.frogpilot_planner.road_curvature)
 
     # 防止除以零
     if road_curvature < 0.0001:
       road_curvature = 0.0001
 
-    csc_speed = (lateral_acceleration / road_curvature)**0.5
+    # 動態調整 lateral_acceleration
+    # 當 steer_usage 接近極限時，降低 effective_lat_acc 使 csc_speed 更保守
+    effective_lat_acc = base_lat_acc
+    if steer_usage > REALTIME_STEER_THRESHOLD:
+      # 實際參數: THRESHOLD=0.75, RATE=2.0, MAX_REDUCTION=0.25
+      # steer_usage = 0.75 → 降低 0%
+      # steer_usage = 0.80 → 降低 10%
+      # steer_usage = 0.85 → 降低 20%
+      # steer_usage = 0.90 → 降低 25% (上限)
+      reduction = min((steer_usage - REALTIME_STEER_THRESHOLD) * REALTIME_ADJUST_RATE, MAX_LAT_ACC_REDUCTION)
+      effective_lat_acc = base_lat_acc * (1.0 - reduction)
+      effective_lat_acc = max(effective_lat_acc, MIN_LATERAL_ACCELERATION)
+
+    # 使用調整後的 lateral_acceleration 計算 csc_speed
+    csc_speed = (effective_lat_acc / road_curvature)**0.5
     time_to_curve = max(self.frogpilot_planner.time_to_curve, 0.5)
     distance_to_curve = v_ego * time_to_curve  # 到彎道的距離
 
-    # ========== 舒適性參數 (基於研究) ==========
+    # ========== 舒適性參數 ==========
     COMFORT_DECEL = 2.0   # m/s² - 舒適減速
     MAX_DECEL = 2.5       # m/s² - 最大減速
-    EMERGENCY_DECEL = 1.0 # m/s² - 方向盤極限緊急減速
     SMOOTHING = 0.15      # 減速平滑係數
 
     if self.target_set:
-      # ===== 優先級 1: 方向盤極限 → 強制減速 =====
-      if steer_saturated:
-        self.target -= EMERGENCY_DECEL * DT_MDL
-
-      # ===== 優先級 2: 需要減速 (v_ego > csc_speed) =====
-      elif v_ego > csc_speed:
+      # ===== 優先級 1: 需要減速 (v_ego > csc_speed) =====
+      # csc_speed 已經根據 steer_usage 動態調整，自然會在需要時觸發減速
+      if v_ego > csc_speed:
         # 計算需要的減速距離: d = (v² - v_target²) / (2 * a)
         required_distance = (v_ego**2 - csc_speed**2) / (2 * COMFORT_DECEL)
 
@@ -179,40 +226,52 @@ class CurveSpeedController:
       self.target = min(v_ego, csc_speed)
 
   def end_curve_session(self):
-    """CSC 結束時評估這次過彎並調整 lateral_acceleration"""
+    """CSC 結束時評估這次過彎並調整 adjustment（過彎反饋偏移）"""
     if not self.curve_session_active or self.total_frames < 10:
       # 過彎時間太短，不做調整
       self.curve_session_active = False
       return
 
-    old_lat_acc = self.lateral_acceleration
     adjusted = False
 
     # 計算比例
-    saturated_ratio = self.saturated_count / self.total_frames
     high_usage_ratio = self.high_usage_count / self.total_frames
     low_usage_ratio = self.low_usage_count / self.total_frames
+    # 理想區間：steer_usage 在 0.5~0.8 之間（有餘裕但不浪費）
+    mid_usage_ratio = 1.0 - high_usage_ratio - low_usage_ratio
 
-    # 判斷是否需要調整
-    if self.saturated_count > 0 or high_usage_ratio > 0.3:
-      # 發生過物理極限 或 超過30%時間高使用率 → 降低 lateral_acceleration
-      self.lateral_acceleration -= LAT_ACC_ADJUST_STEP
+    # 判斷是否需要調整 adjustment（不影響 calibrated_base）
+    if self.saturated_count > 0:
+      # 觸發過 steer_saturated → 必須降低
+      self.adjustment -= LAT_ACC_ADJUST_STEP
       adjusted = True
-    elif low_usage_ratio > 0.8 and self.lateral_acceleration < MAX_LATERAL_ACCELERATION:
-      # 超過80%時間都是低使用率 → 可以微幅提高
-      self.lateral_acceleration += LAT_ACC_ADJUST_STEP * 0.5  # 提高幅度較保守
+    elif high_usage_ratio > 0.5:
+      # 超過50%時間高使用率 → 降低（接近極限太久）
+      self.adjustment -= LAT_ACC_ADJUST_STEP * 0.5
+      adjusted = True
+    elif high_usage_ratio < 0.2 and low_usage_ratio > 0.3:
+      # 高使用率很少 且 低使用率較多 → 還有餘裕，可以提高
+      self.adjustment += LAT_ACC_ADJUST_STEP * 0.5
+      adjusted = True
+    elif mid_usage_ratio > 0.6 and high_usage_ratio < 0.3:
+      # 大部分時間在理想區間，且高使用率不多 → 微幅提高，探索極限
+      self.adjustment += LAT_ACC_ADJUST_STEP * 0.3
       adjusted = True
 
-    # 限制範圍
+    # 限制 adjustment 範圍（避免調整過度）
+    # 最多降低 0.5，最多提高 0.3
+    self.adjustment = float(np.clip(self.adjustment, -0.5, 0.3))
+
+    # 重新計算實際使用的 lateral_acceleration
     self.lateral_acceleration = float(np.clip(
-      self.lateral_acceleration,
+      self.calibrated_base + self.adjustment,
       MIN_LATERAL_ACCELERATION,
       MAX_LATERAL_ACCELERATION
     ))
 
-    # 寫入 params (持久化)
+    # 寫入 params (持久化) - 只寫入 adjustment，不覆蓋 calibrated_base
     if adjusted:
-      params.put_float_nonblocking("CalibratedLateralAcceleration", self.lateral_acceleration)
+      params.put_float_nonblocking("LateralAccelerationAdjustment", self.adjustment)
 
     # 重置 session
     self.curve_session_active = False

@@ -89,8 +89,9 @@ BUTTON_FUNCTIONS = {
 
 EXCLUDED_KEYS = {
   "AvailableModels", "AvailableModelNames", "CalibratedLateralAcceleration", "CalibrationProgress", "CarParamsPersistent",
-  "CurvatureData", "ExperimentalLongitudinalEnabled", "KonikMinutes", "MapBoxRequests", "ModelDrivesAndScores", "ModelVersions",
-  "openpilotMinutes", "OverpassRequests", "SpeedLimits", "SpeedLimitsFiltered", "UpdaterAvailableBranches"
+  "CurvatureData", "ExperimentalLongitudinalEnabled", "KonikMinutes", "LateralAccelerationAdjustment", "MapBoxRequests",
+  "ModelDrivesAndScores", "ModelVersions", "openpilotMinutes", "OverpassRequests", "SpeedLimits", "SpeedLimitsFiltered",
+  "UpdaterAvailableBranches"
 }
 
 TINYGRAD_FILES = [
@@ -152,6 +153,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("BorderMetrics", "0", 3, "0"),
   ("CalibratedLateralAcceleration", str(DEFAULT_LATERAL_ACCELERATION), 2, str(DEFAULT_LATERAL_ACCELERATION)),
   ("CalibrationProgress", "0", 3, "0"),
+  ("LateralAccelerationAdjustment", "0", 2, "0"),
   ("CameraView", "3", 2, "0"),
   ("CarMake", "", 0, ""),
   ("CarModel", "", 0, ""),

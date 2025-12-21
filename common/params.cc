@@ -318,6 +318,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"BorderMetrics", PERSISTENT},
     {"CalibratedLateralAcceleration", PERSISTENT},
     {"CalibrationProgress", PERSISTENT},
+    {"LateralAccelerationAdjustment", PERSISTENT},
     {"CameraView", PERSISTENT},
     {"CancelModelDownload", CLEAR_ON_MANAGER_START},
     {"CancelThemeDownload", CLEAR_ON_MANAGER_START},
