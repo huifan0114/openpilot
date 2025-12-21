@@ -44,10 +44,10 @@ sound_list: dict[Any, tuple[str, int | None, float]] = {
   AudibleAlert.warningSoft: ("warning_soft.wav", None, MAX_VOLUME),
   AudibleAlert.warningImmediate: ("warning_immediate.wav", None, MAX_VOLUME),
 ############################################################
-  AudibleAlert.carawayed: ("carawayed.wav", 1, MAX_VOLUME),
-  AudibleAlert.greenLight: ("greenlight.wav", 1, MAX_VOLUME),
-  AudibleAlert.lanechangeblockedsound: ("lanechangeblockedsound.wav", 1, MAX_VOLUME),
-  AudibleAlert.lanechangesound: ("lanechangesound.wav", 1, MAX_VOLUME),
+  FrogPilotAudibleAlert.carawayed: ("carawayed.wav", 1, MAX_VOLUME),
+  FrogPilotAudibleAlert.greenLight: ("greenlight.wav", 1, MAX_VOLUME),
+  FrogPilotAudibleAlert.lanechangeblockedsound: ("lanechangeblockedsound.wav", 1, MAX_VOLUME),
+  FrogPilotAudibleAlert.lanechangesound: ("lanechangesound.wav", 1, MAX_VOLUME),
 #############################################################
   AudibleAlert.navturn: ("navturn.wav", 1, MAX_VOLUME),
   AudibleAlert.navturnleft: ("navturnleft.wav", 1, MAX_VOLUME),
