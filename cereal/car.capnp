@@ -442,13 +442,13 @@ struct CarControl {
       #lanechangesound @9;
       #lanechangeblockedsound @10;
       #greenLight @11;
-      #navturn @12;
-      #navuturn @13;
-      #navturnright @14;
-      #navturnleft @15;
-      #navsharpright @16;
-      #navsharpleft @17;
-      #navofframp @18;
+      navturn @12;
+      navuturn @13;
+      navturnright @14;
+      navturnleft @15;
+      navsharpright @16;
+      navsharpleft @17;
+      navofframp @18;
       #carawayed  @19;
       ############################
     }
