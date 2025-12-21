@@ -321,6 +321,10 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("RandomThemes", "0", 1, "0"),
   ("RecordFront", "0", 0, "0"),
   ("RefuseVolume", "101", 2, "101"),
+  ("CarawayedVolume", "101", 2, "101"),
+  ("GreenLightVolume", "101", 2, "101"),
+  ("LanechangeblockedsoundVolume", "101", 2, "101"),
+  ("LanechangesoundVolume", "101", 2, "101"),
   ("RelaxedFollow", "1.75", 2, "1.75"),
   ("RelaxedJerkAcceleration", "100", 3, "100"),
   ("RelaxedJerkDanger", "100", 3, "100"),
@@ -620,6 +624,10 @@ class FrogPilotVariables:
     toggle.prompt_volume = params.get_int("PromptVolume") if toggle.alert_volume_controller and tuning_level >= level["PromptVolume"] else default.get_int("PromptVolume")
     toggle.promptDistracted_volume = params.get_int("PromptDistractedVolume") if toggle.alert_volume_controller and tuning_level >= level["PromptDistractedVolume"] else default.get_int("PromptDistractedVolume")
     toggle.refuse_volume = params.get_int("RefuseVolume") if toggle.alert_volume_controller and tuning_level >= level["RefuseVolume"] else default.get_int("RefuseVolume")
+    toggle.carawayed_volume = params.get_int("CarawayedVolume") if toggle.alert_volume_controller and tuning_level >= level["CarawayedVolume"] else default.get_int("CarawayedVolume")
+    toggle.green_light_volume = params.get_int("GreenLightVolume") if toggle.alert_volume_controller and tuning_level >= level["GreenLightVolume"] else default.get_int("GreenLightVolume")
+    toggle.lanechangeblockedsound_volume = params.get_int("LanechangeblockedsoundVolume") if toggle.alert_volume_controller and tuning_level >= level["LanechangeblockedsoundVolume"] else default.get_int("LanechangeblockedsoundVolume")
+    toggle.lanechangesound_volume = params.get_int("LanechangesoundVolume") if toggle.alert_volume_controller and tuning_level >= level["LanechangesoundVolume"] else default.get_int("LanechangesoundVolume")
     toggle.warningSoft_volume = params.get_int("WarningSoftVolume") if toggle.alert_volume_controller and tuning_level >= level["WarningSoftVolume"] else default.get_int("WarningSoftVolume")
     toggle.warningImmediate_volume = max(params.get_int("WarningImmediateVolume"), 25) if toggle.alert_volume_controller and tuning_level >= level["WarningImmediateVolume"] else default.get_int("WarningImmediateVolume")
 
