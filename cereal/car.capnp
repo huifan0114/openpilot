@@ -448,8 +448,8 @@ struct CarControl {
       navofframp @15;
       lanechangesound @16;
       lanechangeblockedsound @17;
-      #greenLight @11;
-      #carawayed  @19;
+      greenLight @18;
+      carawayed  @19;
       ############################
     }
   }
