@@ -970,6 +970,17 @@ class FrogPilotVariables:
     toggle.unlock_doors = toyota_doors and (params.get_bool("UnlockDoors") if tuning_level >= level["UnlockDoors"] else default.get_bool("UnlockDoors"))
 
     toggle.volt_sng = toggle.car_model == "CHEVROLET_VOLT" and (params.get_bool("VoltSNG") if tuning_level >= level["VoltSNG"] else default.get_bool("VoltSNG"))
+###################################################################
+    toggle.hfop_inf = params.get_bool("HFOPinf")
+    toggle.gooff_screen = params.get_bool("GooffScreen")
+    toggle.disablestartstop = params.get_bool("Disablestartstop")
+    toggle.speedoverreminder = params.get_bool("speedoverreminder")
+    toggle.speedreminderreset = params.get_bool("speedreminderreset")
+    toggle.changelane_reminder = params.get_bool("ChangeLaneReminder")
+    toggle.navspeed = params.get_bool("Navspeed")
+    toggle.auto_speeddistance = params.get_bool("AutoSpeeddistance")
+    # toggle.trafficmode = params.get_bool("TrafficMode")
+    toggle.trafficmode_speed = params.get_int("TrafficModespeed")
 
     params_memory.put("FrogPilotToggles", json.dumps(toggle.__dict__))
     params_memory.remove("FrogPilotTogglesUpdated")
