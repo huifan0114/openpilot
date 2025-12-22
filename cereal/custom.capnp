@@ -49,14 +49,15 @@ struct FrogPilotCarControl {
       lanechangesound @23;
       lanechangeblockedsound @24;
       greenLight @25;
-      navturn @26;
-      navuturn @27;
-      navturnright @28;
-      navturnleft @29;
-      navsharpright @30;
-      navsharpleft @31;
-      navofframp @32;
-      carawayed  @33;
+      carawayed  @26;
+      #navturn @26;
+      #navuturn @27;
+      #navturnright @28;
+      #navturnleft @29;
+      #navsharpright @30;
+      #navsharpleft @31;
+      #navofframp @32;
+
       ############################
     }
   }

@@ -120,14 +120,14 @@ struct CarEvent @0x9b1657f34caf3ad3 {
 
     ######HFOP##########
     speedover @122;
-    navturn @123;
-    navuturn @124;
-    navturnleft @125;
-    navturnright @126;
-    navsharpright @127;
-    navsharpleft @128;
-    navofframp @129;
-    doorOpen1 @130;
+    doorOpen1 @123;
+    #navturn @123;
+    #navuturn @124;
+    #navturnleft @125;
+    #navturnright @126;
+    #navsharpright @127;
+    #navsharpleft @128;
+    #navofframp @129;
     #######################
 
     radarCanErrorDEPRECATED @15;
@@ -439,17 +439,18 @@ struct CarControl {
       promptRepeat @7;
       promptDistracted @8;
       ########HFOP###########
-      navturn @9;
-      navuturn @10;
-      navturnright @11;
-      navturnleft @12;
-      navsharpright @13;
-      navsharpleft @14;
-      navofframp @15;
-      lanechangesound @16;
-      lanechangeblockedsound @17;
-      greenLight @18;
-      carawayed  @19;
+      lanechangesound @9;
+      lanechangeblockedsound @10;
+      greenLight @11;
+      carawayed  @12;
+      #navturn @9;
+      #navuturn @10;
+      #navturnright @11;
+      #navturnleft @12;
+      #navsharpright @13;
+      #navsharpleft @14;
+      #navofframp @15;
+
       ############################
     }
   }
