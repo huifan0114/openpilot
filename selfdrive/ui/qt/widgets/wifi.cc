@@ -89,7 +89,7 @@ WiFiPromptWidget::WiFiPromptWidget(QWidget *parent) : QFrame(parent) {
   {
     QHBoxLayout *title_layout = new QHBoxLayout;
     {
-      QLabel *title = new QLabel(tr("Uploading disabled"));
+      QLabel *title = new QLabel(tr("上傳禁用"));
       title->setStyleSheet("font-size: 64px; font-weight: 600;");
       title->setWordWrap(true);
       title->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -103,7 +103,7 @@ WiFiPromptWidget::WiFiPromptWidget(QWidget *parent) : QFrame(parent) {
     }
     not_uploading_layout->addLayout(title_layout);
 
-    QLabel *desc = new QLabel(tr("Toggle off the \"Turn Off Data Uploads\" toggle to re-enable uploads."));
+    QLabel *desc = new QLabel(tr("切換“關閉數據上傳”切換到重新啟用上傳的“關閉數據上傳”."));
     desc->setStyleSheet("font-size: 48px; font-weight: 400;");
     desc->setWordWrap(true);
     not_uploading_layout->addWidget(desc);

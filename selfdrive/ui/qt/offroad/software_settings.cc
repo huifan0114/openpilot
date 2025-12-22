@@ -103,6 +103,20 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
       if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to perform a full factory reset? All saved assets and settings will be permanently deleted!"), this)) {
         if (FrogPilotConfirmationDialog::yesorno(tr("This is a complete factory reset and cannot be undone. Are you absolutely sure you want to continue?"), this)) {
           std::system("rm -rf /cache/params/d");
+          std::system("rm -rf /persist/params");
+          std::system("rm -rf /cache/params");
+          std::system("rm -rf /persist/tracking");
+          std::system("rm -rf /cache/tracking");
+          std::system("rm -rf /data/backups");
+          std::system("rm -rf /data/crashes");
+          std::system("rm -rf /data/media/screen_recordings");
+          std::system("rm -rf /data/themes");
+          std::system("rm -rf /data/toggle_backups");
+          std::system("rm -rf /data/models");
+          std::system("rm -rf /data/media/0/osm/mapd");
+          std::system("rm -rf /data/media/0/osm/offline");
+          std::system("rm -rf /data/media/0/realdata");
+          std::system("rm -rf /data/media/screen_recordings");
         }
       }
       params.putBool("DoUninstall", true);

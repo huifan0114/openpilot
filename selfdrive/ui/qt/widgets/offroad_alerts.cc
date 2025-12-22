@@ -32,7 +32,7 @@ AbstractAlert::AbstractAlert(bool hasRebootBtn, QWidget *parent) : QFrame(parent
   footer_layout->addWidget(dismiss_btn, 0, Qt::AlignBottom | Qt::AlignLeft);
   QObject::connect(dismiss_btn, &QPushButton::clicked, this, &AbstractAlert::dismiss);
 
-  snooze_btn = new QPushButton(tr("Snooze Update"));
+  snooze_btn = new QPushButton(tr("暫停更新"));
   snooze_btn->setVisible(false);
   snooze_btn->setFixedSize(550, 125);
   footer_layout->addWidget(snooze_btn, 0, Qt::AlignBottom | Qt::AlignRight);
