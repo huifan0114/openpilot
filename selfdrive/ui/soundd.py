@@ -48,6 +48,13 @@ sound_list: dict[Any, tuple[str, int | None, float]] = {
   FrogPilotAudibleAlert.greenLight: ("greenlight.wav", 1, MAX_VOLUME),
   FrogPilotAudibleAlert.lanechangeblockedsound: ("lanechangeblockedsound.wav", 1, MAX_VOLUME),
   FrogPilotAudibleAlert.lanechangesound: ("lanechangesound.wav", 1, MAX_VOLUME),
+  # Also include the base `AudibleAlert` keys for compatibility: frogpilotControlsState
+  # uses `Car.CarControl.HUDControl.AudibleAlert`, so ensure those numeric values
+  # map to the same sound files.
+  AudibleAlert.lanechangesound: ("lanechangesound.wav", 1, MAX_VOLUME),
+  AudibleAlert.lanechangeblockedsound: ("lanechangeblockedsound.wav", 1, MAX_VOLUME),
+  AudibleAlert.greenLight: ("greenlight.wav", 1, MAX_VOLUME),
+  AudibleAlert.carawayed: ("carawayed.wav", 1, MAX_VOLUME),
 #############################################################
   # AudibleAlert.navturn: ("navturn.wav", 1, MAX_VOLUME),
   # AudibleAlert.navturnleft: ("navturnleft.wav", 1, MAX_VOLUME),
