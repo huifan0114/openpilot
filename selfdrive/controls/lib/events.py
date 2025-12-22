@@ -1140,6 +1140,22 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.none, 2.),
   },
 
+  FrogPilotEventName.laneChangeBlocked: {
+    ET.WARNING: Alert(
+      "盲點偵測到車輛暫停變換車道",
+      "",
+      AlertStatus.userPrompt, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.lanechangeblockedsound, .1),
+  },
+
+  FrogPilotEventName.laneChange: {
+    ET.WARNING: Alert(
+      "變換車道中",
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.lanechangesound, .1),
+  },
+
   FrogPilotEventName.greenLight: {
     ET.PERMANENT: Alert(
       "綠燈 GO!!",
