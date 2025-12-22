@@ -439,16 +439,16 @@ struct CarControl {
       promptRepeat @7;
       promptDistracted @8;
       ########HFOP###########
+      navturn @9;
+      navuturn @10;
+      navturnright @11;
+      navturnleft @12;
+      navsharpright @13;
+      navsharpleft @14;
+      navofframp @15;
       #lanechangesound @9;
       #lanechangeblockedsound @10;
       #greenLight @11;
-      navturn @12;
-      navuturn @13;
-      navturnright @14;
-      navturnleft @15;
-      navsharpright @16;
-      navsharpleft @17;
-      navofframp @18;
       #carawayed  @19;
       ############################
     }
