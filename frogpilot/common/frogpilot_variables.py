@@ -978,7 +978,7 @@ class FrogPilotVariables:
     toggle.speedreminderreset = params.get_bool("speedreminderreset")
     toggle.changelane_reminder = params.get_bool("ChangeLaneReminder")
     toggle.navspeed = params.get_bool("Navspeed")
-    toggle.auto_speeddistance = params.get_bool("AutoSpeeddistance")
+    # toggle.auto_speeddistance = params.get_bool("AutoSpeeddistance")
     # toggle.trafficmode = params.get_bool("TrafficMode")
     toggle.trafficmode_speed = params.get_int("TrafficModespeed")
 
