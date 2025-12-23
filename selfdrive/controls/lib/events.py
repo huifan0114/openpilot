@@ -1168,7 +1168,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.PERMANENT: Alert(
       "綠燈 GO!!",
       "",
-      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      AlertStatus.userPrompt, AlertSize.small,
       Priority.MID, VisualAlert.none, FrogPilotAudibleAlert.greenlight, .1),
   },
 
@@ -1188,7 +1188,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.PERMANENT: Alert(
       "前車遠離",
       "",
-      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      AlertStatus.userPrompt, AlertSize.small,
       Priority.MID, VisualAlert.none, AudibleAlert.carawayed, 3.),
   },
 
