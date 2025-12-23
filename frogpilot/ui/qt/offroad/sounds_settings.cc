@@ -75,9 +75,9 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
     } else if (alertVolumeControlKeys.contains(param)) {
       std::map<float, QString> volumeLabels;
       for (int i = 0; i <= 101; ++i) {
-        volumeLabels[i] = i == 0 ? tr("Muted") : i == 101 ? tr("Auto") : QString::number(i) + "%";
+        volumeLabels[i] = i == 0 ? tr("靜音") : i == 101 ? tr("自動") : QString::number(i) + "%";
       }
-      std::vector<QString> alertButton{tr("Test")};
+      std::vector<QString> alertButton{tr("測試提示音")};
       if (param == "WarningImmediateVolume" || param == "WarningSoftVolume") {
         soundsToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 25, 101, QString(), volumeLabels, 1, true, {}, alertButton, false, false);
       } else {

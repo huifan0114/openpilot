@@ -264,7 +264,7 @@ void FrogPilotNavigationPanel::createKeyControl(ButtonControl *&control, const Q
       }
     } else {
       if (FrogPilotConfirmationDialog::yesorno(tr("您要移除 %1 嗎？").arg(label), this)) {
-        control->setText(tr("ADD"));
+        control->setText(tr("增加"));
 
         params.remove(paramKey);
         params_cache.remove(paramKey);
@@ -278,14 +278,14 @@ void FrogPilotNavigationPanel::createKeyControl(ButtonControl *&control, const Q
 }
 
 void FrogPilotNavigationPanel::updateButtons() {
-  amapKeyControl1->setText(params.get("AMapKey1").empty() ? tr("ADD") : tr("REMOVE"));
-  amapKeyControl2->setText(params.get("AMapKey2").empty() ? tr("ADD") : tr("REMOVE"));
+  amapKeyControl1->setText(params.get("AMapKey1").empty() ? tr("增加") : tr("移除"));
+  amapKeyControl2->setText(params.get("AMapKey2").empty() ? tr("增加") : tr("移除"));
 
   mapboxPublicKeySet = QString::fromStdString(params.get("MapboxPublicKey")).startsWith("pk");
   mapboxSecretKeySet = QString::fromStdString(params.get("MapboxSecretKey")).startsWith("sk");
 
-  publicMapboxKeyControl->setText(mapboxPublicKeySet ? tr("REMOVE") : tr("ADD"));
-  secretMapboxKeyControl->setText(mapboxSecretKeySet ? tr("REMOVE") : tr("ADD"));
+  publicMapboxKeyControl->setText(mapboxPublicKeySet ? tr("移除") : tr("增加"));
+  secretMapboxKeyControl->setText(mapboxSecretKeySet ? tr("移除") : tr("增加"));
 }
 
 void FrogPilotNavigationPanel::updateState(const UIState &s, const FrogPilotUIState &fs) {
@@ -302,7 +302,7 @@ void FrogPilotNavigationPanel::updateState(const UIState &s, const FrogPilotUISt
     if (QString::fromStdString(params_memory.get("UpdateSpeedLimitsStatus")) == "Completed!") {
       updatingLimits = false;
 
-      updateSpeedLimitsToggle->setValue(tr("Completed!"));
+      updateSpeedLimitsToggle->setValue(tr("完成!"));
 
       QTimer::singleShot(2500, [this]() {
         updateSpeedLimitsToggle->clearCheckedButtons(true);
@@ -317,7 +317,7 @@ void FrogPilotNavigationPanel::updateState(const UIState &s, const FrogPilotUISt
     }
   } else {
     updateSpeedLimitsToggle->setEnabledButton(1, fs.frogpilot_scene.online && util::system_time_valid() && parked);
-    updateSpeedLimitsToggle->setValue(fs.frogpilot_scene.online ? (parked ? "" : "Not parked") : tr("Offline..."));
+    updateSpeedLimitsToggle->setValue(fs.frogpilot_scene.online ? (parked ? "" : "Not parked") : tr("離線..."));
   }
 
   parent->keepScreenOn = primelessLayout->currentIndex() == 1 || updatingLimits;
