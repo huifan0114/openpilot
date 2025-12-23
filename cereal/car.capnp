@@ -435,7 +435,7 @@ struct CarControl {
       lanechangesound @9;
       lanechangeblockedsound @10;
       carawayed  @11;
-      greenlight @12;
+      greenlightsound @12;
       ############################
     }
   }
