@@ -231,7 +231,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("GithubSshKeys", "", 0, ""),
   ("GithubUsername", "", 0, ""),
   ("GoatScream", "0", 1, "0"),
-  ("GreenLightAlert", "0", 0, "0"),
+  ("GreenLightAlert", "0", 1, "0"),
   ("GsmApn", "", 0, ""),
   ("GsmRoaming", "1", 0, "0"),
   ("HideAlerts", "0", 2, "0"),
