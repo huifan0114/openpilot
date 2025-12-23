@@ -245,7 +245,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
       visualToggle = developerWidgetsToggle;
     } else if (param == "ShowStoppingPoint") {
       std::vector<QString> stoppingPointToggles{"ShowStoppingPointMetrics"};
-      std::vector<QString> stoppingPointToggleNames{tr("Show Distance")};
+      std::vector<QString> stoppingPointToggleNames{tr("顯示距離")};
       visualToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, stoppingPointToggles, stoppingPointToggleNames);
 
     } else if (param == "CustomUI") {

@@ -28,7 +28,7 @@ FrogPilotWheelPanel::FrogPilotWheelPanel(FrogPilotSettingsWindow *parent) : Frog
       {2, tr("強制 openpilot COAST")},
       {4, tr("暫停加速/制動")},
       {5, tr("切換 \"實驗模式\" 開/關")},
-      {6, tr("切換 \"流量模式\" 開/關")}
+      {6, tr("切換 \"塞車模式\" 開/關")}
     };
 
     ButtonControl *wheelToggle = new ButtonControl(title, tr("選擇"), desc);
