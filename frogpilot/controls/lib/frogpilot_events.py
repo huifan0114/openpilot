@@ -81,6 +81,7 @@ class FrogPilotEvents:
 
     if not self.frogpilot_planner.tracking_lead and sm["carState"].standstill and sm["carState"].gearShifter not in NON_DRIVING_GEARS:
       if not self.frogpilot_planner.model_stopped and self.stopped_for_light and frogpilot_toggles.green_light_alert:
+        self.events.add(EventName.greenLight)
         self.events.add(FrogPilotEventName.greenLight)
 ##################################################################
         # if autoacc_greenlight:

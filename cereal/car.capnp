@@ -121,6 +121,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     ######HFOP##########
     speedover @122;
     doorOpen1 @123;
+    greenLight @124;
     #navturn @123;
     #navuturn @124;
     #navturnleft @125;
