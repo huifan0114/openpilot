@@ -45,20 +45,6 @@ struct FrogPilotCarControl {
       startup @20;
       thisIsFine @21;
       uwu @22;
-      ########HFOP###########
-      lanechangesound @23;
-      lanechangeblockedsound @24;
-      greenlight @25;
-      carawayed  @26;
-      #navturn @26;
-      #navuturn @27;
-      #navturnright @28;
-      #navturnleft @29;
-      #navsharpright @30;
-      #navsharpleft @31;
-      #navofframp @32;
-
-      ############################
     }
   }
 }
@@ -109,9 +95,6 @@ struct FrogPilotCarEvent @0x81c2f05a394cf4af {
     vCruise69 @26;
     yourFrogTriedToKillMe @27;
     youveGotMail @28;
-
-    laneChangeBlocked @29;
-    laneChange @30;
   }
 }
 

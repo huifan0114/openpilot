@@ -1140,28 +1140,12 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.none, 2.),
   },
 
-  FrogPilotEventName.laneChangeBlocked: {
-    ET.WARNING: Alert(
-      "盲點偵測到車輛暫停變換車道",
-      "",
-      AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.lanechangeblockedsound, .1),
-  },
-
-  FrogPilotEventName.laneChange: {
-    ET.WARNING: Alert(
-      "變換車道中",
-      "",
-      AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.lanechangesound, .1),
-  },
-
   FrogPilotEventName.greenLight: {
     ET.PERMANENT: Alert(
       "綠燈 GO!!",
       "",
-      AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.greenlight, .1),
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.MID, VisualAlert.none, AudibleAlert.greenlight, 3.),
   },
 
   FrogPilotEventName.holidayActive: {
@@ -1173,14 +1157,14 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "盲點偵測到車輛暫停變換車道",
       "",
       AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.lanechangeblockedsound, .1),
+      Priority.LOW, VisualAlert.none, AudibleAlert.lanechangeblockedsound, .1),
   },
 
   FrogPilotEventName.leadDeparting: {
     ET.PERMANENT: Alert(
       "前車遠離",
       "",
-      AlertStatus.userPrompt, AlertSize.small,
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
       Priority.MID, VisualAlert.none, AudibleAlert.carawayed, 3.),
   },
 

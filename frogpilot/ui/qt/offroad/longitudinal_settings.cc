@@ -433,7 +433,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
 
       longitudinalToggle = slcPriorityButton;
     } else if (param == "SLCOffsets") {
-      ButtonControl *manageSLCOffsetsButton = new ButtonControl(title, tr("MANAGE"), desc);
+      ButtonControl *manageSLCOffsetsButton = new ButtonControl(title, tr( "管理設定"), desc);
       QObject::connect(manageSLCOffsetsButton, &ButtonControl::clicked, [longitudinalLayout, speedLimitControllerOffsetsPanel, this]() {
         openSubSubPanel();
 
@@ -445,7 +445,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     } else if (speedLimitControllerOffsetsKeys.contains(param)) {
       longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, -99, 99, tr(" mph"));
     } else if (param == "SLCQOL") {
-      ButtonControl *manageSLCQOLButton = new ButtonControl(title, tr("MANAGE"), desc);
+      ButtonControl *manageSLCQOLButton = new ButtonControl(title, tr( "管理設定"), desc);
       QObject::connect(manageSLCQOLButton, &ButtonControl::clicked, [longitudinalLayout, speedLimitControllerQOLPanel, this]() {
         openSubSubPanel();
 
@@ -461,7 +461,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     } else if (param == "SLCLookaheadHigher" || param == "SLCLookaheadLower") {
       longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 30, tr(" seconds"));
     } else if (param == "SLCVisuals") {
-      ButtonControl *manageSLCVisualsButton = new ButtonControl(title, tr("MANAGE"), desc);
+      ButtonControl *manageSLCVisualsButton = new ButtonControl(title, tr( "管理設定"), desc);
       QObject::connect(manageSLCVisualsButton, &ButtonControl::clicked, [longitudinalLayout, speedLimitControllerVisualPanel, this]() {
         openSubSubPanel();
 
