@@ -142,7 +142,7 @@ class Soundd:
 
       length = wavefile.getnframes()
       self.loaded_sounds[sound] = np.frombuffer(wavefile.readframes(length), dtype=np.int16).astype(np.float32) / (2**16/2)
-      print(f"Loading sound: {filename} for alert: {sound}")
+      #print(f"Loading sound: {filename} for alert: {sound}")
 
   def get_sound_data(self, frames): # get "frames" worth of data from the current alert sound, looping when required
 
@@ -202,7 +202,7 @@ class Soundd:
     elif self.controls_timeout_alert:
       self.update_alert(AudibleAlert.none)
       self.controls_timeout_alert = False
-    print(f"Triggered alert: {new_alert}")
+    #print(f"Triggered alert: {new_alert}")
 
   def calculate_volume(self, weighted_db):
     volume = ((weighted_db - AMBIENT_DB) / DB_SCALE) * (MAX_VOLUME - MIN_VOLUME) + MIN_VOLUME
