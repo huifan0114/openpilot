@@ -178,7 +178,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       });
       longitudinalToggle = advancedLongitudinalTuneToggle;
     } else if (param == "LongitudinalActuatorDelay") {
-      longitudinalActuatorDelayToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 1, tr(" seconds"), std::map<float, QString>(), 0.01);
+      longitudinalActuatorDelayToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 1, tr(" 秒"), std::map<float, QString>(), 0.01);
       longitudinalToggle = longitudinalActuatorDelayToggle;
     } else if (param == "MaxDesiredAcceleration") {
       longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.1, 4.0, tr(" m/s²"), std::map<float, QString>(), 0.1);
@@ -315,7 +315,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       if (param == "TrafficFollow" || param == "AggressiveFollow" || param == "StandardFollow" || param == "RelaxedFollow") {
         std::map<float, QString> followTimeLabels;
         for (float i = 0; i <= 3; i += 0.01) {
-          followTimeLabels[i] = std::lround(i / 0.01) == 1 / 0.01 ? QString::number(i, 'f', 2) + tr(" second") : QString::number(i, 'f', 2) + tr(" seconds");
+          followTimeLabels[i] = std::lround(i / 0.01) == 1 / 0.01 ? QString::number(i, 'f', 2) + tr(" 秒") : QString::number(i, 'f', 2) + tr(" 秒");
         }
         if (param == "TrafficFollow") {
           longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.5, 3, QString(), followTimeLabels, 0.01, true);
@@ -390,9 +390,9 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
           availablePriorities = availablePriorities.toSet().subtract(selectedPriorities.toSet()).toList();
 
           if (!parent->hasDashSpeedLimits) {
-            availablePriorities.removeAll(tr("Dashboard"));
+            availablePriorities.removeAll(tr("儀表板"));
           }
-          if (availablePriorities.size() == 1 && availablePriorities.contains(tr("None"))) {
+          if (availablePriorities.size() == 1 && availablePriorities.contains(tr("無"))) {
             break;
           }
 
@@ -404,19 +404,19 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
           selectedPriorities.append(selection);
 
           params.put(QString("SLCPriority%1").arg(i).toStdString(), selection.toStdString());
-          if (selection == tr("None")) {
+          if (selection == tr("無")) {
             for (int j = i + 1; j <= 3; ++j) {
-              params.put(QString("SLCPriority%1").arg(j).toStdString(), tr("None").toStdString());
+              params.put(QString("SLCPriority%1").arg(j).toStdString(), tr("無").toStdString());
             }
             break;
           }
 
-          if (selection == tr("Lowest") || selection == tr("Highest")) {
+          if (selection == tr("最低") || selection == tr("最高")) {
             break;
           }
         }
 
-        selectedPriorities.removeAll(tr("None"));
+        selectedPriorities.removeAll(tr("無"));
         if (!selectedPriorities.isEmpty()) {
           slcPriorityButton->setValue(selectedPriorities.join(", "));
         }
@@ -456,10 +456,10 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       longitudinalToggle = manageSLCQOLButton;
     } else if (param == "SLCConfirmation") {
       std::vector<QString> confirmationToggles{"SLCConfirmationLower", "SLCConfirmationHigher"};
-      std::vector<QString> confirmationToggleNames{tr("Lower Limits"), tr("Higher Limits")};
+      std::vector<QString> confirmationToggleNames{tr("降低速限"), tr("提高速限")};
       longitudinalToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, confirmationToggles, confirmationToggleNames);
     } else if (param == "SLCLookaheadHigher" || param == "SLCLookaheadLower") {
-      longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 30, tr(" seconds"));
+      longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 30, tr(" 秒"));
     } else if (param == "SLCVisuals") {
       ButtonControl *manageSLCVisualsButton = new ButtonControl(title, tr( "管理設定"), desc);
       QObject::connect(manageSLCVisualsButton, &ButtonControl::clicked, [longitudinalLayout, speedLimitControllerVisualPanel, this]() {
@@ -539,7 +539,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
   FrogPilotParamValueControl *trafficSpeedDecreaseToggle = static_cast<FrogPilotParamValueControl*>(toggles["TrafficJerkSpeedDecrease"]);
   FrogPilotButtonsControl *trafficResetButton = static_cast<FrogPilotButtonsControl*>(toggles["ResetTrafficPersonality"]);
   QObject::connect(trafficResetButton, &FrogPilotButtonsControl::buttonClicked, [=]() {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your settings for <b>Traffic Mode</b>?"), this)) {
+    if (FrogPilotConfirmationDialog::yesorno(tr("您確定要完全重置 <b>塞車模式</b>嗎?"), this)) {
       params.putFloat("TrafficFollow", params_default.getFloat("TrafficFollow"));
       params.putFloat("TrafficJerkAcceleration", params_default.getFloat("TrafficJerkAcceleration"));
       params.putFloat("TrafficJerkDeceleration", params_default.getFloat("TrafficJerkDeceleration"));
@@ -564,7 +564,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
   FrogPilotParamValueControl *aggressiveSpeedDecreaseToggle = static_cast<FrogPilotParamValueControl*>(toggles["AggressiveJerkSpeedDecrease"]);
   FrogPilotButtonsControl *aggressiveResetButton = static_cast<FrogPilotButtonsControl*>(toggles["ResetAggressivePersonality"]);
   QObject::connect(aggressiveResetButton, &FrogPilotButtonsControl::buttonClicked, [=]() {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your settings for the <b>Aggressive</b> personality?"), this)) {
+    if (FrogPilotConfirmationDialog::yesorno(tr("您確定要完全重置 <b>Aggressive</b> personality?"), this)) {
       params.putFloat("AggressiveFollow", params_default.getFloat("AggressiveFollow"));
       params.putFloat("AggressiveJerkAcceleration", params_default.getFloat("AggressiveJerkAcceleration"));
       params.putFloat("AggressiveJerkDeceleration", params_default.getFloat("AggressiveJerkDeceleration"));
@@ -589,7 +589,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
   FrogPilotParamValueControl *standardSpeedDecreaseToggle = static_cast<FrogPilotParamValueControl*>(toggles["StandardJerkSpeedDecrease"]);
   FrogPilotButtonsControl *standardResetButton = static_cast<FrogPilotButtonsControl*>(toggles["ResetStandardPersonality"]);
   QObject::connect(standardResetButton, &FrogPilotButtonsControl::buttonClicked, [=]() {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your settings for the <b>Standard</b> personality?"), this)) {
+    if (FrogPilotConfirmationDialog::yesorno(tr("您確定要完全重置 <b>Standard</b> personality?"), this)) {
       params.putFloat("StandardFollow", params_default.getFloat("StandardFollow"));
       params.putFloat("StandardJerkAcceleration", params_default.getFloat("StandardJerkAcceleration"));
       params.putFloat("StandardJerkDeceleration", params_default.getFloat("StandardJerkDeceleration"));
@@ -614,7 +614,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
   FrogPilotParamValueControl *relaxedSpeedDecreaseToggle = static_cast<FrogPilotParamValueControl*>(toggles["RelaxedJerkSpeedDecrease"]);
   FrogPilotButtonsControl *relaxedResetButton = static_cast<FrogPilotButtonsControl*>(toggles["ResetRelaxedPersonality"]);
   QObject::connect(relaxedResetButton, &FrogPilotButtonsControl::buttonClicked, [=]() {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your settings for the <b>Relaxed</b> personality?"), this)) {
+    if (FrogPilotConfirmationDialog::yesorno(tr("您確定要完全重置 <b>Relaxed</b> personality?"), this)) {
       params.putFloat("RelaxedFollow", params_default.getFloat("RelaxedFollow"));
       params.putFloat("RelaxedJerkAcceleration", params_default.getFloat("RelaxedJerkAcceleration"));
       params.putFloat("RelaxedJerkDeceleration", params_default.getFloat("RelaxedJerkDeceleration"));
@@ -659,12 +659,12 @@ void FrogPilotLongitudinalPanel::showEvent(QShowEvent *event) {
   calibratedLateralAccelerationLabel->setText(QString::number(params.getFloat("CalibratedLateralAcceleration"), 'f', 2) + tr(" m/s²"));
   calibrationProgressLabel->setText(QString::number(params.getFloat("CalibrationProgress"), 'f', 2) + "%");
 
-  longitudinalActuatorDelayToggle->setTitle(QString(tr("Actuator Delay (Default: %1)")).arg(QString::number(parent->longitudinalActuatorDelay, 'f', 2)));
-  startAccelToggle->setTitle(QString(tr("Start Acceleration (Default: %1)")).arg(QString::number(parent->startAccel, 'f', 2)));
-  stopAccelToggle->setTitle(QString(tr("Stop Acceleration (Default: %1)")).arg(QString::number(parent->stopAccel, 'f', 2)));
-  stoppingDecelRateToggle->setTitle(QString(tr("Stopping Rate (Default: %1)")).arg(QString::number(parent->stoppingDecelRate, 'f', 2)));
-  vEgoStartingToggle->setTitle(QString(tr("Start Speed (Default: %1)")).arg(QString::number(parent->vEgoStarting, 'f', 2)));
-  vEgoStoppingToggle->setTitle(QString(tr("Stop Speed (Default: %1)")).arg(QString::number(parent->vEgoStopping, 'f', 2)));
+  longitudinalActuatorDelayToggle->setTitle(QString(tr("延遲 (Default: %1)")).arg(QString::number(parent->longitudinalActuatorDelay, 'f', 2)));
+  startAccelToggle->setTitle(QString(tr("起始加速度 (Default: %1)")).arg(QString::number(parent->startAccel, 'f', 2)));
+  stopAccelToggle->setTitle(QString(tr("停止加速度 (Default: %1)")).arg(QString::number(parent->stopAccel, 'f', 2)));
+  stoppingDecelRateToggle->setTitle(QString(tr("停止速率 (Default: %1)")).arg(QString::number(parent->stoppingDecelRate, 'f', 2)));
+  vEgoStartingToggle->setTitle(QString(tr("起始速度 (Default: %1)")).arg(QString::number(parent->vEgoStarting, 'f', 2)));
+  vEgoStoppingToggle->setTitle(QString(tr("停止速度 (Default: %1)")).arg(QString::number(parent->vEgoStopping, 'f', 2)));
 
   updateToggles();
 }
@@ -701,19 +701,19 @@ void FrogPilotLongitudinalPanel::updateMetric(bool metric, bool bootRun) {
   static bool labelsInitialized = false;
   if (!labelsInitialized) {
     for (int i = 0; i <= 10; ++i) {
-      imperialDistanceLabels[i] = i == 0 ? tr("Off") : i == 1 ? QString::number(i) + tr(" foot") : QString::number(i) + tr(" feet");
+      imperialDistanceLabels[i] = i == 0 ? tr("關閉") : i == 1 ? QString::number(i) + tr(" foot") : QString::number(i) + tr(" feet");
     }
 
     for (int i = 0; i <= 99; ++i) {
-      imperialSpeedLabels[i] = i == 0 ? tr("Off") : QString::number(i) + tr(" mph");
+      imperialSpeedLabels[i] = i == 0 ? tr("關閉") : QString::number(i) + tr(" mph");
     }
 
     for (int i = 0; i <= 3; ++i) {
-      metricDistanceLabels[i] = i == 0 ? tr("Off") : i == 1 ? QString::number(i) + tr(" meter") : QString::number(i) + tr(" meters");
+      metricDistanceLabels[i] = i == 0 ? tr("關閉") : i == 1 ? QString::number(i) + tr(" meter") : QString::number(i) + tr(" meters");
     }
 
     for (int i = 0; i <= 150; ++i) {
-      metricSpeedLabels[i] = i == 0 ? tr("Off") : QString::number(i) + tr(" km/h");
+      metricSpeedLabels[i] = i == 0 ? tr("關閉") : QString::number(i) + tr(" km/h");
     }
 
     labelsInitialized = true;
