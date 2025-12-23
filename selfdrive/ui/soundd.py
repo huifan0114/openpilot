@@ -53,7 +53,7 @@ sound_list: dict[Any, tuple[str, int | None, float]] = {
   # map to the same sound files.
   AudibleAlert.lanechangesound: ("lanechangesound.wav", 1, MAX_VOLUME),
   AudibleAlert.lanechangeblockedsound: ("lanechangeblockedsound.wav", 1, MAX_VOLUME),
-  AudibleAlert.greenlight: ("greenlight.wav", 1, MAX_VOLUME),
+  # AudibleAlert.greenlight: ("greenlight.wav", 1, MAX_VOLUME),
   AudibleAlert.carawayed: ("carawayed.wav", 1, MAX_VOLUME),
 #############################################################
   # AudibleAlert.navturn: ("navturn.wav", 1, MAX_VOLUME),

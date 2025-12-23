@@ -121,7 +121,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     ######HFOP##########
     speedover @122;
     doorOpen1 @123;
-    greenLight @124;
+    #greenLight @124;
     #navturn @123;
     #navuturn @124;
     #navturnleft @125;
@@ -442,8 +442,8 @@ struct CarControl {
       ########HFOP###########
       lanechangesound @9;
       lanechangeblockedsound @10;
-      greenlight @11;
-      carawayed  @12;
+      carawayed  @11;
+
       #navturn @9;
       #navuturn @10;
       #navturnright @11;
@@ -451,6 +451,7 @@ struct CarControl {
       #navsharpright @13;
       #navsharpleft @14;
       #navofframp @15;
+      #greenlight @11;
 
       ############################
     }
