@@ -231,7 +231,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("GithubSshKeys", "", 0, ""),
   ("GithubUsername", "", 0, ""),
   ("GoatScream", "0", 1, "0"),
-  ("GreenLightAlert", "1", 0, "0"),
+  ("GreenLightAlert", "1", 0, "1"),
   ("GsmApn", "", 0, ""),
   ("GsmRoaming", "1", 0, "0"),
   ("HideAlerts", "0", 2, "0"),
@@ -441,9 +441,9 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("WarningImmediateVolume", "101", 2, "101"),
   ("WarningSoftVolume", "101", 2, "101"),
   ("WheelIcon", "frog", 0, "stock"),
-  ("WheelSpeed", "0", 2, "0")
-  ("SimpleDashServer", "1", 0, "0")
-  ("SimpleDashTheme", "1", 0, "0")
+  ("WheelSpeed", "0", 2, "0"),
+  ("SimpleDashServer", "1", 0, "1"),
+  ("SimpleDashTheme", "1", 0, "1")
 
 ]
 
