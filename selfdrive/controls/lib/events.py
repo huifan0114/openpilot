@@ -672,14 +672,6 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.LOW, VisualAlert.none, AudibleAlert.none, .1, alert_rate=0.75),
   },
 
-  EventName.greenLight: {
-    ET.PERMANENT: Alert(
-      "綠燈 GO!!",
-      "",
-      AlertStatus.frogpilot, AlertSize.small,
-      Priority.MID, VisualAlert.none, AudibleAlert.greenlightsound, 3.),
-  },
-
   EventName.laneChangeBlocked: {
     ET.WARNING: Alert(
       "盲點偵測到車輛暫停變換車道",
@@ -694,6 +686,14 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.lanechangesound, .1),
+  },
+
+  EventName.greenLight: {
+    ET.PERMANENT: Alert(
+      "綠燈 GO!!",
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.MID, VisualAlert.none, AudibleAlert.greenlightsound, 3.),
   },
 
   EventName.steerSaturated: {
