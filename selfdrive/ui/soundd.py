@@ -112,6 +112,7 @@ class Soundd:
 
   def load_sounds(self):
     self.loaded_sounds: dict[int, np.ndarray] = {}
+    self.sound_sources: dict[int, tuple[str, str, str]] = {}  # sound -> (filename, source, path)
 
     # 除錯資訊收集
     debug_lines = []
@@ -140,6 +141,8 @@ class Soundd:
         source = "stock"
         wavefile = wave.open(actual_path, 'r')
 
+      # 記錄每個聲音的來源
+      self.sound_sources[sound] = (filename, source, actual_path)
       debug_lines.append(f"{filename}: {source}")
 
       assert wavefile.getnchannels() == 1
@@ -183,6 +186,11 @@ class Soundd:
     if self.current_alert != new_alert and (new_alert != AudibleAlert.none or current_alert_played_once):
       self.current_alert = new_alert
       self.current_sound_frame = 0
+
+      # 記錄當前播放的聲音
+      if new_alert != AudibleAlert.none and new_alert in self.sound_sources:
+        filename, source, path = self.sound_sources[new_alert]
+        params_memory.put("SoundNowPlaying", f"{filename} [{source}]\n{path}")
 
   def get_audible_alert(self, sm):
     if params_memory.get("TestAlert", encoding="utf-8"):

@@ -50,7 +50,18 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
     }
     ConfirmationDialog::alert(debugInfo, this);
   });
-  addItem(soundDebugBtn);
+  soundsList->addItem(soundDebugBtn);
+
+  // 當前播放按鈕
+  ButtonControl *nowPlayingBtn = new ButtonControl(tr("最近播放"), tr("查看"));
+  QObject::connect(nowPlayingBtn, &ButtonControl::clicked, [this]() {
+    QString nowPlaying = QString::fromStdString(params_memory.get("SoundNowPlaying"));
+    if (nowPlaying.isEmpty()) {
+      nowPlaying = tr("尚未播放任何聲音");
+    }
+    ConfirmationDialog::alert(nowPlaying, this);
+  });
+  soundsList->addItem(nowPlayingBtn);
 
   const std::vector<std::tuple<QString, QString, QString, QString>> soundsToggles {
     {"AlertVolumeControl", tr("提醒音量控制"), tr("<b>設定每種類型的 openpilot 提示音量</b>，以避免日常提示造成干擾。"), "../../frogpilot/assets/toggle_icons/icon_mute.png"},
