@@ -106,10 +106,6 @@
         <source>for "%1"</source>
         <translation type="gpt-5-generated">for "%1", ribbit</translation>
     </message>
-    <message>
-        <source>Share your device's internet connection with other devices, either all the time or only while driving.</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>AnnotatedCameraWidget</name>
@@ -981,22 +977,6 @@
     <message>
         <source>Time Spent in Weather:</source>
         <translation type="gpt-5-generated">Ribbit! Time Spent in Weather, croak!</translation>
-    </message>
-    <message>
-        <source>Distance Driven This Month</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Time Driving (Daytime)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Time Driving (Nighttime)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Time Driven (Weather):</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
