@@ -125,8 +125,8 @@ void FrogPilotAnnotatedCameraWidget::updateState(const FrogPilotUIState &fs, con
   const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
 
   if (scene.is_metric || frogpilot_toggles.value("use_si_metrics").toBool()) {
-    leadDistanceUnit = tr(" meters");
-    leadSpeedUnit = frogpilot_toggles.value("use_si_metrics").toBool() ? tr(" m/s") : tr(" km/h");
+    leadDistanceUnit = tr(" 米");
+    leadSpeedUnit = frogpilot_toggles.value("use_si_metrics").toBool() ? tr(" m/s") : tr(" 公里/小時");
 
     distanceConversion = 1.0f;
     speedConversion = scene.is_metric ? MS_TO_KPH : MS_TO_MPH;
@@ -282,7 +282,7 @@ void FrogPilotAnnotatedCameraWidget::paintAdjacentPaths(QPainter &p, const cerea
   std::function<void(bool, float, const QPolygonF &)> drawAdjacentPathMetric = [&p, &frogpilot_toggles, this](bool isBlindSpot, float width, const QPolygonF &polygon) {
     QString text = isBlindSpot && frogpilot_toggles.value("blind_spot_path").toBool() ? tr("車輛在盲點中") : QString::number(width * distanceConversion, 'f', 2) + leadDistanceUnit;
 
-    p.setFont(InterFont(40, QFont::DemiBold));
+    p.setFont(InterFont(40, QFont::Normal));
     p.setPen(QPen(whiteColor()));
     p.drawText(polygon.boundingRect(), Qt::AlignCenter, text);
   };
@@ -402,7 +402,7 @@ void FrogPilotAnnotatedCameraWidget::paintCompass(QPainter &p, QJsonObject &frog
   clipPath.addRoundedRect(compassWidget.adjusted(5, 5, -5, -5), 24, 24);
   p.setClipPath(clipPath);
 
-  QFont font = InterFont(65, QFont::Bold);
+  QFont font = InterFont(65, QFont::Normal);
   QFontMetrics fm(font);
   p.setFont(font);
   p.setPen(QPen(whiteColor()));
@@ -486,7 +486,7 @@ void FrogPilotAnnotatedCameraWidget::paintCurveSpeedControl(QPainter &p, const c
   QRect cscRect(curveSpeedRect.topLeft() + QPoint(0, curveSpeedRect.height() + 10), QSize(curveSpeedRect.width(), 100));
 
   p.setBrush(blueColor(166));
-  p.setFont(InterFont(45, QFont::Bold));
+  p.setFont(InterFont(45, QFont::Normal));
   p.setPen(QPen(blueColor(), 10));
 
   p.drawRoundedRect(cscRect, 24, 24);
@@ -531,7 +531,7 @@ void FrogPilotAnnotatedCameraWidget::paintLeadMetrics(QPainter &p, bool adjacent
   float leadDistance = lead_data.getDRel() + (adjacent ? fabs(lead_data.getYRel()) : 0);
   float leadSpeed = std::max(lead_data.getVLead(), 0.0f);
 
-  p.setFont(InterFont(40, QFont::Bold));
+  p.setFont(InterFont(40, QFont::Normal));
   p.setPen(QPen(whiteColor()));
 
   QString text;
@@ -687,10 +687,10 @@ void FrogPilotAnnotatedCameraWidget::paintPendingSpeedLimit(QPainter &p, const c
     p.setPen(pendingLimitTimer.elapsed() % 1000 < 500 ? QPen(blackColor(), 6) : QPen(redColor(), 6));
     p.drawRoundedRect(newSpeedLimitRect.adjusted(9, 9, -9, -9), 16, 16);
 
-    p.setFont(InterFont(28, QFont::DemiBold));
-    p.drawText(newSpeedLimitRect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("PENDING"));
-    p.drawText(newSpeedLimitRect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("LIMIT"));
-    p.setFont(InterFont(70, QFont::Bold));
+    p.setFont(InterFont(28, QFont::Normal));
+    p.drawText(newSpeedLimitRect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("待辦的"));
+    p.drawText(newSpeedLimitRect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("限制"));
+    p.setFont(InterFont(70, QFont::Normal));
     p.drawText(newSpeedLimitRect.adjusted(0, 85, 0, 0), Qt::AlignTop | Qt::AlignHCenter, newSpeedLimitStr);
   } else {
     p.setBrush(whiteColor());
@@ -700,7 +700,7 @@ void FrogPilotAnnotatedCameraWidget::paintPendingSpeedLimit(QPainter &p, const c
     p.drawEllipse(newSpeedLimitRect.adjusted(16, 16, -16, -16));
 
     p.setPen(pendingLimitTimer.elapsed() % 1000 < 500 ? QPen(blackColor(), 6) : QPen(redColor(), 6));
-    p.setFont(InterFont((newSpeedLimitStr.size() >= 3) ? 60 : 70, QFont::Bold));
+    p.setFont(InterFont((newSpeedLimitStr.size() >= 3) ? 60 : 70, QFont::Normal));
     p.drawText(newSpeedLimitRect, Qt::AlignCenter, newSpeedLimitStr);
   }
 
@@ -757,7 +757,7 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
 
   p.save();
 
-  QFont font = InterFont(40, QFont::DemiBold);
+  QFont font = InterFont(40, QFont::Normal);
 
   int textWidth = QFontMetrics(font).horizontalAdvance(roadName);
 
@@ -808,7 +808,7 @@ void FrogPilotAnnotatedCameraWidget::paintSmartControllerTraining(QPainter &p, c
   p.setPen(QPen(blackColor(), 10));
   p.drawRoundedRect(textRect, 24, 24);
 
-  p.setFont(InterFont(35, QFont::Bold));
+  p.setFont(InterFont(35, QFont::Normal));
   p.setPen(QPen(whiteColor(), 6));
   p.drawText(textRect.adjusted(20, 0, 0, 0), Qt::AlignVCenter | Qt::AlignLeft, "Training...");
 
@@ -827,11 +827,11 @@ void FrogPilotAnnotatedCameraWidget::paintSpeedLimitSources(QPainter &p, const c
 
     if (QString::fromUtf8(frogpilotPlan.getSlcSpeedLimitSource().cStr()) == title && speedLimitValue != 0) {
       p.setBrush(redColor(166));
-      p.setFont(InterFont(35, QFont::Bold));
+      p.setFont(InterFont(35, QFont::Normal));
       p.setPen(QPen(redColor(), 10));
     } else {
       p.setBrush(blackColor(166));
-      p.setFont(InterFont(35, QFont::DemiBold));
+      p.setFont(InterFont(35, QFont::Normal));
       p.setPen(QPen(blackColor(), 10));
     }
 
@@ -902,9 +902,9 @@ void FrogPilotAnnotatedCameraWidget::paintStandstillTimer(QPainter &p) {
   int minutes = standstillDuration / 60;
   int seconds = standstillDuration % 60;
 
-  p.setFont(InterFont(176, QFont::Bold));
+  p.setFont(InterFont(176, QFont::Normal));
   {
-    QString minuteStr = (minutes == 1) ? tr("1 minute") : QString(tr("%1 minutes")).arg(minutes);
+    QString minuteStr = (minutes == 1) ? tr("1 分鐘") : QString(tr("%1 分鐘")).arg(minutes);
     QRect textRect = p.fontMetrics().boundingRect(minuteStr);
     textRect.moveCenter({rect().center().x(), 210 - textRect.height() / 2});
     p.setPen(QPen(blendedColor));
@@ -913,7 +913,7 @@ void FrogPilotAnnotatedCameraWidget::paintStandstillTimer(QPainter &p) {
 
   p.setFont(InterFont(66));
   {
-    QString secondStr = (seconds == 1) ? tr("1 second") : QString(tr("%1 seconds")).arg(seconds);
+    QString secondStr = (seconds == 1) ? tr("1 秒") : QString(tr("%1 秒")).arg(seconds);
     QRect textRect = p.fontMetrics().boundingRect(secondStr);
     textRect.moveCenter({rect().center().x(), 290 - textRect.height() / 2});
     p.setPen(QPen(whiteColor()));
@@ -931,7 +931,7 @@ void FrogPilotAnnotatedCameraWidget::paintStoppingPoint(QPainter &p, UIScene &sc
   p.drawPixmap(adjustedPoint, stopSignImg);
 
   if (frogpilot_toggles.value("show_stopping_point_metrics").toBool()) {
-    QFont font = InterFont(35, QFont::DemiBold);
+    QFont font = InterFont(35, QFont::Normal);
     QString text = QString::number(std::nearbyint(frogpilot_scene.model_length * distanceConversion)) + leadDistanceUnit;
     QPointF textPosition = centerPoint - QPointF(QFontMetrics(font).horizontalAdvance(text) / 2, stopSignImg.height() + 35);
 

@@ -599,10 +599,10 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
   }
   dataMainList->addItem(toggleBackupButton);
 
-  FrogPilotButtonsControl *viewStatsButton = new FrogPilotButtonsControl(tr("FrogPilot Stats"), tr("<b>View your collected FrogPilot stats.</b>"), "", {tr("RESET"), tr("VIEW")});
+  FrogPilotButtonsControl *viewStatsButton = new FrogPilotButtonsControl(tr("FrogPilot 統計數據"), tr("<b>查看您收集的 FrogPilot 統計數據.</b>"), "", {tr("重置"), tr("看法")});
   QObject::connect(viewStatsButton, &FrogPilotButtonsControl::buttonClicked, [dataLayout, statsLabelsPanel, this](int id) {
     if (id == 0) {
-      if (ConfirmationDialog::confirm(tr("Are you sure you want to reset all of your FrogPilot stats?"), tr("Reset"), this)) {
+      if (ConfirmationDialog::confirm(tr("您確定要重置所有 FrogPilot 統計數據嗎？ "), tr("重置"), this)) {
         params.remove("FrogPilotStats");
         params_cache.remove("FrogPilotStats");
       }
@@ -635,36 +635,36 @@ void FrogPilotDataPanel::updateStatsLabels(FrogPilotListWidget *labelsList) {
   QJsonObject stats = QJsonDocument::fromJson(QByteArray::fromStdString(params.get("FrogPilotStats"))).object();
 
   static QMap<QString, QPair<QString, QString>> keyMap = {
-    {"AEBEvents", {tr("Total Emergency Brake Alerts"), "count"}},
-    {"AOLTime", {tr("Time Using \"Always On Lateral\""), "timePercent"}},
-    {"CruiseSpeedTimes", {tr("Favorite Set Speed"), "speed"}},
-    {"CurrentMonthsMeters", {tr("Distance Driven This Month"), "distance"}},
-    {"DayTime", {tr("Time Driving (Daytime)"), "timePercent"}},
-    {"Disengages", {tr("Total Disengagements"), "count"}},
-    {"Engages", {tr("Total Engagements"), "count"}},
-    {"ExperimentalModeTime", {tr("Time Using \"Experimental Mode\""), "timePercent"}},
-    {"FrogChirps", {tr("Total Frog Chirps"), "count"}},
-    {"FrogHops", {tr("Total Frog Hops"), "count"}},
-    {"FrogPilotDrives", {tr("Total Drives"), "count"}},
-    {"FrogPilotMeters", {tr("Total Distance Driven"), "distance"}},
-    {"FrogPilotSeconds", {tr("Total Driving Time"), "time"}},
-    {"FrogSqueaks", {tr("Total Frog Squeaks"), "count"}},
-    {"GoatScreams", {tr("Total Goat Screams"), "count"}},
-    {"HighestAcceleration", {tr("Highest Acceleration Rate"), "accel"}},
-    {"LateralTime", {tr("Time Using Lateral Control"), "timePercent"}},
-    {"LongestDistanceWithoutOverride", {tr("Longest Distance Without an Override"), "distance"}},
-    {"LongitudinalTime", {tr("Time Using Longitudinal Control"), "timePercent"}},
-    {"ModelTimes", {tr("Driving Models:"), "parent"}},
-    {"Month", {tr("Month"), "other"}},
-    {"NightTime", {tr("Time Driving (Nighttime)"), "timePercent"}},
-    {"Overrides", {tr("Total Overrides"), "count"}},
-    {"OverrideTime", {tr("Time Overriding openpilot"), "timePercent"}},
-    {"PersonalityTimes", {tr("Driving Personalities:"), "parent"}},
-    {"RandomEvents", {tr("Random Events:"), "parent"}},
-    {"StandstillTime", {tr("Time Stopped"), "timePercent"}},
-    {"StopLightTime", {tr("Time Spent at Stoplights"), "timePercent"}},
-    {"TrackedTime", {tr("Total Time Tracked"), "time"}},
-    {"WeatherTimes", {tr("Time Driven (Weather):"), "parent"}}
+    {"AEBEvents", {tr("緊急制動警報總數"), "count"}},
+    {"AOLTime", {tr("使用“始終橫向”的時間"), "timePercent"}},
+    {"CruiseSpeedTimes", {tr("最喜歡的設定速度"), "speed"}},
+    {"CurrentMonthsMeters", {tr("本月行駛距離"), "distance"}},
+    {"DayTime", {tr("駕駛時間（白天）"), "timePercent"}},
+    {"Disengages", {tr("完全脫離接觸"), "count"}},
+    {"Engages", {tr("總參與度"), "count"}},
+    {"ExperimentalModeTime", {tr("使用“實驗模式”的時間"), "timePercent"}},
+    {"FrogChirps", {tr("青蛙鳴叫聲總數"), "count"}},
+    {"FrogHops", {tr("青蛙跳總數"), "count"}},
+    {"FrogPilotDrives", {tr("總行駛數"), "count"}},
+    {"FrogPilotMeters", {tr("總行駛距離"), "distance"}},
+    {"FrogPilotSeconds", {tr("總駕駛時間"), "time"}},
+    {"FrogSqueaks", {tr("青蛙吱吱聲總數"), "count"}},
+    {"GoatScreams", {tr("山羊尖叫聲"), "count"}},
+    {"HighestAcceleration", {tr("最高加速率"), "accel"}},
+    {"LateralTime", {tr("使用橫向控制的時間"), "timePercent"}},
+    {"LongestDistanceWithoutOverride", {tr("無override最長行駛距離"), "distance"}},
+    {"LongitudinalTime", {tr("使用縱向控制的時間"), "timePercent"}},
+    {"ModelTimes", {tr("駕駛模式:"), "parent"}},
+    {"Month", {tr("月份"), "other"}},
+    {"NightTime", {tr("駕駛時間（夜晚）"), "timePercent"}},
+    {"Overrides", {tr("總override次數"), "count"}},
+    {"OverrideTime", {tr("override openpilot的時間"), "timePercent"}},
+    {"PersonalityTimes", {tr("駕駛個性:"), "parent"}},
+    {"RandomEvents", {tr("隨機事件:"), "parent"}},
+    {"StandstillTime", {tr("時間停止"), "timePercent"}},
+    {"StopLightTime", {tr("在紅綠燈處花費的時間"), "timePercent"}},
+    {"TrackedTime", {tr("追踪總時間"), "time"}},
+    {"WeatherTimes", {tr("（天氣）駕駛時間:"), "parent"}}
   };
 
   static QMap<QString, QString> randomEventsMap = {
@@ -700,10 +700,10 @@ void FrogPilotDataPanel::updateStatsLabels(FrogPilotListWidget *labelsList) {
     QString unit;
     if (isMetric) {
       value = meters / 1000.0;
-      unit = (value == 1.0) ? tr(" kilometer") : tr(" kilometers");
+      unit = (value == 1.0) ? tr(" 公里") : tr(" 公里");
     } else {
       value = meters * METER_TO_MILE;
-      unit = (value == 1.0) ? tr(" mile") : tr(" miles");
+      unit = (value == 1.0) ? tr(" 英里") : tr(" 英里");
     }
     return format_number(qRound(value)) + unit;
   };
@@ -718,12 +718,12 @@ void FrogPilotDataPanel::updateStatsLabels(FrogPilotListWidget *labelsList) {
 
     QString result;
     if (days > 0) {
-      result += format_number(days) + (days == 1 ? tr(" day ") : tr(" days "));
+      result += format_number(days) + (days == 1 ? tr(" 天 ") : tr(" 天 "));
     }
     if (hours > 0 || days > 0) {
-      result += format_number(hours) + (hours == 1 ? tr(" hour ") : tr(" hours "));
+      result += format_number(hours) + (hours == 1 ? tr(" 小時 ") : tr(" 小時 "));
     }
-    result += format_number(minutes) + (minutes == 1 ? tr(" minute") : tr(" minutes"));
+    result += format_number(minutes) + (minutes == 1 ? tr(" 分鐘") : tr(" 分鐘"));
     return result.trimmed();
   };
 
@@ -765,9 +765,9 @@ void FrogPilotDataPanel::updateStatsLabels(FrogPilotListWidget *labelsList) {
 
       QString displaySpeed;
       if (isMetric) {
-        displaySpeed = QString::number(qRound(bestSpeed.toDouble() * MS_TO_KPH)) + " " + tr("km/h");
+        displaySpeed = QString::number(qRound(bestSpeed.toDouble() * MS_TO_KPH)) + " " + tr("公里/小時");
       } else {
-        displaySpeed = QString::number(qRound(bestSpeed.toDouble() * MS_TO_MPH)) + " " + tr("mph");
+        displaySpeed = QString::number(qRound(bestSpeed.toDouble() * MS_TO_MPH)) + " " + tr("英里/小時");
       }
 
       labelsList->addItem(new LabelControl(labelText, displaySpeed + " (" + format_time(maxTime) + ")", "", this));
@@ -823,7 +823,7 @@ void FrogPilotDataPanel::updateStatsLabels(FrogPilotListWidget *labelsList) {
     } else {
       QString displayValue;
       if (type == "accel") {
-        displayValue = QString::number(value.toDouble(), 'f', 2) + " " + tr("m/s²");
+        displayValue = QString::number(value.toDouble(), 'f', 2) + " " + tr("米/秒²");
       } else if (type == "count") {
         QString trimmedLabel = labelText;
         QString prefix = tr("Total ");

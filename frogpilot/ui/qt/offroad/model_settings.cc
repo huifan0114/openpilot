@@ -422,7 +422,7 @@ void FrogPilotModelPanel::showEvent(QShowEvent *event) {
   downloadModelButton->setEnabledButtons(0, !allModelsDownloaded && !allModelsDownloading && !cancellingDownload && !updatingTinygrad && fs.frogpilot_scene.online && parked);
   downloadModelButton->setEnabledButtons(1, !allModelsDownloaded && !modelDownloading && !cancellingDownload && !updatingTinygrad && fs.frogpilot_scene.online && parked);
 
-  downloadModelButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : tr("Not parked")) : tr("離線..."));
+  downloadModelButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : tr("非停車狀態")) : tr("離線..."));
 
   updateTinygradButton->setEnabled(!modelDownloading && !cancellingDownload && fs.frogpilot_scene.online && parked && tinygradUpdate);
   updateTinygradButton->setValue(tinygradUpdate ? tr("有可用更新！") : tr("已是最新！"));
@@ -446,19 +446,19 @@ void FrogPilotModelPanel::updateState(const UIState &s, const FrogPilotUIState &
      {
       QString translatedProgress;
       if (progress == "Downloading...") {
-        translatedProgress = tr("Downloading...");
+        translatedProgress = tr("正在下載...");
       } else if (progress == "Downloaded!") {
-        translatedProgress = tr("Downloaded!");
+        translatedProgress = tr("已下載!");
       } else if (progress == "All models downloaded!") {
-        translatedProgress = tr("All models downloaded!");
+        translatedProgress = tr("所有模型均已下載!");
       } else if (progress.contains("cancelled", Qt::CaseInsensitive)) {
-        translatedProgress = tr("Download cancelled...");
+        translatedProgress = tr("下載已取消...");
       } else if (progress.contains("failed", Qt::CaseInsensitive)) {
-        translatedProgress = tr("Download failed...");
+        translatedProgress = tr("下載失敗...");
       } else if (progress.contains("offline", Qt::CaseInsensitive)) {
-        translatedProgress = tr("GitHub and GitLab are offline...");
+        translatedProgress = tr("GitHub 和 GitLab 線上...");
       } else if (progress == "Repository unavailable") {
-        translatedProgress = tr("Repository unavailable");
+        translatedProgress = tr("存儲庫不可用");
       } else {
         translatedProgress = progress;
       }
@@ -491,7 +491,7 @@ void FrogPilotModelPanel::updateState(const UIState &s, const FrogPilotUIState &
       });
     }
   } else {
-    downloadModelButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : tr("Not parked")) : tr("離線..."));
+    downloadModelButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : tr("非停車狀態")) : tr("離線..."));
   }
 
   if (updatingTinygrad) {
@@ -501,19 +501,19 @@ void FrogPilotModelPanel::updateState(const UIState &s, const FrogPilotUIState &
     {
       QString translatedProgress;
       if (progress == "Downloading...") {
-        translatedProgress = tr("Downloading...");
+        translatedProgress = tr("正在下載...");
       } else if (progress == "Downloaded!") {
-        translatedProgress = tr("Downloaded!");
+        translatedProgress = tr("已下載!");
       } else if (progress == "All models downloaded!") {
-        translatedProgress = tr("All models downloaded!");
+        translatedProgress = tr("所有模型均已下載!");
       } else if (progress.contains("cancelled", Qt::CaseInsensitive)) {
-        translatedProgress = tr("Download cancelled...");
+        translatedProgress = tr("下載已取消...");
       } else if (progress.contains("failed", Qt::CaseInsensitive)) {
-        translatedProgress = tr("Download failed...");
+        translatedProgress = tr("下載失敗...");
       } else if (progress.contains("offline", Qt::CaseInsensitive)) {
-        translatedProgress = tr("GitHub and GitLab are offline...");
+        translatedProgress = tr("GitHub 和 GitLab 離線...");
       } else if (progress == "Repository unavailable") {
-        translatedProgress = tr("Repository unavailable");
+        translatedProgress = tr("存儲庫不可用");
       } else {
         translatedProgress = progress;
       }

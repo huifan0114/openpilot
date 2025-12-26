@@ -162,56 +162,58 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     {"MapGears", tr("將加減速對應至檔位"), tr("<b>將加速或減速檔案對應到車輛的 \"節能\" 或 \"運動\" 檔位。</b>"), ""},
     {"SetSpeedOffset", tr("設定速度偏移量："), tr("<b>將設定速度增加所選的偏移量。</b> 例如，若你通常超速 5 mph，則設定 +5。"), ""},
     {"ReverseCruise", tr("反向巡航增量"), tr("<b>反轉巡航按鈕的行為</b>，讓短按增加 5 而非 1。"), ""},
-    {"WeatherPresets", tr("Weather Condition Offsets"), tr("<b>Automatically adjust driving behavior based on real-time weather.</b> Helps maintain comfort and safety in low visibility, rain, or snow."), ""},
+    {"WeatherPresets", tr("天氣狀況補償"), tr("<b>根據實時天氣自動調整駕駛行為。 </b>有助於在能見度低、下雨或下雪時保持舒適性和安全性。"), ""},
 
-    {"LowVisibilityOffsets", tr("Low Visibility"), tr("<b>Driving adjustments for fog, haze, or other low-visibility conditions.</b>"), ""},
-    {"IncreaseFollowingLowVisibility", tr("Increase Following Distance by:"), tr("<b>Add extra space behind lead vehicles in low visibility.</b> Increase for more space; decrease for tighter gaps."), ""},
-    {"IncreasedStoppedDistanceLowVisibility", tr("Increase Stopped Distance by:"), tr("<b>Add extra buffer when stopped behind vehicles in low visibility.</b> Increase for more room; decrease for shorter gaps."), ""},
-    {"ReduceAccelerationLowVisibility", tr("Reduce Acceleration by:"), tr("<b>Lower the maximum acceleration in low visibility.</b> Increase for softer takeoffs; decrease for quicker but less stable takeoffs."), ""},
-    {"ReduceLateralAccelerationLowVisibility", tr("Reduce Speed in Curves by:"), tr("<b>Lower the desired speed while driving through curves in low visibility.</b> Increase for safer, gentler turns; decrease for more aggressive driving in curves."), ""},
+    {"LowVisibilityOffsets", tr("低能見度"), tr("<b>針對霧、霾或其他低能見度條件的駕駛調整。</b>"), ""},
+    {"IncreaseFollowingLowVisibility", tr("將跟隨距離增加："), tr("<b>在能見度較低的情況下，在引導車輛後面添加額外的空間。 </b>增加以獲得更多空間；減少間隙。"), ""},
+    {"IncreasedStoppedDistanceLowVisibility", tr("將停止距離增加："), tr("<b>在能見度低的情況下停在車輛後面時添加額外的緩衝區。 </b>增加以獲得更多空間；間隙較短時減少。"), ""},
+    {"ReduceAccelerationLowVisibility", tr("減少加速度："), tr("<b>降低低能見度時的最大加速度。</b> 增加以獲得較軟的起飛；減少為更快但不太穩定的起飛。"), ""},
+    {"ReduceLateralAccelerationLowVisibility", tr("在彎道上降低速度："), tr("<b>在能見度較低的情況下通過彎道時降低所需的速度。</b> 增加以獲得更安全、更平緩的轉彎；降低以獲得更激進的彎道駕駛。"), ""},
 
-    {"RainOffsets", tr("Rain"), tr("<b>Driving adjustments for rainy conditions.</b>"), ""},
-    {"IncreaseFollowingRain", tr("Increase Following Distance by:"), tr("<b>Add extra space behind lead vehicles in rain.</b> Increase for more space; decrease for tighter gaps."), ""},
-    {"IncreasedStoppedDistanceRain", tr("Increase Stopped Distance by:"), tr("<b>Add extra buffer when stopped behind vehicles in rain.</b> Increase for more room; decrease for shorter gaps."), ""},
-    {"ReduceAccelerationRain", tr("Reduce Acceleration by:"), tr("<b>Lower the maximum acceleration in rain.</b> Increase for softer takeoffs; decrease for quicker but less stable takeoffs."), ""},
-    {"ReduceLateralAccelerationRain", tr("Reduce Speed in Curves by:"), tr("<b>Lower the desired speed while driving through curves in rain.</b> Increase for safer, gentler turns; decrease for more aggressive driving in curves."), ""},
+    {"RainOffsets", tr("Rain"), tr("<b>雨天行駛調整。</b>"), ""},
+    {"IncreaseFollowingRain", tr("增加跟車距離："), tr("<b>在雨中在領先車輛後面添加額外的空間。</b> 增加以獲得更多空間；減少以獲得更小的間隙。"), ""},
+    {"IncreasedStoppedDistanceRain", tr("將停止距離增加："), tr("<b>在雨中停在車輛後面時添加額外的緩衝區。</b> 增加以獲得更多空間；減少以獲得更短的間隙。"), ""},
+    {"ReduceAccelerationRain", tr("減少加速度："), tr("<b>降低雨中的最大加速度。</b> 增加以實現較軟的起飛；減少以實現更快但不太穩定的起飛。"), ""},
+    {"ReduceLateralAccelerationRain", tr("在彎道上降低速度："), tr("<b>在雨中行駛通過彎道時降低所需速度。</b> 增加以獲得更安全、更平緩的轉彎；降低以獲得更激進的彎道駕駛。"), ""},
 
-    {"RainStormOffsets", tr("Rainstorms"), tr("<b>Driving adjustments for rainstorms.</b>"), ""},
-    {"IncreaseFollowingRainStorm", tr("Increase Following Distance by:"), tr("<b>Add extra space behind lead vehicles in a rainstorm.</b> Increase for more space; decrease for tighter gaps."), ""},
-    {"IncreasedStoppedDistanceRainStorm", tr("Increase Stopped Distance by:"), tr("<b>Add extra buffer when stopped behind vehicles in a rainstorm.</b> Increase for more room; decrease for shorter gaps."), ""},
-    {"ReduceAccelerationRainStorm", tr("Reduce Acceleration by:"), tr("<b>Lower the maximum acceleration in a rainstorm.</b> Increase for softer takeoffs; decrease for quicker but less stable takeoffs."), ""},
-    {"ReduceLateralAccelerationRainStorm", tr("Reduce Speed in Curves by:"), tr("<b>Lower the desired speed while driving through curves in a rainstorm.</b> Increase for safer, gentler turns; decrease for more aggressive driving in curves."), ""},
+    {"RainStormOffsets", tr("暴雨"), tr("<b>針對暴雨的駕駛調整。</b>"), ""},
+    {"IncreaseFollowingRainStorm", tr("將跟車距離增加："), tr("<b>在暴雨中在領先車輛後面添加額外的空間。</b> 增加以獲得更多空間；減少以獲得更小的間隙。"), ""},
+    {"IncreasedStoppedDistanceRainStorm", tr("將停止距離增加："), tr("<b>在暴雨中停在車輛後面時添加額外的緩衝區。</b>增加以獲得更多空間；減少以獲得更短的間隙。"), ""},
+    {"ReduceAccelerationRainStorm", tr("減少加速度："), tr("<b>降低暴雨中的最大加速度。</b> 增加以實現較軟的起飛；減少以實現更快但不太穩定的起飛。"), ""},
+    {"ReduceLateralAccelerationRainStorm", tr("在彎道上降低速度："), tr("<b>在暴雨中行駛通過彎道時降低所需的速度。</b> 增加以獲得更安全、更平緩的轉彎；減少以獲得更激進的彎道駕駛。"), ""},
 
-    {"SnowOffsets", tr("Snow"), tr("<b>Driving adjustments for snowy conditions.</b>"), ""},
-    {"IncreaseFollowingSnow", tr("Increase Following Distance by:"), tr("<b>Add extra space behind lead vehicles in snow.</b> Increase for more space; decrease for tighter gaps."), ""},
-    {"IncreasedStoppedDistanceSnow", tr("Increase Stopped Distance by:"), tr("<b>Add extra buffer when stopped behind vehicles in snow.</b> Increase for more room; decrease for shorter gaps."), ""},
-    {"ReduceAccelerationSnow", tr("Reduce Acceleration by:"), tr("<b>Lower the maximum acceleration in snow.</b> Increase for softer takeoffs; decrease for quicker but less stable takeoffs."), ""},
-    {"ReduceLateralAccelerationSnow", tr("Reduce Speed in Curves by:"), tr("<b>Lower the desired speed while driving through curves in snow.</b> Increase for safer, gentler turns; decrease for more aggressive driving in curves."), ""},
+    {"SnowOffsets", tr("Snow"), tr("<b>針對下雪條件的駕駛調整。</b>"), ""},
+    {"IncreaseFollowingSnow", tr("將跟車距離增加："), tr("<b>在雪中在引導車輛後面添加額外的空間。</b> 增加以獲得更多空間；減少以獲得更小的間隙。"), ""},
+    {"IncreasedStoppedDistanceSnow", tr("將停止距離增加："), tr("<b>在雪中停在車輛後面時添加額外的緩衝區。</b>增加以獲得更多空間；減少以獲得更短的間隙。"), ""},
+    {"ReduceAccelerationSnow", tr("減少加速度："), tr("<b>降低雪地最大加速度。</b> 增加以實現較軟的起飛；減少以實現更快但不太穩定的起飛。"), ""},
+    {"ReduceLateralAccelerationSnow", tr("在彎道上降低速度："), tr("<b>在雪地中通過彎道時降低所需速度。</b> 增加以獲得更安全、更平緩的轉彎；減少以獲得更激進的彎道駕駛。"), ""},
 
-    {"SetWeatherKey", tr("Set Your Own Key"), tr("<b>Set your own \"OpenWeatherMap\" key to increase the weather update rate.</b><br><br><i>Personal keys grant 1,000 free calls per day, allowing for updates every minute. The default key is shared and only updates every 15 minutes.</i>"), ""},
+    {"SetWeatherKey", tr("設置您自己的密鑰"), tr("<b>設置您自己的\"OpenWeatherMap\"密鑰以提高天氣更新率。</b><br><br><i>個人密鑰每天可免費調用 1​​,000 次，每分鐘更新一次。默認密鑰是共享的，每 15 分鐘更新一次。</i>"), ""},
 
-    {"SpeedLimitController", tr("Speed Limit Controller"), tr("<b>Limit openpilot's maximum driving speed to the current speed limit</b> obtained from downloaded maps, Mapbox, Navigate on openpilot, or the dashboard for supported vehicles (Ford, Genesis, Hyundai, Kia, Lexus, Toyota)."), "../../frogpilot/assets/toggle_icons/icon_speed_limit.png"},
-    {"SLCFallback", tr("Fallback Speed"), tr("<b>The speed used by \"Speed Limit Controller\" when no speed limit is found.</b><br><br>- <b>Set Speed</b>: Use the cruise set speed<br>- <b>Experimental Mode</b>: Estimate the limit using the driving model<br>- <b>Previous Limit</b>: Keep using the last confirmed limit"), ""},
-    {"SLCOverride", tr("Override Speed"), tr("<b>The speed used by \"Speed Limit Controller\" after you manually drive faster than the posted limit.</b><br><br>- <b>Set with Gas Pedal</b>: Use the highest speed reached while pressing the gas<br>- <b>Max Set Speed</b>: Use the cruise set speed<br><br>Overrides clear when openpilot disengages."), ""},
-    {"SLCQOL", tr("Quality of Life"), tr("<b>Miscellaneous \"Speed Limit Controller\" changes</b> to fine-tune how openpilot drives."), ""},
-    {"SLCConfirmation", tr("Confirm New Speed Limits"), tr("<b>Ask before changing to a new speed limit.</b> To accept, tap the flashing on-screen widget or press the Cruise Increase button. To deny, press the Cruise Decrease button or ignore the prompt for 30 seconds."), ""},
-    {"ForceMPHDashboard", tr("Force MPH from Dashboard"), tr("<b>Always read dashboard speed limit signs in mph.</b> Turn this on if the cluster shows mph but the limit is interpreted as km/h."), ""},
-    {"SLCLookaheadHigher", tr("Higher Limit Lookahead Time"), tr("<b>How far ahead openpilot anticipates upcoming higher speed limits</b> from downloaded map data."), ""},
-    {"SLCLookaheadLower", tr("Lower Limit Lookahead Time"), tr("<b>How far ahead openpilot anticipates upcoming lower speed limits</b> from downloaded map data."), ""},
-    {"SetSpeedLimit", tr("Match Speed Limit on Engage"), tr("<b>When openpilot is first enabled, automatically set the max speed to the current posted limit.</b>"), ""},
-    {"SLCMapboxFiller", tr("Use Mapbox as Fallback"), tr("<b>Use Mapbox speed-limit data when no other source is available.</b>"), ""},
-    {"SLCPriority", tr("Speed Limit Source Priority"), tr("<b>The source order for speed limits</b> when more than one is available."), ""},
-    {"SLCOffsets", tr("Speed Limit Offsets"), tr("<b>Add an offset to the posted speed limit</b> to better match your driving style."), ""},
-    {"Offset1", tr("Speed Offset (0–24 mph)"), tr("<b>How much to offset posted speed-limits</b> between 0 and 24 mph."), ""},
-    {"Offset2", tr("Speed Offset (25–34 mph)"), tr("<b>How much to offset posted speed-limits</b> between 25 and 34 mph."), ""},
-    {"Offset3", tr("Speed Offset (35–44 mph)"), tr("<b>How much to offset posted speed-limits</b> between 35 and 44 mph."), ""},
-    {"Offset4", tr("Speed Offset (45–54 mph)"), tr("<b>How much to offset posted speed-limits</b> between 45 and 54 mph."), ""},
-    {"Offset5", tr("Speed Offset (55–64 mph)"), tr("<b>How much to offset posted speed-limits</b> between 55 and 64 mph."), ""},
-    {"Offset6", tr("Speed Offset (65–74 mph)"), tr("<b>How much to offset posted speed-limits</b> between 65 and 74 mph."), ""},
-    {"Offset7", tr("Speed Offset (75–99 mph)"), tr("<b>How much to offset posted speed-limits</b> between 75 and 99 mph."), ""},
-    {"SLCVisuals", tr("Visual Settings"), tr("<b>Visual \"Speed Limit Controller\" changes</b> to fine-tune how the driving screen looks."), ""},
-    {"ShowSLCOffset", tr("Show Speed Limit Offset"), tr("<b>Show the current offset from the posted limit</b> on the driving screen."), ""},
-    {"SpeedLimitSources", tr("Show Speed Limit Sources"), tr("<b>Display the speed-limit sources and their current values</b> on the driving screen."), ""}
+    {"SpeedLimitController", tr("速度限制控制器"), tr("<b>將 openpilot 的最大行駛速度限制為當前速度限制</b>，該速度限制是從下載的地圖、Mapbox、Navigate on openpilot 或受支持車輛（福特、Genesis、現代、起亞、雷克薩斯、豐田）的儀表板獲取的。"), " ../../frogpilot/assets/toggle_icons/icon_speed_limit.png"},
+
+    {"SLCFallback", tr("Fallback Speed"), tr("<b>未發現限速時“限速控制器”使用的速度。</b><br><br>-<b>設置速度</b>：使用巡航設定速度<br>-<b>實驗模式</b>：使用駕駛模型估計限制<br>-<b>先前限制</b>：繼續使用最後確認的限制"), ""},
+
+    {"SLCOverride", tr("覆蓋速度"), tr("<b>您手動駕駛速度超過公佈的限制後，\"速度限制控制器\"使用的速度。</b><br><br>-<b>使用油門踏板設置</b>：使用踩下油門時達到的最高速度<br>-<b>最大設置速度</b>：使用巡航設置速度<br><br>當 openpilot 脫離時覆蓋清除。"), ""},
+    {"SLCQOL", tr("生活質量"), tr("<b>其他“速度限制控制器”更改</b>以微調 openpilot 的駕駛方式。"), ""},
+    {"SLCConfirmation", tr("確認新的速度限制"), tr("<b>更改為新的速度限制之前先詢問。</b>要接受，請點擊屏幕上閃爍的小部件或按巡航增加按鈕。要拒絕，請按巡航減少按鈕或忽略提示 30 秒。"), ""},
+    {"ForceMPHDashboard", tr("從儀表板強制 MPH"), tr("<b>始終讀取以英里為單位的儀表板速度限制標誌。</b>如果集群顯示英里/小時但限制被解釋為公里/小時，請打開此功能。"), ""},
+    {"SLCLookaheadHigher", tr("更高限制前瞻時間"), tr("<b>根據下載的地圖數據，openpilot 預計即將到來的更高速度限制有多遠</b>。"), ""},
+    {"SLCLookaheadLower", tr("前瞻時間下限"), tr("<b>openpilot 根據下載的地圖數據預測即將到來的較低速度限制多遠</b>。"), ""},
+    {"SetSpeedLimit", tr("匹配接合速度限制"), tr("<b>首次啟用 openpilot 時，自動將最大速度設置為當前發布的限制。</b>"), ""},
+    {"SLCMapboxFiller", tr("使用 Mapbox 作為後備"), tr("<b>當沒有其他來源可用時使用 Mapbox 限速數據。</b>"), ""},
+    {"SLCPriority", tr("速度限制源優先級"), tr("<b>當多個速度限制源可用時的速度限制源順序</b>。"), ""},
+    {"SLCOffsets", tr("速度限制偏移"), tr("<b>為發布的速度限制添加偏移</b>，以更好地匹配您的駕駛風格。"), ""},
+    {"Offset1", tr("速度偏移 (0–24 英里/小時)"), tr("<b>在 0 到 24 英里/小時之間偏移張貼的速度限制多少</b>。"), ""},
+    {"Offset2", tr("速度偏移 (25–34 英里/小時)"), tr("<b>在 25 到 34 英里/小時之間偏移張貼的速度限制多少</b>。"), ""},
+    {"Offset3", tr("速度偏移 (35–44 英里/小時)"), tr("<b>在 35 到 44 英里/小時之間偏移張貼的速度限制多少</b>。"), ""},
+    {"Offset4", tr("速度偏移 (45–54 英里/小時)"), tr("<b>在 45 到 54 英里/小時之間偏移張貼的速度限制多少</b>。"), ""},
+    {"Offset5", tr("速度偏移 (55–64 英里/小時)"), tr("<b>在 55 到 64 英里/小時之間偏移張貼的速度限制多少</b>。"), ""},
+    {"Offset6", tr("速度偏移 (65–74 英里/小時)"), tr("<b>在 65 到 74 英里/小時之間偏移張貼的速度限制多少</b>。"), ""},
+    {"Offset7", tr("速度偏移 (75–99 英里/小時)"), tr("<b>在 75 到 99 英里/小時之間偏移張貼的速度限制多少</b>。"), ""},
+    {"SLCVisuals", tr("視覺設置"), tr("<b>視覺\"速度限制控制器\"更改</b>以微調駕駛屏幕的外觀。"), ""},
+    {"ShowSLCOffset", tr("顯示速度限制偏移量"), tr("<b>在駕駛屏幕上顯示與發布限制的當前偏移量</b>。"), ""},
+    {"SpeedLimitSources", tr("顯示限速源"), tr("<b>在駕駛屏幕上顯示限速源及其當前值</b>。"), ""}
   };
 
   for (const auto &[param, title, desc, icon] : longitudinalToggles) {
@@ -227,21 +229,21 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       longitudinalActuatorDelayToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 1, tr(" 秒"), std::map<float, QString>(), 0.01);
       longitudinalToggle = longitudinalActuatorDelayToggle;
     } else if (param == "MaxDesiredAcceleration") {
-      longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.1, 4.0, tr(" m/s²"), std::map<float, QString>(), 0.1);
+      longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.1, 4.0, tr(" 米/秒²"), std::map<float, QString>(), 0.1);
     } else if (param == "StartAccel") {
-      startAccelToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 4, tr(" m/s²"), std::map<float, QString>(), 0.01, true);
+      startAccelToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 4, tr(" 米/秒²"), std::map<float, QString>(), 0.01, true);
       longitudinalToggle = startAccelToggle;
     } else if (param == "VEgoStarting") {
-      vEgoStartingToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.01, 1, tr(" m/s²"), std::map<float, QString>(), 0.01);
+      vEgoStartingToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.01, 1, tr(" 米/秒²"), std::map<float, QString>(), 0.01);
       longitudinalToggle = vEgoStartingToggle;
     } else if (param == "StopAccel") {
-      stopAccelToggle = new FrogPilotParamValueControl(param, title, desc, icon, -4, 0, tr(" m/s²"), std::map<float, QString>(), 0.01, true);
+      stopAccelToggle = new FrogPilotParamValueControl(param, title, desc, icon, -4, 0, tr(" 米/秒²"), std::map<float, QString>(), 0.01, true);
       longitudinalToggle = stopAccelToggle;
     } else if (param == "StoppingDecelRate") {
-      stoppingDecelRateToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.001, 1, tr(" m/s²"), std::map<float, QString>(), 0.001, true);
+      stoppingDecelRateToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.001, 1, tr(" 米/秒²"), std::map<float, QString>(), 0.001, true);
       longitudinalToggle = stoppingDecelRateToggle;
     } else if (param == "VEgoStopping") {
-      vEgoStoppingToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.01, 1, tr(" m/s²"), std::map<float, QString>(), 0.01);
+      vEgoStoppingToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.01, 1, tr(" 米/秒²"), std::map<float, QString>(), 0.01);
       longitudinalToggle = vEgoStoppingToggle;
 
     } else if (param == "ConditionalExperimental") {
@@ -276,7 +278,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     } else if (param == "CESignalSpeed") {
       std::vector<QString> ceSignalToggles{"CESignalLaneDetection"};
       std::vector<QString> ceSignalToggleNames{tr("未偵測到車道時禁用")};
-      longitudinalToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 0, 99, tr(" mph"), std::map<float, QString>(), 1.0, true, ceSignalToggles, ceSignalToggleNames, true);
+      longitudinalToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 0, 99, tr(" 英里/小時"), std::map<float, QString>(), 1.0, true, ceSignalToggles, ceSignalToggleNames, true);
 
     } else if (param == "CurveSpeedController") {
       FrogPilotManageControl *curveControlToggle = new FrogPilotManageControl(param, title, desc, icon);
@@ -288,7 +290,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       calibrationProgressLabel = new LabelControl(title, QString::number(params.getFloat("CalibrationProgress"), 'f', 2) + "%", desc);
       longitudinalToggle = calibrationProgressLabel;
     } else if (param == "CalibratedLateralAcceleration") {
-      calibratedLateralAccelerationLabel = new LabelControl(title, QString::number(params.getFloat("CalibratedLateralAcceleration"), 'f', 2) + tr(" m/s²"), desc);
+      calibratedLateralAccelerationLabel = new LabelControl(title, QString::number(params.getFloat("CalibratedLateralAcceleration"), 'f', 2) + tr(" 米/秒²"), desc);
       longitudinalToggle = calibratedLateralAccelerationLabel;
     } else if (param == "ResetCurveData") {
       ButtonControl *resetCurveDataButton = new ButtonControl(title, tr("重設"), desc);
@@ -302,7 +304,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
           params_cache.remove("CalibrationProgress");
           params_cache.remove("CurvatureData");
 
-          calibratedLateralAccelerationLabel->setText(QString::number(2.00, 'f', 2) + tr(" m/s²"));
+          calibratedLateralAccelerationLabel->setText(QString::number(2.00, 'f', 2) + tr(" 米/秒²"));
           calibrationProgressLabel->setText(QString::number(0.00, 'f', 2) + "%");
         }
       });
@@ -396,17 +398,17 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       });
       longitudinalToggle = qolLongitudinalToggle;
     } else if (param == "CustomCruise") {
-      longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 99, tr(" mph"));
+      longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 99, tr(" 英里/小時"));
     } else if (param == "CustomCruiseLong") {
-      longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 99, tr(" mph"));
+      longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 99, tr(" 英里/小時"));
     } else if (param == "IncreasedStoppedDistance") {
-      longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, tr(" feet"));
+      longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, tr(" 英尺"));
     } else if (param == "MapGears") {
       std::vector<QString> mapGearsToggles{"MapAcceleration", "MapDeceleration"};
       std::vector<QString> mapGearsToggleNames{tr("加速"), tr("減速")};
       longitudinalToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, mapGearsToggles, mapGearsToggleNames);
     } else if (param == "SetSpeedOffset") {
-      longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr(" mph"));
+      longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr(" 英里/小時"));
     } else if (param == "WeatherPresets") {
       FrogPilotManageControl *weatherToggle = new FrogPilotManageControl(param, title, desc, icon);
       QObject::connect(weatherToggle, &FrogPilotManageControl::manageButtonClicked, [longitudinalLayout, weatherPanel, this]() {
@@ -418,30 +420,30 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       });
       longitudinalToggle = weatherToggle;
     } else if (param == "SetWeatherKey") {
-      weatherKeyControl = new FrogPilotButtonsControl(title, desc, icon, {tr("ADD"), tr("TEST")});
+      weatherKeyControl = new FrogPilotButtonsControl(title, desc, icon, {tr("添加"), tr("測試")});
       QObject::connect(weatherKeyControl, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
         if (id == 0) {
           if (!params.get("WeatherToken").empty()) {
-            if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to remove your key?"), this)) {
+            if (FrogPilotConfirmationDialog::yesorno(tr("您確定要刪除您的密鑰嗎？"), this)) {
               params.remove("WeatherToken");
               params_cache.remove("WeatherToken");
 
-              weatherKeyControl->setText(0, tr("ADD"));
+              weatherKeyControl->setText(0, tr("添加"));
               weatherKeyControl->setVisibleButton(1, false);
             }
           } else {
             int keyLength = 32;
             QString currentKey = QString::fromStdString(params.get("WeatherToken"));
-            QString newKey = InputDialog::getText(tr("Enter your \"OpenWeatherMap\" key"), this, tr("Characters: 0/%1").arg(keyLength), false, -1, currentKey, keyLength).trimmed();
+            QString newKey = InputDialog::getText(tr("輸入您的“OpenWeatherMap”密鑰"), this, tr("Characters: 0/%1").arg(keyLength), false, -1, currentKey, keyLength).trimmed();
             if (!newKey.isEmpty()) {
               params.put("WeatherToken", newKey.toStdString());
 
-              weatherKeyControl->setText(0, tr("REMOVE"));
+              weatherKeyControl->setText(0, tr("消除"));
               weatherKeyControl->setVisibleButton(1, true);
             }
           }
         } else if (id == 1) {
-          weatherKeyControl->setValue(tr("Testing..."));
+          weatherKeyControl->setValue(tr("測試中..."));
 
           QString key = QString::fromStdString(params.get("WeatherToken")).trimmed();
           QString url30 = QString("https://api.openweathermap.org/data/3.0/onecall?lat=42.4293&lon=-83.9850&exclude=current,minutely,hourly,daily,alerts&appid=%1").arg(key);
@@ -453,7 +455,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
 
             if (reply->error() == QNetworkReply::NoError) {
               weatherKeyControl->setValue("");
-              ConfirmationDialog::alert(tr("Key is valid!"), this);
+              ConfirmationDialog::alert(tr("密鑰有效!"), this);
               return;
             }
 
@@ -468,22 +470,22 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
 
                 weatherKeyControl->setValue("");
                 if (reply25->error() == QNetworkReply::NoError) {
-                  ConfirmationDialog::alert(tr("Your key is valid for version 2.5, but version 3.0 is highly recommended! Please subscribe to the \"One Call API 3.0\" plan!"), this);
+                  ConfirmationDialog::alert(tr("您的密鑰對於 2.5 版本有效，但強烈建議使用 3.0 版本！請訂閱“One Call API 3.0”計劃！"), this);
                 } else {
                    int status25 = reply25->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-                   ConfirmationDialog::alert(tr("Invalid key! (Error: %1)").arg(status25), this);
+                   ConfirmationDialog::alert(tr("無效密鑰！ (Error: %1)").arg(status25), this);
                 }
               });
             } else {
               weatherKeyControl->setValue("");
-              ConfirmationDialog::alert(tr("An error occurred: %1").arg(reply->errorString()), this);
+              ConfirmationDialog::alert(tr("發生錯誤: %1").arg(reply->errorString()), this);
             }
           });
         }
       });
       longitudinalToggle = weatherKeyControl;
     } else if (param == "LowVisibilityOffsets") {
-      ButtonControl *manageLowVisibilitOffsetsButton = new ButtonControl(title, tr("MANAGE"), desc);
+      ButtonControl *manageLowVisibilitOffsetsButton = new ButtonControl(title, tr("管理"), desc);
       QObject::connect(manageLowVisibilitOffsetsButton, &ButtonControl::clicked, [longitudinalLayout, weatherLowVisibilityPanel, this]() {
         openSubSubSubPanel();
 
@@ -493,7 +495,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       });
       longitudinalToggle = manageLowVisibilitOffsetsButton;
     } else if (param == "RainOffsets") {
-      ButtonControl *manageRainOffsetsButton = new ButtonControl(title, tr("MANAGE"), desc);
+      ButtonControl *manageRainOffsetsButton = new ButtonControl(title, tr("管理"), desc);
       QObject::connect(manageRainOffsetsButton, &ButtonControl::clicked, [longitudinalLayout, weatherRainPanel, this]() {
         openSubSubSubPanel();
 
@@ -503,7 +505,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       });
       longitudinalToggle = manageRainOffsetsButton;
     } else if (param == "RainStormOffsets") {
-      ButtonControl *manageRainStormOffsetsButton = new ButtonControl(title, tr("MANAGE"), desc);
+      ButtonControl *manageRainStormOffsetsButton = new ButtonControl(title, tr("管理"), desc);
       QObject::connect(manageRainStormOffsetsButton, &ButtonControl::clicked, [longitudinalLayout, weatherRainStormPanel, this]() {
         openSubSubSubPanel();
 
@@ -513,7 +515,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       });
       longitudinalToggle = manageRainStormOffsetsButton;
     } else if (param == "SnowOffsets") {
-      ButtonControl *manageSnowOffsetsButton = new ButtonControl(title, tr("MANAGE"), desc);
+      ButtonControl *manageSnowOffsetsButton = new ButtonControl(title, tr("管理"), desc);
       QObject::connect(manageSnowOffsetsButton, &ButtonControl::clicked, [longitudinalLayout, weatherSnowPanel, this]() {
         openSubSubSubPanel();
 
@@ -525,7 +527,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     } else if (param == "IncreaseFollowingLowVisibility" || param == "IncreaseFollowingRain" || param == "IncreaseFollowingRainStorm" || param == "IncreaseFollowingSnow") {
       std::map<float, QString> followTimeLabels;
       for (float i = 0; i <= 3; i += 0.01) {
-        followTimeLabels[i] = std::lround(i / 0.01) == 1 / 0.01 ? QString::number(i, 'f', 2) + tr(" second") : QString::number(i, 'f', 2) + tr(" seconds");
+        followTimeLabels[i] = std::lround(i / 0.01) == 1 / 0.01 ? QString::number(i, 'f', 2) + tr(" 秒") : QString::number(i, 'f', 2) + tr(" 秒");
       }
       longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 3, QString(), followTimeLabels, 0.01, true);
     } else if (param == "IncreasedStoppedDistanceLowVisibility" || param == "IncreasedStoppedDistanceRain" || param == "IncreasedStoppedDistanceRainStorm" || param == "IncreasedStoppedDistanceSnow") {
@@ -944,21 +946,21 @@ void FrogPilotLongitudinalPanel::updateMetric(bool metric, bool bootRun) {
   FrogPilotParamValueControl *setSpeedOffsetToggle = static_cast<FrogPilotParamValueControl*>(toggles["SetSpeedOffset"]);
 
   if (metric) {
-    offset1Toggle->setTitle(tr("Speed Offset (0–29 km/h)"));
-    offset2Toggle->setTitle(tr("Speed Offset (30–49 km/h)"));
-    offset3Toggle->setTitle(tr("Speed Offset (50–59 km/h)"));
-    offset4Toggle->setTitle(tr("Speed Offset (60–79 km/h)"));
-    offset5Toggle->setTitle(tr("Speed Offset (80–99 km/h)"));
-    offset6Toggle->setTitle(tr("Speed Offset (100–119 km/h)"));
-    offset7Toggle->setTitle(tr("Speed Offset (120–140 km/h)"));
+    offset1Toggle->setTitle(tr("速度偏移 (0–29 km/h)"));
+    offset2Toggle->setTitle(tr("速度偏移 (30–49 km/h)"));
+    offset3Toggle->setTitle(tr("速度偏移 (50–59 km/h)"));
+    offset4Toggle->setTitle(tr("速度偏移 (60–79 km/h)"));
+    offset5Toggle->setTitle(tr("速度偏移 (80–99 km/h)"));
+    offset6Toggle->setTitle(tr("速度偏移 (100–119 km/h)"));
+    offset7Toggle->setTitle(tr("速度偏移 (120–140 km/h)"));
 
-    offset1Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 0 and 24 mph."));
-    offset2Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 25 and 34 mph."));
-    offset3Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 35 and 44 mph."));
-    offset4Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 45 and 54 mph."));
-    offset5Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 55 and 64 mph."));
-    offset6Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 65 and 74 mph."));
-    offset7Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 75 and 99 mph."));
+    offset1Toggle->setDescription(tr("<b>在 0 到 24 英里/小時之間偏移張貼的速度限制多少</b>。"));
+    offset2Toggle->setDescription(tr("<b>在 25 到 34 英里/小時之間偏移張貼的速度限制多少</b>。"));
+    offset3Toggle->setDescription(tr("<b>在 35 到 44 英里/小時之間偏移張貼的速度限制多少</b>。"));
+    offset4Toggle->setDescription(tr("<b>在 45 到 54 英里/小時之間偏移張貼的速度限制多少</b>。"));
+    offset5Toggle->setDescription(tr("<b>在 55 到 64 英里/小時之間偏移張貼的速度限制多少</b>。"));
+    offset6Toggle->setDescription(tr("<b>在 65 到 74 英里/小時之間偏移張貼的速度限制多少</b>。"));
+    offset7Toggle->setDescription(tr("<b>在 75 到 99 英里/小時之間偏移張貼的速度限制多少</b>。"));
 
     increasedStoppedDistanceToggle->updateControl(0, 3, metricDistanceLabels);
     increasedStoppedDistanceLowVisibilityToggle->updateControl(0, 3, metricDistanceLabels);
@@ -979,21 +981,21 @@ void FrogPilotLongitudinalPanel::updateMetric(bool metric, bool bootRun) {
     offset7Toggle->updateControl(-150, 150, metricSpeedLabels);
     setSpeedOffsetToggle->updateControl(-150, 150, metricSpeedLabels);
   } else {
-    offset1Toggle->setTitle(tr("Speed Offset (0–24 mph)"));
-    offset2Toggle->setTitle(tr("Speed Offset (25–34 mph)"));
-    offset3Toggle->setTitle(tr("Speed Offset (35–44 mph)"));
-    offset4Toggle->setTitle(tr("Speed Offset (45–54 mph)"));
-    offset5Toggle->setTitle(tr("Speed Offset (55–64 mph)"));
-    offset6Toggle->setTitle(tr("Speed Offset (65–74 mph)"));
-    offset7Toggle->setTitle(tr("Speed Offset (75–99 mph)"));
+    offset1Toggle->setTitle(tr("速度偏移 (0–24 英里/小時)"));
+    offset2Toggle->setTitle(tr("速度偏移 (25–34 英里/小時)"));
+    offset3Toggle->setTitle(tr("速度偏移 (35–44 英里/小時)"));
+    offset4Toggle->setTitle(tr("速度偏移 (45–54 英里/小時)"));
+    offset5Toggle->setTitle(tr("速度偏移 (55–64 英里/小時)"));
+    offset6Toggle->setTitle(tr("速度偏移 (65–74 英里/小時)"));
+    offset7Toggle->setTitle(tr("速度偏移 (75–99 英里/小時)"));
 
-    offset1Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 0 and 24 mph."));
-    offset2Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 25 and 34 mph."));
-    offset3Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 35 and 44 mph."));
-    offset4Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 45 and 54 mph."));
-    offset5Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 55 and 64 mph."));
-    offset6Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 65 and 74 mph."));
-    offset7Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 75 and 99 mph."));
+    offset1Toggle->setDescription(tr("<b>在 0 到 24 英里/小時之間偏移張貼的速度限制多少</b>。"));
+    offset2Toggle->setDescription(tr("<b>在 25 到 34 英里/小時之間偏移張貼的速度限制多少</b>。"));
+    offset3Toggle->setDescription(tr("<b>在 35 到 44 英里/小時之間偏移張貼的速度限制多少</b>。"));
+    offset4Toggle->setDescription(tr("<b>在 45 到 54 英里/小時之間偏移張貼的速度限制多少</b>。"));
+    offset5Toggle->setDescription(tr("<b>在 55 到 64 英里/小時之間偏移張貼的速度限制多少</b>。"));
+    offset6Toggle->setDescription(tr("<b>在 65 到 74 英里/小時之間偏移張貼的速度限制多少</b>。"));
+    offset7Toggle->setDescription(tr("<b>在 75 到 99 英里/小時之間偏移張貼的速度限制多少</b>。"));
 
     increasedStoppedDistanceToggle->updateControl(0, 10, imperialDistanceLabels);
     increasedStoppedDistanceLowVisibilityToggle->updateControl(0, 10, imperialDistanceLabels);

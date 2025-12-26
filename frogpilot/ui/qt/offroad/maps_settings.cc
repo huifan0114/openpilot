@@ -181,7 +181,7 @@ void FrogPilotMapsPanel::showEvent(QShowEvent *event) {
   std::string osmDownloadProgress = params.get("OSMDownloadProgress");
   if (!osmDownloadProgress.empty()) {
     downloadMapsButton->setText(tr("取消"));
-    downloadStatus->setText(tr("Calculating..."));
+    downloadStatus->setText(tr("計算..."));
 
     downloadStatus->setVisible(true);
 
@@ -192,7 +192,7 @@ void FrogPilotMapsPanel::showEvent(QShowEvent *event) {
     updateDownloadLabels(osmDownloadProgress);
   } else {
     downloadMapsButton->setEnabled(!cancellingDownload && hasMapsSelected && fs.frogpilot_scene.online && parked);
-    downloadMapsButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : tr("Not parked")) : tr("離線中..."));
+    downloadMapsButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : tr("非停車狀態")) : tr("離線中..."));
   }
 }
 
@@ -209,7 +209,7 @@ void FrogPilotMapsPanel::updateState(const UIState &s, const FrogPilotUIState &f
     updateDownloadLabels(osmDownloadProgress);
   } else {
     downloadMapsButton->setEnabled(!cancellingDownload && hasMapsSelected && fs.frogpilot_scene.online && parked);
-    downloadMapsButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : tr("Not parked")) : tr("離線中..."));
+    downloadMapsButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : tr("非停車狀態")) : tr("離線中..."));
   }
 
   parent->keepScreenOn = !osmDownloadProgress.empty();
@@ -220,10 +220,10 @@ void FrogPilotMapsPanel::cancelDownload() {
 
   downloadMapsButton->setEnabled(false);
 
-  downloadETA->setText(tr("Calculating..."));
+  downloadETA->setText(tr("計算中..."));
   downloadMapsButton->setText(tr("取消"));
-  downloadStatus->setText(tr("Calculating..."));
-  downloadTimeElapsed->setText(tr("Calculating..."));
+  downloadStatus->setText(tr("計算中..."));
+  downloadTimeElapsed->setText(tr("計算中..."));
 
   params.remove("OSMDownloadProgress");
   params_memory.remove("OSMDownloadLocations");
@@ -250,10 +250,10 @@ void FrogPilotMapsPanel::cancelDownload() {
 }
 
 void FrogPilotMapsPanel::startDownload() {
-  downloadETA->setText(tr("Calculating..."));
+  downloadETA->setText(tr("計算中..."));
   downloadMapsButton->setText(tr("取消"));
-  downloadStatus->setText(tr("Calculating..."));
-  downloadTimeElapsed->setText(tr("Calculating..."));
+  downloadStatus->setText(tr("計算中..."));
+  downloadTimeElapsed->setText(tr("計算中..."));
 
   downloadETA->setVisible(true);
   downloadStatus->setVisible(true);

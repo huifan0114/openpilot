@@ -752,14 +752,14 @@ void FrogPilotThemesPanel::updateState(const UIState &s, const FrogPilotUIState 
 
    if (progress != "Downloading...") {
       static const QMap<QString, QString> progressTranslations = {
-        {"Unpacking theme...", tr("Unpacking theme...")},
-        {"Downloaded!", tr("Downloaded!")},
-        {"Download cancelled...", tr("Download cancelled...")},
-        {"Download failed...", tr("Download failed...")},
-        {"Repository unavailable", tr("Repository unavailable")},
-        {"GitHub and GitLab are offline...", tr("GitHub and GitLab are offline...")}
+        {"Unpacking theme...", tr("拆解主題...")},
+        {"Downloaded!", tr("已下載!")},
+        {"Download cancelled...", tr("下載已取消...")},
+        {"Download failed...", tr("下載失敗...")},
+        {"Repository unavailable", tr("倉庫不可用")},
+        {"GitHub and GitLab are offline...", tr("GitHub 和 GitLab 離線...")}
       };
-      downloadStatusLabel->setText(progressTranslations.value(progress, tr("Idle")));
+      downloadStatusLabel->setText(progressTranslations.value(progress, tr("閒置的")));
     }
 
     if (progress == "Downloaded!" || downloadFailed) {
@@ -792,32 +792,32 @@ void FrogPilotThemesPanel::updateState(const UIState &s, const FrogPilotUIState 
 
   bool parked = !s.scene.started || fs.frogpilot_scene.parked || fs.frogpilot_toggles.value("frogs_go_moo").toBool();
 
-  manageCustomColorsButton->setText(1, colorDownloading ? tr("CANCEL") : tr("DOWNLOAD"));
+  manageCustomColorsButton->setText(1, colorDownloading ? tr("取消") : tr("下載"));
   manageCustomColorsButton->setEnabledButtons(0, !themeDownloading);
   manageCustomColorsButton->setEnabledButtons(1, fs.frogpilot_scene.online && (!themeDownloading || colorDownloading) && !cancellingDownload && !finalizingDownload && !colorsDownloaded && parked);
   manageCustomColorsButton->setEnabledButtons(2, !themeDownloading);
 
-  manageCustomIconsButton->setText(1, iconDownloading ? tr("CANCEL") : tr("DOWNLOAD"));
+  manageCustomIconsButton->setText(1, iconDownloading ? tr("取消") : tr("下載"));
   manageCustomIconsButton->setEnabledButtons(0, !themeDownloading);
   manageCustomIconsButton->setEnabledButtons(1, fs.frogpilot_scene.online && (!themeDownloading || iconDownloading) && !cancellingDownload && !finalizingDownload && !iconsDownloaded && parked);
   manageCustomIconsButton->setEnabledButtons(2, !themeDownloading);
 
-  manageCustomSignalsButton->setText(1, signalDownloading ? tr("CANCEL") : tr("DOWNLOAD"));
+  manageCustomSignalsButton->setText(1, signalDownloading ? tr("取消") : tr("下載"));
   manageCustomSignalsButton->setEnabledButtons(0, !themeDownloading);
   manageCustomSignalsButton->setEnabledButtons(1, fs.frogpilot_scene.online && (!themeDownloading || signalDownloading) && !cancellingDownload && !finalizingDownload && !signalsDownloaded && parked);
   manageCustomSignalsButton->setEnabledButtons(2, !themeDownloading);
 
-  manageCustomSoundsButton->setText(1, soundDownloading ? tr("CANCEL") : tr("DOWNLOAD"));
+  manageCustomSoundsButton->setText(1, soundDownloading ? tr("取消") : tr("下載"));
   manageCustomSoundsButton->setEnabledButtons(0, !themeDownloading);
   manageCustomSoundsButton->setEnabledButtons(1, fs.frogpilot_scene.online && (!themeDownloading || soundDownloading) && !cancellingDownload && !finalizingDownload && !soundsDownloaded && parked);
   manageCustomSoundsButton->setEnabledButtons(2, !themeDownloading);
 
-  manageDistanceIconsButton->setText(1, distanceIconDownloading ? tr("CANCEL") : tr("DOWNLOAD"));
+  manageDistanceIconsButton->setText(1, distanceIconDownloading ? tr("取消") : tr("下載"));
   manageDistanceIconsButton->setEnabledButtons(0, !themeDownloading);
   manageDistanceIconsButton->setEnabledButtons(1, fs.frogpilot_scene.online && (!themeDownloading || distanceIconDownloading) && !cancellingDownload && !finalizingDownload && !distanceIconsDownloaded && parked);
   manageDistanceIconsButton->setEnabledButtons(2, !themeDownloading);
 
-  manageWheelIconsButton->setText(1, wheelDownloading ? tr("CANCEL") : tr("DOWNLOAD"));
+  manageWheelIconsButton->setText(1, wheelDownloading ? tr("取消") : tr("下載"));
   manageWheelIconsButton->setEnabledButtons(0, !themeDownloading);
   manageWheelIconsButton->setEnabledButtons(1, fs.frogpilot_scene.online && (!themeDownloading || wheelDownloading) && !cancellingDownload && !finalizingDownload && !wheelsDownloaded && parked);
   manageWheelIconsButton->setEnabledButtons(2, !themeDownloading);

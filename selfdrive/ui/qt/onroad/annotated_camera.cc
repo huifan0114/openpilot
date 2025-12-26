@@ -203,17 +203,17 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
     p.save();
     p.setOpacity(frogpilotPlan.getSlcOverriddenSpeed() == 0 ? 1.0 : 0.25);
     if (frogpilotPlan.getSlcOverriddenSpeed() == 0 && frogpilot_toggles.value("show_speed_limit_offset").toBool()) {
-      p.setFont(InterFont(28, QFont::DemiBold));
+      p.setFont(InterFont(28, QFont::Normal));
       p.drawText(sign_rect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("速限"));
-      p.setFont(InterFont(70, QFont::Bold));
+      p.setFont(InterFont(70, QFont::Normal));
       p.drawText(sign_rect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, speedLimitStr);
-      p.setFont(InterFont(50, QFont::DemiBold));
+      p.setFont(InterFont(50, QFont::Normal));
       p.drawText(sign_rect.adjusted(0, 120, 0, 0), Qt::AlignTop | Qt::AlignHCenter, frogpilot_nvg->speedLimitOffsetStr);
     } else {
       p.setFont(InterFont(28, QFont::Normal));
       p.drawText(sign_rect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("速度"));
       p.drawText(sign_rect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("速限"));
-      p.setFont(InterFont(70, QFont::Bold));
+      p.setFont(InterFont(70, QFont::Normal));
       p.drawText(sign_rect.adjusted(0, 85, 0, 0), Qt::AlignTop | Qt::AlignHCenter, speedLimitStr);
     }
     p.restore();

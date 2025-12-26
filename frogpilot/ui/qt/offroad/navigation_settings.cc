@@ -40,11 +40,11 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   createKeyControl(amapKeyControl1, tr("Amap 金鑰 #1"), "AMapKey1", "", 39, settingsList);
   createKeyControl(amapKeyControl2, tr("Amap 金鑰 #2"), "AMapKey2", "", 39, settingsList);
 
-  publicMapboxKeyControl = new FrogPilotButtonsControl(tr("Public Mapbox Key"), tr("<b>Manage your Public Mapbox Key.</b>"), "", {tr("增加"), tr("測試")});
+  publicMapboxKeyControl = new FrogPilotButtonsControl(tr("公共 Mapbox 密鑰"), tr("<b>管理您的 Mapbox 公共密鑰.</b>"), "", {tr("增加"), tr("測試")});
   QObject::connect(publicMapboxKeyControl, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
     if (id == 0) {
       if (mapboxPublicKeySet) {
-        if (FrogPilotConfirmationDialog::yesorno(tr("Remove your Public Mapbox Key?"), this)) {
+        if (FrogPilotConfirmationDialog::yesorno(tr("刪除您的 Mapbox 公共密鑰?"), this)) {
           params.remove("MapboxPublicKey");
           params_cache.remove("MapboxPublicKey");
 
@@ -52,7 +52,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
         }
       } else {
         int minKeyLength = 80;
-        QString key = InputDialog::getText(tr("Enter your Public Mapbox Key"), this, "", false, minKeyLength).trimmed();
+        QString key = InputDialog::getText(tr("輸入您的 Mapbox 公共密鑰"), this, "", false, minKeyLength).trimmed();
         if (!key.isEmpty()) {
           if (!key.startsWith("pk.")) {
             key = "pk." + key;
@@ -62,7 +62,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
         }
       }
     } else {
-      publicMapboxKeyControl->setValue(tr("Testing..."));
+      publicMapboxKeyControl->setValue(tr("測試中..."));
 
       QString key = QString::fromStdString(params.get("MapboxPublicKey"));
       QString url = QString("https://api.mapbox.com/geocoding/v5/mapbox.places/mapbox.json?access_token=%1").arg(key);
@@ -74,11 +74,11 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
 
         QString message;
         if (reply->error() == QNetworkReply::NoError) {
-          message = tr("Key is valid!");
+          message = tr("密鑰有效!");
         } else if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 401) {
-          message = tr("Key is invalid!");
+          message = tr("密鑰無效!");
         } else {
-          message = tr("An error occurred: %1").arg(reply->errorString());
+          message = tr("發生錯誤: %1").arg(reply->errorString());
         }
         ConfirmationDialog::alert(message, this);
         reply->deleteLater();
@@ -87,11 +87,11 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   });
   settingsList->addItem(publicMapboxKeyControl);
 
-  secretMapboxKeyControl = new FrogPilotButtonsControl(tr("Secret Mapbox Key"), tr("<b>Manage your Secret Mapbox Key.</b>"), "", {tr("ADD"), tr("TEST")});
+  secretMapboxKeyControl = new FrogPilotButtonsControl(tr("秘密地圖箱鑰匙"), tr("<b>管理您的 Mapbox 秘密密鑰。</b>"), "", {tr("添加"), tr("測試")});
   QObject::connect(secretMapboxKeyControl, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
     if (id == 0) {
       if (mapboxSecretKeySet) {
-        if (FrogPilotConfirmationDialog::yesorno(tr("Remove your Secret Mapbox Key?"), this)) {
+        if (FrogPilotConfirmationDialog::yesorno(tr("刪除您的 Mapbox 秘密密鑰？"), this)) {
           params.remove("MapboxSecretKey");
           params_cache.remove("MapboxSecretKey");
 
@@ -99,7 +99,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
         }
       } else {
         int minKeyLength = 80;
-        QString key = InputDialog::getText(tr("Enter your Secret Mapbox Key"), this, "", false, minKeyLength).trimmed();
+        QString key = InputDialog::getText(tr("輸入您的 Mapbox 秘密密鑰"), this, "", false, minKeyLength).trimmed();
         if (!key.isEmpty()) {
           if (!key.startsWith("sk.")) {
             key = "sk." + key;
@@ -109,7 +109,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
         }
       }
     } else {
-      secretMapboxKeyControl->setValue(tr("Testing..."));
+      secretMapboxKeyControl->setValue(tr("測試中..."));
 
       QString key = QString::fromStdString(params.get("MapboxSecretKey"));
       QString url = QString("https://api.mapbox.com/directions/v5/mapbox/driving/-73.989,40.733;-74,40.733?access_token=%1").arg(key);
@@ -121,11 +121,11 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
 
         QString message;
         if (reply->error() == QNetworkReply::NoError) {
-          message = tr("Key is valid!");
+          message = tr("密鑰有效!");
         } else if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 401) {
-          message = tr("Key is invalid!");
+          message = tr("密鑰無效!");
         } else {
-          message = tr("An error occurred: %1").arg(reply->errorString());
+          message = tr("發生錯誤: %1").arg(reply->errorString());
         }
         ConfirmationDialog::alert(message, this);
         reply->deleteLater();

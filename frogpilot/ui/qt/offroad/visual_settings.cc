@@ -84,11 +84,11 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     {"CustomUI", tr("駕駛畫面小工具"), tr("<b>用於駕駛畫面的自訂 FrogPilot 小工具</b>。"), "../assets/offroad/icon_road.png"},
     {"AccelerationPath", tr("加速度路徑"), tr("<b>依據規劃的加減速為行駛路徑著色</b>。"), ""},
     {"AdjacentPath", tr("鄰道"), tr("<b>顯示左右車道的行駛路徑</b>。"), ""},
-    {"BlindSpotPath", tr("Blind Spot Path"), tr("<b>Show a red path when a vehicle is in that lane's blind spot.</b>"), ""},
-    {"Compass", tr("Compass"), tr("<b>Show the current driving direction</b> with a simple on-screen compass."), ""},
-    {"OnroadDistanceButton", tr("Driving Personality Button"), tr("<b>Control and view the current driving personality</b> via a driving screen widget."), ""},
-    {"PedalsOnUI", tr("Gas / Brake Pedal Indicators"), tr("<b>On-screen gas and brake indicators.</b><br><br><b>Dynamic</b>: Opacity changes according to how much openpilot is accelerating or braking<br><b>Static</b>: Full when active, dim when not"), ""},
-    {"RotatingWheel", tr("Rotating Steering Wheel"), tr("<b>Rotate the driving screen wheel</b> with the physical steering wheel."), ""},
+    {"BlindSpotPath", tr("盲點路徑"), tr("<b>當車輛位​​於該車道盲點時顯示紅色路徑。</b>"), ""},
+    {"Compass", tr("Compass"), tr("使用簡單的屏幕指南針<b>顯示當前行駛方向</b>。"), ""},
+    {"OnroadDistanceButton", tr("駕駛個性按鈕"), tr("通過駕駛屏幕小部件<b>控制和查看當前駕駛個性</b>。"), ""},
+    {"PedalsOnUI", tr("油門/制動踏板指示器"), tr("<b>屏幕上的油門和製動指示器。</b><br><br><b>動態</b>：不透明度根據 openpilot 加速或製動的程度而變化<br><b>靜態</b>：活動時滿，不活動時暗"), ""},
+    {"RotatingWheel", tr("旋轉方向盤"), tr("用實體方向盤<b>旋轉駕駛屏幕輪</b>。"), ""},
 
     {"ModelUI", tr("模型介面"), tr("<b>駕駛路徑、車道線、路徑邊緣與道路邊緣的模型視覺化</b>。"), "../../frogpilot/assets/toggle_icons/icon_road.png"},
     {"DynamicPathWidth", tr("動態路徑寬度"), tr("<b>依據接管狀態調整路徑寬度</b><br><br><b>完全接管</b>：100%<br><b>側向恆開</b>：75%<br><b>未接管</b>：50%"), ""},
@@ -200,23 +200,23 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
       visualToggle = developerSidebarToggle;
     } else if (developerSidebarKeys.contains(param)) {
       QMap<int, QString> developerSidebarMetricOptions {
-        {0, tr("None")},
-        {1, tr("Acceleration: Current")},
-        {2, tr("Acceleration: Max")},
-        {3, tr("Auto Tune: Actuator Delay")},
-        {4, tr("Auto Tune: Friction")},
-        {5, tr("Auto Tune: Lateral Acceleration")},
-        {6, tr("Auto Tune: Steer Ratio")},
-        {7, tr("Auto Tune: Stiffness Factor")},
-        {8, tr("Engagement %: Lateral")},
-        {9, tr("Engagement %: Longitudinal")},
-        {10, tr("Lateral Control: Steering Angle")},
-        {11, tr("Lateral Control: Torque % Used")},
-        {12, tr("Longitudinal Control: Actuator Acceleration Output")},
-        {13, tr("Longitudinal MPC: Danger Factor")},
-        {14, tr("Longitudinal MPC Jerk: Acceleration")},
-        {15, tr("Longitudinal MPC Jerk: Danger Zone")},
-        {16, tr("Longitudinal MPC Jerk: Speed Control")},
+        {0，tr（“無”）}，
+        {1, tr("加速度：當前")},
+        {2, tr("加速度：最大")},
+        {3, tr("自動調諧：執行器延遲")},
+        {4, tr("自動調諧：摩擦力")},
+        {5, tr("自動調諧：橫向加速度")},
+        {6, tr("自動調諧：轉向比")},
+        {7, tr("自動調諧：剛度係數")},
+        {8，tr（“參與％：橫向”）}，
+        {9, tr("接合百分比：縱向")},
+        {10, tr("橫向控制：轉向角度")},
+        {11, tr("橫向控制：使用的扭矩%")},
+        {12, tr("縱向控制：執行器加速度輸出")},
+        {13, tr("縱向 MPC：危險因素")},
+        {14, tr("縱向 MPC 加加速度：加速度")},
+        {15, tr("縱向 MPC 加加速度：危險區域")},
+        {16, tr("縱向 MPC 加加速度：速度控制")},
       };
 
       ButtonControl *metricToggle = new ButtonControl(title, tr("選擇"), desc);
@@ -275,7 +275,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
       });
       visualToggle = modelUIToggle;
     } else if (param == "LaneLinesWidth" || param == "RoadEdgesWidth") {
-      visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 24, tr(" inches"));
+      visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 24, tr(" 英寸"));
     } else if (param == "PathEdgeWidth") {
       std::map<float, QString> pathEdgeLabels;
       for (int i = 0; i <= 100; ++i) {
@@ -283,7 +283,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
       }
       visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 100, QString(), pathEdgeLabels);
     } else if (param == "PathWidth") {
-      visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, tr(" feet"), std::map<float, QString>(), 0.1);
+      visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, tr(" 英尺"), std::map<float, QString>(), 0.1);
 
     } else if (param == "NavigationUI") {
       FrogPilotManageControl *navigationUIToggle = new FrogPilotManageControl(param, title, desc, icon);
@@ -342,13 +342,13 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
       // Simple Dash 主題選擇器 - 硬編碼主題列表（新增主題時需更新此處）
       QStringList themeList{"HFOP-GTI-NAVDASH", "SIMPLE-DASH"};
 
-      ButtonControl *themeButton = new ButtonControl(title, tr("SELECT"), desc);
+      ButtonControl *themeButton = new ButtonControl(title, tr("選擇"), desc);
       QObject::connect(themeButton, &ButtonControl::clicked, [themeButton, themeList, this]() {
         QString currentTheme = QString::fromStdString(params.get("SimpleDashTheme"));
         if (currentTheme.isEmpty()) {
           currentTheme = "HFOP-GTI-NAVDASH";
         }
-        QString selection = MultiOptionDialog::getSelection(tr("Select a Simple Dash theme"), themeList, currentTheme, this);
+        QString selection = MultiOptionDialog::getSelection(tr("選擇 Simple Dash 主題"), themeList, currentTheme, this);
         if (!selection.isEmpty()) {
           params.put("SimpleDashTheme", selection.toStdString());
           themeButton->setValue(selection);

@@ -142,11 +142,11 @@ void ScreenRecorder::paintEvent(QPaintEvent *event) {
     int glowWidth = 8 + static_cast<int>(2 * alphaFactor);
 
     p.setBrush(blackColor(166));
-    p.setFont(InterFont(25, QFont::Bold));
+    p.setFont(InterFont(25, QFont::Normal));
     p.setPen(QPen(glowColor, glowWidth));
   } else {
     p.setBrush(blackColor(166));
-    p.setFont(InterFont(25, QFont::DemiBold));
+    p.setFont(InterFont(25, QFont::Normal));
     p.setPen(QPen(redColor(), 8));
   }
 
