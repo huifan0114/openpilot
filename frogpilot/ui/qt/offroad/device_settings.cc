@@ -33,22 +33,22 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
   deviceLayout->addWidget(screenPanel);
 
   const std::vector<std::tuple<QString, QString, QString, QString>> deviceToggles {
-    {"DeviceManagement", tr("Device Settings"), tr("<b>Settings that control how the device runs, powers off, and manages driving data.</b>"), "../../frogpilot/assets/toggle_icons/icon_device.png"},
-    {"DeviceShutdown", tr("Device Shutdown Timer"), tr("<b>Keep the device on for the set amount of time after a drive</b> before it shuts down automatically."), ""},
-    {"NoLogging", tr("Disable Logging"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This will prevent your drives from being recorded and all data will be unobtainable!")).arg(tr("<b>Prevent the device from saving driving data.</b>")), ""},
-    {"NoUploads", tr("Disable Uploads"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This will prevent your drives from being uploaded to <b>comma connect</b> which will impact debugging and official support from comma!")).arg(tr("<b>Prevent the device from uploading driving data.</b>")), ""},
-    {"HigherBitrate", tr("High-Quality Recording"), tr("<b>Save drive footage in higher video quality.</b>"), ""},
-    {"LowVoltageShutdown", tr("Low-Voltage Cutoff"), tr("<b>While parked, if the battery voltage falls below the set level, the device shuts down</b> to prevent excessive battery drain."), ""},
-    {"IncreaseThermalLimits", tr("Raise Temperature Limits"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: Running at higher temperatures may damage your device!")).arg(tr("<b>Allow the device to run at higher temperatures</b> before throttling or shutting down. Use only if you understand the risks!")), ""},
-    {"UseKonikServer", tr("Use Konik Server"), tr("<b>Upload driving data to \"connect.konik.ai\" instead of \"connect.comma.ai\".</b>"), ""},
+    {"DeviceManagement", tr("裝置設定"), tr("<b>控制裝置執行、關機及管理行車數據的設定。</b>"), "../../frogpilot/assets/toggle_icons/icon_device.png"},
+    {"DeviceShutdown", tr("裝置關閉計時器"), tr("在行駛結束後設定時間內保持裝置開啟，才自動關閉。"), ""},
+    {"NoLogging", tr("停用日誌記錄"), QString("<b>%1</b><br><br>%2").arg(tr("警告：這將防止您的行駛被記錄，所有數據將無法獲得！")).arg(tr("<b>防止裝置保存行車數據。</b>")), ""},
+    {"NoUploads", tr("停用上傳"), QString("<b>%1</b><br><br>%2").arg(tr("警告：這將防止您的行駛被上傳到 <b>comma connect</b>，會影響偵錯和逗號官方支援！")).arg(tr("<b>防止裝置上傳行車數據。</b>")), ""},
+    {"HigherBitrate", tr("高品質錄影"), tr("<b>以更高的視頻品質保存行車影像。</b>"), ""},
+    {"LowVoltageShutdown", tr("低電壓截止"), tr("停止時，如果電池電壓低於設定水平，裝置會關閉以防止電池過度放電。"), ""},
+    {"IncreaseThermalLimits", tr("提高溫度限制"), QString("<b>%1</b><br><br>%2").arg(tr("警告：在更高溫度下運行可能會損壞您的裝置！")).arg(tr("<b>允許裝置在更高溫度下運行</b>，然後限流或關閉。僅在您了解風險時使用！")), ""},
+    {"UseKonikServer", tr("使用 Konik 伺服器"), tr("<b>將行車數據上傳到 \"connect.konik.ai\" 而不是 \"connect.comma.ai\"。</b>"), ""},
 
-    {"ScreenManagement", tr("Screen Settings"), tr("<b>Settings that control screen brightness, screen recording, and timeout duration.</b>"), "../../frogpilot/assets/toggle_icons/icon_light.png"},
-    {"ScreenBrightness", tr("Screen Brightness (Offroad)"), tr("<b>The screen brightness while not driving.</b>"), ""},
-    {"ScreenBrightnessOnroad", tr("Screen Brightness (Onroad)"), tr("<b>The screen brightness while driving.</b>"), ""},
-    {"ScreenRecorder", tr("Screen Recorder"), tr("<b>Add a button to the driving screen to record the display.</b>"), ""},
-    {"ScreenTimeout", tr("Screen Timeout (Offroad)"), tr("<b>How long the screen stays on after being tapped while not driving.</b>"), ""},
-    {"ScreenTimeoutOnroad", tr("Screen Timeout (Onroad)"), tr("<b>How long the screen stays on after being tapped while driving.</b>"), ""},
-    {"StandbyMode", tr("Standby Mode"), tr("<b>Turn the screen off while driving and automatically wake it up for alerts or engagement state changes.</b>"), ""},
+    {"ScreenManagement", tr("螢幕設定"), tr("<b>控制螢幕亮度、螢幕錄影和逾時時長的設定。</b>"), "../../frogpilot/assets/toggle_icons/icon_light.png"},
+    {"ScreenBrightness", tr("螢幕亮度（停止時）"), tr("<b>未駕駛時的螢幕亮度。</b>"), ""},
+    {"ScreenBrightnessOnroad", tr("螢幕亮度（駕駛中）"), tr("<b>駕駛時的螢幕亮度。</b>"), ""},
+    {"ScreenRecorder", tr("螢幕錄影機"), tr("<b>在駕駛螢幕上添加按鈕以記錄顯示屏。</b>"), ""},
+    {"ScreenTimeout", tr("螢幕逾時（停止時）"), tr("<b>在未駕駛時點擊後螢幕保持開啟的時長。</b>"), ""},
+    {"ScreenTimeoutOnroad", tr("螢幕逾時（駕駛中）"), tr("<b>在駕駛時點擊後螢幕保持開啟的時長。</b>"), ""},
+    {"StandbyMode", tr("待機模式"), tr("<b>在駕駛時關閉螢幕，並自動喚醒以接收警報或參與狀態變化。</b>"), ""},
 
     {"IgnoreMe", "Ignore Me", "This is simply used to fix the layout when the user opens the descriptions and the menu gets wonky. No idea why it happens, but I can't be asked to properly fix it so whatever. Sue me.", ""},
     {"IgnoreMe2", "Ignore Me", "This is simply used to fix the layout when the user opens the descriptions and the menu gets wonky. No idea why it happens, but I can't be asked to properly fix it so whatever. Sue me.", ""},
@@ -69,15 +69,15 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
     } else if (param == "DeviceShutdown") {
       std::map<float, QString> shutdownLabels;
       for (int i = 0; i <= 33; ++i) {
-        shutdownLabels[i] = i == 0 ? tr("5 mins") : i <= 3 ? QString::number(i * 15) + tr(" mins") : QString::number(i - 3) + (i == 4 ? tr(" hour") : tr(" hours"));
+        shutdownLabels[i] = i == 0 ? tr("5 分鐘") : i <= 3 ? QString::number(i * 15) + tr(" 分鐘") : QString::number(i - 3) + (i == 4 ? tr(" 小時") : tr(" 小時"));
       }
       deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 33, QString(), shutdownLabels, 1, true);
     } else if (param == "NoUploads") {
       std::vector<QString> uploadsToggles{"DisableOnroadUploads"};
-      std::vector<QString> uploadsToggleNames{tr("Disable Onroad Only")};
+      std::vector<QString> uploadsToggleNames{tr("僅停用駕駛中上傳")};
       deviceToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, uploadsToggles, uploadsToggleNames);
     } else if (param == "LowVoltageShutdown") {
-      deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, 11.8, 12.5, tr(" volts"), std::map<float, QString>(), 0.1);
+      deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, 11.8, 12.5, tr(" 伏特"), std::map<float, QString>(), 0.1);
 
     } else if (param == "ScreenManagement") {
       FrogPilotManageControl *screenToggle = new FrogPilotManageControl(param, title, desc, icon);
@@ -89,11 +89,11 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
       std::map<float, QString> brightnessLabels;
       int minBrightness = (param == "ScreenBrightnessOnroad") ? 0 : 1;
       for (int i = 0; i <= 101; ++i) {
-        brightnessLabels[i] = i == 0 ? tr("Screen Off") : i == 101 ? tr("Auto") : QString::number(i) + "%";
+        brightnessLabels[i] = i == 0 ? tr("螢幕關閉") : i == 101 ? tr("自動") : QString::number(i) + "%";
       }
       deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, minBrightness, 101, QString(), brightnessLabels, 1, true);
     } else if (param == "ScreenRecorder") {
-      std::vector<QString> recorderButtonNames{tr("Start Recording"), tr("Stop Recording")};
+      std::vector<QString> recorderButtonNames{tr("開始錄影"), tr("停止錄影")};
       FrogPilotButtonControl *recorderToggle = new FrogPilotButtonControl(param, title, desc, icon, recorderButtonNames, true);
       QObject::connect(recorderToggle, &FrogPilotButtonControl::buttonClicked, [recorderToggle, screenRecorder](int id) {
         if (id == 0) {
@@ -115,7 +115,7 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
       recorderToggle->setVisibleButton(1, false);
       deviceToggle = recorderToggle;
     } else if (param == "ScreenTimeout" || param == "ScreenTimeoutOnroad") {
-      deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, 5, 60, tr(" seconds"), {}, 5);
+      deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, 5, 60, tr(" 秒"), {}, 5);
 
     } else {
       deviceToggle = new ParamControl(param, title, desc, icon);

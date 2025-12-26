@@ -45,6 +45,12 @@ struct FrogPilotCarControl {
       startup @20;
       thisIsFine @21;
       uwu @22;
+      ########HFOP###########
+      lanechangesound @23;
+      lanechangeblockedsound @24;
+      carawayed  @25;
+      greenlightsound @26;
+      ############################
     }
   }
 }
@@ -178,6 +184,12 @@ struct FrogPilotNavigation @0xf416ec09499d9d19 {
   approachingIntersection @0 :Bool;
   approachingTurn @1 :Bool;
   navigationSpeedLimit @2 :Float32;
+
+  # NavBridge 狀態 (來自 NavDash APP)
+  navBridgeConnected @3 :Bool;           # NavDash APP 是否連接
+  distanceToManeuver @4 :Int32;          # 距離下個轉彎 (公尺)
+  maneuverType @5 :Text;                 # 轉彎類型 (turn, off_ramp, roundabout...)
+  maneuverModifier @6 :Text;             # 轉彎方向 (left, right, slight_left...)
 }
 
 struct FrogPilotPlan @0xa1680744031fdb2d {

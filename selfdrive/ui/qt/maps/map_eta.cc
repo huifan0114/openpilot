@@ -31,12 +31,12 @@ void MapETA::paintEvent(QPaintEvent *event) {
 void MapETA::updateETA(float s, float s_typical, float d) {
   // ETA
   auto eta_t = QDateTime::currentDateTime().addSecs(s).time();
-  auto eta = format_24h ? std::pair{eta_t.toString("HH:mm"), tr("eta")}
+  auto eta = format_24h ? std::pair{eta_t.toString("HH:mm"), tr("抵達")}
                         : std::pair{eta_t.toString("h:mm a").split(' ')[0], eta_t.toString("a")};
 
   // Remaining time
-  auto remaining = s < 3600 ? std::pair{QString::number(int(s / 60)), tr("min")}
-                            : std::pair{QString("%1:%2").arg((int)s / 3600).arg(((int)s % 3600) / 60, 2, 10, QLatin1Char('0')), tr("hr")};
+  auto remaining = s < 3600 ? std::pair{QString::number(int(s / 60)), tr("分鐘")}
+                            : std::pair{QString("%1:%2").arg((int)s / 3600).arg(((int)s % 3600) / 60, 2, 10, QLatin1Char('0')), tr("小時")};
   QString color = "#25DA6E";
   if (std::abs(s_typical) > 1e-5) {
     if (s / s_typical > 1.5) {

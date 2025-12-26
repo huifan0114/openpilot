@@ -267,7 +267,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("GithubSshKeys", "", 0, ""),
   ("GithubUsername", "", 0, ""),
   ("GoatScream", "0", 1, "0"),
-  ("GreenLightAlert", "0", 0, "0"),
+  ("GreenLightAlert", "1", 0, "1"),
   ("GsmApn", "", 0, ""),
   ("GsmRoaming", "1", 0, "0"),
   ("HideAlerts", "0", 2, "0"),
@@ -379,6 +379,10 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("ReduceLateralAccelerationRainStorm", "0", 2, "0"),
   ("ReduceLateralAccelerationSnow", "0", 2, "0"),
   ("RefuseVolume", "101", 2, "101"),
+  ("CarawayedVolume", "101", 1, "101"),
+  ("GreenLightVolume", "101", 1, "101"),
+  ("LanechangeblockedsoundVolume", "101", 1, "101"),
+  ("LanechangesoundVolume", "101", 1, "101"),
   ("RelaxedFollow", "1.75", 2, "1.75"),
   ("RelaxedJerkAcceleration", "100", 3, "100"),
   ("RelaxedJerkDanger", "100", 3, "100"),
@@ -497,7 +501,10 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("WeatherPresets", "0", 2, "0"),
   ("WeatherToken", "", 2, ""),
   ("WheelIcon", "frog", 0, "stock"),
-  ("WheelSpeed", "0", 2, "0")
+  ("WheelSpeed", "0", 2, "0"),
+  ("SimpleDashServer", "1", 0, "1"),
+  ("SimpleDashTheme", "1", 0, "1")
+
 ]
 
 misc_tuning_levels: list[tuple[str, str | bytes, int, str]] = [
@@ -683,6 +690,10 @@ class FrogPilotVariables:
     toggle.prompt_volume = params.get_int("PromptVolume") if toggle.alert_volume_controller and tuning_level >= level["PromptVolume"] else default.get_int("PromptVolume")
     toggle.promptDistracted_volume = params.get_int("PromptDistractedVolume") if toggle.alert_volume_controller and tuning_level >= level["PromptDistractedVolume"] else default.get_int("PromptDistractedVolume")
     toggle.refuse_volume = params.get_int("RefuseVolume") if toggle.alert_volume_controller and tuning_level >= level["RefuseVolume"] else default.get_int("RefuseVolume")
+    toggle.carawayed_volume = params.get_int("CarawayedVolume") if toggle.alert_volume_controller and tuning_level >= level["CarawayedVolume"] else default.get_int("CarawayedVolume")
+    toggle.green_light_volume = params.get_int("GreenLightVolume") if toggle.alert_volume_controller and tuning_level >= level["GreenLightVolume"] else default.get_int("GreenLightVolume")
+    toggle.lanechangeblockedsound_volume = params.get_int("LanechangeblockedsoundVolume") if toggle.alert_volume_controller and tuning_level >= level["LanechangeblockedsoundVolume"] else default.get_int("LanechangeblockedsoundVolume")
+    toggle.lanechangesound_volume = params.get_int("LanechangesoundVolume") if toggle.alert_volume_controller and tuning_level >= level["LanechangesoundVolume"] else default.get_int("LanechangesoundVolume")
     toggle.warningSoft_volume = params.get_int("WarningSoftVolume") if toggle.alert_volume_controller and tuning_level >= level["WarningSoftVolume"] else default.get_int("WarningSoftVolume")
     toggle.warningImmediate_volume = max(params.get_int("WarningImmediateVolume"), 25) if toggle.alert_volume_controller and tuning_level >= level["WarningImmediateVolume"] else default.get_int("WarningImmediateVolume")
 
@@ -1034,6 +1045,8 @@ class FrogPilotVariables:
 
     toggle.speed_limit_filler = params.get_bool("SpeedLimitFiller") if tuning_level >= level["SpeedLimitFiller"] else default.get_bool("SpeedLimitFiller")
 
+    toggle.simple_dash_server = params.get_bool("SimpleDashServer")  # 無 tuning_level 限制
+
     toggle.startup_alert_top = params.get("StartupMessageTop", encoding="utf-8") if tuning_level >= level["StartupMessageTop"] else default.get("StartupMessageTop", encoding="utf-8")
     toggle.startup_alert_bottom = params.get("StartupMessageBottom", encoding="utf-8") if tuning_level >= level["StartupMessageBottom"] else default.get("StartupMessageBottom", encoding="utf-8")
 
@@ -1048,6 +1061,17 @@ class FrogPilotVariables:
     toggle.unlock_doors = toyota_doors and (params.get_bool("UnlockDoors") if tuning_level >= level["UnlockDoors"] else default.get_bool("UnlockDoors"))
 
     toggle.volt_sng = toggle.car_model == "CHEVROLET_VOLT" and (params.get_bool("VoltSNG") if tuning_level >= level["VoltSNG"] else default.get_bool("VoltSNG"))
+###################################################################
+    toggle.hfop_inf = params.get_bool("HFOPinf")
+    toggle.gooff_screen = params.get_bool("GooffScreen")
+    toggle.disablestartstop = params.get_bool("Disablestartstop")
+    toggle.speedoverreminder = params.get_bool("speedoverreminder")
+    toggle.speedreminderreset = params.get_bool("speedreminderreset")
+    toggle.changelane_reminder = params.get_bool("ChangeLaneReminder")
+    toggle.navspeed = params.get_bool("Navspeed")
+    # toggle.auto_speeddistance = params.get_bool("AutoSpeeddistance")
+    # toggle.trafficmode = params.get_bool("TrafficMode")
+    toggle.trafficmode_speed = params.get_int("TrafficModespeed")
 
     params_memory.put("FrogPilotToggles", json.dumps(toggle.__dict__))
     params_memory.remove("FrogPilotTogglesUpdated")

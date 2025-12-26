@@ -11,31 +11,31 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
     params.put("ShownToggleDescriptions", QJsonDocument(shownDescriptions).toJson(QJsonDocument::Compact).toStdString());
   }
 
-  ParamControl *debugModeToggle = new ParamControl("DebugMode", tr("Debug Mode"), tr("<b>Use FrogPilot's developer metrics on your next drive</b> to diagnose issues and improve bug reports."), "");
+  ParamControl *debugModeToggle = new ParamControl("DebugMode", tr("除錯模式"), tr("<b>在下一次行車中使用 FrogPilot 的開發者度量</b>，以診斷問題並改善錯誤回報。"), "");
   if (forceOpenDescriptions) {
     debugModeToggle->showDescription();
   }
   addItem(debugModeToggle);
 
-  ButtonControl *flashPandaButton = new ButtonControl(tr("Flash Panda"), tr("FLASH"), tr("<b>Reinstall the Panda firmware</b> to fix connection or reliability issues."));
+  ButtonControl *flashPandaButton = new ButtonControl(tr("重刷 Panda"), tr("重刷"), tr("<b>重新安裝 Panda 韌體</b>，以修復連線或穩定性問題。"));
   QObject::connect(flashPandaButton, &ButtonControl::clicked, [parent, flashPandaButton, this]() {
-    if (ConfirmationDialog::confirm(tr("Are you sure you want to flash the Panda firmware?"), tr("Flash"), this)) {
+    if (ConfirmationDialog::confirm(tr("確定要重刷 Panda 韌體嗎？"), tr("重刷"), this)) {
       std::thread([parent, flashPandaButton, this]() {
         parent->keepScreenOn = true;
 
         flashPandaButton->setEnabled(false);
-        flashPandaButton->setValue(tr("Flashing..."));
+        flashPandaButton->setValue(tr("重刷中..."));
 
         params_memory.putBool("FlashPanda", true);
         while (params_memory.getBool("FlashPanda")) {
           util::sleep_for(UI_FREQ);
         }
 
-        flashPandaButton->setValue(tr("Flashed!"));
+        flashPandaButton->setValue(tr("重刷完成！"));
 
         util::sleep_for(2500);
 
-        flashPandaButton->setValue(tr("Rebooting..."));
+        flashPandaButton->setValue(tr("重新啟動中..."));
 
         util::sleep_for(2500);
 
@@ -48,7 +48,7 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
   }
   addItem(flashPandaButton);
 
-  FrogPilotButtonsControl *forceStartedButton = new FrogPilotButtonsControl(tr("Force Drive State"), tr("<b>Manually set openpilot to be offroad or onroad.</b>"), "", {tr("OFFROAD"), tr("ONROAD"), tr("OFF")}, true);
+  FrogPilotButtonsControl *forceStartedButton = new FrogPilotButtonsControl(tr("強制駕駛狀態"), tr("<b>手動將 openpilot 設為離線或上路狀態。</b>"), "", {tr("離線"), tr("上路"), tr("關閉")}, true);
   QObject::connect(forceStartedButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
     if (id == 0) {
       params_memory.putBool("ForceOffroad", true);
@@ -76,33 +76,33 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
   }
   addItem(forceStartedButton);
 
-  ButtonControl *reportIssueButton = new ButtonControl(tr("Report a Bug or an Issue"), tr("REPORT"), tr("<b>Send a bug report</b> so we can help fix the problem!"));
+  ButtonControl *reportIssueButton = new ButtonControl(tr("回報錯誤或問題"), tr("回報"), tr("<b>傳送錯誤回報</b>，讓我們能協助修正問題！"));
   QObject::connect(reportIssueButton, &ButtonControl::clicked, [this]() {
     if (!frogpilotUIState()->frogpilot_scene.online) {
-      ConfirmationDialog::alert(tr("Please connect to the internet before sending a report!"), this);
+      ConfirmationDialog::alert(tr("請在傳送回報前連線至網路！"), this);
       return;
     }
 
     QStringList report_messages;
-    QString crash_report = tr("I saw an alert that said \"openpilot crashed\"");
+    QString crash_report = tr("我看到一則顯示 \"openpilot 當機\" 的警示");
     if (QFile::exists("/data/error_logs/error.txt")) {
       report_messages << crash_report;
     }
     QStringList additional_issues = {
-      tr("Acceleration feels harsh or jerky"),
-      tr("An alert was unclear and I didn't know what it meant"),
-      tr("Braking is too sudden or uncomfortable"),
-      tr("I'm not sure if this is normal or a bug:"),
-      tr("My screen froze or is stuck loading something"),
-      tr("My steering wheel buttons aren't working"),
-      tr("openpilot disengages when I don't expect it"),
-      tr("openpilot doesn't react to stopped vehicles ahead"),
-      tr("openpilot doesn't resume from a stop"),
-      tr("openpilot feels sluggish or slow to respond"),
-      tr("Steering feels twitchy or unnatural"),
-      tr("The car doesn't follow curves well"),
-      tr("The car isn't staying centered in its lane"),
-      tr("Something else (please describe)")
+      tr("加速感覺突兀或頓挫"),
+      tr("某些警示不清楚，我無法理解其含意"),
+      tr("煞車太突然或令人不舒服"),
+      tr("我不確定這是正常情況還是錯誤："),
+      tr("螢幕當機或停留在載入畫面"),
+      tr("方向盤按鍵無法使用"),
+      tr("openpilot 在非預期時取消接手"),
+      tr("openpilot 未對前方停車車輛做出反應"),
+      tr("openpilot 無法從停車狀態恢復"),
+      tr("openpilot 反應遲緩或回應慢"),
+      tr("轉向感覺抖動或不自然"),
+      tr("車輛無法良好地跟隨彎道"),
+      tr("車輛未維持於車道中央"),
+      tr("其他情況（請描述）")
     };
     report_messages.append(additional_issues);
 
@@ -116,13 +116,13 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
       }
     }
 
-    QString selected_issue = MultiOptionDialog::getSelection(tr("What's going on?"), report_messages, "", this);
+    QString selected_issue = MultiOptionDialog::getSelection(tr("發生什麼事？"), report_messages, "", this);
     if (selected_issue.isEmpty()) {
       return;
     }
 
     if (needs_extra_input.value(selected_issue, false)) {
-      QString extra_input = InputDialog::getText(tr("Please describe what's happening"), this, tr("Send Report"), false, 10, "", 300).trimmed();
+      QString extra_input = InputDialog::getText(tr("請描述發生的情況"), this, tr("傳送回報"), false, 10, "", 300).trimmed();
       if (extra_input.isEmpty()) {
         return;
       }
@@ -131,12 +131,12 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
 
     QJsonObject reportData;
     reportData["Issue"] = selected_issue;
-    reportData["DiscordUser"] = InputDialog::getText(tr("What's your Discord username?"), this, tr("Send Report"), false, -1, QString::fromStdString(params.get("DiscordUsername"))).trimmed();
+    reportData["DiscordUser"] = InputDialog::getText(tr("您的 Discord 使用者名稱是？"), this, tr("傳送回報"), false, -1, QString::fromStdString(params.get("DiscordUsername"))).trimmed();
 
     params.putNonBlocking("DiscordUsername", reportData["DiscordUser"].toString().toStdString());
     params_memory.put("IssueReported", QJsonDocument(reportData).toJson(QJsonDocument::Compact).toStdString());
 
-    ConfirmationDialog::alert(tr("Report Sent! Thanks for letting us know!"), this);
+    ConfirmationDialog::alert(tr("回報已送出！感謝您的回覆！"), this);
   });
   if (forceOpenDescriptions) {
     reportIssueButton->showDescription();
@@ -144,22 +144,22 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
   addItem(reportIssueButton);
   reportIssueButton->setVisible(QString::fromStdString(params.get("GitRemote")).toLower() == "https://github.com/frogai/openpilot.git");
 
-  ButtonControl *resetTogglesButton = new ButtonControl(tr("Reset Toggles to Default"), tr("RESET"), tr("<b>Reset all toggles to their default values.</b>"));
+  ButtonControl *resetTogglesButton = new ButtonControl(tr("將選項重置為預設"), tr("重置"), tr("<b>將所有選項重置為預設值。</b>"));
   QObject::connect(resetTogglesButton, &ButtonControl::clicked, [parent, resetTogglesButton, this]() {
-    if (ConfirmationDialog::confirm(tr("Are you sure you want to reset all toggles to their default values?"), tr("Reset"), this)) {
+    if (ConfirmationDialog::confirm(tr("確定要將所有選項重置為預設值嗎？"), tr("重置"), this)) {
       std::thread([parent, resetTogglesButton, this]() mutable {
         parent->keepScreenOn = true;
 
         resetTogglesButton->setEnabled(false);
-        resetTogglesButton->setValue(tr("Resetting..."));
+        resetTogglesButton->setValue(tr("重置中..."));
 
         params.putBool("DoToggleReset", true);
 
-        resetTogglesButton->setValue(tr("Reset!"));
+        resetTogglesButton->setValue(tr("已重置！"));
 
         util::sleep_for(2500);
 
-        resetTogglesButton->setValue(tr("Rebooting..."));
+        resetTogglesButton->setValue(tr("重新啟動中..."));
 
         util::sleep_for(2500);
 
@@ -172,22 +172,22 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
   }
   addItem(resetTogglesButton);
 
-  ButtonControl *resetTogglesButtonStock = new ButtonControl(tr("Reset Toggles to Stock openpilot"), tr("RESET"), tr("<b>Reset all toggles to match stock openpilot.</b>"));
+  ButtonControl *resetTogglesButtonStock = new ButtonControl(tr("將選項重置為原廠 openpilot"), tr("重置"), tr("<b>將所有選項重置以符合原廠 openpilot。</b>"));
   QObject::connect(resetTogglesButtonStock, &ButtonControl::clicked, [parent, resetTogglesButtonStock, this]() {
-    if (ConfirmationDialog::confirm(tr("Are you sure you want to reset all toggles to match stock openpilot?"), tr("Reset"), this)) {
+    if (ConfirmationDialog::confirm(tr("確定要將所有選項重置為原廠 openpilot 的設定嗎？"), tr("重置"), this)) {
       std::thread([parent, resetTogglesButtonStock, this]() mutable {
         parent->keepScreenOn = true;
 
         resetTogglesButtonStock->setEnabled(false);
-        resetTogglesButtonStock->setValue(tr("Resetting..."));
+        resetTogglesButtonStock->setValue(tr("重置中..."));
 
         params.putBool("DoToggleResetStock", true);
 
-        resetTogglesButtonStock->setValue(tr("Reset!"));
+        resetTogglesButtonStock->setValue(tr("已重置！"));
 
         util::sleep_for(2500);
 
-        resetTogglesButtonStock->setValue(tr("Rebooting..."));
+        resetTogglesButtonStock->setValue(tr("重新啟動中..."));
 
         util::sleep_for(2500);
 

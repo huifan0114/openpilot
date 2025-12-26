@@ -213,19 +213,19 @@ void Sidebar::updateState(const UIState &s, const FrogPilotUIState &fs) {
     QString storage = QString::number(isStorageLeft ? storage_left : storage_used) + tr(" GB");
 
     if (isMemoryUsage) {
-      ItemStatus memoryStatus = {{tr("MEMORY"), memory}, sidebar_color3};
+      ItemStatus memoryStatus = {{tr("記憶體"), memory}, sidebar_color3};
       if (memory_usage >= 85) {
-        memoryStatus = {{tr("MEMORY"), memory}, danger_color};
+        memoryStatus = {{tr("記憶體"), memory}, danger_color};
       } else if (memory_usage >= 70) {
-        memoryStatus = {{tr("MEMORY"), memory}, warning_color};
+        memoryStatus = {{tr("記憶體"), memory}, warning_color};
       }
       setProperty("memoryStatus", QVariant::fromValue(memoryStatus));
     } else {
-      ItemStatus storageStatus = {{isStorageLeft ? tr("LEFT") : tr("USED"), storage}, sidebar_color3};
+      ItemStatus storageStatus = {{isStorageLeft ? tr("剩餘量") : tr("使用量"), storage}, sidebar_color3};
       if (free_space < 25 && free_space >= 10) {
-        storageStatus = {{isStorageLeft ? tr("LEFT") : tr("USED"), storage}, warning_color};
+        storageStatus = {{isStorageLeft ? tr("剩餘量") : tr("使用量"), storage}, warning_color};
       } else if (10 > free_space) {
-        storageStatus = {{isStorageLeft ? tr("LEFT") : tr("USED"), storage}, danger_color};
+        storageStatus = {{isStorageLeft ? tr("剩餘量") : tr("使用量"), storage}, danger_color};
       }
       setProperty("storageStatus", QVariant::fromValue(storageStatus));
     }

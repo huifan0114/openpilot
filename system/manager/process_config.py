@@ -57,8 +57,17 @@ def run_new_modeld(started, params, CP: car.CarParams, classic_model, tinygrad_m
 def run_speed_limit_filler(started, params, CP: car.CarParams, classic_model, tinygrad_model, frogpilot_toggles) -> bool:
   return frogpilot_toggles.speed_limit_filler
 
+def run_simple_dash(started, params, CP: car.CarParams, classic_model, tinygrad_model, frogpilot_toggles) -> bool:
+  return started and frogpilot_toggles.simple_dash_server
+
+def run_navbridge(started, params, CP: car.CarParams, classic_model, tinygrad_model, frogpilot_toggles) -> bool:
+  return started and params.get_bool("NavBridgeEnabled")
+
 def run_tinygrad_modeld(started, params, CP: car.CarParams, classic_model, tinygrad_model, frogpilot_toggles) -> bool:
   return started and tinygrad_model
+
+def enable_dm(started, params, CP: car.CarParams, classic_model, tinygrad_model, frogpilot_toggles) -> bool:
+  return driverview(started, params, CP, classic_model, tinygrad_model, frogpilot_toggles) and not (True and True)
 
 procs = [
   DaemonProcess("manage_athenad", "system.athena.manage_athenad", "AthenadPid"),
@@ -70,7 +79,7 @@ procs = [
   PythonProcess("micd", "system.micd", iscar),
   PythonProcess("timed", "system.timed", always_run, enabled=not PC),
 
-  PythonProcess("dmonitoringmodeld", "selfdrive.modeld.dmonitoringmodeld", driverview, enabled=(not PC or WEBCAM)),
+  PythonProcess("dmonitoringmodeld", "selfdrive.modeld.dmonitoringmodeld", enable_dm, enabled=(not PC or WEBCAM)),
   NativeProcess("encoderd", "system/loggerd", ["./encoderd"], allow_logging),
   NativeProcess("stream_encoderd", "system/loggerd", ["./encoderd", "--stream"], notcar),
   NativeProcess("loggerd", "system/loggerd", ["./loggerd"], allow_logging),
@@ -87,10 +96,10 @@ procs = [
   PythonProcess("controlsd", "selfdrive.controls.controlsd", only_onroad),
   PythonProcess("card", "selfdrive.car.card", only_onroad),
   PythonProcess("deleter", "system.loggerd.deleter", always_run),
-  PythonProcess("dmonitoringd", "selfdrive.monitoring.dmonitoringd", driverview, enabled=(not PC or WEBCAM)),
+  PythonProcess("dmonitoringd", "selfdrive.monitoring.dmonitoringd", enable_dm, enabled=(not PC or WEBCAM)),
   PythonProcess("qcomgpsd", "system.qcomgpsd.qcomgpsd", qcomgps, enabled=TICI),
   #PythonProcess("ugpsd", "system.ugpsd", only_onroad, enabled=TICI),
-  PythonProcess("navd", "selfdrive.navd.navd", only_onroad),
+  #PythonProcess("navd", "selfdrive.navd.navd", only_onroad),  # 停用，使用 navbridged 取代
   PythonProcess("pandad", "selfdrive.pandad.pandad", always_run),
   PythonProcess("paramsd", "selfdrive.locationd.paramsd", only_onroad),
   PythonProcess("lagd", "selfdrive.locationd.lagd", only_onroad),
@@ -108,6 +117,7 @@ procs = [
   NativeProcess("bridge", "cereal/messaging", ["./bridge"], notcar),
   PythonProcess("webrtcd", "system.webrtc.webrtcd", notcar),
   PythonProcess("webjoystick", "tools.bodyteleop.web", notcar),
+  PythonProcess("simple_dash", "tools.simple_dash.server", run_simple_dash),
 
   # FrogPilot processes
   NativeProcess("classic_modeld", "frogpilot/classic_modeld", ["./classic_modeld"], run_classic_modeld),

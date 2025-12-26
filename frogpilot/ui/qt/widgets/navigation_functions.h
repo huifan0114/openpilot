@@ -166,12 +166,12 @@ inline QString formatElapsedTime(float elapsedMilliseconds) {
 
   QString formattedTime;
   if (hours > 0) {
-    formattedTime += QString::number(hours) + (hours == 1 ? QObject::tr(" hour ") : QObject::tr(" hours "));
+    formattedTime += QString::number(hours) + (hours == 1 ? QObject::tr(" 小時 ") : QObject::tr(" 小時 "));
   }
   if (minutes > 0) {
-    formattedTime += QString::number(minutes) + (minutes == 1 ? QObject::tr(" minute ") : QObject::tr(" minutes "));
+    formattedTime += QString::number(minutes) + (minutes == 1 ? QObject::tr(" 分鐘 ") : QObject::tr(" 分鐘 "));
   }
-  formattedTime += QString::number(seconds) + (seconds == 1 ? QObject::tr(" second") : QObject::tr(" seconds"));
+  formattedTime += QString::number(seconds) + (seconds == 1 ? QObject::tr(" 秒") : QObject::tr(" 秒"));
 
   return formattedTime.trimmed();
 }

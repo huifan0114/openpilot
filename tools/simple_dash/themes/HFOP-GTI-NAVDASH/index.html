@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>FrogPilot Dashboard</title>
+  <link rel="stylesheet" href="/theme/css/style.css">
+  <link rel="manifest" href="/shared/manifest.json">
+  <link rel="apple-touch-icon" href="/shared/icon-192.png">
+  <meta name="theme-color" content="#000000">
+</head>
+<body>
+  <div id="dashboard">
+
+    <!-- 頂部中央: 連接狀態 -->
+    <div id="top-center-status" class="hidden">
+      <div id="connection-status" class="connection-badge connecting">
+        <span id="status-text">連接中...</span>
+      </div>
+    </div>
+
+    <!-- 頂部一排: 速限 + MAX + 彎道 + VSC + 漸進 + 控制加速 (6個統一大小) -->
+    <div id="top-row">
+      <div id="speed-limit-card" class="card top-card">
+        <div class="label-small">速限</div>
+        <div id="speed-limit-value" class="value-top">--</div>
+      </div>
+
+      <div id="max-speed-card" class="card top-card">
+        <div class="label-small">MAX</div>
+        <div id="max-speed-value" class="value-top">--</div>
+      </div>
+
+      <div id="csc-card" class="card top-card">
+        <div class="label-small">彎道</div>
+        <div id="csc-speed" class="value-top">--</div>
+      </div>
+
+      <div id="vsc-card" class="card top-card">
+        <div class="label-small">VSC</div>
+        <div id="vsc-speed" class="value-top">--</div>
+      </div>
+
+      <div id="progressive-card" class="card top-card">
+        <div class="label-small">漸進</div>
+        <div id="progressive-speed" class="value-top">--</div>
+      </div>
+
+      <div id="control-accel-card" class="card top-card">
+        <div class="label-small">控制加速</div>
+        <div id="control-accel-value" class="value-top neutral">--</div>
+      </div>
+    </div>
+
+    <!-- 盲點警示 - 獨立於其他容器 -->
+    <div id="left-blindspot" class="blindspot-indicator hidden">
+      <div class="blindspot-icon">⚠️</div>
+      <div class="blindspot-label">左側</div>
+    </div>
+    <div id="right-blindspot" class="blindspot-indicator hidden">
+      <div class="blindspot-icon">⚠️</div>
+      <div class="blindspot-label">右側</div>
+    </div>
+
+    <!-- 中間一排: 左側卡片 + 前車卡片 + 右側卡片 -->
+    <div id="middle-row">
+      <!-- 左側: 垂直排列的小卡片 -->
+      <div class="side-column">
+        <div id="upcoming-speed-card" class="card mini-card">
+          <div class="label-small">即將速限</div>
+          <div id="upcoming-value" class="value-top">--</div>
+        </div>
+        <div id="upcoming-distance-card" class="card mini-card">
+          <div class="label-small">即將距離</div>
+          <div id="upcoming-distance" class="value-top">--</div>
+        </div>
+        <!-- 未來可在此新增更多卡片 -->
+      </div>
+
+      <!-- 中央: 前車資訊卡片 -->
+      <div id="center-lead-info">
+        <div id="lead-card" class="card lead-info-card">
+          <!-- 無前車狀態 -->
+          <div id="no-lead-state">
+            <div class="no-lead-icon">🚗</div>
+            <div class="no-lead-text">無前車</div>
+          </div>
+
+          <!-- 有前車狀態 -->
+          <div id="has-lead-state" class="hidden">
+            <div class="info-row-flex">
+              <div class="info-col">
+                <div class="info-label">距離</div>
+                <div id="lead-distance" class="info-value-medium">--</div>
+              </div>
+              <div class="info-col">
+                <div class="info-label">期望</div>
+                <div id="desired-distance" class="info-value-medium">--</div>
+              </div>
+              <div class="info-col">
+                <div class="info-label">速度</div>
+                <div id="lead-speed" class="info-value-medium">--</div>
+              </div>
+              <div class="info-col">
+                <div class="info-label">時間</div>
+                <div id="follow-time" class="info-value-medium">--</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右側: 垂直排列的小卡片 -->
+      <div class="side-column">
+        <div id="experimental-card" class="card mini-card">
+          <img id="experimental-icon" src="/theme/assets/img_experimental_white.svg" alt="Experimental Mode" />
+        </div>
+        <!-- STOP 圖標卡片 -->
+        <div id="stop-card" class="card mini-card hidden">
+          <img id="stop-icon" src="/theme/assets/stop_sign.png" alt="Stop Sign" />
+          <div id="stop-distance" class="stop-distance-text">--</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部: 導航佔位 + 道路名稱 (道路名稱置中) -->
+    <div id="bottom-row">
+      <!-- 導航佔位區域 (供 NavDash App overlay) -->
+      <div id="nav-placeholder" class="nav-placeholder">
+        <!-- 空白透明區域 -->
+      </div>
+      <!-- 道路名稱卡片 (置中) -->
+      <div id="road-name-card" class="card">
+        <div id="road-name-text">--</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Wake Lock 防止休眠 -->
+  <script>
+    if ('wakeLock' in navigator) {
+      let wakeLock = null;
+      const requestWakeLock = async () => {
+        try {
+          wakeLock = await navigator.wakeLock.request('screen');
+          console.log('Wake Lock activated');
+        } catch (err) {
+          console.error('Wake Lock error:', err);
+        }
+      };
+      requestWakeLock();
+
+      // 重新取得 (切換 app 時會失效)
+      document.addEventListener('visibilitychange', () => {
+        if (wakeLock !== null && document.visibilityState === 'visible') {
+          requestWakeLock();
+        }
+      });
+    }
+
+    // 隱藏地址欄
+    window.addEventListener('load', () => {
+      setTimeout(() => window.scrollTo(0, 1), 100);
+    });
+  </script>
+
+  <!-- 載入模組 -->
+  <script src="/shared/js/webrtc.js" type="module"></script>
+  <script src="/shared/js/dashboard.js" type="module"></script>
+  <!-- navigation.js 已移除，導航由 NavDash App 原生 overlay 顯示 -->
+  <script src="/shared/js/main.js" type="module"></script>
+</body>
+</html>

@@ -38,35 +38,35 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
   lateralLayout->addWidget(qolPanel);
 
   const std::vector<std::tuple<QString, QString, QString, QString>> lateralToggles {
-    {"AdvancedLateralTune", tr("Advanced Lateral Tuning"), tr("<b>Advanced steering control changes to fine-tune how openpilot drives.</b>"), "../../frogpilot/assets/toggle_icons/icon_advanced_lateral_tune.png"},
-    {"SteerDelay", parent->steerActuatorDelay != 0 ? QString(tr("Actuator Delay (Default: %1)")).arg(QString::number(parent->steerActuatorDelay, 'f', 2)) : tr("Actuator Delay"), tr("<b>The time between openpilot's steering command and the vehicle's response.</b> Increase if the vehicle reacts late; decrease if it feels jumpy. Auto-learned by default."), ""},
-    {"SteerFriction", parent->friction != 0 ? QString(tr("Friction (Default: %1)")).arg(QString::number(parent->friction, 'f', 2)) : tr("Friction"), tr("<b>Compensates for steering friction.</b> Increase if the wheel sticks near center; decrease if it jitters. Auto-learned by default."), ""},
-    {"SteerKP", parent->steerKp != 0 ? QString(tr("Kp Factor (Default: %1)")).arg(QString::number(parent->steerKp, 'f', 2)) : tr("Kp Factor"), tr("<b>How strongly openpilot corrects lane position.</b> Higher is tighter but twitchier; lower is smoother but slower. Auto-learned by default."), ""},
-    {"SteerLatAccel", parent->latAccelFactor != 0 ? QString(tr("Lateral Acceleration (Default: %1)")).arg(QString::number(parent->latAccelFactor, 'f', 2)) : tr("Lateral Acceleration"), tr("<b>Maps steering torque to turning response.</b> Increase for sharper turns; decrease for gentler steering. Auto-learned by default."), ""},
-    {"SteerRatio", parent->steerRatio != 0 ? QString(tr("Steer Ratio (Default: %1)")).arg(QString::number(parent->steerRatio, 'f', 2)) : tr("Steer Ratio"), tr("<b>The relationship between steering wheel rotation and road wheel angle.</b> Increase if steering feels too quick or twitchy; decrease if it feels too slow or weak. Auto-learned by default."), ""},
-    {"ForceAutoTune", tr("Force Auto-Tune On"), tr("<b>Force-enable openpilot's live auto-tuning for \"Friction\" and \"Lateral Acceleration\".</b>"), ""},
-    {"ForceAutoTuneOff", tr("Force Auto-Tune Off"), tr("<b>Force-disable openpilot's live auto-tuning for \"Friction\" and \"Lateral Acceleration\" and use the set value instead.</b>"), ""},
-    {"ForceTorqueController", tr("Force Torque Controller"), tr("<b>Use torque-based steering control instead of angle-based control for smoother lane keeping, especially in curves.</b>"), ""},
+    {"AdvancedLateralTune", tr("進階轉向調整"), tr("<b>進階轉向控制變更以微調 openpilot 的駕駛方式。</b>"), "../../frogpilot/assets/toggle_icons/icon_advanced_lateral_tune.png"},
+    {"SteerDelay", parent->steerActuatorDelay != 0 ? QString(tr("執行器延遲 (預設: %1)")).arg(QString::number(parent->steerActuatorDelay, 'f', 2)) : tr("執行器延遲"), tr("<b>openpilot 的轉向命令和車輛回應之間的時間。</b>如果車輛反應晚請增加；如果感覺跳躍請減少。預設為自動學習。"), ""},
+    {"SteerFriction", parent->friction != 0 ? QString(tr("摩擦力 (預設: %1)")).arg(QString::number(parent->friction, 'f', 2)) : tr("摩擦力"), tr("<b>補償轉向摩擦。</b>如果方向盤在中心附近卡住請增加；如果抖動請減少。預設為自動學習。"), ""},
+    {"SteerKP", parent->steerKp != 0 ? QString(tr("Kp 係數 (預設: %1)")).arg(QString::number(parent->steerKp, 'f', 2)) : tr("Kp 係數"), tr("<b>openpilot 修正車道位置的強度。</b>較高較緊但更易抖動；較低更平穩但較慢。預設為自動學習。"), ""},
+    {"SteerLatAccel", parent->latAccelFactor != 0 ? QString(tr("橫向加速度 (預設: %1)")).arg(QString::number(parent->latAccelFactor, 'f', 2)) : tr("橫向加速度"), tr("<b>將轉向扭矩映射到轉向反應。</b>增加用於更急轉彎；減少用於更溫和的轉向。預設為自動學習。"), ""},
+    {"SteerRatio", parent->steerRatio != 0 ? QString(tr("轉向比 (預設: %1)")).arg(QString::number(parent->steerRatio, 'f', 2)) : tr("轉向比"), tr("<b>方向盤旋轉與路面輪角之間的關係。</b>如果轉向感覺太快或抖動請增加；如果感覺太慢或太弱請減少。預設為自動學習。"), ""},
+    {"ForceAutoTune", tr("強制啟用自動調整"), tr("<b>強制啟用 openpilot 對 \"摩擦力\" 和 \"橫向加速度\" 的即時自動調整。</b>"), ""},
+    {"ForceAutoTuneOff", tr("強制停用自動調整"), tr("<b>強制停用 openpilot 對 \"摩擦力\" 和 \"橫向加速度\" 的即時自動調整，改用設定值。</b>"), ""},
+    {"ForceTorqueController", tr("強制扭矩控制器"), tr("<b>使用扭矩型轉向控制而不是角度型控制以獲得更平穩的車道保持，特別是在彎道中。</b>"), ""},
 
-    {"AlwaysOnLateral", tr("Always On Lateral"), tr("<b>openpilot's steering remains active even when the accelerator or brake pedals are pressed.</b>"), "../../frogpilot/assets/toggle_icons/icon_always_on_lateral.png"},
-    {"AlwaysOnLateralMain", tr("Enable With Cruise Control"), tr("<b>Enable \"Always On Lateral\" whenever \"Cruise Control\" is on, even when openpilot is not engaged.</b>"), ""},
-    {"AlwaysOnLateralLKAS", tr("Enable With LKAS"), tr("<b>Enable \"Always On Lateral\" whenever \"LKAS\" is on, even when openpilot is not engaged.</b>"), ""},
-    {"PauseAOLOnBrake", tr("Pause on Brake Press Below"), tr("<b>Pause \"Always On Lateral\" below the set speed while the brake pedal is pressed.</b>"), ""},
+    {"AlwaysOnLateral", tr("持續橫向控制"), tr("<b>即使在踩踏油門或煞車踏板時，openpilot 的轉向仍保持活躍。</b>"), "../../frogpilot/assets/toggle_icons/icon_always_on_lateral.png"},
+    {"AlwaysOnLateralMain", tr("與定速巡航一起啟用"), tr("<b>每當 \"定速巡航\" 啟用時，啟用 \"持續橫向控制\"，即使 openpilot 未啟用。</b>"), ""},
+    {"AlwaysOnLateralLKAS", tr("與 LKAS 一起啟用"), tr("<b>每當 \"LKAS\" 啟用時，啟用 \"持續橫向控制\"，即使 openpilot 未啟用。</b>"), ""},
+    {"PauseAOLOnBrake", tr("在以下速度暫停煞車"), tr("<b>在踩踏煞車踏板時，在設定速度下方暫停 \"持續橫向控制\"。</b>"), ""},
 
-    {"LaneChanges", tr("Lane Changes"), tr("<b>Allow openpilot to change lanes.</b>"), "../../frogpilot/assets/toggle_icons/icon_lane.png"},
-    {"NudgelessLaneChange", tr("Automatic Lane Changes"), tr("<b>When the turn signal is on, openpilot will automatically change lanes.</b> No steering-wheel nudge required!"), ""},
-    {"LaneChangeTime", tr("Lane Change Delay"), tr("<b>Delay between turn signal activation and the start of an automatic lane change.</b>"), ""},
-    {"MinimumLaneChangeSpeed", tr("Minimum Lane Change Speed"), tr("<b>Lowest speed at which openpilot will change lanes.</b>"), ""},
-    {"LaneDetectionWidth", tr("Minimum Lane Width"), tr("<b>Prevent automatic lane changes into lanes narrower than the set width.</b>"), ""},
-    {"OneLaneChange", tr("One Lane Change Per Signal"), tr("<b>Limit automatic lane changes to one per turn-signal activation.</b>"), ""},
+    {"LaneChanges", tr("車道變更"), tr("<b>允許 openpilot 變更車道。</b>"), "../../frogpilot/assets/toggle_icons/icon_lane.png"},
+    {"NudgelessLaneChange", tr("自動車道變更"), tr("<b>當轉向信號啟用時，openpilot 將自動變更車道。</b>不需要轉向盤推動！"), ""},
+    {"LaneChangeTime", tr("車道變更延遲"), tr("<b>轉向信號啟用與自動車道變更開始之間的延遲。</b>"), ""},
+    {"MinimumLaneChangeSpeed", tr("最小車道變更速度"), tr("<b>openpilot 將變更車道的最低速度。</b>"), ""},
+    {"LaneDetectionWidth", tr("最小車道寬度"), tr("<b>防止自動車道變更進入比設定寬度更狹窄的車道。</b>"), ""},
+    {"OneLaneChange", tr("每個信號一次車道變更"), tr("<b>限制自動車道變更為每個轉向信號啟用一次。</b>"), ""},
 
-    {"LateralTune", tr("Lateral Tuning"), tr("<b>Miscellaneous steering control changes</b> to fine-tune how openpilot drives."), "../../frogpilot/assets/toggle_icons/icon_lateral_tune.png"},
-    {"TurnDesires", tr("Force Turn Desires Below Lane Change Speed"), tr("<b>While driving below the minimum lane change speed with an active turn signal, instruct openpilot to turn left/right.</b>"), ""},
-    {"NNFF", tr("Neural Network Feedforward (NNFF)"), tr("<b>Twilsonco's \"Neural Network FeedForward\" controller.</b> Uses a trained neural network model to predict steering torque based on vehicle speed, roll, and past/future planned path data for smoother, model-based steering."), ""},
-    {"NNFFLite", tr("Neural Network Feedforward (NNFF) Lite"), tr("<b>A lightweight version of Twilsonco's \"Neural Network FeedForward\" controller.</b> Uses the \"look-ahead\" planned lateral jerk logic from the full model to help smoothen steering adjustments in curves, but does not use the full neural network for torque calculation."), ""},
+    {"LateralTune", tr("轉向調整"), tr("<b>雜項轉向控制變更</b>以微調 openpilot 的駕駛方式。"), "../../frogpilot/assets/toggle_icons/icon_lateral_tune.png"},
+    {"TurnDesires", tr("在最小車道變更速度以下強制轉向慾望"), tr("<b>當以下於最小車道變更速度行駛且轉向信號啟用時，指示 openpilot 向左/右轉向。</b>"), ""},
+    {"NNFF", tr("神經網路前饋 (NNFF)"), tr("<b>Twilsonco 的 \"神經網路前饋\" 模型控制器，用於根據您的車輛數據訓練的更平穩的基於模型的轉向。</b>"), ""},
+    {"NNFFLite", tr("平穩曲線處理"), tr("<b>Twilsonco 的基於扭矩的調整以平穩曲線中的轉向。</b>"), ""},
 
-    {"QOLLateral", tr("Quality of Life"), tr("<b>Steering control changes to fine-tune how openpilot drives.</b>"), "../../frogpilot/assets/toggle_icons/icon_quality_of_life.png"},
-    {"PauseLateralSpeed", tr("Pause Steering Below"), tr("<b>Pause steering below the set speed.</b>"), ""},
+    {"QOLLateral", tr("生活品質"), tr("<b>轉向控制變更以微調 openpilot 的駕駛方式。</b>"), "../../frogpilot/assets/toggle_icons/icon_quality_of_life.png"},
+    {"PauseLateralSpeed", tr("在以下速度暫停轉向"), tr("<b>在設定速度以下暫停轉向。</b>"), ""},
 
     {"IgnoreMe", "Ignore Me", "This is simply used to fix the layout when the user opens the descriptions and the menu gets wonky. No idea why it happens, but I can't be asked to properly fix it so whatever. Sue me.", ""},
     {"IgnoreMe2", "Ignore Me", "This is simply used to fix the layout when the user opens the descriptions and the menu gets wonky. No idea why it happens, but I can't be asked to properly fix it so whatever. Sue me.", ""}
@@ -115,7 +115,7 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
     } else if (param == "LaneChangeTime") {
       std::map<float, QString> laneChangeTimeLabels;
       for (float i = 0; i <= 5; i += 0.1) {
-        laneChangeTimeLabels[i] = i == 0 ? tr("Instant") : std::lround(i / 0.1) == 1 / 0.1 ? QString::number(i, 'f', 1) + tr(" second") : QString::number(i, 'f', 1) + tr(" seconds");
+        laneChangeTimeLabels[i] = i == 0 ? tr("即時") : std::lround(i / 0.1) == 1 / 0.1 ? QString::number(i, 'f', 1) + tr(" 秒") : QString::number(i, 'f', 1) + tr(" 秒");
       }
       lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 5, QString(), laneChangeTimeLabels, 0.1);
     } else if (param == "LaneDetectionWidth") {
@@ -138,7 +138,7 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
       lateralToggle = qolLateralToggle;
     } else if (param == "PauseLateralSpeed") {
       std::vector<QString> pauseLateralToggles{"PauseLateralOnSignal"};
-      std::vector<QString> pauseLateralToggleNames{tr("Turn Signal Only")};
+      std::vector<QString> pauseLateralToggleNames{tr("僅轉向信號")};
       lateralToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 0, 99, QString(), std::map<float, QString>(), 1, true, pauseLateralToggles, pauseLateralToggleNames, true);
 
     } else {
@@ -202,7 +202,7 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
 
   steerDelayToggle = static_cast<FrogPilotParamValueButtonControl*>(toggles["SteerDelay"]);
   QObject::connect(steerDelayToggle, &FrogPilotParamValueButtonControl::buttonClicked, [parent, this]() {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Reset <b>Actuator Delay</b> to its default value?"), this)) {
+    if (FrogPilotConfirmationDialog::yesorno(tr("重設 <b>執行器延遲</b> 為預設值？"), this)) {
       params.putFloat("SteerDelay", parent->steerActuatorDelay);
       steerDelayToggle->refresh();
     }
@@ -210,7 +210,7 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
 
   steerFrictionToggle = static_cast<FrogPilotParamValueButtonControl*>(toggles["SteerFriction"]);
   QObject::connect(steerFrictionToggle, &FrogPilotParamValueButtonControl::buttonClicked, [parent, this]() {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Reset <b>Friction</b> to its default value?"), this)) {
+    if (FrogPilotConfirmationDialog::yesorno(tr("重設 <b>摩擦力</b> 為預設值？"), this)) {
       params.putFloat("SteerFriction", parent->friction);
       steerFrictionToggle->refresh();
     }
@@ -218,7 +218,7 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
 
   steerKPToggle = static_cast<FrogPilotParamValueButtonControl*>(toggles["SteerKP"]);
   QObject::connect(steerKPToggle, &FrogPilotParamValueButtonControl::buttonClicked, [parent, this]() {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Reset <b>Kp Factor</b> to its default value?"), this)) {
+    if (FrogPilotConfirmationDialog::yesorno(tr("重設 <b>Kp 係數</b> 為預設值？"), this)) {
       params.putFloat("SteerKP", parent->steerKp);
       steerKPToggle->refresh();
     }
@@ -226,7 +226,7 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
 
   steerLatAccelToggle = static_cast<FrogPilotParamValueButtonControl*>(toggles["SteerLatAccel"]);
   QObject::connect(steerLatAccelToggle, &FrogPilotParamValueButtonControl::buttonClicked, [parent, this]() {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Reset <b>Lateral Accel</b> to its default value?"), this)) {
+    if (FrogPilotConfirmationDialog::yesorno(tr("重設 <b>橫向加速度</b> 為預設值？"), this)) {
       params.putFloat("SteerLatAccel", parent->latAccelFactor);
       steerLatAccelToggle->refresh();
     }
@@ -234,7 +234,7 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
 
   steerRatioToggle = static_cast<FrogPilotParamValueButtonControl*>(toggles["SteerRatio"]);
   QObject::connect(steerRatioToggle, &FrogPilotParamValueButtonControl::buttonClicked, [parent, this]() {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Reset <b>Steer Ratio</b> to its default value?"), this)) {
+    if (FrogPilotConfirmationDialog::yesorno(tr("重設 <b>轉向比</b> 為預設值？"), this)) {
       params.putFloat("SteerRatio", parent->steerRatio);
       steerRatioToggle->refresh();
     }
@@ -253,13 +253,13 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
 void FrogPilotLateralPanel::showEvent(QShowEvent *event) {
   frogpilotToggleLevels = parent->frogpilotToggleLevels;
 
-  steerDelayToggle->setTitle(QString(tr("Actuator Delay (Default: %1)")).arg(QString::number(parent->steerActuatorDelay, 'f', 2)));
-  steerFrictionToggle->setTitle(QString(tr("Friction (Default: %1)")).arg(QString::number(parent->friction, 'f', 2)));
-  steerKPToggle->setTitle(QString(tr("Kp Factor (Default: %1)")).arg(QString::number(parent->steerKp, 'f', 2)));
+  steerDelayToggle->setTitle(QString(tr("執行器延遲 (預設: %1)")).arg(QString::number(parent->steerActuatorDelay, 'f', 2)));
+  steerFrictionToggle->setTitle(QString(tr("摩擦力 (預設: %1)")).arg(QString::number(parent->friction, 'f', 2)));
+  steerKPToggle->setTitle(QString(tr("Kp 係數 (預設: %1)")).arg(QString::number(parent->steerKp, 'f', 2)));
   steerKPToggle->updateControl(parent->steerKp * 0.5, parent->steerKp * 1.5);
-  steerLatAccelToggle->setTitle(QString(tr("Lateral Accel (Default: %1)")).arg(QString::number(parent->latAccelFactor, 'f', 2)));
+  steerLatAccelToggle->setTitle(QString(tr("橫向加速度 (預設: %1)")).arg(QString::number(parent->latAccelFactor, 'f', 2)));
   steerLatAccelToggle->updateControl(parent->latAccelFactor * 0.75, parent->latAccelFactor * 1.25);
-  steerRatioToggle->setTitle(QString(tr("Steer Ratio (Default: %1)")).arg(QString::number(parent->steerRatio, 'f', 2)));
+  steerRatioToggle->setTitle(QString(tr("轉向比 (預設: %1)")).arg(QString::number(parent->steerRatio, 'f', 2)));
   steerRatioToggle->updateControl(parent->steerRatio * 0.5, parent->steerRatio * 1.5);
 
   updateToggles();
@@ -294,20 +294,20 @@ void FrogPilotLateralPanel::updateMetric(bool metric, bool bootRun) {
   if (!labelsInitialized) {
     for (int i = 0; i <= 150; ++i) {
       float key = i / 10.0f;
-      imperialDistanceLabels[key] = key == 0 ? tr("Off") : i == 1 ? QString::number(i) + tr(" foot") : QString::number(key, 'f', 1) + tr(" feet");
+      imperialDistanceLabels[key] = key == 0 ? tr("關閉") : i == 1 ? QString::number(i) + tr(" 英尺") : QString::number(key, 'f', 1) + tr(" 英尺");
     }
 
     for (int i = 0; i <= 99; ++i) {
-      imperialSpeedLabels[i] = i == 0 ? tr("Off") : QString::number(i) + tr(" mph");
+      imperialSpeedLabels[i] = i == 0 ? tr("關閉") : QString::number(i) + tr(" 英里/小時");
     }
 
     for (int i = 0; i <= 50; ++i) {
       float key = i / 10.0f;
-      metricDistanceLabels[key] = key == 0 ? tr("Off") : i == 1 ? QString::number(i) + tr(" meter") : QString::number(key, 'f', 1) + tr(" meters");
+      metricDistanceLabels[key] = key == 0 ? tr("關閉") : i == 1 ? QString::number(i) + tr(" 米") : QString::number(key, 'f', 1) + tr(" 米");
     }
 
     for (int i = 0; i <= 150; ++i) {
-      metricSpeedLabels[i] = i == 0 ? tr("Off") : QString::number(i) + tr(" km/h");
+      metricSpeedLabels[i] = i == 0 ? tr("關閉") : QString::number(i) + tr(" 公里/小時");
     }
 
     labelsInitialized = true;

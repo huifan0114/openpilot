@@ -96,7 +96,7 @@ def create_acc_accel_control(packer, bus, acc_type, acc_enabled, accel, acc_cont
     "ACC_zul_Regelabw_unten": 0.2,  # TODO: dynamic adjustment of comfort-band
     "ACC_zul_Regelabw_oben": 0.2,  # TODO: dynamic adjustment of comfort-band
     "ACC_neg_Sollbeschl_Grad_02": 4.0 if acc_enabled else 0,  # TODO: dynamic adjustment of jerk limits
-    "ACC_pos_Sollbeschl_Grad_02": 4.0 if acc_enabled else 0,  # TODO: dynamic adjustment of jerk limits
+    "ACC_pos_Sollbeschl_Grad_02": 6.0 if acc_enabled else 0,  # Increased jerk limit to allow faster accel ramping
     "ACC_Anfahren": starting,
     "ACC_Anhalten": stopping,
   }
@@ -135,3 +135,12 @@ def create_acc_hud_control(packer, bus, acc_hud_status, set_speed, lead_distance
   }
 
   return packer.make_can_msg("ACC_02", bus, values)
+
+##########################################################
+def create_bcm_01_control(packer, bus, bcm_01_value):
+  values = bcm_01_value
+  values.update({
+    "BCM_Hybrid_StartStopp_Taste": 1,
+  })
+  return packer.make_can_msg("BCM_01", bus, values)
+##########################################################

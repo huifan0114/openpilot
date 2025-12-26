@@ -280,7 +280,7 @@ void FrogPilotAnnotatedCameraWidget::paintAdjacentPaths(QPainter &p, const cerea
   };
 
   std::function<void(bool, float, const QPolygonF &)> drawAdjacentPathMetric = [&p, &frogpilot_toggles, this](bool isBlindSpot, float width, const QPolygonF &polygon) {
-    QString text = isBlindSpot && frogpilot_toggles.value("blind_spot_path").toBool() ? tr("Vehicle in blind spot") : QString::number(width * distanceConversion, 'f', 2) + leadDistanceUnit;
+    QString text = isBlindSpot && frogpilot_toggles.value("blind_spot_path").toBool() ? tr("車輛在盲點中") : QString::number(width * distanceConversion, 'f', 2) + leadDistanceUnit;
 
     p.setFont(InterFont(40, QFont::DemiBold));
     p.setPen(QPen(whiteColor()));

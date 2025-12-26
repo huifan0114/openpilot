@@ -155,7 +155,7 @@ class Alert:
 
 class NoEntryAlert(Alert):
   def __init__(self, alert_text_2: str,
-               alert_text_1: str = "openpilot Unavailable",
+               alert_text_1: str = "openpilot 無法使用",
                visual_alert: car.CarControl.HUDControl.VisualAlert=VisualAlert.none):
     super().__init__(alert_text_1, alert_text_2, AlertStatus.normal,
                      AlertSize.mid, Priority.LOW, visual_alert,
@@ -164,7 +164,7 @@ class NoEntryAlert(Alert):
 
 class SoftDisableAlert(Alert):
   def __init__(self, alert_text_2: str):
-    super().__init__("TAKE CONTROL IMMEDIATELY", alert_text_2,
+    super().__init__("請立刻接管車輛控制", alert_text_2,
                      AlertStatus.userPrompt, AlertSize.full,
                      Priority.MID, VisualAlert.steerRequired,
                      AudibleAlert.warningSoft, 2.),
@@ -174,12 +174,12 @@ class SoftDisableAlert(Alert):
 class UserSoftDisableAlert(SoftDisableAlert):
   def __init__(self, alert_text_2: str):
     super().__init__(alert_text_2),
-    self.alert_text_1 = "openpilot will disengage"
+    self.alert_text_1 = "openpilot即將失效"
 
 
 class ImmediateDisableAlert(Alert):
   def __init__(self, alert_text_2: str):
-    super().__init__("TAKE CONTROL IMMEDIATELY", alert_text_2,
+    super().__init__("請立刻接管車輛控制", alert_text_2,
                      AlertStatus.critical, AlertSize.full,
                      Priority.HIGHEST, VisualAlert.steerRequired,
                      AudibleAlert.warningImmediate, 4.),
@@ -201,7 +201,7 @@ class NormalPermanentAlert(Alert):
 
 
 class StartupAlert(Alert):
-  def __init__(self, alert_text_1: str, alert_text_2: str = "Always keep hands on wheel and eyes on road", alert_status=AlertStatus.normal):
+  def __init__(self, alert_text_1: str, alert_text_2: str = "注意路況並雙手放於方向盤上", alert_status=AlertStatus.normal):
     super().__init__(alert_text_1, alert_text_2,
                      alert_status, AlertSize.mid,
                      Priority.LOWER, VisualAlert.none, AudibleAlert.none, 5.),
@@ -238,25 +238,25 @@ def startup_master_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
   if "REPLAY" in os.environ:
     branch = "replay"
 
-  return StartupAlert("WARNING: This branch is not tested", branch, alert_status=AlertStatus.userPrompt)
+  return StartupAlert("~行車平安 旅途愉快~", branch, alert_status=AlertStatus.userPrompt)
 
 def below_engage_speed_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
-  return NoEntryAlert(f"Drive above {get_display_speed(CP.minEnableSpeed, metric)} to engage")
+  return NoEntryAlert(f"提高速度至 {get_display_speed(CP.minEnableSpeed, metric)} 開始使用")
 
 
 def below_steer_speed_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
   return Alert(
-    f"Steer Unavailable Below {get_display_speed(CP.minSteerSpeed, metric)}",
+    f"轉向無法使用因低於{get_display_speed(CP.minSteerSpeed, metric)}",
     "",
     AlertStatus.userPrompt, AlertSize.small,
     Priority.LOW, VisualAlert.steerRequired, AudibleAlert.prompt, 0.4)
 
 
 def calibration_incomplete_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
-  first_word = 'Recalibration' if sm['liveCalibration'].calStatus == log.LiveCalibrationData.Status.recalibrating else 'Calibration'
+  first_word = '重新校正' if sm['liveCalibration'].calStatus == log.LiveCalibrationData.Status.recalibrating else '校正'
   return Alert(
-    f"{first_word} in Progress: {sm['liveCalibration'].calPerc:.0f}%",
-    f"Drive Above {get_display_speed(MIN_SPEED_FILTER, metric)}",
+    f"{first_word} 進行中: {sm['liveCalibration'].calPerc:.0f}%",
+    f"把時速提高超過 {get_display_speed(MIN_SPEED_FILTER, metric)}",
     AlertStatus.normal, AlertSize.mid,
     Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .2)
 
@@ -265,32 +265,32 @@ def calibration_incomplete_alert(CP: car.CarParams, CS: car.CarState, sm: messag
 
 def out_of_space_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
   full_perc = round(100. - sm['deviceState'].freeSpacePercent)
-  return NormalPermanentAlert("Out of Storage", f"{full_perc}% full")
+  return NormalPermanentAlert("儲存空間不足", f"{full_perc}% 滿載")
 
 
 def posenet_invalid_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
   mdl = sm['modelV2'].velocity.x[0] if len(sm['modelV2'].velocity.x) else math.nan
   err = CS.vEgo - mdl
-  msg = f"Speed Error: {err:.1f} m/s"
-  return NoEntryAlert(msg, alert_text_1="Posenet Speed Invalid")
+  msg = f"時速錯誤: {err:.1f} m/s"
+  return NoEntryAlert(msg, alert_text_1="Posenet 時速錯誤")
 
 
 def process_not_running_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
   not_running = [p.name for p in sm['managerState'].processes if not p.running and p.shouldBeRunning]
   msg = ', '.join(not_running)
-  return NoEntryAlert(msg, alert_text_1="Process Not Running")
+  return NoEntryAlert(msg, alert_text_1="程序未正確運行")
 
 
 def comm_issue_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
   bs = [s for s in sm.data.keys() if not sm.all_checks([s, ])]
   msg = ', '.join(bs[:4])  # can't fit too many on one line
-  return NoEntryAlert(msg, alert_text_1="Communication Issue Between Processes")
+  return NoEntryAlert(msg, alert_text_1="程式間的訊號有問題")
 
 
 def camera_malfunction_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
   all_cams = ('roadCameraState', 'driverCameraState', 'wideRoadCameraState')
   bad_cams = [s.replace('State', '') for s in all_cams if s in sm.data.keys() and not sm.all_checks([s, ])]
-  return NormalPermanentAlert("Camera Malfunction", ', '.join(bad_cams))
+  return NormalPermanentAlert("鏡頭故障", ', '.join(bad_cams))
 
 
 def calibration_invalid_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
@@ -298,32 +298,32 @@ def calibration_invalid_alert(CP: car.CarParams, CS: car.CarState, sm: messaging
   yaw = math.degrees(rpy[2] if len(rpy) == 3 else math.nan)
   pitch = math.degrees(rpy[1] if len(rpy) == 3 else math.nan)
   angles = f"Remount Device (Pitch: {pitch:.1f}°, Yaw: {yaw:.1f}°)"
-  return NormalPermanentAlert("Calibration Invalid", angles)
+  return NormalPermanentAlert("校正無效", angles)
 
 
 def overheat_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
   cpu = max(sm['deviceState'].cpuTempC, default=0.)
   gpu = max(sm['deviceState'].gpuTempC, default=0.)
   temp = max((cpu, gpu, sm['deviceState'].memoryTempC))
-  return NormalPermanentAlert("System Overheated", f"{temp:.0f} °C")
+  return NormalPermanentAlert("系統過熱", f"{temp:.0f} °C")
 
 
 def low_memory_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
-  return NormalPermanentAlert("Low Memory", f"{sm['deviceState'].memoryUsagePercent}% used")
+  return NormalPermanentAlert("記憶體不足", f"{sm['deviceState'].memoryUsagePercent}% 已使用")
 
 
 def high_cpu_usage_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
   x = max(sm['deviceState'].cpuUsagePercent, default=0.)
-  return NormalPermanentAlert("High CPU Usage", f"{x}% used")
+  return NormalPermanentAlert("CPU使用率過高", f"{x}% 已使用")
 
 
 def modeld_lagging_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
-  return NormalPermanentAlert("Driving Model Lagging", f"{sm['modelV2'].frameDropPerc:.1f}% frames dropped")
+  return NormalPermanentAlert("駕駛模型延遲", f"{sm['modelV2'].frameDropPerc:.1f}% frames dropped")
 
 
 def wrong_car_mode_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
   if frogpilot_toggles.has_cc_long:
-    text = "Enable Cruise Control to Engage"
+    text = "啟用定速來啟動OPENPILOT"
   elif CP.carName == "honda":
     text = "Enable Main Switch to Engage"
   else:
@@ -380,11 +380,11 @@ def holiday_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, 
 
 def no_lane_available_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
   lane_width = sm["frogpilotPlan"].laneWidthLeft if CS.leftBlinker else sm["frogpilotPlan"].laneWidthRight
-  lane_width_msg = f"{lane_width:.1f} meters" if metric else f"{lane_width * CV.METER_TO_FOOT:.1f} feet"
+  lane_width_msg = f"{lane_width:.1f} 公尺" if metric else f"{lane_width * CV.METER_TO_FOOT:.1f} 英尺"
 
   return Alert(
-    "No lane available",
-    f"Detected lane width is only {lane_width_msg}",
+    "無可用車道",
+    f"車道寬度僅為 {lane_width_msg}",
     AlertStatus.normal, AlertSize.mid,
     Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .2)
 
@@ -415,15 +415,15 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.joystickDebug: {
     ET.WARNING: joystick_alert,
-    ET.PERMANENT: NormalPermanentAlert("Joystick Mode"),
+    ET.PERMANENT: NormalPermanentAlert("搖桿模式"),
   },
 
   EventName.controlsInitializing: {
-    ET.NO_ENTRY: NoEntryAlert("System Initializing"),
+    ET.NO_ENTRY: NoEntryAlert("系統初始化"),
   },
 
   EventName.startup: {
-    ET.PERMANENT: StartupAlert("Be ready to take over at any time")
+    ET.PERMANENT: StartupAlert("請隨時準備接管")
   },
 
   EventName.startupMaster: {
@@ -432,18 +432,18 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   # Car is recognized, but marked as dashcam only
   EventName.startupNoControl: {
-    ET.PERMANENT: StartupAlert("Dashcam mode"),
-    ET.NO_ENTRY: NoEntryAlert("Dashcam mode"),
+    ET.PERMANENT: StartupAlert("行車記錄模式"),
+    ET.NO_ENTRY: NoEntryAlert("行車記錄模式"),
   },
 
   # Car is not recognized
   EventName.startupNoCar: {
-    ET.PERMANENT: StartupAlert("Dashcam mode for unsupported car"),
+    ET.PERMANENT: StartupAlert("適用於不支援的汽車的行車記錄器模式"),
   },
 
   EventName.startupNoFw: {
-    ET.PERMANENT: StartupAlert("Car Unrecognized",
-                               "Check comma power connections",
+    ET.PERMANENT: StartupAlert("汽車無法識別",
+                               "檢查逗號電源連接",
                                alert_status=AlertStatus.userPrompt),
   },
 
@@ -454,7 +454,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   EventName.dashcamMode: {
-    ET.PERMANENT: NormalPermanentAlert("Dashcam Mode",
+    ET.PERMANENT: NormalPermanentAlert("行車記錄模式",
                                        priority=Priority.LOWEST),
   },
 
@@ -464,7 +464,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   EventName.cruiseMismatch: {
-    #ET.PERMANENT: ImmediateDisableAlert("openpilot failed to cancel cruise"),
+    #ET.PERMANENT: ImmediateDisableAlert("openpilot 取消巡航失敗"),
   },
 
   # openpilot doesn't recognize the car. This switches openpilot into a
@@ -478,7 +478,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.stockAeb: {
     ET.PERMANENT: Alert(
-      "BRAKE!",
+      "立刻煞車!",
       "Stock AEB: Risk of Collision",
       AlertStatus.critical, AlertSize.full,
       Priority.HIGHEST, VisualAlert.fcw, AudibleAlert.none, 2.),
@@ -487,7 +487,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.fcw: {
     ET.PERMANENT: Alert(
-      "BRAKE!",
+      "立刻煞車!",
       "Risk of Collision",
       AlertStatus.critical, AlertSize.full,
       Priority.HIGHEST, VisualAlert.fcw, AudibleAlert.warningSoft, 2.),
@@ -495,17 +495,94 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.ldw: {
     ET.PERMANENT: Alert(
-      "Lane Departure Detected",
+      "偏離車道",
       "",
       AlertStatus.userPrompt, AlertSize.small,
       Priority.LOW, VisualAlert.ldw, AudibleAlert.prompt, 3.),
   },
 
+##################NAV語音#####################################################
+  # EventName.navturn: {
+  #   ET.WARNING: Alert(
+  #     "準備轉彎!!",
+  #     "",
+  #     AlertStatus.userPrompt, AlertSize.none,
+  #     Priority.LOW, VisualAlert.none, AudibleAlert.navturn, 1.),
+  # },
+
+  # EventName.navuturn: {
+  #   ET.WARNING: Alert(
+  #     "準備迴轉!!",
+  #     "",
+  #     AlertStatus.userPrompt, AlertSize.none,
+  #     Priority.LOW, VisualAlert.none, AudibleAlert.navuturn, 1.),
+  # },
+
+  # EventName.navturnleft: {
+  #   ET.WARNING: Alert(
+  #     "準備左轉!!",
+  #     "",
+  #     AlertStatus.userPrompt, AlertSize.none,
+  #     Priority.LOW, VisualAlert.none, AudibleAlert.navturnleft, 1.),
+  # },
+
+  # EventName.navturnright: {
+  #   ET.WARNING: Alert(
+  #     "準備右轉!!",
+  #     "",
+  #     AlertStatus.userPrompt, AlertSize.none,
+  #     Priority.LOW, VisualAlert.none, AudibleAlert.navturnright, 1.),
+  # },
+
+  # EventName.navsharpleft: {
+  #   ET.WARNING: Alert(
+  #     "準備緊急左轉!!",
+  #     "",
+  #     AlertStatus.userPrompt, AlertSize.none,
+  #     Priority.LOW, VisualAlert.none, AudibleAlert.navsharpleft, 1.),
+  # },
+
+  # EventName.navsharpright: {
+  #   ET.WARNING: Alert(
+  #     "準備緊急右轉!!",
+  #     "",
+  #     AlertStatus.userPrompt, AlertSize.none,
+  #     Priority.LOW, VisualAlert.none, AudibleAlert.navsharpright, 1.),
+  # },
+
+  # EventName.navofframp: {
+  #   ET.WARNING: Alert(
+  #     "準備下交流道!!",
+  #     "",
+  #     AlertStatus.userPrompt, AlertSize.none,
+  #     Priority.LOW, VisualAlert.none, AudibleAlert.navofframp, 1.),
+  # },
+  ##################NAV語音#####################################################
+  EventName.speedover: {
+    ET.WARNING: Alert(
+      "注意!!   超速了!!!",
+      "",
+      AlertStatus.userPrompt, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 1.),
+  },
+
+  EventName.doorOpen1: {
+    ET.PERMANENT: Alert(
+      "記得熄火",
+      "",
+      AlertStatus.normal, AlertSize.full,
+      Priority.LOWEST, VisualAlert.none, AudibleAlert.warningSoft, .2, creation_delay=0.5),
+    ET.USER_DISABLE: ImmediateDisableAlert("記得熄火"),
+    ET.NO_ENTRY: NoEntryAlert("記得熄火"),
+  },
+
+###############################
+
   # ********** events only containing alerts that display while engaged **********
 
   EventName.steerTempUnavailableSilent: {
     ET.WARNING: Alert(
-      "Steering Temporarily Unavailable",
+      "怠速熄火啟動中",
       "",
       AlertStatus.userPrompt, AlertSize.small,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.prompt, 1.8),
@@ -513,7 +590,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.preDriverDistracted: {
     ET.PERMANENT: Alert(
-      "Pay Attention",
+      "注意!!",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
@@ -521,23 +598,23 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.promptDriverDistracted: {
     ET.PERMANENT: Alert(
-      "Pay Attention",
-      "Driver Distracted",
+      "注意!!",
+      "駕駛分心",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.MID, VisualAlert.steerRequired, AudibleAlert.promptDistracted, .1),
   },
 
   EventName.driverDistracted: {
     ET.PERMANENT: Alert(
-      "DISENGAGE IMMEDIATELY",
-      "Driver Distracted",
+      "立即解除控制",
+      "駕駛分心",
       AlertStatus.critical, AlertSize.full,
       Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.warningImmediate, .1),
   },
 
   EventName.preDriverUnresponsive: {
     ET.PERMANENT: Alert(
-      "Touch Steering Wheel: No Face Detected",
+      "手須放在方向盤: 沒有偵測到臉部",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, .1, alert_rate=0.75),
@@ -545,31 +622,31 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.promptDriverUnresponsive: {
     ET.PERMANENT: Alert(
-      "Touch Steering Wheel",
-      "Driver Unresponsive",
+      "手須放在方向盤",
+      "駕駛沒有反應",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.MID, VisualAlert.steerRequired, AudibleAlert.promptDistracted, .1),
   },
 
   EventName.driverUnresponsive: {
     ET.PERMANENT: Alert(
-      "DISENGAGE IMMEDIATELY",
-      "Driver Unresponsive",
+      "立即解除控制",
+      "駕駛沒有反應",
       AlertStatus.critical, AlertSize.full,
       Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.warningImmediate, .1),
   },
 
   EventName.manualRestart: {
     ET.WARNING: Alert(
-      "TAKE CONTROL",
-      "Resume Driving Manually",
+      "立刻介入控制",
+      "恢復手動駕駛",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.LOW, VisualAlert.none, AudibleAlert.none, .2),
   },
 
   EventName.resumeRequired: {
     ET.WARNING: Alert(
-      "Press Resume to Exit Standstill",
+      "按壓 Resume 解除停止狀態",
       "",
       AlertStatus.userPrompt, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.none, .2),
@@ -581,7 +658,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.preLaneChangeLeft: {
     ET.WARNING: Alert(
-      "Steer Left to Start Lane Change Once Safe",
+      "向左轉方向盤安全變換車道一次",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.none, .1, alert_rate=0.75),
@@ -589,7 +666,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.preLaneChangeRight: {
     ET.WARNING: Alert(
-      "Steer Right to Start Lane Change Once Safe",
+      "向右轉方向盤安全變換車道一次",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.none, .1, alert_rate=0.75),
@@ -597,44 +674,44 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.laneChangeBlocked: {
     ET.WARNING: Alert(
-      "Car Detected in Blindspot",
+      "盲點偵測到車輛暫停變換車道",
       "",
       AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, .1),
+      Priority.LOW, VisualAlert.none, AudibleAlert.lanechangeblockedsound, .1),
   },
 
   EventName.laneChange: {
     ET.WARNING: Alert(
-      "Changing Lanes",
+      "變換車道中",
       "",
       AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
+      Priority.LOW, VisualAlert.none, AudibleAlert.lanechangesound, .1),
   },
 
   EventName.steerSaturated: {
     ET.WARNING: Alert(
-      "Take Control",
-      "Turn Exceeds Steering Limit",
+      "接管控制",
+      "轉彎幅度超出轉向限制",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.promptRepeat, 2.),
   },
 
   # Thrown when the fan is driven at >50% but is not rotating
   EventName.fanMalfunction: {
-    ET.PERMANENT: NormalPermanentAlert("Fan Malfunction", "Likely Hardware Issue"),
+    ET.PERMANENT: NormalPermanentAlert("風扇故障", "可能硬體有問題"),
   },
 
   # Camera is not outputting frames
   EventName.cameraMalfunction: {
     ET.PERMANENT: camera_malfunction_alert,
-    ET.SOFT_DISABLE: soft_disable_alert("Camera Malfunction"),
-    ET.NO_ENTRY: NoEntryAlert("Camera Malfunction: Reboot Your Device"),
+    ET.SOFT_DISABLE: soft_disable_alert("鏡頭故障"),
+    ET.NO_ENTRY: NoEntryAlert("鏡頭故障請重啟設備"),
   },
   # Camera framerate too low
   EventName.cameraFrameRate: {
-    ET.PERMANENT: NormalPermanentAlert("Camera Frame Rate Low", "Reboot your Device"),
-    ET.SOFT_DISABLE: soft_disable_alert("Camera Frame Rate Low"),
-    ET.NO_ENTRY: NoEntryAlert("Camera Frame Rate Low: Reboot Your Device"),
+    ET.PERMANENT: NormalPermanentAlert("鏡頭畫面頻率偏低", "請重啟設備"),
+    ET.SOFT_DISABLE: soft_disable_alert("鏡頭畫面頻率偏低"),
+    ET.NO_ENTRY: NoEntryAlert("鏡頭畫面頻率偏低: 請重啟設備"),
   },
 
   # Unused
@@ -685,28 +762,28 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.buttonCancel: {
     ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
-    ET.NO_ENTRY: NoEntryAlert("Cancel Pressed"),
+    ET.NO_ENTRY: NoEntryAlert("取消鍵被按著"),
   },
 
   EventName.brakeHold: {
     ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
-    ET.NO_ENTRY: NoEntryAlert("Brake Hold Active"),
+    ET.NO_ENTRY: NoEntryAlert("煞車維持啟動"),
   },
 
   EventName.parkBrake: {
     ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
-    ET.NO_ENTRY: NoEntryAlert("Parking Brake Engaged"),
+    ET.NO_ENTRY: NoEntryAlert("手煞車使用中"),
   },
 
   EventName.pedalPressed: {
     ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
-    ET.NO_ENTRY: NoEntryAlert("Pedal Pressed",
+    ET.NO_ENTRY: NoEntryAlert("煞車踩著",
                               visual_alert=VisualAlert.brakePressed),
   },
 
   EventName.preEnableStandstill: {
     ET.PRE_ENABLE: Alert(
-      "Release Brake to Engage",
+      "放開煞車開始定速",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .1, creation_delay=1.),
@@ -734,22 +811,22 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   EventName.resumeBlocked: {
-    ET.NO_ENTRY: NoEntryAlert("Press Set to Engage"),
+    ET.NO_ENTRY: NoEntryAlert("需先按Set啟動控制"),
   },
 
   EventName.wrongCruiseMode: {
     ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
-    ET.NO_ENTRY: NoEntryAlert("Adaptive Cruise Disabled"),
+    ET.NO_ENTRY: NoEntryAlert("定速關閉"),
   },
 
   EventName.steerTempUnavailable: {
-    ET.SOFT_DISABLE: soft_disable_alert("Steering Temporarily Unavailable"),
-    ET.NO_ENTRY: NoEntryAlert("Steering Temporarily Unavailable"),
+    ET.SOFT_DISABLE: soft_disable_alert("方向盤暫時無法使用"),
+    ET.NO_ENTRY: NoEntryAlert("方向盤暫時無法使用"),
   },
 
   EventName.steerTimeLimit: {
-    ET.SOFT_DISABLE: soft_disable_alert("Vehicle Steering Time Limit"),
-    ET.NO_ENTRY: NoEntryAlert("Vehicle Steering Time Limit"),
+    ET.SOFT_DISABLE: soft_disable_alert("車輛方向盤使用超時"),
+    ET.NO_ENTRY: NoEntryAlert("車輛方向盤使用超時"),
   },
 
   EventName.outOfSpace: {
@@ -763,40 +840,40 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.sensorDataInvalid: {
     ET.PERMANENT: Alert(
-      "Sensor Data Invalid",
-      "Possible Hardware Issue",
+      "感應器數據無效",
+      "確保設備安裝正確",
       AlertStatus.normal, AlertSize.mid,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, .2, creation_delay=1.),
-    ET.NO_ENTRY: NoEntryAlert("Sensor Data Invalid"),
-    ET.SOFT_DISABLE: soft_disable_alert("Sensor Data Invalid"),
+    ET.NO_ENTRY: NoEntryAlert("感應器數據無效"),
+    ET.SOFT_DISABLE: soft_disable_alert("感應器數據無效"),
   },
 
   EventName.noGps: {
     ET.PERMANENT: Alert(
-      "Poor GPS reception",
-      "Ensure device has a clear view of the sky",
+      "GPS 訊號不良",
+      "若在看的見天空的環境下，可能硬體有問題",
       AlertStatus.normal, AlertSize.mid,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, .2, creation_delay=600.)
   },
 
   EventName.soundsUnavailable: {
-    ET.PERMANENT: NormalPermanentAlert("Speaker not found", "Reboot your Device"),
-    ET.NO_ENTRY: NoEntryAlert("Speaker not found"),
+    ET.PERMANENT: NormalPermanentAlert("喇叭失效", "請重啟設備"),
+    ET.NO_ENTRY: NoEntryAlert("喇叭失效"),
   },
 
   EventName.tooDistracted: {
-    ET.NO_ENTRY: NoEntryAlert("Distraction Level Too High"),
+    ET.NO_ENTRY: NoEntryAlert("分心程度太高"),
   },
 
   EventName.overheat: {
     ET.PERMANENT: overheat_alert,
-    ET.SOFT_DISABLE: soft_disable_alert("System Overheated"),
-    ET.NO_ENTRY: NoEntryAlert("System Overheated"),
+    ET.SOFT_DISABLE: soft_disable_alert("系統過熱"),
+    ET.NO_ENTRY: NoEntryAlert("系統過熱"),
   },
 
   EventName.wrongGear: {
-    ET.SOFT_DISABLE: user_soft_disable_alert("Gear not D"),
-    ET.NO_ENTRY: NoEntryAlert("Gear not D"),
+    ET.SOFT_DISABLE: user_soft_disable_alert("不在 D 檔"),
+    ET.NO_ENTRY: NoEntryAlert("不在 D 檔"),
   },
 
   # This alert is thrown when the calibration angles are outside of the acceptable range.
@@ -806,30 +883,30 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   # See https://comma.ai/setup for more information
   EventName.calibrationInvalid: {
     ET.PERMANENT: calibration_invalid_alert,
-    ET.SOFT_DISABLE: soft_disable_alert("Calibration Invalid: Remount Device & Recalibrate"),
-    ET.NO_ENTRY: NoEntryAlert("Calibration Invalid: Remount Device & Recalibrate"),
+    ET.SOFT_DISABLE: soft_disable_alert("校正失敗：重新安裝設備並重新校正"),
+    ET.NO_ENTRY: NoEntryAlert("校正失敗：重新安裝設備並重新校正"),
   },
 
   EventName.calibrationIncomplete: {
     ET.PERMANENT: calibration_incomplete_alert,
-    ET.SOFT_DISABLE: soft_disable_alert("Calibration Incomplete"),
-    ET.NO_ENTRY: NoEntryAlert("Calibration in Progress"),
+    ET.SOFT_DISABLE: soft_disable_alert("校正不完整"),
+    ET.NO_ENTRY: NoEntryAlert("校正進行中"),
   },
 
   EventName.calibrationRecalibrating: {
     ET.PERMANENT: calibration_incomplete_alert,
-    ET.SOFT_DISABLE: soft_disable_alert("Device Remount Detected: Recalibrating"),
-    ET.NO_ENTRY: NoEntryAlert("Remount Detected: Recalibrating"),
+    ET.SOFT_DISABLE: soft_disable_alert("偵測到設備重新安裝：請重新校正"),
+    ET.NO_ENTRY: NoEntryAlert("偵測到設備重新安裝：請重新校正"),
   },
 
   EventName.doorOpen: {
-    ET.SOFT_DISABLE: user_soft_disable_alert("Door Open"),
-    ET.NO_ENTRY: NoEntryAlert("Door Open"),
+    ET.SOFT_DISABLE: user_soft_disable_alert("車門開啟"),
+    ET.NO_ENTRY: NoEntryAlert("車門開啟"),
   },
 
   EventName.seatbeltNotLatched: {
-    ET.SOFT_DISABLE: user_soft_disable_alert("Seatbelt Unlatched"),
-    ET.NO_ENTRY: NoEntryAlert("Seatbelt Unlatched"),
+    ET.SOFT_DISABLE: user_soft_disable_alert("未使用安全帶"),
+    ET.NO_ENTRY: NoEntryAlert("未使用安全帶"),
   },
 
   EventName.espDisabled: {
@@ -838,8 +915,8 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   EventName.lowBattery: {
-    ET.SOFT_DISABLE: soft_disable_alert("Low Battery"),
-    ET.NO_ENTRY: NoEntryAlert("Low Battery"),
+    ET.SOFT_DISABLE: soft_disable_alert("電池電壓過低"),
+    ET.NO_ENTRY: NoEntryAlert("電池電壓過低"),
   },
 
   # Different openpilot services communicate between each other at a certain
@@ -847,36 +924,36 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   # is thrown. This can mean a service crashed, did not broadcast a message for
   # ten times the regular interval, or the average interval is more than 10% too high.
   EventName.commIssue: {
-    ET.SOFT_DISABLE: soft_disable_alert("Communication Issue Between Processes"),
+    ET.SOFT_DISABLE: soft_disable_alert("程序通訊有問題"),
     ET.NO_ENTRY: comm_issue_alert,
   },
   EventName.commIssueAvgFreq: {
-    ET.SOFT_DISABLE: soft_disable_alert("Low Communication Rate Between Processes"),
-    ET.NO_ENTRY: NoEntryAlert("Low Communication Rate Between Processes"),
+    ET.SOFT_DISABLE: soft_disable_alert("程序通訊頻率低"),
+    ET.NO_ENTRY: NoEntryAlert("程序通訊頻率低"),
   },
 
   EventName.controlsdLagging: {
-    ET.SOFT_DISABLE: soft_disable_alert("Controls Lagging"),
-    ET.NO_ENTRY: NoEntryAlert("Controls Process Lagging: Reboot Your Device"),
+    ET.SOFT_DISABLE: soft_disable_alert("控制延遲"),
+    ET.NO_ENTRY: NoEntryAlert("控制程序延遲: 請重啟設備"),
   },
 
   # Thrown when manager detects a service exited unexpectedly while driving
   EventName.processNotRunning: {
     ET.NO_ENTRY: process_not_running_alert,
-    ET.SOFT_DISABLE: soft_disable_alert("Process Not Running"),
+    ET.SOFT_DISABLE: soft_disable_alert("程序未正確運行"),
   },
 
   EventName.radarFault: {
-    ET.SOFT_DISABLE: soft_disable_alert("Radar Error: Restart the Car"),
-    ET.NO_ENTRY: NoEntryAlert("Radar Error: Restart the Car"),
+    ET.SOFT_DISABLE: soft_disable_alert("雷達錯誤: 請重新發動車子"),
+    ET.NO_ENTRY: NoEntryAlert("雷達錯誤: 請重新發動車子"),
   },
 
   # Every frame from the camera should be processed by the model. If modeld
   # is not processing frames fast enough they have to be dropped. This alert is
   # thrown when over 20% of frames are dropped.
   EventName.modeldLagging: {
-    ET.SOFT_DISABLE: soft_disable_alert("Driving Model Lagging"),
-    ET.NO_ENTRY: NoEntryAlert("Driving Model Lagging"),
+    ET.SOFT_DISABLE: soft_disable_alert("駕駛模型延遲"),
+    ET.NO_ENTRY: NoEntryAlert("駕駛模型延遲"),
     ET.PERMANENT: modeld_lagging_alert,
   },
 
@@ -898,26 +975,26 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   EventName.lowMemory: {
-    ET.SOFT_DISABLE: soft_disable_alert("Low Memory: Reboot Your Device"),
+    ET.SOFT_DISABLE: soft_disable_alert("記憶體不足: 請重新啟動設備"),
     ET.PERMANENT: low_memory_alert,
-    ET.NO_ENTRY: NoEntryAlert("Low Memory: Reboot Your Device"),
+    ET.NO_ENTRY: NoEntryAlert("記憶體不足: 請重新啟動設備"),
   },
 
   EventName.highCpuUsage: {
-    #ET.SOFT_DISABLE: soft_disable_alert("System Malfunction: Reboot Your Device"),
-    #ET.PERMANENT: NormalPermanentAlert("System Malfunction", "Reboot your Device"),
+    #ET.SOFT_DISABLE: soft_disable_alert("系統故障：重新啟動您的裝置"),
+    #ET.PERMANENT: NormalPermanentAlert("系統故障”，“重新啟動設備"),
     ET.NO_ENTRY: high_cpu_usage_alert,
   },
 
   EventName.accFaulted: {
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Cruise Fault: Restart the Car"),
-    ET.PERMANENT: NormalPermanentAlert("Cruise Fault: Restart the car to engage"),
-    ET.NO_ENTRY: NoEntryAlert("Cruise Fault: Restart the Car"),
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("定速異常：請重新啟動汽車"),
+    ET.PERMANENT: NormalPermanentAlert("定速失敗: 請重新啟動車輛恢復使用"),
+    ET.NO_ENTRY: NoEntryAlert("定速異常：請重新啟動汽車"),
   },
 
   EventName.controlsMismatch: {
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Controls Mismatch"),
-    ET.NO_ENTRY: NoEntryAlert("Controls Mismatch"),
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("控制不匹配"),
+    ET.NO_ENTRY: NoEntryAlert("控制不匹配"),
   },
 
   EventName.roadCameraError: {
@@ -941,9 +1018,9 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   # Sometimes the USB stack on the device can get into a bad state
   # causing the connection to the panda to be lost
   EventName.usbError: {
-    ET.SOFT_DISABLE: soft_disable_alert("USB Error: Reboot Your Device"),
-    ET.PERMANENT: NormalPermanentAlert("USB Error: Reboot Your Device", ""),
-    ET.NO_ENTRY: NoEntryAlert("USB Error: Reboot Your Device"),
+    ET.SOFT_DISABLE: soft_disable_alert("USB 錯誤: 請重啟設備"),
+    ET.PERMANENT: NormalPermanentAlert("USB 錯誤: 請重啟設備", ""),
+    ET.NO_ENTRY: NoEntryAlert("USB 錯誤: 請重啟設備"),
   },
 
   # This alert can be thrown for the following reasons:
@@ -951,13 +1028,13 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   # - CAN data is received, but some message are not received at the right frequency
   # If you're not writing a new car port, this is usually cause by faulty wiring
   EventName.canError: {
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("CAN Error"),
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("CAN 資料錯誤"),
     ET.PERMANENT: Alert(
-      "CAN Error: Check Connections",
+      "CAN 錯誤: 請確認訊號線路連接正常",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.none, 1., creation_delay=1.),
-    ET.NO_ENTRY: NoEntryAlert("CAN Error: Check Connections"),
+    ET.NO_ENTRY: NoEntryAlert("CAN 錯誤: 請確認訊號線路連接正常"),
   },
 
   EventName.canBusMissing: {
@@ -971,19 +1048,19 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   EventName.steerUnavailable: {
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("LKAS Fault: Restart the Car"),
-    ET.PERMANENT: NormalPermanentAlert("LKAS Fault: Restart the car to engage"),
-    ET.NO_ENTRY: NoEntryAlert("LKAS Fault: Restart the Car"),
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("全時置中啟動中"),
+    ET.PERMANENT: NormalPermanentAlert("全時置中啟動中"),
+    ET.NO_ENTRY: NoEntryAlert("全時置中啟動中"),
   },
 
   EventName.reverseGear: {
     ET.PERMANENT: Alert(
-      "Reverse\nGear",
+      "倒車中",
       "",
       AlertStatus.normal, AlertSize.full,
       Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .2, creation_delay=0.5),
-    ET.USER_DISABLE: ImmediateDisableAlert("Reverse Gear"),
-    ET.NO_ENTRY: NoEntryAlert("Reverse Gear"),
+    ET.USER_DISABLE: ImmediateDisableAlert("倒車中"),
+    ET.NO_ENTRY: NoEntryAlert("倒車中"),
   },
 
   # On cars that use stock ACC the car can decide to cancel ACC for various reasons.
@@ -1004,8 +1081,8 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.speedTooLow: {
     ET.IMMEDIATE_DISABLE: Alert(
-      "openpilot Canceled",
-      "Speed too low",
+      "openpilot 被取消",
+      "速度太低",
       AlertStatus.normal, AlertSize.mid,
       Priority.HIGH, VisualAlert.none, AudibleAlert.disengage, 3.),
   },
@@ -1013,27 +1090,27 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   # When the car is driving faster than most cars in the training data, the model outputs can be unpredictable.
   EventName.speedTooHigh: {
     ET.WARNING: Alert(
-      "Speed Too High",
+      "速度太高",
       "Model uncertain at this speed",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.promptRepeat, 4.),
-    ET.NO_ENTRY: NoEntryAlert("Slow down to engage"),
+    ET.NO_ENTRY: NoEntryAlert("降低速度恢復使用"),
   },
 
   EventName.lowSpeedLockout: {
-    ET.PERMANENT: NormalPermanentAlert("Cruise Fault: Restart the car to engage"),
-    ET.NO_ENTRY: NoEntryAlert("Cruise Fault: Restart the Car"),
+    ET.PERMANENT: NormalPermanentAlert("定速失敗: 請重新啟動車輛恢復使用"),
+    ET.NO_ENTRY: NoEntryAlert("定速異常：請重新啟動汽車"),
   },
 
   EventName.lkasDisabled: {
-    ET.PERMANENT: NormalPermanentAlert("LKAS Disabled: Enable LKAS to engage"),
-    ET.NO_ENTRY: NoEntryAlert("LKAS Disabled"),
+    ET.PERMANENT: NormalPermanentAlert("車道置中 關閉: 開啟 LKAS 恢復使用"),
+    ET.NO_ENTRY: NoEntryAlert("車道置中 關閉"),
   },
 
   EventName.vehicleSensorsInvalid: {
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Vehicle Sensors Invalid"),
-    ET.PERMANENT: NormalPermanentAlert("Vehicle Sensors Calibrating", "Drive to Calibrate"),
-    ET.NO_ENTRY: NoEntryAlert("Vehicle Sensors Calibrating"),
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("車輛感應器無效"),
+    ET.PERMANENT: NormalPermanentAlert("車輛感應器校正中", "開車去校正"),
+    ET.NO_ENTRY: NoEntryAlert("車輛感應器校正中"),
   },
 }
 
@@ -1064,7 +1141,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   FrogPilotEventName.greenLight: {
     ET.PERMANENT: Alert(
-      "Light turned green",
+      "綠燈 GO!!",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
       Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
@@ -1076,18 +1153,18 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   FrogPilotEventName.laneChangeBlockedLoud: {
     ET.WARNING: Alert(
-      "Car Detected in Blindspot",
+      "盲點偵測到車輛暫停變換車道",
       "",
       AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.warningSoft, .1),
+      Priority.LOW, VisualAlert.none, AudibleAlert.lanechangeblockedsound, .1),
   },
 
   FrogPilotEventName.leadDeparting: {
     ET.PERMANENT: Alert(
-      "Lead departed",
+      "前車遠離",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
-      Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
+      Priority.MID, VisualAlert.none, AudibleAlert.carawayed, 3.),
   },
 
   FrogPilotEventName.noLaneAvailable: {
@@ -1096,29 +1173,29 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   FrogPilotEventName.openpilotCrashed: {
     ET.IMMEDIATE_DISABLE: Alert(
-      "openpilot crashed",
-      "Please post the 'Error Log' in the FrogPilot Discord!",
+      "openpilot 無法使用",
+      "請在 FrogPilot Discord 中發布錯誤日誌!",
       AlertStatus.critical, AlertSize.mid,
       Priority.HIGHEST, VisualAlert.none, AudibleAlert.prompt, .1),
 
     ET.NO_ENTRY: Alert(
-      "openpilot crashed",
-      "Please post the 'Error Log' in the FrogPilot Discord!",
+      "openpilot 無法使用",
+      "請在 FrogPilot Discord 中發布錯誤日誌!",
       AlertStatus.critical, AlertSize.mid,
       Priority.HIGHEST, VisualAlert.none, AudibleAlert.prompt, .1),
   },
 
   FrogPilotEventName.pedalInterceptorNoBrake: {
     ET.WARNING: Alert(
-      "Braking Unavailable",
-      "Shift to L",
+      "無法煞車",
+      "切換至 L",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.HIGH, VisualAlert.wrongGear, AudibleAlert.promptRepeat, 4.),
   },
 
   FrogPilotEventName.speedLimitChanged: {
     ET.PERMANENT: Alert(
-      "Speed limit changed",
+      "速度限制已更改",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
@@ -1138,7 +1215,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   FrogPilotEventName.trafficModeActive: {
     ET.WARNING: Alert(
-      "Traffic Mode enabled",
+      "塞車模式啟動",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
@@ -1146,7 +1223,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   FrogPilotEventName.trafficModeInactive: {
     ET.WARNING: Alert(
-      "Traffic Mode Disabled",
+      "塞車模式關閉",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
@@ -1154,7 +1231,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   FrogPilotEventName.turningLeft: {
     ET.WARNING: Alert(
-      "Turning left",
+      "左轉",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .1, alert_rate=0.75),
@@ -1162,7 +1239,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   FrogPilotEventName.turningRight: {
     ET.WARNING: Alert(
-      "Turning right",
+      "右轉",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .1, alert_rate=0.75),

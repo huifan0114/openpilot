@@ -10,16 +10,16 @@ from openpilot.selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_G
 # WARNING: this value was determined based on the model's training distribution,
 #          model predictions above this speed can be unpredictable
 # V_CRUISE's are in kph
-V_CRUISE_MIN = 8
-V_CRUISE_MAX = 145
-V_CRUISE_UNSET = 255
-V_CRUISE_INITIAL = 40
-V_CRUISE_INITIAL_EXPERIMENTAL_MODE = 105
+V_CRUISE_MIN = 10
+V_CRUISE_MAX = 120
+V_CRUISE_UNSET = 50
+V_CRUISE_INITIAL = 50
+V_CRUISE_INITIAL_EXPERIMENTAL_MODE = 60
 IMPERIAL_INCREMENT = round(CV.MPH_TO_KPH, 1)  # round here to avoid rounding errors incrementing set speed
 
 MIN_SPEED = 1.0
 CONTROL_N = 17
-CAR_ROTATION_RADIUS = 0.0
+CAR_ROTATION_RADIUS = 5.8
 # This is a turn radius smaller than most cars can achieve
 MAX_CURVATURE = 0.2
 

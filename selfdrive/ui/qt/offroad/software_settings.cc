@@ -21,25 +21,25 @@ void SoftwarePanel::checkForUpdates() {
 }
 
 SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
-  onroadLbl = new QLabel(tr("Updates are only downloaded while the car is off or in park."));
+  onroadLbl = new QLabel(tr("系統更新只會在熄火時下載."));
   onroadLbl->setStyleSheet("font-size: 50px; font-weight: 400; text-align: left; padding-top: 30px; padding-bottom: 30px;");
   addItem(onroadLbl);
 
   // current version
-  versionLbl = new LabelControl(tr("Current Version"), "");
+  versionLbl = new LabelControl(tr("目前版本"), "");
   addItem(versionLbl);
 
   // automatic updates toggle
-  ParamControl *automaticUpdatesToggle = new ParamControl("AutomaticUpdates", tr("Automatically Update FrogPilot"),
-                                                       tr("FrogPilot will automatically update itself and it's assets when you're offroad and have an active internet connection."), "");
+  ParamControl *automaticUpdatesToggle = new ParamControl("AutomaticUpdates", tr("自動更新"),
+                                                       tr("待機熄火狀態若有連上網路會自動更新."), "");
   automaticUpdatesToggle->setVisible(params.getBool("IsReleaseBranch"));
   addItem(automaticUpdatesToggle);
 
   // download update btn
-  downloadBtn = new ButtonControl(tr("Download"), tr("CHECK"));
+  downloadBtn = new ButtonControl(tr("下載"), tr("檢查"));
   connect(downloadBtn, &ButtonControl::clicked, [=]() {
     downloadBtn->setEnabled(false);
-    if (downloadBtn->text() == tr("CHECK")) {
+    if (downloadBtn->text() == tr("檢查")) {
       checkForUpdates();
     } else {
       std::system("pkill -SIGHUP -f system.updated.updated");
@@ -49,7 +49,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   addItem(downloadBtn);
 
   // install update btn
-  installBtn = new ButtonControl(tr("Install Update"), tr("INSTALL"));
+  installBtn = new ButtonControl(tr("安裝更新"), tr("安裝"));
   connect(installBtn, &ButtonControl::clicked, [=]() {
     installBtn->setEnabled(false);
     params.putBool("DoReboot", true);
@@ -57,7 +57,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   addItem(installBtn);
 
   // branch selecting
-  targetBranchBtn = new ButtonControl(tr("Target Branch"), tr("SELECT"));
+  targetBranchBtn = new ButtonControl(tr("目標分支"), tr("選擇"));
   connect(targetBranchBtn, &ButtonControl::clicked, [=]() {
     auto current = params.get("GitBranch");
     QStringList branches = QString::fromStdString(params.get("UpdaterAvailableBranches")).split(",");
@@ -79,7 +79,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
     }
 
     QString cur = QString::fromStdString(params.get("UpdaterTargetBranch"));
-    QString selection = MultiOptionDialog::getSelection(tr("Select a branch"), branches, cur, this);
+    QString selection = MultiOptionDialog::getSelection(tr("選擇分支"), branches, cur, this);
     if (!selection.isEmpty()) {
       params.put("UpdaterTargetBranch", selection.toStdString());
       targetBranchBtn->setValue(QString::fromStdString(params.get("UpdaterTargetBranch")));
@@ -97,12 +97,26 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   addItem(targetBranchBtn);
 
   // uninstall button
-  auto uninstallBtn = new ButtonControl(tr("Uninstall %1").arg(getBrand()), tr("UNINSTALL"));
+  auto uninstallBtn = new ButtonControl(tr("解除安裝 %1").arg(getBrand()), tr("解除安裝"));
   connect(uninstallBtn, &ButtonControl::clicked, [&]() {
-    if (ConfirmationDialog::confirm(tr("Are you sure you want to uninstall?"), tr("Uninstall"), this)) {
+    if (ConfirmationDialog::confirm(tr("是否確定要解除安裝?"), tr("解除安裝"), this)) {
       if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to perform a full factory reset? All saved assets and settings will be permanently deleted!"), this)) {
         if (FrogPilotConfirmationDialog::yesorno(tr("This is a complete factory reset and cannot be undone. Are you absolutely sure you want to continue?"), this)) {
           std::system("rm -rf /cache/params/d");
+          std::system("rm -rf /persist/params");
+          std::system("rm -rf /cache/params");
+          std::system("rm -rf /persist/tracking");
+          std::system("rm -rf /cache/tracking");
+          std::system("rm -rf /data/backups");
+          std::system("rm -rf /data/crashes");
+          std::system("rm -rf /data/media/screen_recordings");
+          std::system("rm -rf /data/themes");
+          std::system("rm -rf /data/toggle_backups");
+          std::system("rm -rf /data/models");
+          std::system("rm -rf /data/media/0/osm/mapd");
+          std::system("rm -rf /data/media/0/osm/offline");
+          std::system("rm -rf /data/media/0/realdata");
+          std::system("rm -rf /data/media/screen_recordings");
         }
       }
       params.putBool("DoUninstall", true);
@@ -111,7 +125,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   addItem(uninstallBtn);
 
   // error log button
-  auto errorLogBtn = new ButtonControl(tr("Error Log"), tr("VIEW"), tr("View the error log for openpilot crashes."));
+  auto errorLogBtn = new ButtonControl(tr("錯誤資訊"), tr("查看"), "查看錯誤訊息.");
   connect(errorLogBtn, &ButtonControl::clicked, [=]() {
     std::string txt = util::read_file("/data/error_logs/error.txt");
     ConfirmationDialog::rich(QString::fromStdString(txt), this);

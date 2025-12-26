@@ -43,6 +43,20 @@ sound_list: dict[Any, tuple[str, int | None, float]] = {
 
   AudibleAlert.warningSoft: ("warning_soft.wav", None, MAX_VOLUME),
   AudibleAlert.warningImmediate: ("warning_immediate.wav", None, MAX_VOLUME),
+############################################################
+  AudibleAlert.lanechangesound: ("lanechangesound.wav", 1, MAX_VOLUME),
+  AudibleAlert.lanechangeblockedsound: ("lanechangeblockedsound.wav", 1, MAX_VOLUME),
+  AudibleAlert.greenlightsound: ("greenlightsound.wav", 1, MAX_VOLUME),
+  AudibleAlert.carawayed: ("carawayed.wav", 1, MAX_VOLUME),
+#############################################################
+  # AudibleAlert.navturn: ("navturn.wav", 1, MAX_VOLUME),
+  # AudibleAlert.navturnleft: ("navturnleft.wav", 1, MAX_VOLUME),
+  # AudibleAlert.navturnright: ("navturnright.wav", 1, MAX_VOLUME),
+  # AudibleAlert.navuturn: ("navuturn.wav", 1, MAX_VOLUME),
+  # AudibleAlert.navofframp: ("navofframp.wav", 1, MAX_VOLUME),
+  # AudibleAlert.navsharpright: ("navsharpright.wav", 1, MAX_VOLUME),
+  # AudibleAlert.navsharpleft: ("navsharpleft.wav", 1, MAX_VOLUME),
+############################################################
 
   # FrogPilot sounds
   FrogPilotAudibleAlert.angry: ("angry.wav", 1, MAX_VOLUME),
@@ -250,6 +264,11 @@ class Soundd:
 
       AudibleAlert.warningSoft: self.frogpilot_toggles.warningSoft_volume / 100.0,
       AudibleAlert.warningImmediate: self.frogpilot_toggles.warningImmediate_volume / 100.0,
+
+      AudibleAlert.carawayed: self.frogpilot_toggles.carawayed_volume / 100.0,
+      AudibleAlert.greenlightsound: self.frogpilot_toggles.green_light_volume / 100.0,
+      AudibleAlert.lanechangeblockedsound: self.frogpilot_toggles.lanechangeblockedsound_volume / 100.0,
+      AudibleAlert.lanechangesound: self.frogpilot_toggles.lanechangesound_volume / 100.0,
 
       FrogPilotAudibleAlert.goat: self.frogpilot_toggles.prompt_volume / 100.0,
       FrogPilotAudibleAlert.startup: self.frogpilot_toggles.engage_volume / 100.0
