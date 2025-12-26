@@ -1144,7 +1144,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "綠燈 GO!!",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
-      Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
+      Priority.MID, VisualAlert.none, AudibleAlert.greenlightsound, 3.),
   },
 
   FrogPilotEventName.holidayActive: {
