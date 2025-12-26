@@ -15,7 +15,7 @@ from openpilot.common.swaglog import cloudlog
 
 from openpilot.system import micd
 
-from openpilot.frogpilot.common.frogpilot_variables import ACTIVE_THEME_PATH, ERROR_LOGS_PATH, RANDOM_EVENTS_PATH, get_frogpilot_toggles, params_memory
+from openpilot.frogpilot.common.frogpilot_variables import ERROR_LOGS_PATH, get_frogpilot_toggles, params_memory
 
 SAMPLE_RATE = 48000
 SAMPLE_BUFFER = 4096 # (approx 100ms)
@@ -104,7 +104,6 @@ class Soundd:
     self.previous_sound_pack = None
 
     self.error_log = ERROR_LOGS_PATH / "error.txt"
-    self.random_events_directory = RANDOM_EVENTS_PATH / "sounds"
 
     self.frogpilot_toggles = get_frogpilot_toggles()
 
@@ -113,28 +112,16 @@ class Soundd:
   def load_sounds(self):
     self.loaded_sounds: dict[int, np.ndarray] = {}
 
-    # 強制優先使用 stock 聲音目錄
-    stock_sounds_path = Path(BASEDIR) / "selfdrive" / "assets" / "sounds"
+    # 只從 selfdrive/assets/sounds/ 讀取，沒有就不播放
+    sounds_path = Path(BASEDIR) / "selfdrive" / "assets" / "sounds"
 
-    # Load all sounds
     for sound in sound_list:
       filename, play_count, volume = sound_list[sound]
+      sound_file = sounds_path / filename
 
-      # 優先順序：stock → random_events（僅限 stock 沒有的 FrogPilot 特殊聲音）
-      stock_file = stock_sounds_path / filename
-      random_file = self.random_events_directory / filename
-
-      if stock_file.exists():
-        # stock 有這個檔案，直接用 stock
-        sound_file = stock_file
-      elif random_file.exists():
-        # stock 沒有，用 random_events（FrogPilot 特殊聲音如 fart.wav）
-        sound_file = random_file
-      else:
-        # 都沒有，嘗試用 engage.wav 替代 startup.wav
-        if filename == "startup.wav":
-          filename = "engage.wav"
-        sound_file = stock_sounds_path / filename
+      # 檔案不存在就跳過，不播放
+      if not sound_file.exists():
+        continue
 
       wavefile = wave.open(str(sound_file), 'r')
 
@@ -149,7 +136,8 @@ class Soundd:
 
     ret = np.zeros(frames, dtype=np.float32)
 
-    if self.current_alert != AudibleAlert.none:
+    # 檢查聲音是否存在於 loaded_sounds 中
+    if self.current_alert != AudibleAlert.none and self.current_alert in self.loaded_sounds:
       num_loops = sound_list[self.current_alert][1]
       sound_data = self.loaded_sounds[self.current_alert]
       written_frames = 0
@@ -172,7 +160,12 @@ class Soundd:
     data_out[:frames, 0] = self.get_sound_data(frames)
 
   def update_alert(self, new_alert):
-    current_alert_played_once = self.current_alert == AudibleAlert.none or self.current_sound_frame > len(self.loaded_sounds[self.current_alert])
+    # 檢查聲音是否存在於 loaded_sounds 中
+    if self.current_alert in self.loaded_sounds:
+      current_alert_played_once = self.current_alert == AudibleAlert.none or self.current_sound_frame > len(self.loaded_sounds[self.current_alert])
+    else:
+      current_alert_played_once = True
+
     if self.current_alert != new_alert and (new_alert != AudibleAlert.none or current_alert_played_once):
       self.current_alert = new_alert
       self.current_sound_frame = 0
@@ -287,15 +280,10 @@ class Soundd:
       if sound not in self.volume_map:
         self.volume_map[sound] = 1.01
 
-    if self.frogpilot_toggles.sound_pack != "stock":
-      self.sound_directory = ACTIVE_THEME_PATH / "sounds"
-    else:
-      self.sound_directory = Path(BASEDIR) / "selfdrive" / "assets" / "sounds"
-
-    if self.frogpilot_toggles.sound_pack != self.previous_sound_pack:
+    # 只在首次載入聲音（聲音來源固定為 selfdrive/assets/sounds/）
+    if self.previous_sound_pack is None:
       self.load_sounds()
-      self.previous_sound_pack = self.frogpilot_toggles.sound_pack
-      self.restart_stream = True
+      self.previous_sound_pack = "stock"
 
 def main():
   s = Soundd()
