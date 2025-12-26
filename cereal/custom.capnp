@@ -29,28 +29,28 @@ struct FrogPilotCarControl {
       prompt @6;
       promptRepeat @7;
       promptDistracted @8;
+      ########HFOP###########
+      lanechangesound @9;
+      lanechangeblockedsound @10;
+      carawayed  @11;
+      greenlightsound @12;
+      ############################
 
       # Random Events
-      angry @9;
-      continued @10;
-      dejaVu @11;
-      doc @12;
-      fart @13;
-      firefox @14;
-      goat @15;
-      hal9000 @16;
-      mail @17;
-      nessie @18;
-      noice @19;
-      startup @20;
-      thisIsFine @21;
-      uwu @22;
-      ########HFOP###########
-      lanechangesound @23;
-      lanechangeblockedsound @24;
-      carawayed  @25;
-      greenlightsound @26;
-      ############################
+      angry @13;
+      continued @14;
+      dejaVu @15;
+      doc @16;
+      fart @17;
+      firefox @18;
+      goat @19;
+      hal9000 @20;
+      mail @21;
+      nessie @22;
+      noice @23;
+      startup @24;
+      thisIsFine @25;
+      uwu @26;
     }
   }
 }
