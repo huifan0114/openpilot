@@ -172,7 +172,16 @@ class Soundd:
 
   def get_audible_alert(self, sm):
     if params_memory.get("TestAlert", encoding="utf-8"):
-      self.update_alert(getattr(AudibleAlert, params_memory.get("TestAlert", encoding="utf-8")))
+      test_alert = params_memory.get("TestAlert", encoding="utf-8")
+      # 映射 UI 發送的名稱到正確的 AudibleAlert enum
+      alert_mapping = {
+        "greenLight": "greenlightsound",
+        "carawayed": "carawayed",
+        "lanechangesound": "lanechangesound",
+        "lanechangeblockedsound": "lanechangeblockedsound",
+      }
+      alert_name = alert_mapping.get(test_alert, test_alert)
+      self.update_alert(getattr(AudibleAlert, alert_name))
 
       params_memory.remove("TestAlert")
     elif not self.openpilot_crashed_played and self.error_log.is_file():
