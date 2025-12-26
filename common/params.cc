@@ -216,7 +216,6 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"Version", PERSISTENT},
 
 /////////////////////////////////////////////
-    {"SoundNowPlaying", PERSISTENT},
     {"HFOPinf", PERSISTENT},
     {"GooffScreen", PERSISTENT},
     // {"Faststart", PERSISTENT},
