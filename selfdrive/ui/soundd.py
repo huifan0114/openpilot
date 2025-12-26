@@ -113,11 +113,6 @@ class Soundd:
   def load_sounds(self):
     self.loaded_sounds: dict[int, np.ndarray] = {}
 
-    # 除錯資訊收集
-    debug_lines = []
-    debug_lines.append(f"sound_pack: {self.frogpilot_toggles.sound_pack}")
-    debug_lines.append(f"sound_dir: {self.sound_directory}")
-
     # Load all sounds
     for sound in sound_list:
       filename, play_count, volume = sound_list[sound]
@@ -126,21 +121,13 @@ class Soundd:
       sounds_path = self.sound_directory / filename
 
       if random_events_path.exists():
-        actual_path = str(random_events_path)
-        source = "random"
-        wavefile = wave.open(actual_path, 'r')
+        wavefile = wave.open(str(random_events_path), 'r')
       elif sounds_path.exists():
-        actual_path = str(sounds_path)
-        source = "theme"
-        wavefile = wave.open(actual_path, 'r')
+        wavefile = wave.open(str(sounds_path), 'r')
       else:
         if filename == "startup.wav":
           filename = "engage.wav"
-        actual_path = BASEDIR + "/selfdrive/assets/sounds/" + filename
-        source = "stock"
-        wavefile = wave.open(actual_path, 'r')
-
-      debug_lines.append(f"{filename}: {source}")
+        wavefile = wave.open(BASEDIR + "/selfdrive/assets/sounds/" + filename, 'r')
 
       assert wavefile.getnchannels() == 1
       assert wavefile.getsampwidth() == 2
@@ -148,9 +135,6 @@ class Soundd:
 
       length = wavefile.getnframes()
       self.loaded_sounds[sound] = np.frombuffer(wavefile.readframes(length), dtype=np.int16).astype(np.float32) / (2**16/2)
-
-    # 寫入 params_memory 供 UI 查看
-    params_memory.put("SoundDebugInfo", "\n".join(debug_lines))
 
   def get_sound_data(self, frames): # get "frames" worth of data from the current alert sound, looping when required
 

@@ -41,17 +41,6 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
   soundsLayout->addWidget(alertVolumeControlPanel);
   soundsLayout->addWidget(customAlertsPanel);
 
-  // 聲音除錯按鈕
-  ButtonControl *soundDebugBtn = new ButtonControl(tr("聲音來源"), tr("查看"));
-  QObject::connect(soundDebugBtn, &ButtonControl::clicked, [this]() {
-    QString debugInfo = QString::fromStdString(params_memory.get("SoundDebugInfo"));
-    if (debugInfo.isEmpty()) {
-      debugInfo = tr("尚未載入聲音資訊\n請先啟動一次 openpilot");
-    }
-    ConfirmationDialog::alert(debugInfo, this);
-  });
-  addItem(soundDebugBtn);
-
   const std::vector<std::tuple<QString, QString, QString, QString>> soundsToggles {
     {"AlertVolumeControl", tr("提醒音量控制"), tr("<b>設定每種類型的 openpilot 提示音量</b>，以避免日常提示造成干擾。"), "../../frogpilot/assets/toggle_icons/icon_mute.png"},
     {"DisengageVolume", tr("解除音量"), tr("<b>設定 openpilot 解除控制時的提示音量。</b><br><br>例如：『定速故障：請重新啟動車輛』、『手煞車已拉起』、『踩下油門踏板』。"), ""},
