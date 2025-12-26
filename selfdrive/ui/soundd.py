@@ -113,21 +113,30 @@ class Soundd:
   def load_sounds(self):
     self.loaded_sounds: dict[int, np.ndarray] = {}
 
+    # 強制優先使用 stock 聲音目錄
+    stock_sounds_path = Path(BASEDIR) / "selfdrive" / "assets" / "sounds"
+
     # Load all sounds
     for sound in sound_list:
       filename, play_count, volume = sound_list[sound]
 
-      random_events_path = self.random_events_directory / filename
-      sounds_path = self.sound_directory / filename
+      # 優先順序：stock → random_events（僅限 stock 沒有的 FrogPilot 特殊聲音）
+      stock_file = stock_sounds_path / filename
+      random_file = self.random_events_directory / filename
 
-      if random_events_path.exists():
-        wavefile = wave.open(str(random_events_path), 'r')
-      elif sounds_path.exists():
-        wavefile = wave.open(str(sounds_path), 'r')
+      if stock_file.exists():
+        # stock 有這個檔案，直接用 stock
+        sound_file = stock_file
+      elif random_file.exists():
+        # stock 沒有，用 random_events（FrogPilot 特殊聲音如 fart.wav）
+        sound_file = random_file
       else:
+        # 都沒有，嘗試用 engage.wav 替代 startup.wav
         if filename == "startup.wav":
           filename = "engage.wav"
-        wavefile = wave.open(BASEDIR + "/selfdrive/assets/sounds/" + filename, 'r')
+        sound_file = stock_sounds_path / filename
+
+      wavefile = wave.open(str(sound_file), 'r')
 
       assert wavefile.getnchannels() == 1
       assert wavefile.getsampwidth() == 2
