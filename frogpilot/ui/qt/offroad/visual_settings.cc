@@ -200,7 +200,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
       visualToggle = developerSidebarToggle;
     } else if (developerSidebarKeys.contains(param)) {
       QMap<int, QString> developerSidebarMetricOptions {
-        {0，tr（“無”）}，
+        {0, tr("無")},
         {1, tr("加速度：當前")},
         {2, tr("加速度：最大")},
         {3, tr("自動調諧：執行器延遲")},
@@ -208,7 +208,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
         {5, tr("自動調諧：橫向加速度")},
         {6, tr("自動調諧：轉向比")},
         {7, tr("自動調諧：剛度係數")},
-        {8，tr（“參與％：橫向”）}，
+        {8, tr("參與百分比：橫向")},
         {9, tr("接合百分比：縱向")},
         {10, tr("橫向控制：轉向角度")},
         {11, tr("橫向控制：使用的扭矩%")},
