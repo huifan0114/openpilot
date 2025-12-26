@@ -75,6 +75,9 @@ private slots:
 private:
   Params params;
   ButtonControl *pair_device;
+///////////////////////////////////
+  ButtonControl *fastinstallBtn;
+///////////////////////////////////
 };
 
 class TogglesPanel : public ListWidget {
@@ -115,6 +118,10 @@ private:
 
   QLabel *onroadLbl;
   LabelControl *versionLbl;
+///////////////////////////////////
+  ButtonControl *delLogBtn;
+  ButtonControl *fastinstallBtn;
+///////////////////////////////////
   ButtonControl *installBtn;
   ButtonControl *downloadBtn;
   ButtonControl *targetBranchBtn;

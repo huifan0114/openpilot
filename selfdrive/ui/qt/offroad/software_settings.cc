@@ -29,6 +29,17 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   versionLbl = new LabelControl(tr("目前版本"), "");
   addItem(versionLbl);
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+  fastinstallBtn = new ButtonControl(tr("快速更新"), tr("更新"), "立刻進行更新並重啟機器.");
+  connect(fastinstallBtn, &ButtonControl::clicked, [=]() {
+    // params.putBool("Faststart", false);
+    // params.putBool("FrogPilotTogglesUpdated", true);
+    std::system("git pull");
+    Hardware::reboot();
+  });
+  addItem(fastinstallBtn);
+//////////////////////////////////////////////////////////////////////////////////////////////
+
   // automatic updates toggle
   ParamControl *automaticUpdatesToggle = new ParamControl("AutomaticUpdates", tr("自動更新"),
                                                        tr("待機熄火狀態若有連上網路會自動更新."), "");
@@ -100,8 +111,8 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   auto uninstallBtn = new ButtonControl(tr("解除安裝 %1").arg(getBrand()), tr("解除安裝"));
   connect(uninstallBtn, &ButtonControl::clicked, [&]() {
     if (ConfirmationDialog::confirm(tr("是否確定要解除安裝?"), tr("解除安裝"), this)) {
-      if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to perform a full factory reset? All saved assets and settings will be permanently deleted!"), this)) {
-        if (FrogPilotConfirmationDialog::yesorno(tr("This is a complete factory reset and cannot be undone. Are you absolutely sure you want to continue?"), this)) {
+      if (FrogPilotConfirmationDialog::yesorno(tr("您想刪除深層存儲FrogPilot資產嗎？這包括您的切換設置以快速重新安裝."), this)) {
+        if (FrogPilotConfirmationDialog::yesorno(tr("你確定嗎？這是100％無法恢復的，如果您重新安裝FrogPilot，您將失去所有以前的設置!"), this)) {
           std::system("rm -rf /cache/params/d");
           std::system("rm -rf /persist/params");
           std::system("rm -rf /cache/params");
@@ -131,6 +142,14 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
     ConfirmationDialog::rich(QString::fromStdString(txt), this);
   });
   addItem(errorLogBtn);
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+  delLogBtn = new ButtonControl(tr("刪除訊息"), tr("刪除"), "刪除訊息.");
+  connect(delLogBtn, &ButtonControl::clicked, [=]() {
+    std::system("rm -r /data/crashes && mkdir -p /data/crashes/");
+  });
+  addItem(delLogBtn);
+//////////////////////////////////////////////////////////////////////////////////////////////
 
   fs_watch = new ParamWatcher(this);
   QObject::connect(fs_watch, &ParamWatcher::paramChanged, [=](const QString &param_name, const QString &param_value) {
