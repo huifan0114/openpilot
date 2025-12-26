@@ -688,13 +688,13 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.LOW, VisualAlert.none, AudibleAlert.lanechangesound, .1),
   },
 
-  EventName.greenLight: {
-    ET.PERMANENT: Alert(
-      "綠燈 GO!!",
-      "",
-      AlertStatus.normal, AlertSize.small,
-      Priority.MID, VisualAlert.none, AudibleAlert.greenlightsound, 3.),
-  },
+  # EventName.greenLight: {
+  #   ET.PERMANENT: Alert(
+  #     "綠燈 GO!!",
+  #     "",
+  #     AlertStatus.normal, AlertSize.small,
+  #     Priority.MID, VisualAlert.none, AudibleAlert.greenlightsound, 3.),
+  # },
 
   EventName.steerSaturated: {
     ET.WARNING: Alert(
@@ -1153,7 +1153,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "綠燈 GO!!",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
-      Priority.MID, VisualAlert.none, AudibleAlert.greenlightsound, 3.),
+      Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
   },
 
   FrogPilotEventName.holidayActive: {
