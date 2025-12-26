@@ -226,14 +226,12 @@ class Soundd:
 
           if self.frogpilot_toggles.alert_volume_controller:
             self.auto_volume = self.calculate_volume(float(self.spl_filter_weighted.x))
-            self.current_volume = 0.0
+            self.current_volume = MAX_VOLUME  # 強制最大音量
           else:
             self.current_volume = self.calculate_volume(float(self.spl_filter_weighted.x))
 
         elif self.frogpilot_toggles.alert_volume_controller and self.current_alert in self.volume_map:
-          self.current_volume = self.volume_map[self.current_alert]
-          if self.current_volume == 1.01:
-            self.current_volume = self.auto_volume
+          self.current_volume = MAX_VOLUME  # 強制最大音量，不受設定影響
 
         self.get_audible_alert(sm)
 
