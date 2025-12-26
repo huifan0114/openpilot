@@ -202,19 +202,19 @@ void SoftwarePanel::updateLabels() {
   } else {
     frogpilot_scene.downloading_update = false;
     if (failed) {
-      downloadBtn->setText(tr("CHECK"));
-      downloadBtn->setValue(tr("failed to check for update"));
+      downloadBtn->setText(tr("檢查"));
+      downloadBtn->setValue(tr("檢查更新失敗"));
     } else if (params.getBool("UpdaterFetchAvailable")) {
-      downloadBtn->setText(tr("DOWNLOAD"));
-      downloadBtn->setValue(tr("update available"));
+      downloadBtn->setText(tr("下載"));
+      downloadBtn->setValue(tr("有新版本"));
     } else {
-      QString lastUpdate = tr("never");
+      QString lastUpdate = tr("從未更新");
       auto tm = params.get("LastUpdateTime");
       if (!tm.empty()) {
         lastUpdate = timeAgo(QDateTime::fromString(QString::fromStdString(tm + "Z"), Qt::ISODate));
       }
-      downloadBtn->setText(tr("CHECK"));
-      downloadBtn->setValue(tr("up to date, last checked %1").arg(lastUpdate));
+      downloadBtn->setText(tr("檢查"));
+      downloadBtn->setValue(tr("已經是最新版本，上次檢查時間為 %1").arg(lastUpdate));
     }
     downloadBtn->setEnabled(true);
   }
