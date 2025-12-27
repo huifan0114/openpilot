@@ -163,7 +163,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
   QSet<QString> forceUpdateKeys = {"VagSpeedFactor", "AutoACCspeed", "RoadtypeProfile"};
   for (const QString &key : forceUpdateKeys) {
-    QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, this, &FrogPilotVisualsPanel::updateToggles);
+    QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, this, &FrogPilotHFOPPanel::updateToggles);
   }
 
   openDescriptions(forceOpenDescriptions, toggles);
@@ -181,10 +181,10 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
       developerUIOpen = false;
     }
   });
-  QObject::connect(parent, &FrogPilotSettingsWindow::updateToggles, this, &FrogPilotVisualsPanel::updateToggles);
+  QObject::connect(parent, &FrogPilotSettingsWindow::updateToggles, this, &FrogPilotHFOPPanel::updateToggles);
 }
 
-void FrogPilotVisualsPanel::showEvent(QShowEvent *event) {
+void FrogPilotHFOPPanel::showEvent(QShowEvent *event) {
   frogpilotToggleLevels = parent->frogpilotToggleLevels;
 
   for (int i = 0; i < sidebarMetricsToggles.size(); ++i) {
@@ -196,7 +196,7 @@ void FrogPilotVisualsPanel::showEvent(QShowEvent *event) {
   updateToggles();
 }
 
-void FrogPilotVisualsPanel::updateToggles() {
+void FrogPilotHFOPPanel::updateToggles() {
   for (auto &[key, toggle] : toggles) {
     if (parentKeys.contains(key)) {
       toggle->setVisible(false);
