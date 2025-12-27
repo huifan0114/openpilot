@@ -11,29 +11,42 @@ public:
   explicit FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent);
 
 signals:
-  void openParentToggle();
+  void openSubPanel();
+  void openSubSubPanel();
+
+protected:
+  void showEvent(QShowEvent *event) override;
 
 private:
-  bool started ;
+  void updateMetric(bool metric, bool bootRun);
+  void updateToggles();
 
-  void hideToggles();
-  void showToggles(const std::set<QString> &keys);
-  void updateState(const UIState &s);
+  bool developerUIOpen;
+  bool forceOpenDescriptions;
 
   std::map<QString, AbstractControl*> toggles;
 
-  std::set<QString> FuelpriceKeys = {"Fuelcosts"};
-  std::set<QString> TrafficModeKeys = {"TrafficModespeed"};
-  std::set<QString> VagSpeedKeys = {"VagSpeedFactor"};
-  std::set<QString> AutoACCKeys = {"AutoACCspeed", "AutoACCCarAway", "AutoACCGreenLight"};
-  std::set<QString> RoadKeys = {"AutoRoadtype","RoadtypeProfile"};
-  std::set<QString> NavspeedKeys = {"NavReminder", "speedoverreminder", "speedreminderreset"};
-  std::set<QString> DooropenKeys= {"DriverdoorOpen", "CodriverdoorOpen","LpassengerdoorOpen","RpassengerdoorOpen","LuggagedoorOpen"};
+  QSet<QString> FuelpriceKeys = {"Fuelcosts"};
+  QSet<QString> TrafficModeKeys = {"TrafficModespeed"};
+  QSet<QString> VagSpeedKeys = {"VagSpeedFactor"};
+  QSet<QString> AutoACCKeys = {"AutoACCspeed", "AutoACCCarAway", "AutoACCGreenLight"};
+  QSet<QString> RoadKeys = {"AutoRoadtype","RoadtypeProfile"};
+  QSet<QString> NavspeedKeys = {"NavReminder", "speedoverreminder", "speedreminderreset"};
+  QSet<QString> DooropenKeys= {"DriverdoorOpen", "CodriverdoorOpen","LpassengerdoorOpen","RpassengerdoorOpen","LuggagedoorOpen"};
+
+  QSet<QString> parentKeys;
+
+  std::vector<QString> sidebarMetricsToggles;
+
+  FrogPilotButtonsControl *sidebarMetricsToggle;
+
+  FrogPilotButtonToggleControl *borderMetricsButton;
 
   FrogPilotSettingsWindow *parent;
 
   Params params;
-  Params params_memory{"/dev/shm/params"};
+
+  QJsonObject frogpilotToggleLevels;
 
 
 };
