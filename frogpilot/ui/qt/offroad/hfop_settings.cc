@@ -230,10 +230,13 @@ void FrogPilotVisualsPanel::updateToggles() {
       setVisible &= parent->hasOpenpilotLongitudinal;
     }
 
-    else if (key == "Dooropen") {
+    else if (key == "Navspeed") {
       setVisible &= parent->hasOpenpilotLongitudinal;
     }
 
+    else if (key == "Dooropen") {
+      setVisible &= parent->hasOpenpilotLongitudinal;
+    }
     // else if (key == "AdjacentLeadsUI") {
     //   setVisible &= parent->hasRadar && !(params.getBool("AdvancedCustomUI") && params.getBool("HideLeadMarker"));
     // }
