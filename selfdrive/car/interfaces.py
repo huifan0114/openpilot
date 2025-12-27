@@ -425,6 +425,12 @@ class CarInterfaceBase(ABC):
       ################################################
     if cs_out.gasPressed:
       events.add(EventName.gasPressedOverride)
+    # Brake override only when moving (v_ego > 0.5 m/s)
+    # When stopped, brake should disable OP completely for safety
+    ################################################
+    if cs_out.brakePressed and cs_out.vEgo > 0.5:
+      events.add(EventName.gasPressedOverride)
+    ################################################
 
     # Handle button presses
     for b in cs_out.buttonEvents:

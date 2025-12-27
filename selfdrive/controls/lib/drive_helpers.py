@@ -76,8 +76,12 @@ class VCruiseHelper:
   def _update_v_cruise_non_pcm(self, CS, enabled, is_metric, speed_limit_changed, frogpilot_toggles):
     # handle button presses. TODO: this should be in state_control, but a decelCruise press
     # would have the effect of both enabling and changing speed is checked after the state transition
-    if not enabled:
-      return
+    ###################################
+    # Allow speed adjustment even when disabled (after CANCEL)
+    # This allows pre-setting desired cruise speed before resuming control
+    # if not enabled:
+    #   return
+    ###################################
 
     long_press = False
     button_type = None
@@ -110,8 +114,11 @@ class VCruiseHelper:
       return
 
     # Don't adjust speed if we've enabled since the button was depressed (some ports enable on rising edge)
-    if not self.button_change_states[button_type]["enabled"]:
-      return
+    ##################################################
+    # MODIFIED: Allow speed adjustment in disabled state for pre-setting cruise speed before resume
+    # if not self.button_change_states[button_type]["enabled"]:
+    #   return
+    ##################################################
 
     v_cruise_delta_interval = frogpilot_toggles.cruise_increase_long if long_press else frogpilot_toggles.cruise_increase
     v_cruise_delta = v_cruise_delta * v_cruise_delta_interval
@@ -157,7 +164,13 @@ class VCruiseHelper:
       if desired_speed_limit != 0 and frogpilot_toggles.set_speed_limit:
         self.v_cruise_kph = int(round(desired_speed_limit * CV.MS_TO_KPH))
       else:
-        self.v_cruise_kph = int(round(clip(CS.vEgo * CV.MS_TO_KPH, initial, V_CRUISE_MAX)))
+        #######################
+        # Use current speed, but use initial (40 kph) as minimum
+        # This ensures safe initialization when using gas pedal to resume control
+        current_speed_kph = CS.vEgo * CV.MS_TO_KPH
+        # Always use at least 'initial' speed to ensure safe minimum cruise speed
+        self.v_cruise_kph = int(round(clip(max(current_speed_kph, initial), initial, V_CRUISE_MAX)))
+        #######################
 
     self.v_cruise_cluster_kph = self.v_cruise_kph
 

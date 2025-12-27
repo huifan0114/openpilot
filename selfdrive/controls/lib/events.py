@@ -795,6 +795,9 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "",
       AlertStatus.normal, AlertSize.none,
       Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .1),
+    ###################
+    ET.ENABLE: EngagementAlert(AudibleAlert.none),
+    ###################
   },
 
   EventName.steerOverride: {
