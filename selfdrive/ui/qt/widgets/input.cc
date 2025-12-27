@@ -252,7 +252,7 @@ bool ConfirmationDialog::alert(const QString &prompt_text, QWidget *parent, bool
 }
 
 bool ConfirmationDialog::confirm(const QString &prompt_text, const QString &confirm_text, QWidget *parent) {
-  ConfirmationDialog d = ConfirmationDialog(prompt_text, confirm_text, tr("Cancel"), false, parent);
+  ConfirmationDialog d = ConfirmationDialog(prompt_text, confirm_text, tr("取消"), false, parent);
   return d.exec();
 }
 
@@ -333,7 +333,7 @@ MultiOptionDialog::MultiOptionDialog(const QString &prompt_text, const QStringLi
   main_layout->addLayout(blayout);
   blayout->setSpacing(50);
 
-  QPushButton *cancel_btn = new QPushButton(tr("Cancel"));
+  QPushButton *cancel_btn = new QPushButton(tr("取消"));
   QObject::connect(cancel_btn, &QPushButton::clicked, this, &ConfirmationDialog::reject);
   QObject::connect(confirm_btn, &QPushButton::clicked, this, &ConfirmationDialog::accept);
   blayout->addWidget(cancel_btn);
