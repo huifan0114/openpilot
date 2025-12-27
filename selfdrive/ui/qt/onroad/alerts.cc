@@ -118,7 +118,7 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
   }
   alertHeight -= margin;
 ////////////////////////////////////////
-  QRect r = QRect(350 + margin, height() - h + margin - offset, width() - margin*18, h - margin*2);
+  QRect r = QRect(350 + margin, height() - h + margin , width() - margin*18, h - margin*2);
 ////////////////////////////////////////
 
   QPainter p(this);
