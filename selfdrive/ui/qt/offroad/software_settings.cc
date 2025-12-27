@@ -208,13 +208,13 @@ void SoftwarePanel::updateLabels() {
     downloadBtn->setEnabled(false);
     QString stateText = updater_state;
     if (updater_state == "downloading...") {
-      stateText = tr("downloading…");
+      stateText = tr("正在下載...");
     } else if (updater_state == "checking...") {
-      stateText = tr("checking…");
+      stateText = tr("正在檢查...");
     } else if (updater_state == "waiting for vehicle to go offroad...") {
-      stateText = tr("waiting for vehicle to go offroad...");
+      stateText = tr("等待車輛離開道路...");
     } else if (updater_state == "finalizing update...") {
-      stateText = tr("finalizing update...");
+      stateText = tr("正在完成更新...");
     }
 
     downloadBtn->setValue(stateText);
