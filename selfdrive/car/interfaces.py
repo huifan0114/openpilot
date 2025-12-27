@@ -13,7 +13,7 @@ from openpilot.common.basedir import BASEDIR
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.simple_kalman import KF1D, get_kalman_gain
 from openpilot.common.numpy_fast import clip
-# from openpilot.common.params import Params
+from openpilot.common.params import Params
 from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.car import apply_hysteresis, gen_empty_fingerprint, scale_rot_inertia, scale_tire_stiffness, STD_CARGO_KG
 from openpilot.selfdrive.car.chrysler.values import CAR as ChryslerCAR, ChryslerFrogPilotFlags
@@ -28,7 +28,7 @@ from openpilot.selfdrive.car.values import PLATFORMS
 from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX, get_friction
 from openpilot.selfdrive.controls.lib.events import Events
 from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
-from openpilot.selfdrive.frogpilot.frogpilot_variables import get_frogpilot_toggles, params, params_memory
+# from openpilot.selfdrive.frogpilot.frogpilot_variables import get_frogpilot_toggles, params, params_memory
 from panda import Panda
 
 ButtonType = car.CarState.ButtonEvent.Type
@@ -117,7 +117,8 @@ class CarInterfaceBase(ABC):
     self.CC: CarControllerBase = CarController(dbc_name, CP, self.VM)
 
     # FrogPilot variables
-    self.frogpilot_toggles = get_frogpilot_toggles()
+    self.params = Params()
+    self.params_memory = Params("/dev/shm/params")
     ##############################################
     self.Dooropen_off_counter = 0
     self.Dooropen_on_counter = 0
@@ -354,7 +355,7 @@ class CarInterfaceBase(ABC):
     fp_ret.ecoGear |= ret.gearShifter == GearShifter.eco
     fp_ret.sportGear |= ret.gearShifter == GearShifter.sport
 ####################################
-    fp_ret.trafficModeActive = FrogPilotButtonType.trafficModeEnabled and (ret.vEgo * 3.6 < self.frogpilot_toggles.trafficmode_speed)
+    # fp_ret.trafficModeActive = FrogPilotButtonType.trafficModeEnabled and (ret.vEgo * 3.6 < self.frogpilot_toggles.trafficmode_speed)
 ####################################
 
     # copy back for next iteration
@@ -372,21 +373,21 @@ class CarInterfaceBase(ABC):
       events.add(EventName.doorOpen)
 
 ####################################
-    if self.frogpilot_toggles.dooropen:
+    if self.params.get_bool("Dooropen"):
       if cs_out.engineRpm > 0 and (cs_out.driverdoorOpen or cs_out.codriverdOpen or cs_out.lpassengerdoorOpen or cs_out.rpassengerdoorOpen or cs_out.luggagedoorOpen):
         events.add(EventName.doorOpen1)
-        self.Dooropen_off_counter = self.Dooropen_off_counter + 1 if self.frogpilot_toggles.dooropen  and not self.frogpilot_toggles.dooropen_pre else 0
-        if self.frogpilot_toggles.dooropen  and not self.frogpilot_toggles.dooropen_pre and self.Dooropen_off_counter > 500:
-          params.put_bool("Dooropenpre", True)
-          params.put_bool("Dooropen",False)
-          params_memory.put_bool("FrogPilotTogglesUpdated", True)
+        self.Dooropen_off_counter = self.Dooropen_off_counter + 1 if self.params.get_bool("Dooropen")  and not self.params.get_bool("Dooropenpre") else 0
+        if self.params.get_bool("Dooropen")  and not self.params.get_bool("Dooropenpre") and self.Dooropen_off_counter > 500:
+          self.params.put_bool("Dooropenpre", True)
+          self.params.put_bool("Dooropen",False)
+          self.params.put_bool("FrogPilotTogglesUpdated", True)
           self.Dooropen_on_counter = 0
-    if self.frogpilot_toggles.dooropen_pre:
-      self.Dooropen_on_counter = self.Dooropen_on_counter + 1 if not self.frogpilot_toggles.dooropen  and  self.frogpilot_toggles.dooropen_pre and not cs_out.driverdoorOpen  else 0
-    if not self.frogpilot_toggles.dooropen and self.Dooropen_on_counter >2000 and (not cs_out.driverdoorOpen):
-      params.put_bool("Dooropenpre", False)
-      params.put_bool("Dooropen", True)
-      params_memory.put_bool("FrogPilotTogglesUpdated", True)
+    if self.params.get_bool("Dooropenpre"):
+      self.Dooropen_on_counter = self.Dooropen_on_counter + 1 if not self.params.get_bool("Dooropen")  and  self.params.get_bool("Dooropenpre") and not cs_out.driverdoorOpen  else 0
+    if not self.params.get_bool("Dooropen") and self.Dooropen_on_counter >2000 and (not cs_out.driverdoorOpen):
+      self.params.put_bool("Dooropenpre", False)
+      self.params.put_bool("Dooropen", True)
+      self.params.put_bool("FrogPilotTogglesUpdated", True)
       self.Dooropen_off_counter = 0
 ####################################
 
@@ -439,12 +440,12 @@ class CarInterfaceBase(ABC):
         self.always_on_lateral_allowed = not self.always_on_lateral_allowed
 
 ###########################################################################
-    if not self.CP.pcmCruise and self.frogpilot_toggles.key_resume :
+    if not self.CP.pcmCruise and self.params_memory.get_bool("KeyResume") :
       events.add(EventName.buttonEnable)
-    if self.frogpilot_toggles.key_cancel:
-        params_memory.put_bool("KeyResume",False)
+    if self.params_memory.get_bool("KeyCancel"):
+        self.params_memory.put_bool("KeyResume",False)
         events.add(EventName.buttonCancel)
-        params_memory.put_bool("KeyCancel",False)
+        self.params_memory.put_bool("KeyCancel",False)
 ############################################################################
     # Handle permanent and temporary steering faults
     self.steering_unpressed = 0 if cs_out.steeringPressed else self.steering_unpressed + 1
