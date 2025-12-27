@@ -18,7 +18,7 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
-  void updateMetric(bool metric, bool bootRun);
+  // void updateMetric(bool metric, bool bootRun);
   void updateToggles();
 
   bool developerUIOpen;
@@ -47,6 +47,4 @@ private:
   Params params;
 
   QJsonObject frogpilotToggleLevels;
-
-
 };
