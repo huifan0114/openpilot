@@ -144,7 +144,10 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
   // Change tethering password
   ButtonControl *editPasswordButton = new ButtonControl(tr("網路分享密碼"), tr("編輯"));
   connect(editPasswordButton, &ButtonControl::clicked, [=]() {
+/////////////////////////////////////////////
+    //QString pass = InputDialog::getText(tr("Enter new tethering password"), this, "", true, 8, wifi->getTetheringPassword());
     QString pass = "comma1234";
+/////////////////////////////////////////////
     if (!pass.isEmpty()) {
       wifi->changeTetheringPassword(pass);
     }

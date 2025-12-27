@@ -4,7 +4,9 @@ import math
 
 import cereal.messaging as messaging
 
-from cereal import log
+#########################################
+from openpilot.common.params import Params
+#########################################
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.realtime import DT_MDL
@@ -22,6 +24,10 @@ from openpilot.frogpilot.controls.lib.weather_checker import WeatherChecker
 
 class FrogPilotPlanner:
   def __init__(self, error_log, ThemeManager):
+    #########################################
+    self.params = Params()
+    self.params_memory = Params("/dev/shm/params")
+    #########################################
     self.cem = ConditionalExperimentalMode(self)
     self.frogpilot_acceleration = FrogPilotAcceleration(self)
     self.frogpilot_events = FrogPilotEvents(self, error_log, ThemeManager)
@@ -45,12 +51,34 @@ class FrogPilotPlanner:
     self.road_curvature = 0
     self.time_to_curve = 0
     self.v_cruise = 0
+#########################################
+    self.detect_speed_prev = 0
+    self.spee_dover = False
+#########################################
 
   def update(self, now, time_validated, sm, frogpilot_toggles):
     self.lead_one = sm["radarState"].leadOne
 
     v_cruise = min(sm["controlsState"].vCruise, V_CRUISE_MAX) * CV.KPH_TO_MS
     v_ego = max(sm["carState"].vEgo, 0)
+
+############
+    v_ego_kph = v_ego *3.6
+    if v_ego_kph == 0 :
+      self.params_memory.put_int("MapSpeed", 2)
+    elif v_ego_kph >= 1 and v_ego_kph < 10 :
+      self.params_memory.put_int("MapSpeed", 0)
+    elif v_ego_kph >= 10 and v_ego_kph < 30 :
+      self.params_memory.put_int("MapSpeed", 1)
+    elif v_ego_kph >= 30 and v_ego_kph < 50 :
+      self.params_memory.put_int("MapSpeed", 2)
+    elif v_ego_kph >= 50 and v_ego_kph < 70 :
+      self.params_memory.put_int("MapSpeed", 3)
+    elif v_ego_kph >= 70 and v_ego_kph < 90 :
+      self.params_memory.put_int("MapSpeed", 4)
+    elif v_ego_kph >= 90 :
+      self.params_memory.put_int("MapSpeed", 5)
+############
 
     if sm["controlsState"].enabled:
       self.frogpilot_acceleration.update(v_ego, sm, frogpilot_toggles)
@@ -117,6 +145,145 @@ class FrogPilotPlanner:
     else:
       self.frogpilot_weather.weather_id = 0
 
+####################################################################################
+    v_ego_kph = v_ego * 3.6
+    detect_sl = self.frogpilot_vcruise.slc.desired_speed_limit * 3.6
+    # speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
+
+    # auto_acc_pass = v_ego_kph > frogpilot_toggles.autoacc_speed
+    # current_isengaged = self.params.get_bool("IsEngaged")
+    # current_setspeed = self.params_memory.get_int("KeySetSpeed")
+    # detect_speedlimit = self.params_memory.get_int("DetectSpeedLimit")
+    # autoacc_caraway_status = self.params_memory.get_int("AutoACCCarAwaystatus")
+    # autoacc_greenlight_status = self.params_memory.get_int("AutoACCGreenLightstatus")
+
+    if frogpilot_toggles.auto_speeddistance:
+      # leadtimeGapScaledInt = self.params_memory.get_int("leadtimeGapScaledInt")
+      # prev_increased_stopped_distance = self.params.get_int("IncreasedStoppedDistance")
+      increased_stopped_distance = frogpilot_toggles.prev_increased_stopped_distance
+
+      if v_ego_kph >= 50 and increased_stopped_distance != 1 and frogpilot_toggles.leadtime_gap_scaled_int < 3000 :
+        increased_stopped_distance = 1
+      elif v_ego_kph < 20 and increased_stopped_distance != 0 and frogpilot_toggles.leadtime_gap_scaled_int > 2000:
+          increased_stopped_distance = 0.
+      if increased_stopped_distance != frogpilot_toggles.prev_increased_stopped_distance:
+        self.params.put_int("IncreasedStoppedDistance", increased_stopped_distance)
+
+      # stopmark_on = self.params_memory.get_bool("StopmarkOn")  # 讀取停止標記狀態
+      # stopDistance = self.params_memory.get_int("stopmarkDistance")
+
+    # if frogpilot_toggles.autoacc and not current_isengaged :
+    if frogpilot_toggles.autoacc and not frogpilot_toggles.toggle.current_isengaged :
+      auto_acc_pass = v_ego_kph > frogpilot_toggles.autoacc_speed
+      if auto_acc_pass or frogpilot_toggles.autoacc_caraway_status == 1 or frogpilot_toggles.autoacc_greenlight_status == 1:
+        self.params_memory.put_bool("KeyResume", True)
+        self.params_memory.put_bool("KeyChanged", True)
+        self.params_memory.put_int("AutoACCCarAwaystatus", 0)
+        self.params_memory.put_int("AutoACCGreenLightstatus", 0)
+        self.params_memory.put_bool("StopmarkApplied", False)
+
+      # 速限變更邏輯
+      if frogpilot_toggles.detect_speedlimit != 0 and frogpilot_toggles.roadtype_profile != 0:
+        if frogpilot_toggles.navspeed:
+          self.params_memory.put_bool("SpeedLimitChanged", True)
+      elif frogpilot_toggles.roadtype:
+        profile_limits = {1: (40, 60), 2: (60, 90), 3: (90, 120), 4: (120, float("inf"))}
+        profile = frogpilot_toggles.roadtype_profile
+        key_set_speed = 0
+
+        if profile in profile_limits:
+          min_speed, max_speed = profile_limits[profile]
+          if not (min_speed <= frogpilot_toggles.current_setspeed < max_speed):
+            key_set_speed = min_speed
+
+        if key_set_speed > 0:
+          self.params_memory.put_int("KeySetSpeed", key_set_speed)
+          self.params_memory.put_bool("KeyChanged", True)
+          self.params_memory.put_int("SpeedPrev", 0)
+
+    if frogpilot_toggles.stopmark_on:
+      minSpeedLimit = 10.0   # 最低速限
+      maxDistance = 100.0    # 最大距離
+      minDistance = 10.0     # 最小距離
+
+      # 取得當前速限
+      currentSpeedLimit = frogpilot_toggles.key_set_speed
+
+      # **只在 stopmark_on 第一次啟動時記錄當前速限**
+      if not frogpilot_toggles.stopmark_applied:
+          self.params_memory.put_int("OriginalKeySetSpeed", currentSpeedLimit)
+          self.params_memory.put_bool("StopmarkApplied", True)
+
+      # **以當時速限作為最大速限**
+      maxSpeedLimit = currentSpeedLimit
+
+      # **計算線性降速**
+      stopmarkspeedLimit = minSpeedLimit + (frogpilot_toggles.stopDistance - minDistance) * (maxSpeedLimit - minSpeedLimit) / (maxDistance - minDistance)
+      newSpeedLimit = round(stopmarkspeedLimit)
+
+      # **只有當前速限比新計算的速限高時，才更新**
+      if currentSpeedLimit > newSpeedLimit:
+          self.params_memory.put_int("KeySetSpeed", newSpeedLimit)
+          self.params_memory.put_bool("KeyChanged", True)
+          self.params_memory.put_int("SpeedPrev", 0)
+          self.params_memory.put_bool("StopmarkOn", False)
+
+      # **確保恢復機制可再次執行**
+      self.params_memory.put_bool("StopmarkRestored", False)
+
+    else:
+      # **只執行一次恢復邏輯**
+      if not frogpilot_toggles.stopmark_restored and (frogpilot_toggles.autoacc_caraway_status == 1 or frogpilot_toggles.autoacc_greenlight_status == 1):
+        originalSpeedLimit = frogpilot_toggles.original_speedLimit
+        self.params_memory.put_bool("StopmarkApplied", False)  # 清除 Stopmark 記錄
+
+        if frogpilot_toggles.navspeed:
+          self.params_memory.put_bool("SpeedLimitChanged", True)
+        elif originalSpeedLimit > 0:
+          self.params_memory.put_int("KeySetSpeed", originalSpeedLimit)
+          self.params_memory.put_bool("KeyChanged", True)
+          self.params_memory.put_int("SpeedPrev", 0)
+
+        self.params_memory.put_bool("StopmarkRestored", True)  # 避免重複執行
+        # **恢復原本的 KeySetSpeed**
+        if frogpilot_toggles.StopmarkApplied :
+            originalSpeedLimit = frogpilot_toggles.original_speedLimit
+            self.params_memory.put_bool("StopmarkApplied", False)  # 清除標記
+        else:
+            # **如果沒有存過原始速限，則預設為當前 KeySetSpeed**
+            originalSpeedLimit = frogpilot_toggles.KeySetSpeed
+
+        # **直接恢復為當時的最高速限**
+        key_set_speed = originalSpeedLimit
+
+        # **更新速限**
+        if key_set_speed > 0:
+            self.params_memory.put_int("KeySetSpeed", key_set_speed)
+            self.params_memory.put_bool("KeyChanged", True)
+            self.params_memory.put_int("SpeedPrev", 0)
+
+        #**設定 StopmarkRestored，避免重複執行**
+        self.params_memory.put_bool("StopmarkRestored", True)
+    #################################################################
+    # 速限變更偵測
+    if frogpilot_toggles.navspeed:
+      if detect_sl != self.detect_speed_prev and v_ego_kph > 5:
+        self.detect_speed_prev = detect_sl if detect_sl > 0 else 0
+        self.params_memory.put_int("DetectSpeedLimit", self.detect_speed_prev)
+        self.params_memory.put_bool("SpeedLimitChanged", detect_sl > 0)
+      else:
+        self.params_memory.put_bool("SpeedLimitChanged", False)
+    #超速偵測
+    if frogpilot_toggles.speedoverreminder:
+      speed_over = v_ego_kph >= 40 and frogpilot_toggles.speedlimit >= 40 and (v_ego_kph - frogpilot_toggles.speedlimit) >= 1
+      self.speed_over = speed_over  # 修正變數名稱
+
+      if speed_over and frogpilot_toggles.detect_speedlimit != 0 and frogpilot_toggles.speedreminderreset:
+          self.params_memory.put_int("DetectSpeedLimit", max(frogpilot_toggles.detect_speedlimit, 40))
+          self.params_memory.put_bool("SpeedLimitChanged", True)
+      elif v_ego_kph < 40:
+          self.speed_over = False
+####################################################################################
   def update_lead_status(self):
     following_lead = self.lead_one.status
     following_lead &= self.lead_one.dRel < self.model_length + STOP_DISTANCE
@@ -183,7 +350,9 @@ class FrogPilotPlanner:
     frogpilotPlan.trackingLead = self.tracking_lead
 
     frogpilotPlan.vCruise = self.v_cruise
-
+    #######################################################
+    frogpilotPlan.speedover = self.spee_dover
+    ########################################################
     frogpilotPlan.weatherDaytime = self.frogpilot_weather.is_daytime
     frogpilotPlan.weatherId = self.frogpilot_weather.weather_id
 

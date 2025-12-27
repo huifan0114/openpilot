@@ -122,6 +122,14 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     speedover @122;
     doorOpen1 @123;
     greenLight @124;
+
+    #navturn @125;
+    #navuturn @126;
+    #navturnleft @127;
+    #navturnright @128;
+    #navsharpright @129;
+    #navsharpleft @130;
+    #navofframp @131;
     #######################
 
     radarCanErrorDEPRECATED @15;
@@ -437,6 +445,14 @@ struct CarControl {
       lanechangeblockedsound @10;
       carawayed  @11;
       greenlightsound @12;
+
+      #navturn @13;
+      #navuturn @14;
+      #navturnright @15;
+      #navturnleft @16;
+      #navsharpright @17;
+      #navsharpleft @18;
+      #navofframp @19;
       ############################
     }
   }

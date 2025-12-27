@@ -113,6 +113,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
     if (ConfirmationDialog::confirm(tr("是否確定要解除安裝?"), tr("解除安裝"), this)) {
       if (FrogPilotConfirmationDialog::yesorno(tr("您想刪除深層存儲FrogPilot資產嗎？這包括您的切換設置以快速重新安裝."), this)) {
         if (FrogPilotConfirmationDialog::yesorno(tr("你確定嗎？這是100％無法恢復的，如果您重新安裝FrogPilot，您將失去所有以前的設置!"), this)) {
+//////////////////////////////////////////////////////////////////////////////////////////////
           std::system("rm -rf /cache/params/d");
           std::system("rm -rf /persist/params");
           std::system("rm -rf /cache/params");
@@ -128,6 +129,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
           std::system("rm -rf /data/media/0/osm/offline");
           std::system("rm -rf /data/media/0/realdata");
           std::system("rm -rf /data/media/screen_recordings");
+//////////////////////////////////////////////////////////////////////////////////////////////
         }
       }
       params.putBool("DoUninstall", true);

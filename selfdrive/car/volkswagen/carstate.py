@@ -5,9 +5,7 @@ from openpilot.selfdrive.car.interfaces import CarStateBase
 from opendbc.can.parser import CANParser
 from openpilot.selfdrive.car.volkswagen.values import DBC, CANBUS, NetworkLocation, TransmissionType, GearShifter, \
                                             CarControllerParams, VolkswagenFlags
-################################################
-from openpilot.common.params import Params
-################################################
+
 
 
 class CarState(CarStateBase):
@@ -21,10 +19,8 @@ class CarState(CarStateBase):
     self.upscale_lead_car_signal = False
     self.eps_stock_values = False
 #############################
-    self.params = Params()
-
-    vsf = self.params.get_int("VagSpeedFactor")/2
-    self.vagspeedfactor = (110 +vsf) /110
+    # vsf = frogpilot_toggles.vag_speed_factor
+    # self.vagspeedfactor = (110 +vsf) /110
     # self.dt = 0.0
     # self.dt_prev = 0.0
     # self.usefuel_prev = 0
@@ -72,6 +68,8 @@ class CarState(CarStateBase):
       pt_cp.vl["ESP_19"]["ESP_HR_Radgeschw_02"],
     )
 ##########儀表時速與C3同步############
+    vsf = frogpilot_toggles.vag_speed_factor
+    self.vagspeedfactor = (110 +vsf) /110
     ret.vEgoRaw = float(np.mean([ret.wheelSpeeds.fl, ret.wheelSpeeds.fr, ret.wheelSpeeds.rl, ret.wheelSpeeds.rr])* self.vagspeedfactor)
 ####################################
     ret.vEgo, ret.aEgo = self.update_speed_kf(ret.vEgoRaw)
@@ -119,16 +117,16 @@ class CarState(CarStateBase):
 
     # Update door and trunk/hatch lid open status.
 ####################################
-    if self.params.get_bool("Dooropen"):
-      if self.params.get_bool("DriverdoorOpen"):
+    if frogpilot_toggles.dooropen:
+      if frogpilot_toggles.driver_dooropen:
         ret.driverdoorOpen = any([pt_cp.vl["Gateway_72"]["ZV_FT_offen"]])
-      if self.params.get_bool("CodriverdoorOpen"):
+      if frogpilot_toggles.codriver_dooropen:
         ret.codriverdOpen = any([pt_cp.vl["Gateway_72"]["ZV_BT_offen"]])
-      if self.params.get_bool("LpassengerdoorOpen"):
+      if frogpilot_toggles.lpassenger_dooropen:
         ret.lpassengerdoorOpen = any([pt_cp.vl["Gateway_72"]["ZV_HFS_offen"]])
-      if self.params.get_bool("RpassengerdoorOpen"):
+      if frogpilot_toggles.rpassenger_dooropen:
         ret.rpassengerdoorOpen = any([pt_cp.vl["Gateway_72"]["ZV_HBFS_offen"]])
-      if self.params.get_bool("LuggagedoorOpen"):
+      if frogpilot_toggles.luggage_dooropen:
         ret.luggagedoorOpen = any([pt_cp.vl["Gateway_72"]["ZV_HD_offen"]])
 ####################################
     ret.doorOpen = any([pt_cp.vl["Gateway_72"]["ZV_FT_offen"],##駕駛

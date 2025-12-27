@@ -88,7 +88,7 @@ int safety_fwd_hook(int bus_num, int addr) {
 }
 
 bool get_longitudinal_allowed(void) {
-  return controls_allowed && !gas_pressed_prev && !brake_pressed_prev;
+  return controls_allowed && !gas_pressed_prev;
 }
 
 // Given a CRC-8 poly, generate a static lookup table to use with a fast CRC-8
@@ -264,7 +264,9 @@ void generic_rx_checks(bool stock_ecu_detected) {
 
   // exit controls on rising edge of brake press
   if (brake_pressed && (!brake_pressed_prev || vehicle_moving)) {
+////////////////////////////////////////////////////////
     controls_allowed = controls_allowed;
+////////////////////////////////////////////////////////
   }
   brake_pressed_prev = brake_pressed;
 

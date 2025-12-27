@@ -11,7 +11,7 @@ from openpilot.selfdrive.car.docs_definitions import CarFootnote, CarHarness, Ca
                                                      Device
 from openpilot.selfdrive.car.fw_query_definitions import EcuAddrSubAddr, FwQueryConfig, Request, p16
 ################################################
-from openpilot.common.params import Params
+from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
 ################################################
 
 Ecu = car.CarParams.Ecu
@@ -48,7 +48,7 @@ class CarControllerParams:
   def __init__(self, CP):
     can_define = CANDefine(DBC[CP.carFingerprint]["pt"])
 ################################################
-    self.params = Params()
+    frogpilot_toggles = get_frogpilot_toggles()
 ################################################
 
     if CP.flags & VolkswagenFlags.PQ:
@@ -103,7 +103,7 @@ class CarControllerParams:
       #   Button(car.CarState.ButtonEvent.Type.gapAdjustCruise, "GRA_ACC_01", "GRA_Verstellung_Zeitluecke", [1]),
       # ]
 
-      car_model = self.params.get("CarModel", encoding='utf-8')
+      car_model = frogpilot_toggles.car_model
       if car_model == "VOLKSWAGEN PASSAT 8TH GEN" or car_model == "VOLKSWAGEN GOLF 7TH GEN":
         self.BUTTONS = [
           Button(car.CarState.ButtonEvent.Type.setCruise, "GRA_ACC_01", "GRA_Tip_Setzen", [1]),

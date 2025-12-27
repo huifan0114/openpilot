@@ -1062,16 +1062,63 @@ class FrogPilotVariables:
 
     toggle.volt_sng = toggle.car_model == "CHEVROLET_VOLT" and (params.get_bool("VoltSNG") if tuning_level >= level["VoltSNG"] else default.get_bool("VoltSNG"))
 ###################################################################
-    toggle.hfop_inf = params.get_bool("HFOPinf")
-    toggle.gooff_screen = params.get_bool("GooffScreen")
+    # toggle.hfop_inf = params.get_bool("HFOPinf")
+    # toggle.gooff_screen = params.get_bool("GooffScreen")
     toggle.disablestartstop = params.get_bool("Disablestartstop")
     toggle.speedoverreminder = params.get_bool("speedoverreminder")
     toggle.speedreminderreset = params.get_bool("speedreminderreset")
     toggle.changelane_reminder = params.get_bool("ChangeLaneReminder")
     toggle.navspeed = params.get_bool("Navspeed")
-    # toggle.auto_speeddistance = params.get_bool("AutoSpeeddistance")
-    # toggle.trafficmode = params.get_bool("TrafficMode")
+    toggle.auto_speeddistance = params.get_bool("AutoSpeeddistance")
+    toggle.trafficmode = params.get_bool("TrafficMode")
     toggle.trafficmode_speed = params.get_int("TrafficModespeed")
+
+    toggle.autoacc = params.get_bool("AutoACC")
+    toggle.autoacc_speed = params.get_int("AutoACCspeed")
+    toggle.autoacc_caraway = params.get_bool("AutoACCCarAway")
+    toggle.autoacc_caraway_status = params_memory.get_int("AutoACCCarAwaystatus")
+    toggle.autoacc_greenlight = params.get_bool("AutoACCGreenLight")
+    toggle.autoacc_greenlight_status = params_memory.get_int("AutoACCGreenLightstatus")
+
+    toggle.dooropen = params.get_bool("Dooropen")
+    toggle.dooropen_pre = params.get_bool("Dooropenpre")
+    toggle.driver_dooropen = params.get_bool("DriverdoorOpen")
+    toggle.codriver_dooropen = params.get_bool("CodriverdoorOpen")
+    toggle.lpassenger_dooropen = params.get_bool("LpassengerdoorOpen")
+    toggle.rpassenger_dooropen = params.get_bool("RpassengerdoorOpen")
+    toggle.luggage_dooropen = params.get_bool("LuggagedoorOpen")
+
+    toggle.roadtype = params.get_bool("Roadtype")
+    toggle.roadtype_profile = params.get_int("RoadtypeProfile")
+    toggle.autoroadtype = params.get_bool("AutoRoadtype")
+
+    toggle.navreminder = params.get_bool("NavReminder")
+
+    toggle.current_isengaged = params.get_bool("IsEngaged")
+    toggle.current_setspeed = params_memory.get_int("KeySetSpeed")
+    toggle.detect_speedlimit = params_memory.get_int("DetectSpeedLimit")
+
+    toggle.leadtime_gap_scaled_int = params_memory.get_int("leadtimeGapScaledInt")
+    toggle.prev_increased_stopped_distance = params.get_int("IncreasedStoppedDistance")
+
+    toggle.stopmark_on = params_memory.get_bool("StopmarkOn")
+    toggle.stopDistance = params_memory.get_int("stopmarkDistance")
+
+    toggle.stopmark_applied = params_memory.get_bool("StopmarkApplied")
+    toggle.stopmark_restored = params_memory.get_bool("StopmarkRestored")
+    toggle.original_speedLimit = params_memory.get_int("OriginalKeySetSpeed")
+    toggle.key_set_speed  = params_memory.get_int("KeySetSpeed")
+    toggle.speedlimit = int(params_memory.get_int('DetectSpeedLimit')*1.1)
+    toggle.vag_speed_factor = params.get_int("VagSpeedFactor")/2
+    toggle.key_resume = params_memory.get_bool('KeyResume')
+    toggle.key_cancel = params_memory.get_bool("KeyCancel")
+    toggle.Key_changed = params_memory.get_bool('KeyChanged')
+    toggle.speed_limit_changed = params_memory.get_bool('SpeedLimitChanged')
+    toggle.car_model = params.get("CarModel", encoding='utf-8')
+
+
+
+###################################################################
 
     params_memory.put("FrogPilotToggles", json.dumps(toggle.__dict__))
     params_memory.remove("FrogPilotTogglesUpdated")

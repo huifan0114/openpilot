@@ -101,8 +101,10 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
     return;
   }
   static std::map<cereal::ControlsState::AlertSize, const int> alert_heights = {
-    {cereal::ControlsState::AlertSize::SMALL, 271},
-    {cereal::ControlsState::AlertSize::MID, 420},
+////////////////////////////////////////
+    {cereal::ControlsState::AlertSize::SMALL, 200},
+    {cereal::ControlsState::AlertSize::MID, 400},
+////////////////////////////////////////
     {cereal::ControlsState::AlertSize::FULL, height()},
   };
   alertHeight = alert_heights[alert.size];
@@ -115,7 +117,9 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
     radius = 0;
   }
   alertHeight -= margin;
-  QRect r = QRect(0 + margin, height() - h + margin, width() - margin*2, h - margin*2);
+////////////////////////////////////////
+  QRect r = QRect(350 + margin, height() - h + margin - offset, width() - margin*18, h - margin*2);
+////////////////////////////////////////
 
   QPainter p(this);
 
@@ -140,11 +144,11 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
   p.setRenderHint(QPainter::TextAntialiasing);
   if (alert.size == cereal::ControlsState::AlertSize::SMALL) {
     bool long_alert1 = alert.text1.length() > 40;
-    p.setFont(InterFont(long_alert1 && sidebarsOpen ? 64 : 74, QFont::Normal));
+    p.setFont(InterFont(long_alert1 && sidebarsOpen ? 64 : 70, QFont::Normal));
     p.drawText(r, Qt::AlignCenter, alert.text1);
   } else if (alert.size == cereal::ControlsState::AlertSize::MID) {
     bool long_alert1 = alert.text1.length() > 30;
-    p.setFont(InterFont(long_alert1 && sidebarsOpen ? 78 : 88, QFont::Normal));
+    p.setFont(InterFont(long_alert1 && sidebarsOpen ? 78 : 70, QFont::Normal));
     p.drawText(QRect(0, c.y() - 125, width(), 150), Qt::AlignHCenter | Qt::AlignTop, alert.text1);
     bool long_alert2 = alert.text2.length() > 40;
     p.setFont(InterFont(long_alert2 && sidebarsOpen ? 56 : 66));

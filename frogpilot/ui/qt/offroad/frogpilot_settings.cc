@@ -12,6 +12,9 @@
 #include "frogpilot/ui/qt/offroad/vehicle_settings.h"
 #include "frogpilot/ui/qt/offroad/visual_settings.h"
 #include "frogpilot/ui/qt/offroad/wheel_settings.h"
+////////////////////////////
+#include "frogpilot/ui/qt/offroad/hfop_settings.h"
+////////////////////////////
 
 bool nnffLogFileExists(const QString &carFingerprint) {
   static QStringList files;
@@ -75,6 +78,9 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
   FrogPilotVehiclesPanel *frogpilotVehiclesPanel = new FrogPilotVehiclesPanel(this);
   FrogPilotVisualsPanel *frogpilotVisualsPanel = new FrogPilotVisualsPanel(this);
   FrogPilotWheelPanel *frogpilotWheelPanel = new FrogPilotWheelPanel(this);
+/////////////////////////////////////////////////////
+  FrogPilotHFOPPanel *frogpilotHFOPPanel = new FrogPilotHFOPPanel(this);
+/////////////////////////////////////////////////////
 
   std::vector<std::vector<std::tuple<QString, QWidget*>>> panelButtons = {
     {{tr("管理"), frogpilotSoundsPanel}},
@@ -82,7 +88,8 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
     {{tr("地圖數據"), frogpilotMapsPanel}, {tr("導航"), frogpilotNavigationPanel}},
     {{tr("資料"), frogpilotDataPanel}, {tr("裝置控制"), frogpilotDevicePanel}, {tr("工具"), new FrogPilotUtilitiesPanel(this)}},
     {{tr("外觀"), frogpilotVisualsPanel}, {tr("佈景主題"), frogpilotThemesPanel}},
-    {{tr("車輛設定"), frogpilotVehiclesPanel}, {tr("方向盤控制"), frogpilotWheelPanel}}
+    {{tr("車輛設定"), frogpilotVehiclesPanel}, {tr("方向盤控制"), frogpilotWheelPanel}},
+    {{tr("H F O P"), frogpilotHFOPPanel}}
   };
 
   std::vector<std::tuple<QString, QString, QString>> panelInfo = {
@@ -91,7 +98,8 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
     {tr("導航"), tr("<b>下載 \"速度限制控制器\" 的地圖數據並設定 \"在 openpilot 上導航\" (NOO)。</b>"), "../../frogpilot/assets/toggle_icons/icon_map.png"},
     {tr("系統設定"), tr("<b>管理備份、裝置設定、螢幕選項、儲存空間和工具，保持 FrogPilot 平穩執行。</b>"), "../../frogpilot/assets/toggle_icons/icon_system.png"},
     {tr("佈景主題和外觀"), tr("<b>自訂駕駛螢幕和介面的外觀，包括佈景主題！</b>"), "../../frogpilot/assets/toggle_icons/icon_display.png"},
-    {tr("車輛設定"), tr("<b>設定車型特定選項和方向盤按鈕對應。</b>"), "../../frogpilot/assets/toggle_icons/icon_vehicle.png"}
+    {tr("車輛設定"), tr("<b>設定車型特定選項和方向盤按鈕對應。</b>"), "../../frogpilot/assets/toggle_icons/icon_vehicle.png"},
+    {tr("HFOP 的功能"), tr("管理 HFOP 相關設定."), "../frogpilot/assets/toggle_icons/icon_system.png"}
   };
 
   for (size_t i = 0; i < panelInfo.size(); ++i) {
@@ -153,6 +161,9 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
   QObject::connect(frogpilotVehiclesPanel, &FrogPilotVehiclesPanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
   QObject::connect(frogpilotVisualsPanel, &FrogPilotVisualsPanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
   QObject::connect(frogpilotVisualsPanel, &FrogPilotVisualsPanel::openSubSubPanel, this, &FrogPilotSettingsWindow::openSubSubPanel);
+/////////////////////////////////////////////////////
+  QObject::connect(frogpilotHFOPPanel, &FrogPilotHFOPPanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
+/////////////////////////////////////////////////////
 }
 
 FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFrame(parent) {

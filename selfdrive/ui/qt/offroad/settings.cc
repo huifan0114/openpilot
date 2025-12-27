@@ -230,7 +230,14 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   )");
   addItem(power_layout);
 
-
+//////////////////////////////////////////////////////////////////////////////////////////////
+  fastinstallBtn = new ButtonControl(tr("快速更新"), tr("更新"), "立刻進行更新並重啟機器.");
+  connect(fastinstallBtn, &ButtonControl::clicked, [=]() {
+    std::system("git pull");
+    Hardware::reboot();
+  });
+  addItem(fastinstallBtn);
+//////////////////////////////////////////////////////////////////////////////////////////////
 
   setSpacing(50);
   addItem(new LabelControl(tr("Dongle ID"), getDongleId().value_or(tr("無法使用"))));

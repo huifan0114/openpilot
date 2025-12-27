@@ -62,7 +62,7 @@ MapSettings::MapSettings(bool closeable, QWidget *parent) : QFrame(parent) {
       title->setStyleSheet("color: #FFFFFF; font-size: 54px; font-weight: 600;");
       heading->addWidget(title);
 
-      subtitle = new QLabel(tr("Manage at %1").arg(QString("%1:8082").arg(frogpilotUIState()->wifi->getIp4Address())), this);
+      subtitle = new QLabel(tr("在  %1 進行管理").arg(QString("%1:8082").arg(frogpilotUIState()->wifi->getIp4Address())), this);
       subtitle->setStyleSheet("color: #A0A0A0; font-size: 40px; font-weight: 300;");
       heading->addWidget(subtitle);
     }
