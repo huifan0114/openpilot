@@ -59,7 +59,7 @@ frogpilot_src = ["../../frogpilot/ui/frogpilot_ui.cc", "../../frogpilot/ui/qt/of
                  "../../frogpilot/ui/qt/widgets/drive_summary.cc", "../../frogpilot/ui/qt/widgets/model_reviewer.cc",
                  "../../frogpilot/ui/qt/widgets/navigation_functions.cc", "../../frogpilot/ui/screenrecorder/omx_encoder.cc",
 ###########################
-                 "../../frogpilot/ui/screenrecorder/screenrecorder.cc", "../../frogpilot/ui/qt/offroad/hfop_settings.cc"]]
+                 "../../frogpilot/ui/screenrecorder/screenrecorder.cc", "../../frogpilot/ui/qt/offroad/hfop_settings.cc"]
 ###########################
 
 qt_src += frogpilot_src
