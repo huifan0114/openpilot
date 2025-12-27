@@ -121,7 +121,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     ######HFOP##########
     speedover @122;
     doorOpen1 @123;
-    #greenLight @124;
+    greenLight @124;
     #######################
 
     radarCanErrorDEPRECATED @15;
