@@ -19,13 +19,29 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
   hfopLayout->addWidget(hfopPanel);
 
-  FrogPilotListWidget *hfopManagementList = new FrogPilotListWidget(this);
+  FrogPilotListWidget *FuelpricelList = new FrogPilotListWidget(this);
+  FrogPilotListWidget *TrafficModelList = new FrogPilotListWidget(this);
+  FrogPilotListWidget *VagSpeedList = new FrogPilotListWidget(this);
+  FrogPilotListWidget *AutoACCPList = new FrogPilotListWidget(this);
+  FrogPilotListWidget *RoadtypeList = new FrogPilotListWidget(this);
+  FrogPilotListWidget *DooropenList = new FrogPilotListWidget(this);
 
 
-  ScrollView *hfopManagementPanel = new ScrollView(hfopManagementList, this);
+
+  ScrollView *FuelpricePanel = new ScrollView(FuelpricelList, this);
+  ScrollView *TrafficModePanel = new ScrollView(TrafficModelList, this);
+  ScrollView *VagSpeedPanel = new ScrollView(VagSpeedList, this);
+  ScrollView *AutoACCPanel = new ScrollView(AutoACCPList, this);
+  ScrollView *RoadtypePanel = new ScrollView(RoadtypeList, this);
+  ScrollView *DooropenPanel = new ScrollView(DooropenList, this);
 
 
-  hfopLayout->addWidget(hfopManagementPanel);
+  hfopLayout->addWidget(FuelpricePanel);
+  hfopLayout->addWidget(TrafficModePanel);
+  hfopLayout->addWidget(VagSpeedPanel);
+  hfopLayout->addWidget(AutoACCPanel);
+  hfopLayout->addWidget(RoadtypePanel);
+  hfopLayout->addWidget(DooropenPanel);
 
 
   const std::vector<std::tuple<QString, QString, QString, QString>> hfopToggles {
@@ -60,6 +76,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     {"speedreminderreset", "  超速重設速限", "開啟後若當下速度高於圖資速限會強制重設速限.", ""},
 
     {"Dooropen", "  車門開啟", "開啟後在引擎啟動狀態下駕駛車門開啟或後車箱未關閉時會發出提醒.", "../assets/offroad/icon_warning.png"},
+    {"Dooropentype", "  車門類型", "選擇要監控的車門.", ""},
     {"DriverdoorOpen", "  駕駛車門", "開啟後在引擎啟動狀態下駕駛車門開啟時會發出提醒.", ""},
     {"CodriverdoorOpen", "  副駕駛車門", "開啟後在引擎啟動狀態下副駕駛車門開啟時會發出提醒.", ""},
     {"LpassengerdoorOpen", "  左乘客車門", "開啟後在引擎啟動狀態下左乘客車門開啟時會發出提醒.", ""},
@@ -73,7 +90,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
     if (param == "Fuelprice") {
       FrogPilotManageControl *FuelpriceToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(FuelpriceToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, hfopManagementPanel]() {
+      QObject::connect(FuelpriceToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, FuelpricePanel]() {
         hfopLayout->setCurrentWidget(hfopManagementPanel);
       });
       hfopcontrolsToggle = FuelpriceToggle;
@@ -84,7 +101,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
     } else if (param == "TrafficMode") {
       FrogPilotManageControl *TrafficModeToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(TrafficModeToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, hfopManagementPanel]() {
+      QObject::connect(TrafficModeToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, TrafficModePanel]() {
         hfopLayout->setCurrentWidget(hfopManagementPanel);
       });
       hfopcontrolsToggle = TrafficModeToggle;
@@ -95,7 +112,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
     } else if (param == "VagSpeed") {
       FrogPilotManageControl *VagSpeedToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(VagSpeedToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, hfopManagementPanel]() {
+      QObject::connect(VagSpeedToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, VagSpeedPanel]() {
         hfopLayout->setCurrentWidget(hfopManagementPanel);
       });
       hfopcontrolsToggle = VagSpeedToggle;
@@ -104,7 +121,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
     } else if (param == "AutoACC") {
       FrogPilotManageControl *AutoACCToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(AutoACCToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, hfopManagementPanel]() {
+      QObject::connect(AutoACCToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, AutoACCPanel]() {
         hfopLayout->setCurrentWidget(hfopManagementPanel);
       });
       hfopcontrolsToggle = AutoACCToggle;
@@ -114,7 +131,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
     } else if (param == "Roadtype") {
       FrogPilotManageControl *RoadToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(RoadToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, hfopManagementPanel]() {
+      QObject::connect(RoadToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, RoadtypePanel]() {
         hfopLayout->setCurrentWidget(hfopManagementPanel);
       });
       hfopcontrolsToggle = RoadToggle;
@@ -123,27 +140,53 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
       ButtonParamControl *profileSelection = new ButtonParamControl(param, title, desc, icon, profileOptions);
       hfopcontrolsToggle = profileSelection;
 
-    } else if (param == "Navspeed") {
-      FrogPilotManageControl *NavspeedToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(NavspeedToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, hfopManagementPanel]() {
-        hfopLayout->setCurrentWidget(hfopManagementPanel);
-      });
-      hfopcontrolsToggle = NavspeedToggle;
-
-    // } else if(param == "Dooropen") {
-    //   FrogPilotManageControl *DooropenToggle = new FrogPilotManageControl(param, title, desc, icon);
-    //   QObject::connect(DooropenToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, hfopManagementPanel]() {
+    // } else if (param == "Navspeed") {
+    //   FrogPilotManageControl *NavspeedToggle = new FrogPilotManageControl(param, title, desc, icon);
+    //   QObject::connect(NavspeedToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, hfopManagementPanel]() {
     //     hfopLayout->setCurrentWidget(hfopManagementPanel);
     //   });
-    //   hfopcontrolsToggle = DooropenToggle;
+    //   hfopcontrolsToggle = NavspeedToggle;
 
     } else if(param == "Dooropen") {
+      FrogPilotManageControl *DooropenToggle = new FrogPilotManageControl(param, title, desc, icon);
+      QObject::connect(DooropenToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, DooropenPanel]() {
+        hfopLayout->setCurrentWidget(hfopManagementPanel);
+      });
+      hfopcontrolsToggle = DooropenToggle;
+
+    } else if(param == "Dooropentype") {
       std::vector<QString> adjustablePersonalitiesToggles{"DriverdoorOpen", "CodriverdoorOpen", "LpassengerdoorOpen", "RpassengerdoorOpen", "LuggagedoorOpen"};
       std::vector<QString> adjustablePersonalitiesNames{tr("駕駛"), tr("副駕"), tr("左乘客"), tr("右乘客"), tr("行李")};
       hfopcontrolsToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, adjustablePersonalitiesToggles, adjustablePersonalitiesNames);
 
     } else {
       hfopcontrolsToggle = new ParamControl(param, title, desc, icon);
+    }
+
+    toggles[param] = hfopcontrolsToggle;
+
+    if (FuelpriceKeys.contains(param)) {
+      FuelpricelList->addItem(hfopcontrolsToggle);
+    } else if (TrafficModeKeys.contains(param)) {
+      TrafficModelList->addItem(hfopcontrolsToggle);
+    } else if (VagSpeedKeys.contains(param)) {
+      VagSpeedList->addItem(hfopcontrolsToggle);
+    } else if (AutoACCKeys.contains(param)) {
+      AutoACCPList->addItem(hfopcontrolsToggle);
+    } else if (RoadKeys.contains(param)) {
+      RoadtypeList->addItem(hfopcontrolsToggle);
+    } else if (NavspeedKeys.contains(param)) {
+      developerWidgetList->addItem(hfopcontrolsToggle);
+    } else if (DooropenKeys.contains(param)) {
+      DooropenList->addItem(hfopcontrolsToggle);
+    // } else if (navigationUIKeys.contains(param)) {
+    //   navigationUIList->addItem(visualToggle);
+    // } else if (qualityOfLifeKeys.contains(param)) {
+    //   qualityOfLifeList->addItem(visualToggle);
+    } else {
+      visualsList->addItem(hfopcontrolsToggle);
+
+      parentKeys.insert(param);
     }
 
     if (FrogPilotManageControl *frogPilotManageToggle = qobject_cast<FrogPilotManageControl*>(hfopcontrolsToggle)) {
@@ -159,16 +202,46 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     QObject::connect(hfopcontrolsToggle, &AbstractControl::showDescriptionEvent, [this]() {
       update();
     });
-
-    toggles[param] = hfopcontrolsToggle;
   }
 
   openDescriptions(forceOpenDescriptions, toggles);
 
-  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [hfopLayout, hfopManagementPanel, this] {
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubSubPanel, [hfopLayout, FuelpricePanel, this] {
     openDescriptions(forceOpenDescriptions, toggles);
-    hfopLayout->setCurrentWidget(hfopManagementPanel);
+    hfopLayout->setCurrentWidget(FuelpricePanel);
   });
+
+
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubSubPanel, [hfopLayout, TrafficModePanel, this] {
+    openDescriptions(forceOpenDescriptions, toggles);
+    hfopLayout->setCurrentWidget(FuelpricePanel);
+  });
+
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubSubPanel, [hfopLayout, VagSpeedPanel, this] {
+    openDescriptions(forceOpenDescriptions, toggles);
+    hfopLayout->setCurrentWidget(FuelpricePanel);
+  });
+
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubSubPanel, [hfopLayout, AutoACCPanel, this] {
+    openDescriptions(forceOpenDescriptions, toggles);
+    hfopLayout->setCurrentWidget(FuelpricePanel);
+  });
+
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubSubPanel, [hfopLayout, RoadtypePanel, this] {
+    openDescriptions(forceOpenDescriptions, toggles);
+    hfopLayout->setCurrentWidget(FuelpricePanel);
+  });
+
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubSubPanel, [hfopLayout, DooropenPanel, this] {
+    openDescriptions(forceOpenDescriptions, toggles);
+    hfopLayout->setCurrentWidget(FuelpricePanel);
+  });
+
+  // QObject::connect(parent, &FrogPilotSettingsWindow::closeSubSubPanel, [hfopLayout, AutoACCPanel, this] {
+  //   openDescriptions(forceOpenDescriptions, toggles);
+  //   hfopLayout->setCurrentWidget(FuelpricePanel);
+  // });
+
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubSubPanel, [hfopLayout, hfopManagementPanel, this]() {
     openDescriptions(forceOpenDescriptions, toggles);
 
