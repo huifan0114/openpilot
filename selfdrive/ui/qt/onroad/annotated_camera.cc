@@ -534,7 +534,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
 //     }
 //   }
 // ///////////////////////////////////////////////////
-  p.restore();
+  // p.restore();
 
 void AnnotatedCameraWidget::drawText(QPainter &p, int x, int y, const QString &text, int alpha) {
   QRect real_rect = p.fontMetrics().boundingRect(text);
