@@ -101,7 +101,7 @@ void AnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState
   QString distance_str = distance_str_pair.first;
   QString distance_unit = distance_str_pair.second;
 
-  int distance_value = nav_instruction.getManeuverDistance();
+  // int distance_value = nav_instruction.getManeuverDistance();
   QString fn;
   if (nav_alive) {
   fn += "於"+distance_str+distance_unit+"後  ";
