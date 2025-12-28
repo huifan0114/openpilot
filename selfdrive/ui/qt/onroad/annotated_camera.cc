@@ -219,7 +219,7 @@ void AnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState
   //   }
   // } else {
   //   navBanner = "";
-  // }
+  }
 ////////////NAV語音////////////////////////
 
   has_us_speed_limit = (nav_alive && speed_limit_sign == cereal::NavInstruction::SpeedLimitSign::MUTCD);
