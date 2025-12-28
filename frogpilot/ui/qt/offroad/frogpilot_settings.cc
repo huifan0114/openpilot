@@ -130,6 +130,7 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
     if (title == tr("系統設定")) systemPanelButtons = panelButton;
     if (title == tr("佈景主題和外觀")) themePanelButtons = panelButton;
     if (title == tr("車輛設定")) vehiclePanelButtons = panelButton;
+    if (title == tr("HFOP")) HFOPPanelButtons = panelButton;
 
     if (forceOpenDescriptions) {
       panelButton->showDescription();
@@ -162,7 +163,9 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
   QObject::connect(frogpilotVisualsPanel, &FrogPilotVisualsPanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
   QObject::connect(frogpilotVisualsPanel, &FrogPilotVisualsPanel::openSubSubPanel, this, &FrogPilotSettingsWindow::openSubSubPanel);
 /////////////////////////////////////////////////////
+  QObject::connect(frogpilotHFOPPanel, &FrogPilotHFOPPanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
   QObject::connect(frogpilotHFOPPanel, &FrogPilotHFOPPanel::openSubSubPanel, this, &FrogPilotSettingsWindow::openSubSubPanel);
+  QObject::connect(frogpilotHFOPPanel, &FrogPilotHFOPPanel::openSubSubSubPanel, this, &FrogPilotSettingsWindow::openSubSubSubPanel);
 /////////////////////////////////////////////////////
 }
 
@@ -253,6 +256,7 @@ void FrogPilotSettingsWindow::showEvent(QShowEvent *event) {
     systemPanelButtons->showDescription();
     themePanelButtons->showDescription();
     vehiclePanelButtons->showDescription();
+    HFOPPanelButtons->showDescription();
 
     if (!alertShown) {
       ConfirmationDialog::alert(tr("所有切換說明目前已展開。您可以隨時點選切換的名稱以展開或關閉其說明！"), this);
@@ -275,6 +279,7 @@ void FrogPilotSettingsWindow::closePanel() {
     systemPanelButtons->showDescription();
     themePanelButtons->showDescription();
     vehiclePanelButtons->showDescription();
+    HFOPPanelButtons->showDescription();
   }
 
   mainLayout->setCurrentWidget(frogpilotPanel);
