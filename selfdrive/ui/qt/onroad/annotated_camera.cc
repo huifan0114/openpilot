@@ -57,6 +57,7 @@ void AnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState
   const auto cs = sm["controlsState"].getControlsState();
   const auto car_state = sm["carState"].getCarState();
   const auto nav_instruction = sm["navInstruction"].getNavInstruction();
+  const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
 //////////////////////////////////////////////
   // kplProfile = car_state.getKpl();
   // tankvolumeProfile = car_state.getTankvol();
