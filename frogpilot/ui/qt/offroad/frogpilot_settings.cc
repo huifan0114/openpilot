@@ -165,7 +165,7 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
 /////////////////////////////////////////////////////
   QObject::connect(frogpilotHFOPPanel, &FrogPilotHFOPPanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
   QObject::connect(frogpilotHFOPPanel, &FrogPilotHFOPPanel::openSubSubPanel, this, &FrogPilotSettingsWindow::openSubSubPanel);
-  QObject::connect(frogpilotHFOPPanel, &FrogPilotHFOPPanel::openSubSubSubPanel, this, &FrogPilotSettingsWindow::openSubSubSubPanel);
+  // QObject::connect(frogpilotHFOPPanel, &FrogPilotHFOPPanel::openSubSubSubPanel, this, &FrogPilotSettingsWindow::openSubSubSubPanel);
 /////////////////////////////////////////////////////
 }
 
