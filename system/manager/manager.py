@@ -85,7 +85,7 @@ def manager_init() -> None:
     ("speedreminderreset", "0"),
     ("ChangeLaneReminder", "1"),
     # ("Speeddistance", "1"),
-    ("speedoverreminderstatus", "0"),
+    # ("speedoverreminderstatus", "0"),
     ("TrafficModespeed", "50"),
     ("VagSpeed", "1"),
     ("VagSpeedFactor", "13"),
