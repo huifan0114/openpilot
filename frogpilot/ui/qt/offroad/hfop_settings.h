@@ -36,12 +36,6 @@ private:
 
   QSet<QString> parentKeys;
 
-  std::vector<QString> sidebarMetricsToggles;
-
-  FrogPilotButtonsControl *sidebarMetricsToggle;
-
-  FrogPilotButtonToggleControl *borderMetricsButton;
-
   FrogPilotSettingsWindow *parent;
 
   Params params;

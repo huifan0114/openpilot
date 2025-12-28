@@ -60,6 +60,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     {"speedreminderreset", "  超速重設速限", "開啟後若當下速度高於圖資速限會強制重設速限.", ""},
 
     {"Dooropen", "  車門開啟", "開啟後在引擎啟動狀態下駕駛車門開啟或後車箱未關閉時會發出提醒.", "../assets/offroad/icon_warning.png"},
+    {"Dooropentype", "  車門類型", "選擇要監控的車門.", ""},
     {"DriverdoorOpen", "  駕駛車門", "開啟後在引擎啟動狀態下駕駛車門開啟時會發出提醒.", ""},
     {"CodriverdoorOpen", "  副駕駛車門", "開啟後在引擎啟動狀態下副駕駛車門開啟時會發出提醒.", ""},
     {"LpassengerdoorOpen", "  左乘客車門", "開啟後在引擎啟動狀態下左乘客車門開啟時會發出提醒.", ""},
@@ -159,11 +160,8 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     QObject::connect(hfopcontrolsToggle, &AbstractControl::showDescriptionEvent, [this]() {
       update();
     });
-  }
 
-  QSet<QString> forceUpdateKeys = {"VagSpeedFactor", "AutoACCspeed", "RoadtypeProfile"};
-  for (const QString &key : forceUpdateKeys) {
-    QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, this, &FrogPilotHFOPPanel::updateToggles);
+    toggles[param] = hfopcontrolsToggle;
   }
 
   openDescriptions(forceOpenDescriptions, toggles);
@@ -186,12 +184,6 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
 void FrogPilotHFOPPanel::showEvent(QShowEvent *event) {
   frogpilotToggleLevels = parent->frogpilotToggleLevels;
-
-  for (int i = 0; i < sidebarMetricsToggles.size(); ++i) {
-    if (params.getBool(sidebarMetricsToggles[i].toStdString())) {
-      sidebarMetricsToggle->setCheckedButton(i);
-    }
-  }
 
   updateToggles();
 }
@@ -265,8 +257,6 @@ void FrogPilotHFOPPanel::updateToggles() {
       }
     }
   }
-
-  borderMetricsButton->setVisibleButton(0, parent->hasBSM);
 
   openDescriptions(forceOpenDescriptions, toggles);
 
