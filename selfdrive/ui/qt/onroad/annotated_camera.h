@@ -58,6 +58,7 @@ private:
   void resizeEvent(QResizeEvent *event);
 /////////////////////////
   Params params;
+  QString navBanner;
 /////////////////////////
   Params params_memory{"/dev/shm/params"};
 
