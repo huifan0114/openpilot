@@ -91,7 +91,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     if (param == "Fuelprice") {
       FrogPilotManageControl *FuelpriceToggle = new FrogPilotManageControl(param, title, desc, icon);
       QObject::connect(FuelpriceToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, FuelpricePanel]() {
-        hfopLayout->setCurrentWidget(hfopManagementPanel);
+        hfopLayout->setCurrentWidget(FuelpricePanel);
       });
       hfopcontrolsToggle = FuelpriceToggle;
 
@@ -102,7 +102,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     } else if (param == "TrafficMode") {
       FrogPilotManageControl *TrafficModeToggle = new FrogPilotManageControl(param, title, desc, icon);
       QObject::connect(TrafficModeToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, TrafficModePanel]() {
-        hfopLayout->setCurrentWidget(hfopManagementPanel);
+        hfopLayout->setCurrentWidget(TrafficModePanel);
       });
       hfopcontrolsToggle = TrafficModeToggle;
 
@@ -113,7 +113,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     } else if (param == "VagSpeed") {
       FrogPilotManageControl *VagSpeedToggle = new FrogPilotManageControl(param, title, desc, icon);
       QObject::connect(VagSpeedToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, VagSpeedPanel]() {
-        hfopLayout->setCurrentWidget(hfopManagementPanel);
+        hfopLayout->setCurrentWidget(VagSpeedPanel);
       });
       hfopcontrolsToggle = VagSpeedToggle;
     } else if (param == "VagSpeedFactor") {
@@ -122,7 +122,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     } else if (param == "AutoACC") {
       FrogPilotManageControl *AutoACCToggle = new FrogPilotManageControl(param, title, desc, icon);
       QObject::connect(AutoACCToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, AutoACCPanel]() {
-        hfopLayout->setCurrentWidget(hfopManagementPanel);
+        hfopLayout->setCurrentWidget(AutoACCPanel);
       });
       hfopcontrolsToggle = AutoACCToggle;
 
@@ -132,7 +132,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     } else if (param == "Roadtype") {
       FrogPilotManageControl *RoadToggle = new FrogPilotManageControl(param, title, desc, icon);
       QObject::connect(RoadToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, RoadtypePanel]() {
-        hfopLayout->setCurrentWidget(hfopManagementPanel);
+        hfopLayout->setCurrentWidget(RoadtypePanel);
       });
       hfopcontrolsToggle = RoadToggle;
     } else if (param == "RoadtypeProfile") {
@@ -150,7 +150,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     } else if(param == "Dooropen") {
       FrogPilotManageControl *DooropenToggle = new FrogPilotManageControl(param, title, desc, icon);
       QObject::connect(DooropenToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, DooropenPanel]() {
-        hfopLayout->setCurrentWidget(hfopManagementPanel);
+        hfopLayout->setCurrentWidget(DooropenPanel);
       });
       hfopcontrolsToggle = DooropenToggle;
 
