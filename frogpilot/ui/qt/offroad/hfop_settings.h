@@ -36,6 +36,8 @@ private:
 
   QSet<QString> parentKeys;
 
+  FrogPilotButtonToggleControl *borderMetricsButton;
+
   FrogPilotSettingsWindow *parent;
 
   Params params;
