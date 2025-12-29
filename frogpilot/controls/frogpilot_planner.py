@@ -55,6 +55,7 @@ class FrogPilotPlanner:
 #########################################
     self.detect_speed_prev = 0
     self.spee_dover = False
+    self.previous_road_name = ""  # 記錄上次的路名，避免重複設定
 #########################################
 
   def update(self, now, time_validated, sm, frogpilot_toggles):
@@ -188,14 +189,45 @@ class FrogPilotPlanner:
         if frogpilot_toggles.navspeed:
           self.params_memory.put_bool("SpeedLimitChanged", True)
       elif frogpilot_toggles.roadtype:
-        profile_limits = {1: (40, 60), 2: (60, 90), 3: (90, 120), 4: (120, float("inf"))}
-        profile = frogpilot_toggles.roadtype_profile
+        # 根據路名自動判斷道路類型並設定速限
+        road_name = self.params_memory.get("RoadName", encoding="utf-8") or ""
         key_set_speed = 0
+        suggested_speed = 0
 
-        if profile in profile_limits:
-          min_speed, max_speed = profile_limits[profile]
-          if not (min_speed <= frogpilot_toggles.current_setspeed < max_speed):
-            key_set_speed = min_speed
+        # 只有在路名改變時才重新判斷
+        if road_name and road_name != self.previous_road_name:
+          # 判斷道路類型並設定建議速限
+          if "高速" in road_name or "國道" in road_name:
+            # 高速公路：建議 100-110 km/h
+            suggested_speed = 12
+          elif "快速" in road_name or "省道" in road_name:
+            # 快速道路：建議 70-80 km/h
+            suggested_speed = 80
+          elif "交流道" in road_name:
+            # 交流道：建議 60 km/h
+            suggested_speed = 50
+          elif "街" in road_name or "巷" in road_name or "弄" in road_name:
+            # 市區道路：建議 40-50 km/h
+            suggested_speed = 40
+          else:
+            # 其他一般道路：建議 50 km/h
+            suggested_speed = 50
+
+          # 記錄當前路名
+          self.previous_road_name = road_name
+
+          # 如果根據路名判斷出建議速限，且與當前設定不同，則更新
+          if suggested_speed > 0 and frogpilot_toggles.current_setspeed != suggested_speed:
+            key_set_speed = suggested_speed
+        else:
+          # 沒有路名時使用原有的 profile 邏輯
+          profile_limits = {1: (40, 60), 2: (60, 90), 3: (90, 120), 4: (120, float("inf"))}
+          profile = frogpilot_toggles.roadtype_profile
+
+          if profile in profile_limits:
+            min_speed, max_speed = profile_limits[profile]
+            if not (min_speed <= frogpilot_toggles.current_setspeed < max_speed):
+              key_set_speed = min_speed
 
         if key_set_speed > 0:
           self.params_memory.put_int("KeySetSpeed", key_set_speed)
@@ -271,9 +303,9 @@ class FrogPilotPlanner:
       if detect_sl != self.detect_speed_prev and v_ego_kph > 5:
         self.detect_speed_prev = detect_sl if detect_sl > 0 else 0
         self.params_memory.put_int("DetectSpeedLimit", self.detect_speed_prev)
-        self.params_memory.put_bool("SpeedLimitChanged", detect_sl > 0)
-      else:
-        self.params_memory.put_bool("SpeedLimitChanged", False)
+        # 只有當速限有效時才設定 SpeedLimitChanged
+        if detect_sl > 0:
+          self.params_memory.put_bool("SpeedLimitChanged", True)
     #超速偵測
     if frogpilot_toggles.speedoverreminder:
       speed_over = v_ego_kph >= 40 and frogpilot_toggles.speedlimit >= 40 and (v_ego_kph - frogpilot_toggles.speedlimit) >= 1
