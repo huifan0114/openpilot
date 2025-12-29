@@ -278,7 +278,7 @@ void FrogPilotHFOPPanel::updateToggles() {
       continue;
     }
 
-    // bool setVisible = parent->tuningLevel >= frogpilotToggleLevels[key].toDouble();
+    bool setVisible = parent->tuningLevel >= frogpilotToggleLevels[key].toDouble();
 
     // if (key == "Fuelprice") {
     //   setVisible &= parent->hasOpenpilotLongitudinal;
@@ -315,7 +315,7 @@ void FrogPilotHFOPPanel::updateToggles() {
     //   setVisible &= parent->hasBSM;
     // }
 
-    toggle->setVisible(setVisible);
+    // toggle->setVisible(setVisible);
 
     if (setVisible) {
       if (AutoACCKeys.contains(key)) {
@@ -334,7 +334,7 @@ void FrogPilotHFOPPanel::updateToggles() {
       //   toggles["Navspeed"]->setVisible(true);
       // } else if (DooropenKeys.contains(key)) {
       //   toggles["Dooropen"]->setVisible(true);
-      // }
+      }
     }
   }
 
