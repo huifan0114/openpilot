@@ -122,6 +122,8 @@ export function NavDestination() {
     loadingRoute: false,
     mapboxPublic: undefined,
     mapboxSecret: undefined,
+    googleKey: undefined,
+    navigationProvider: "mapbox",
     missingKeys: null,
     newFavoriteName: "",
     previousDestinations: "[]",
@@ -176,7 +178,9 @@ export function NavDestination() {
       const routes = await getRoutes(
         `${state.lastPosition.longitude},${state.lastPosition.latitude}`,
         `${coords[0]},${coords[1]}`,
-        state.mapboxPublic
+        state.mapboxPublic,
+        state.navigationProvider,
+        state.googleKey
       );
 
       removeRouteFromMap(map);
@@ -247,14 +251,17 @@ export function NavDestination() {
     const data = await res.json();
     state.mapboxPublic = data.mapboxPublic.trim();
     state.mapboxSecret = data.mapboxSecret.trim();
+    state.googleKey = data.googleMapsKey?.trim() || "";
+    state.navigationProvider = data.navigationProvider?.trim() || "mapbox";
     state.amap1Key = data.amap1Key?.trim() || "";
     state.amap2Key = data.amap2Key?.trim() || "";
     state.isMetric = data.isMetric ?? true;
     const hasMapbox = !!state.mapboxPublic && !!state.mapboxSecret;
+    const hasGoogle = !!state.googleKey;
     const hasAMap = !!state.amap1Key && !!state.amap2Key;
-    state.missingKeys = !hasMapbox;
+    state.missingKeys = !hasMapbox && !hasGoogle;
     state.canToggleProvider = hasMapbox && hasAMap;
-    state.searchProvider = hasMapbox ? "mapbox" : "";
+    state.searchProvider = hasMapbox || hasGoogle ? (state.navigationProvider || "mapbox") : "";
     if (state.missingKeys) return;
     state.lastPosition = {
       latitude: parseFloat(data.lastPosition.latitude),
@@ -502,7 +509,7 @@ export function NavDestination() {
           const retJson = await ret.json();
           coords = retJson.features[0].geometry.coordinates;
         } else {
-          coords = await getCoordinatesFromSearch(label, state.mapboxPublic);
+          coords = await getCoordinatesFromSearch(label, state.mapboxPublic, state.navigationProvider, state.googleKey);
         }
       } else {
         coords = [sugg.location.lng, sugg.location.lat];

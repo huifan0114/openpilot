@@ -141,18 +141,106 @@ export function addRouteToMap(map, routes, start, dest, onRouteSelect, useMetric
   map.fitBounds([start, dest], { padding, duration: 1000 });
 }
 
-export async function getCoordinatesFromSearch(searchValue, mapboxPublic) {
+export async function getCoordinatesFromSearch(searchValue, mapboxPublic, provider = 'mapbox', googleKey = '') {
+  if (provider === 'google' && googleKey) {
+    // 使用 Google Geocoding API
+    const params = new URLSearchParams({
+      address: searchValue,
+      key: googleKey
+    });
+    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?${params.toString()}`);
+    const data = await response.json();
+    if (data.results && data.results.length > 0) {
+      const location = data.results[0].geometry.location;
+      return [location.lng, location.lat]; // 返回 [經度, 緯度]
+    }
+    throw new Error('No results found');
+  }
+
+  // 預設使用 Mapbox
   const params = new URLSearchParams({ access_token: mapboxPublic, q: searchValue });
   const response = await fetch(`https://api.mapbox.com/search/geocode/v6/forward?${params.toString()}`);
   const data = await response.json();
   return data.features[0].geometry.coordinates;
 }
 
-export async function getRoutes(from, to, mapboxPublic) {
+export async function getRoutes(from, to, mapboxPublic, provider = 'mapbox', googleKey = '') {
+  if (provider === 'google' && googleKey) {
+    // 使用 Google Directions API
+    const [fromLng, fromLat] = from.split(',');
+    const [toLng, toLat] = to.split(',');
+    const params = new URLSearchParams({
+      origin: `${fromLat},${fromLng}`,
+      destination: `${toLat},${toLng}`,
+      key: googleKey,
+      alternatives: 'true',
+      traffic_model: 'best_guess',
+      departure_time: 'now'
+    });
+    const response = await fetch(`https://maps.googleapis.com/maps/api/directions/json?${params.toString()}`);
+    const data = await response.json();
+
+    // 轉換 Google Maps 格式到 Mapbox 格式
+    if (data.routes && data.routes.length > 0) {
+      return data.routes.map(route => {
+        const leg = route.legs[0];
+        const coordinates = decodePolyline(route.overview_polyline.points);
+
+        return {
+          duration: leg.duration.value,
+          distance: leg.distance.value,
+          geometry: {
+            type: 'LineString',
+            coordinates: coordinates
+          },
+          legs: [{
+            steps: leg.steps || [],
+            annotation: {
+              congestion: new Array(coordinates.length).fill('unknown')
+            }
+          }]
+        };
+      });
+    }
+    return [];
+  }
+
+  // 預設使用 Mapbox
   const url = `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${from};${to}?geometries=geojson&annotations=congestion&overview=full&alternatives=true&access_token=${mapboxPublic}`;
   const response = await fetch(url);
   const data = await response.json();
   return data.routes;
+}
+
+// Google Polyline 解碼函數
+function decodePolyline(encoded) {
+  const poly = [];
+  let index = 0, len = encoded.length;
+  let lat = 0, lng = 0;
+
+  while (index < len) {
+    let b, shift = 0, result = 0;
+    do {
+      b = encoded.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    const dlat = ((result & 1) ? ~(result >> 1) : (result >> 1));
+    lat += dlat;
+
+    shift = 0;
+    result = 0;
+    do {
+      b = encoded.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    const dlng = ((result & 1) ? ~(result >> 1) : (result >> 1));
+    lng += dlng;
+
+    poly.push([lng / 1e5, lat / 1e5]); // [經度, 緯度]
+  }
+  return poly;
 }
 
 function buildGradientExpression(coords, congestion) {
