@@ -356,7 +356,9 @@ def setup(app):
           "key": google_key,
           "location": location,
           "radius": radius,
-          "language": "zh-TW"
+          "language": "zh-TW",
+          "region": "tw",
+          "components": "country:tw"
         }
         response = requests.get(url, params=params_dict)
         return response.json()
