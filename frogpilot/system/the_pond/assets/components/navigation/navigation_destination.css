@@ -482,9 +482,9 @@
   left: var(--border-radius-xl);
   position: absolute;
   top: var(--border-radius-xl);
-  width: 40%;
-  min-width: 400px;
-  max-width: 600px;
+  width: 80%;
+  min-width: 500px;
+  max-width: 800px;
   z-index: 1;
 }
 
