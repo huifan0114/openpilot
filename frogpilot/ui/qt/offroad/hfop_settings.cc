@@ -190,15 +190,17 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     }
 
     if (ButtonControl *buttonControl = qobject_cast<ButtonControl*>(hfopcontrolsToggle)) {
-      QObject::connect(buttonControl, &ButtonControl::clicked, this, &FrogPilotHFOPPanel::openSubPanel);
+      QObject::connect(buttonControl, &ButtonControl::clicked, [this]() {
+        emit openSubPanel();
+      });
     }
 
-    // if (FrogPilotManageControl *frogPilotManageToggle = qobject_cast<FrogPilotManageControl*>(hfopcontrolsToggle)) {
-    //   QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
-    //     emit openSubPanel();
-    //     openDescriptions(forceOpenDescriptions, toggles);
-    //   });
-    // }
+    if (FrogPilotManageControl *frogPilotManageToggle = qobject_cast<FrogPilotManageControl*>(hfopcontrolsToggle)) {
+      QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
+        emit openSubPanel();
+        openDescriptions(forceOpenDescriptions, toggles);
+      });
+    }
 
     QObject::connect(hfopcontrolsToggle, &AbstractControl::hideDescriptionEvent, [this]() {
       update();
@@ -264,14 +266,6 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
   // });
   // QObject::connect(parent, &FrogPilotSettingsWindow::updateToggles, this, &FrogPilotHFOPPanel::updateToggles);
 }
-// void FrogPilotHFOPPanel::updateState(const UIState &s) {
-//   if (!isVisible()) {
-//     return;
-//   }
-
-//   started = s.scene.started;
-// }
-
 void FrogPilotHFOPPanel::showEvent(QShowEvent *event) {
   frogpilotToggleLevels = parent->frogpilotToggleLevels;
 
@@ -350,7 +344,7 @@ void FrogPilotHFOPPanel::updateToggles() {
     }
   }
 
-  borderMetricsButton->setVisibleButton(0, parent->hasBSM);
+  // borderMetricsButton->setVisibleButton(0, parent->hasBSM);
 
   openDescriptions(forceOpenDescriptions, toggles);
 
