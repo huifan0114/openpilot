@@ -275,42 +275,59 @@ def setup(app):
 
   @app.route("/api/navigation_key", methods=["DELETE"])
   def delete_navigation_key():
-    meta = KEYS.get(request.args.get("type"))
-    params.remove(meta[2])
-    return jsonify(message=f"{meta[3]} deleted successfully!")
+    try:
+      meta = KEYS.get(request.args.get("type"))
+      if not meta:
+        return jsonify(error="Invalid key type"), 400
+      params.remove(meta[2])
+      return jsonify(message=f"{meta[3]} deleted successfully!")
+    except Exception as e:
+      print(f"Error in delete_navigation_key: {e}")
+      traceback.print_exc()
+      return jsonify(error=str(e)), 500
 
   @app.route("/api/navigation_key", methods=["POST"])
   def set_navigation_keys():
-    data = request.get_json() or {}
+    try:
+      data = request.get_json() or {}
 
-    saved = []
-    for meta in KEYS.values():
-      raw = (data.get(meta[0]) or "").strip()
-      if not raw:
-        continue
+      saved = []
+      for meta in KEYS.values():
+        raw = (data.get(meta[0]) or "").strip()
+        if not raw:
+          continue
 
-      full = raw if raw.startswith(meta[1]) else meta[1] + raw
-      if len(full) < meta[4]:
-        return jsonify(error=f"{meta[3]} is invalid or too short..."), 400
+        full = raw if raw.startswith(meta[1]) else meta[1] + raw
+        if len(full) < meta[4]:
+          return jsonify(error=f"{meta[3]} is invalid or too short..."), 400
 
-      params.put(meta[2], full)
-      saved.append(meta[3])
+        params.put(meta[2], full)
+        saved.append(meta[3])
 
-    if not saved:
-      return jsonify(error="Nothing to update..."), 400
+      if not saved:
+        return jsonify(error="Nothing to update..."), 400
 
-    return jsonify(message=f"{', '.join(saved)} saved successfully!")
+      return jsonify(message=f"{', '.join(saved)} saved successfully!")
+    except Exception as e:
+      print(f"Error in set_navigation_keys: {e}")
+      traceback.print_exc()
+      return jsonify(error=str(e)), 500
 
   @app.route("/api/navigation_key", methods=["PUT"])
   def change_navigation_provider():
-    data = request.get_json() or {}
-    provider = data.get("provider", "").strip().lower()
+    try:
+      data = request.get_json() or {}
+      provider = data.get("provider", "").strip().lower()
 
-    if provider not in ["mapbox", "google"]:
-      return jsonify(error="Invalid provider. Must be 'mapbox' or 'google'"), 400
+      if provider not in ["mapbox", "google"]:
+        return jsonify(error="Invalid provider. Must be 'mapbox' or 'google'"), 400
 
-    params.put("NavigationProvider", provider)
-    return jsonify(message=f"Navigation provider changed to {provider}")
+      params.put("NavigationProvider", provider)
+      return jsonify(message=f"Navigation provider changed to {provider}")
+    except Exception as e:
+      print(f"Error in change_navigation_provider: {e}")
+      traceback.print_exc()
+      return jsonify(error=str(e)), 500
 
   @app.route("/api/params", methods=["GET"])
   def get_param():
