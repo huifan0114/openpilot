@@ -133,6 +133,13 @@ class FrogPilotCard:
 
     self.prev_distance_button = frogpilotCarState.distancePressed
 
+    # 自動塞車模式：基於速度判斷
+    if self.car.frogpilot_toggles.trafficmode and self.car.frogpilot_toggles.trafficmode_speed > 0:
+      # 自動模式：低於設定速度時啟動
+      current_speed_kph = carState.vEgo * 3.6
+      self.traffic_mode_enabled = current_speed_kph < self.car.frogpilot_toggles.trafficmode_speed
+    # else: 手動模式，由按鈕控制（已在 update_distance_button 等函數處理）
+
     frogpilotCarState.accelPressed = self.accel_pressed
     frogpilotCarState.alwaysOnLateralEnabled = self.always_on_lateral_enabled
     frogpilotCarState.decelPressed = self.decel_pressed

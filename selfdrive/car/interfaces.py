@@ -354,9 +354,7 @@ class CarInterfaceBase(ABC):
     fp_ret.distancePressed = bool(self.CS.distance_button)
     fp_ret.ecoGear |= ret.gearShifter == GearShifter.eco
     fp_ret.sportGear |= ret.gearShifter == GearShifter.sport
-####################################
-   # fp_ret.trafficModeActive = frogpilot_toggles.trafficmode and (ret.vEgo * 3.6 < frogpilot_toggles.trafficmode_speed)
-####################################
+    # 自動塞車模式已在 frogpilot_card.py 中實現
 
     # copy back for next iteration
     if self.CS is not None:
