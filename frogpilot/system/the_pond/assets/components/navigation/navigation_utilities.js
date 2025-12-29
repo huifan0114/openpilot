@@ -1,17 +1,34 @@
-export function highlightRoute(map, routes, selectedRouteId) {
-  if (!map.isStyleLoaded() || !routes) return;
-  routes.forEach((route, idx) => {
-    const routeId = idx === 0 ? 'main' : `alt-${idx}`;
-    const layerId = `route-line-${routeId}`;
-    if (map.getLayer(layerId)) {
+// 儲存 Google Maps 路線物件
+let googleRoutesData = { polylines: [], markers: [] };
+
+export function highlightRoute(map, routes, selectedRouteId, provider = 'mapbox') {
+  if (provider === 'google') {
+    // Google Maps 路線高亮
+    googleRoutesData.polylines.forEach((polyline, idx) => {
+      const routeId = idx === 0 ? 'main' : `alt-${idx}`;
       const isSelected = routeId === selectedRouteId;
-      map.setPaintProperty(layerId, 'line-width', isSelected ? 5 : 3);
-      map.setPaintProperty(layerId, 'line-opacity', isSelected ? 1 : 0.5);
-      if (isSelected) {
-        map.moveLayer(layerId);
+      polyline.setOptions({
+        strokeWeight: isSelected ? 5 : 3,
+        strokeOpacity: isSelected ? 1 : 0.5,
+        zIndex: isSelected ? 100 : 50
+      });
+    });
+  } else {
+    // Mapbox 路線高亮
+    if (!map.isStyleLoaded() || !routes) return;
+    routes.forEach((route, idx) => {
+      const routeId = idx === 0 ? 'main' : `alt-${idx}`;
+      const layerId = `route-line-${routeId}`;
+      if (map.getLayer(layerId)) {
+        const isSelected = routeId === selectedRouteId;
+        map.setPaintProperty(layerId, 'line-width', isSelected ? 5 : 3);
+        map.setPaintProperty(layerId, 'line-opacity', isSelected ? 1 : 0.5);
+        if (isSelected) {
+          map.moveLayer(layerId);
+        }
       }
-    }
-  });
+    });
+  }
 }
 
 function addRouteSource(map, sourceId, feature) {
@@ -102,43 +119,74 @@ function handleRouteEvents(map, clickLayerId, onRouteSelect, routes, useMetric, 
   });
 }
 
-export function addRouteToMap(map, routes, start, dest, onRouteSelect, useMetric = true, getSelectedRouteId) {
-  routes.forEach((route, idx) => {
-    const routeId = idx === 0 ? 'main' : `alt-${idx}`;
-    const sourceId = `route-${routeId}`;
-    const layerId = `route-line-${routeId}`;
-    const clickLayerId = `route-click-${routeId}`;
-    const feature = {
-      type: 'Feature',
-      geometry: { type: 'LineString', coordinates: route.geometry.coordinates },
-      properties: {
-        congestion: route.legs[0].annotation.congestion,
-        routeId,
-        duration: route.duration,
-        distance: route.distance
-      }
-    };
-    addRouteSource(map, sourceId, feature);
-    addRouteLayers(map, sourceId, layerId, clickLayerId, route);
-    handleRouteEvents(map, clickLayerId, onRouteSelect, routes, useMetric, feature, getSelectedRouteId);
-  });
+export function addRouteToMap(map, routes, start, dest, onRouteSelect, useMetric = true, getSelectedRouteId, provider = 'mapbox') {
+  if (provider === 'google') {
+    // Google Maps 路線繪製
+    routes.forEach((route, idx) => {
+      const routeId = idx === 0 ? 'main' : `alt-${idx}`;
+      const isMain = idx === 0;
 
-  map.once('idle', () => {
-    const id = safeGetId(getSelectedRouteId);
-    highlightRoute(map, routes, id);
-  });
+      const polyline = new google.maps.Polyline({
+        path: route.geometry.coordinates.map(coord => ({ lat: coord[1], lng: coord[0] })),
+        geodesic: true,
+        strokeColor: isMain ? '#4285F4' : '#888888',
+        strokeOpacity: isMain ? 1.0 : 0.5,
+        strokeWeight: isMain ? 5 : 3,
+        zIndex: isMain ? 100 : 50,
+        map: map
+      });
 
-  map.on('click', (e) => {
-    setTimeout(() => {
-      if (!e.defaultPrevented) {
-        document.querySelectorAll('.mapboxgl-popup').forEach(p => p.remove());
-      }
-    }, 100);
-  });
+      polyline.addListener('click', (e) => {
+        onRouteSelect(route, routeId);
+        highlightRoute(map, routes, routeId, 'google');
+      });
 
+      googleRoutesData.polylines.push(polyline);
+    });
 
-  const padding = window.innerWidth < 600 ? 100 : 250;
-  map.fitBounds([start, dest], { padding, duration: 1000 });
+    // 設置地圖邊界
+    const bounds = new google.maps.LatLngBounds();
+    bounds.extend({ lat: start[1], lng: start[0] });
+    bounds.extend({ lat: dest[1], lng: dest[0] });
+    map.fitBounds(bounds);
+  } else {
+    // Mapbox 路線繪製
+    routes.forEach((route, idx) => {
+      const routeId = idx === 0 ? 'main' : `alt-${idx}`;
+      const sourceId = `route-${routeId}`;
+      const layerId = `route-line-${routeId}`;
+      const clickLayerId = `route-click-${routeId}`;
+      const feature = {
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: route.geometry.coordinates },
+        properties: {
+          congestion: route.legs[0].annotation.congestion,
+          routeId,
+          duration: route.duration,
+          distance: route.distance
+        }
+      };
+      addRouteSource(map, sourceId, feature);
+      addRouteLayers(map, sourceId, layerId, clickLayerId, route);
+      handleRouteEvents(map, clickLayerId, onRouteSelect, routes, useMetric, feature, getSelectedRouteId);
+    });
+
+    map.once('idle', () => {
+      const id = safeGetId(getSelectedRouteId);
+      highlightRoute(map, routes, id, 'mapbox');
+    });
+
+    map.on('click', (e) => {
+      setTimeout(() => {
+        if (!e.defaultPrevented) {
+          document.querySelectorAll('.mapboxgl-popup').forEach(p => p.remove());
+        }
+      }, 100);
+    });
+
+    const padding = window.innerWidth < 600 ? 100 : 250;
+    map.fitBounds([start, dest], { padding, duration: 1000 });
+  }
 }
 
 export async function getCoordinatesFromSearch(searchValue, mapboxPublic, provider = 'mapbox', googleKey = '') {
@@ -255,18 +303,26 @@ function buildGradientExpression(coords, congestion) {
   return ['interpolate', ['linear'], ['line-progress'], ...stops];
 }
 
-export function removeRouteFromMap(map) {
-  if (!map || !map.getStyle || !map.getStyle()) return;
-  const layers = map.getStyle().layers || [];
-  layers.forEach(l => {
-    if ((l.id.startsWith('route-line-') || l.id.startsWith('route-click-')) && map.getLayer(l.id)) {
-      map.removeLayer(l.id);
-    }
-  });
-  const sources = map.getStyle().sources || {};
-  Object.keys(sources).forEach(id => {
-    if (id.startsWith('route-') && map.getSource(id)) map.removeSource(id);
-  });
+export function removeRouteFromMap(map, provider = 'mapbox') {
+  if (provider === 'google') {
+    // Google Maps 路線清除
+    googleRoutesData.polylines.forEach(polyline => polyline.setMap(null));
+    googleRoutesData.markers.forEach(marker => marker.setMap(null));
+    googleRoutesData = { polylines: [], markers: [] };
+  } else {
+    // Mapbox 路線清除
+    if (!map || !map.getStyle || !map.getStyle()) return;
+    const layers = map.getStyle().layers || [];
+    layers.forEach(l => {
+      if ((l.id.startsWith('route-line-') || l.id.startsWith('route-click-')) && map.getLayer(l.id)) {
+        map.removeLayer(l.id);
+      }
+    });
+    const sources = map.getStyle().sources || {};
+    Object.keys(sources).forEach(id => {
+      if (id.startsWith('route-') && map.getSource(id)) map.removeSource(id);
+    });
+  }
 }
 
 export function formatSecondsToHuman(s) {

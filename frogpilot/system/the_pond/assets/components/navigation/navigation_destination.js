@@ -11,6 +11,28 @@ import {
 } from "./navigation_utilities.js";
 import { Modal } from "/assets/components/modal.js";
 
+// 加載 Google Maps API
+function loadGoogleMapsAPI(apiKey) {
+  return new Promise((resolve, reject) => {
+    if (window.google && window.google.maps) {
+      resolve();
+      return;
+    }
+
+    const script = document.getElementById('google-maps-script');
+    if (script.src) {
+      // 腳本已經在加載中
+      script.addEventListener('load', resolve);
+      script.addEventListener('error', reject);
+      return;
+    }
+
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    script.addEventListener('load', resolve);
+    script.addEventListener('error', reject);
+  });
+}
+
 function sha1hex(str) {
   const rot = (v, s) => (v << s) | (v >>> (32 - s));
   const bytes = new TextEncoder().encode(str);
@@ -172,8 +194,24 @@ export function NavDestination() {
         inputEl.value = name;
       }
 
-      if (destinationMarker) destinationMarker.remove();
-      destinationMarker = new mapboxgl.Marker().setLngLat(coords).addTo(map);
+      // 移除舊的目的地標記並添加新的
+      if (destinationMarker) {
+        if (state.navigationProvider === 'google') {
+          destinationMarker.setMap(null);
+        } else {
+          destinationMarker.remove();
+        }
+      }
+
+      if (state.navigationProvider === 'google') {
+        destinationMarker = new google.maps.Marker({
+          position: { lat: coords[1], lng: coords[0] },
+          map: map,
+          title: name
+        });
+      } else {
+        destinationMarker = new mapboxgl.Marker().setLngLat(coords).addTo(map);
+      }
 
       const routes = await getRoutes(
         `${state.lastPosition.longitude},${state.lastPosition.latitude}`,
@@ -183,7 +221,7 @@ export function NavDestination() {
         state.googleKey
       );
 
-      removeRouteFromMap(map);
+      removeRouteFromMap(map, state.navigationProvider);
 
       if (routes.length > 0) {
         const selectedRouteId = "main";
@@ -218,22 +256,30 @@ export function NavDestination() {
               routeId,
               steps: route?.legs?.[0]?.steps || []
             };
-            highlightRoute(map, routes, routeId);
+            highlightRoute(map, routes, routeId, state.navigationProvider);
           },
           state.isMetric,
-          () => state.selectedRoute?.routeId ?? null
+          () => state.selectedRoute?.routeId ?? null,
+          state.navigationProvider
         );
 
         if (resume && map) {
           requestAnimationFrame(() => {
-            map.flyTo({
-              center: [state.lastPosition.longitude, state.lastPosition.latitude],
-              zoom: 18,
-              pitch: 45,
-              speed: 1,
-              curve: 1
-            });
+            if (state.navigationProvider === 'google') {
+              map.setCenter({ lat: state.lastPosition.latitude, lng: state.lastPosition.longitude });
+              map.setZoom(18);
+              map.setTilt(45);
+            } else {
+              map.flyTo({
+                center: [state.lastPosition.longitude, state.lastPosition.latitude],
+                zoom: 18,
+                pitch: 45,
+                speed: 1,
+                curve: 1
+              });
+            }
           });
+        }
         }
       }
 
@@ -259,8 +305,15 @@ export function NavDestination() {
     const hasMapbox = !!state.mapboxPublic && !!state.mapboxSecret;
     const hasGoogle = !!state.googleKey;
     const hasAMap = !!state.amap1Key && !!state.amap2Key;
-    state.missingKeys = !hasMapbox && !hasGoogle;
-    state.canToggleProvider = hasMapbox && hasAMap;
+
+    // 檢查當前選擇的 provider 是否有必要的 keys
+    if (state.navigationProvider === 'google') {
+      state.missingKeys = !hasGoogle;
+    } else {
+      state.missingKeys = !hasMapbox;
+    }
+
+    state.canToggleProvider = (hasMapbox && hasGoogle) || (hasMapbox && hasAMap);
     state.searchProvider = hasMapbox || hasGoogle ? (state.navigationProvider || "mapbox") : "";
     if (state.missingKeys) return;
     state.lastPosition = {
@@ -349,36 +402,84 @@ export function NavDestination() {
   }
 
   function addFavoriteMarkers(favorites) {
-    favoriteMarkers.forEach(marker => marker.remove());
+    favoriteMarkers.forEach(marker => {
+      if (state.navigationProvider === 'google') {
+        marker.setMap(null);
+      } else {
+        marker.remove();
+      }
+    });
     favoriteMarkers = [];
     favorites.forEach(fav => {
-      const el = document.createElement("div");
-      el.className = "favorite-marker";
-      let icon = "❤️";
-      let popupText = fav.name;
-      if (fav.is_home) {
-        icon = "🏠";
-        el.className += " home-marker";
-        popupText = `Home: ${fav.name}`;
-      } else if (fav.is_work) {
-        icon = "💼";
-        el.className += " work-marker";
-        popupText = `Work: ${fav.name}`;
-      }
-      el.innerHTML = icon;
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat([fav.longitude, fav.latitude])
-        .setPopup(new mapboxgl.Popup({ offset: 25, closeButton: false }).setText(popupText))
-        .addTo(map);
-      el.addEventListener("click", () => {
-        if (marker.getPopup().isOpen()) {
-          marker.togglePopup();
+      if (state.navigationProvider === 'google') {
+        // Google Maps 標記
+        let icon = "❤️";
+        let popupText = fav.name;
+        if (fav.is_home) {
+          icon = "🏠";
+          popupText = `Home: ${fav.name}`;
+        } else if (fav.is_work) {
+          icon = "💼";
+          popupText = `Work: ${fav.name}`;
         }
-        initiateNavigation(fav);
-      });
-      el.addEventListener("mouseenter", () => marker.togglePopup());
-      el.addEventListener("mouseleave", () => marker.togglePopup());
-      favoriteMarkers.push(marker);
+
+        const marker = new google.maps.Marker({
+          position: { lat: fav.latitude, lng: fav.longitude },
+          map: map,
+          title: popupText,
+          label: {
+            text: icon,
+            fontSize: '24px'
+          }
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: popupText
+        });
+
+        marker.addListener('click', () => {
+          initiateNavigation(fav);
+        });
+
+        marker.addListener('mouseover', () => {
+          infoWindow.open(map, marker);
+        });
+
+        marker.addListener('mouseout', () => {
+          infoWindow.close();
+        });
+
+        favoriteMarkers.push(marker);
+      } else {
+        // Mapbox 標記
+        const el = document.createElement("div");
+        el.className = "favorite-marker";
+        let icon = "❤️";
+        let popupText = fav.name;
+        if (fav.is_home) {
+          icon = "🏠";
+          el.className += " home-marker";
+          popupText = `Home: ${fav.name}`;
+        } else if (fav.is_work) {
+          icon = "💼";
+          el.className += " work-marker";
+          popupText = `Work: ${fav.name}`;
+        }
+        el.innerHTML = icon;
+        const marker = new mapboxgl.Marker(el)
+          .setLngLat([fav.longitude, fav.latitude])
+          .setPopup(new mapboxgl.Popup({ offset: 25, closeButton: false }).setText(popupText))
+          .addTo(map);
+        el.addEventListener("click", () => {
+          if (marker.getPopup().isOpen()) {
+            marker.togglePopup();
+          }
+          initiateNavigation(fav);
+        });
+        el.addEventListener("mouseenter", () => marker.togglePopup());
+        el.addEventListener("mouseleave", () => marker.togglePopup());
+        favoriteMarkers.push(marker);
+      }
     });
   }
 
@@ -573,59 +674,98 @@ export function NavDestination() {
   }
 
   const setupMap = async () => {
-    if (!state.mapboxPublic || state.initialized) return;
+    if (state.initialized) return;
+    if (state.navigationProvider === 'google' && !state.googleKey) return;
+    if (state.navigationProvider === 'mapbox' && !state.mapboxPublic) return;
+
     const container = document.getElementById("map");
     if (!container) {
       requestAnimationFrame(setupMap);
       return;
     }
     state.initialized = true;
-    mapboxgl.accessToken = state.mapboxPublic;
-    map = new mapboxgl.Map({
-      container,
-      center: [state.lastPosition.longitude, state.lastPosition.latitude],
-      zoom: 15,
-      pitch: 45,
-      speed: 1,
-      curve: 1,
-      attributionControl: false,
-      logoPosition: "bottom-right",
-      style: "mapbox://styles/frogsgomoo/cmcfv151j000o01rcdxebhl76"
-    });
-    new mapboxgl.Marker().setLngLat([state.lastPosition.longitude, state.lastPosition.latitude]).addTo(map);
-    map.on("load", () => {
-      map.flyTo({
+
+    if (state.navigationProvider === 'google') {
+      // 加載 Google Maps API
+      await loadGoogleMapsAPI(state.googleKey);
+
+      map = new google.maps.Map(container, {
+        center: { lat: state.lastPosition.latitude, lng: state.lastPosition.longitude },
+        zoom: 15,
+        tilt: 45,
+        mapTypeId: 'roadmap',
+        disableDefaultUI: false,
+        zoomControl: true,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false
+      });
+
+      new google.maps.Marker({
+        position: { lat: state.lastPosition.latitude, lng: state.lastPosition.longitude },
+        map: map,
+        title: '當前位置'
+      });
+    } else {
+      // 使用 Mapbox
+      mapboxgl.accessToken = state.mapboxPublic;
+      map = new mapboxgl.Map({
+        container,
         center: [state.lastPosition.longitude, state.lastPosition.latitude],
-        zoom: 18,
+        zoom: 15,
         pitch: 45,
         speed: 1,
-        curve: 1
+        curve: 1,
+        attributionControl: false,
+        logoPosition: "bottom-right",
+        style: "mapbox://styles/frogsgomoo/cmcfv151j000o01rcdxebhl76"
       });
-      if (state.destination) {
-        const savedId = localStorage.getItem("activeRouteId");
-        initiateNavigation({ ...state.destination, routeId: savedId }, { resume: true });
-      }
-    });
-    map.on("style.load", () => {
-      const labelLayer = map.getStyle().layers.find(l => l.type === "symbol" && l.layout["text-field"]).id;
-      map.addLayer(
-        {
-          id: "add-3d-buildings",
-          source: "composite",
-          "source-layer": "building",
-          filter: ["==", "extrude", "true"],
-          type: "fill-extrusion",
-          minzoom: 15,
-          paint: {
-            "fill-extrusion-color": "#aaa",
-            "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "height"]],
-            "fill-extrusion-base": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "min_height"]],
-            "fill-extrusion-opacity": 0.6
-          }
-        },
-        labelLayer
-      );
-    });
+      new mapboxgl.Marker().setLngLat([state.lastPosition.longitude, state.lastPosition.latitude]).addTo(map);
+
+      map.on("load", () => {
+        map.flyTo({
+          center: [state.lastPosition.longitude, state.lastPosition.latitude],
+          zoom: 18,
+          pitch: 45,
+          speed: 1,
+          curve: 1
+        });
+        if (state.destination) {
+          const savedId = localStorage.getItem("activeRouteId");
+          initiateNavigation({ ...state.destination, routeId: savedId }, { resume: true });
+        }
+      });
+      map.on("style.load", () => {
+        const labelLayer = map.getStyle().layers.find(l => l.type === "symbol" && l.layout["text-field"]).id;
+        map.addLayer(
+          {
+            id: "add-3d-buildings",
+            source: "composite",
+            "source-layer": "building",
+            filter: ["==", "extrude", "true"],
+            type: "fill-extrusion",
+            minzoom: 15,
+            paint: {
+              "fill-extrusion-color": "#aaa",
+              "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "height"]],
+              "fill-extrusion-base": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "min_height"]],
+              "fill-extrusion-opacity": 0.6
+            }
+          },
+          labelLayer
+        );
+      });
+    }
+
+    // Google Maps 的初始化完成事件
+    if (state.navigationProvider === 'google') {
+      google.maps.event.addListenerOnce(map, 'idle', () => {
+        if (state.destination) {
+          const savedId = localStorage.getItem("activeRouteId");
+          initiateNavigation({ ...state.destination, routeId: savedId }, { resume: true });
+        }
+      });
+    }
   };
 
   getNavigationData();
@@ -638,8 +778,8 @@ export function NavDestination() {
           ? html`
               <section class="keys-required-wrapper">
                 <div class="keys-required-widget">
-                  <div class="keys-required-title">Mapbox Keys Required</div>
-                  <p class="keys-required-text">You must set both your public and secret Mapbox keys before using navigation features.</p>
+                  <div class="keys-required-title">${state.navigationProvider === 'google' ? 'Google Maps' : 'Mapbox'} Keys Required</div>
+                  <p class="keys-required-text">You must set your ${state.navigationProvider === 'google' ? 'Google Maps API key' : 'Mapbox public and secret keys'} before using navigation features.</p>
                   <a href="/navigation_keys" class="keys-required-button">Go to "Manage Keys"</a>
                 </div>
               </section>
@@ -770,10 +910,16 @@ function NavigationDestination({
 }) {
   async function cancelNavigation() {
     showSnackbar("Navigation cancelled...");
-    removeRouteFromMap(map);
+    removeRouteFromMap(map, state.navigationProvider);
     cancelNavigationFn();
     localStorage.removeItem("activeRouteId");
-    map.flyTo({ center: startingCoordinates, zoom: 15, pitch: 45, speed: 1, curve: 1 });
+    if (state.navigationProvider === 'google') {
+      map.setCenter({ lat: startingCoordinates[1], lng: startingCoordinates[0] });
+      map.setZoom(15);
+      map.setTilt(45);
+    } else {
+      map.flyTo({ center: startingCoordinates, zoom: 15, pitch: 45, speed: 1, curve: 1 });
+    }
     await fetch("/api/navigation", { method: "DELETE" });
   }
   async function confirmDestination() {
