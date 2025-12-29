@@ -93,8 +93,8 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
       });
       hfopcontrolsToggle = AutoACCToggle;
 
-    // } else if (param == "AutoACCspeed") {
-    //   hfopcontrolsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 50, "公里");
+    } else if (param == "AutoACCspeed") {
+      hfopcontrolsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 50, "公里");
 
     // } else if (param == "Fuelprice") {
     //   FrogPilotManageControl *FuelpriceToggle = new FrogPilotManageControl(param, title, desc, icon);
