@@ -246,10 +246,6 @@ void FrogPilotHFOPPanel::updateToggles() {
       setVisible &= parent->hasOpenpilotLongitudinal;
     }
 
-    else if (key == "AutoACC") {
-      setVisible &= parent->hasRadar && !(params.getBool("AutoACC") && params.getBool("AutoACCCarAway")&& params.getBool("AutoACCGreenLight"));
-    }
-
     else if (key == "Roadtype") {
       setVisible &= parent->hasOpenpilotLongitudinal;
     }
@@ -261,36 +257,32 @@ void FrogPilotHFOPPanel::updateToggles() {
     else if (key == "Dooropen") {
       setVisible &= parent->hasOpenpilotLongitudinal;
     }
-    else if (key == "AdjacentLeadsUI") {
-      setVisible &= parent->hasRadar && !(params.getBool("AdvancedCustomUI") && params.getBool("HideLeadMarker"));
-    }
-
-    else if (key == "BlindSpotPath") {
-      setVisible &= parent->hasBSM;
-    }
 
     toggle->setVisible(setVisible);
 
     if (setVisible) {
-      if (AutoACCKeys.contains(key)) {
+      if (key == "AutoACC") {
         bool autoACCEnabled = params.getBool("AutoACC");
         toggles["AutoACCspeed"]->setVisible(autoACCEnabled);
         toggles["AutoACCCarAway"]->setVisible(autoACCEnabled);
         toggles["AutoACCGreenLight"]->setVisible(autoACCEnabled);
 
-      } else if (FuelpriceKeys.contains(key)) {
+      } else if (key == "Fuelprice") {
         toggles["Fuelcosts"]->setVisible(true);
-      } else if (TrafficModeKeys.contains(key)) {
+      } else if (key == "TrafficMode") {
         toggles["TrafficModespeed"]->setVisible(true);
-      } else if (VagSpeedKeys.contains(key)) {
+      } else if (key == "VagSpeed") {
         toggles["VagSpeedFactor"]->setVisible(true);
 
-      } else if (RoadKeys.contains(key)) {
+      } else if (key == "Roadtype") {
+        toggles["AutoRoadtype"]->setVisible(true);
         toggles["RoadtypeProfile"]->setVisible(true);
-      } else if (NavspeedKeys.contains(key)) {
-        toggles["Navspeed"]->setVisible(true);
-      } else if (DooropenKeys.contains(key)) {
-        toggles["Dooropen"]->setVisible(true);
+      } else if (key == "Navspeed") {
+        toggles["NavReminder"]->setVisible(true);
+        toggles["speedoverreminder"]->setVisible(true);
+        toggles["speedreminderreset"]->setVisible(true);
+      } else if (key == "Dooropen") {
+        toggles["Dooropentype"]->setVisible(true);
       }
     }
   }
