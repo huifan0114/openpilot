@@ -119,7 +119,8 @@ export function NavKeys() {
       state.amap2Key = data.amap2Key ?? ""
       state.savedA1 = !!state.amap1Key
       state.savedA2 = !!state.amap2Key
-googleKey = data.googleMapsKey ?? ""
+
+      state.googleKey = data.googleMapsKey ?? ""
       state.savedGoogle = !!state.googleKey
 
       state.publicKey = data.mapboxPublic ?? ""
