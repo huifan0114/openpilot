@@ -5,8 +5,8 @@ export function Modal({
   message,
   onConfirm,
   onCancel,
-  confirmText = "Confirm",
-  cancelText = "Cancel",
+  confirmText = "確認",
+  cancelText = "取消",
   confirmClass = "btn-danger",
   customClass = ""
 }) {

@@ -6,7 +6,7 @@ function DiskUsage(disk) {
 
   return html`
     <div class="disk">
-      <p>${disk.used} used of ${disk.size}</p>
+      <p>已使用 ${disk.used} / 總共 ${disk.size}</p>
       <div class="progress">
         <div
           class="bar"
@@ -31,26 +31,26 @@ function DriveStat(title, stats = {}, defaultUnit) {
   return html`
     <div class="drivingStat">
       <h2>${title}</h2>
-      <div><p>${format(stats.drives)}</p><p>drives</p></div>
+      <div><p>${format(stats.drives)}</p><p>次行程</p></div>
       <div><p>${format(stats.distance)}</p><p>${stats.unit ?? defaultUnit}</p></div>
-      <div><p>${format(stats.hours)}</p><p>hours</p></div>
+      <div><p>${format(stats.hours)}</p><p>小時</p></div>
     </div>
   `;
 }
 
 function renderSoftwareInfo(info = {}) {
   const fields = [
-    ["Branch Name", info.branchName],
-    ["Build", info.buildEnvironment],
-    ["Commit Hash", info.commitHash],
-    ["Fork Maintainer", info.forkMaintainer],
-    ["Update Available", info.updateAvailable],
-    ["Version Date", info.versionDate],
+    ["分支名稱", info.branchName],
+    ["編譯環境", info.buildEnvironment],
+    ["提交雜湊", info.commitHash],
+    ["分支維護者", info.forkMaintainer],
+    ["有可用更新", info.updateAvailable],
+    ["版本日期", info.versionDate],
   ];
 
   return fields.map(
     ([label, value]) =>
-      html`<p><strong>${label}:</strong> ${value ?? "Unknown"}</p>`
+      html`<p><strong>${label}:</strong> ${value ?? "未知"}</p>`
   );
 }
 
@@ -87,7 +87,7 @@ export function Home() {
       const isMetric = isMetricText === "1";
 
       state.data = statsJson;
-      state.unit = isMetric ? "kilometers" : "miles";
+      state.unit = isMetric ? "公里" : "英里";
       localStorage.setItem("isMetric", isMetricText);
     } catch (err) {
       console.error("Failed to initialize component:", err);
@@ -103,11 +103,11 @@ export function Home() {
     <div>
       ${() => {
         if (state.isLoading) {
-          return html`<p>Loading...</p>`;
+          return html`<p>載入中...</p>`;
         }
 
         if (state.error) {
-          return html`<p class="error">Failed to load data: ${state.error}</p>`;
+          return html`<p class="error">載入資料失敗：${state.error}</p>`;
         }
 
         if (state.data) {
@@ -116,32 +116,32 @@ export function Home() {
             <h1>The Pond</h1>
 
             <div class="drivingStats">
-              ${DriveStat("All Time", driveStats?.all, state.unit)}
-              ${DriveStat("Past Week", driveStats?.week, state.unit)}
+              ${DriveStat("總計", driveStats?.all, state.unit)}
+              ${DriveStat("過去一週", driveStats?.week, state.unit)}
               ${DriveStat("FrogPilot", driveStats?.frogpilot, state.unit)}
             </div>
 
-            <h2>Disk Usage</h2>
+            <h2>磁碟使用率</h2>
             <div class="diskUsage">
               ${renderDiskUsageSection(state.data)}
             </div>
 
-            <h2>Firehose Segments</h2>
+            <h2>Firehose 區段</h2>
             <div class="firehoseStats">
               <p>
                 <strong>${(firehoseStats?.segments ?? 0).toLocaleString("en-US")}</strong>
-                segments in training data.
+                個區段在訓練資料中。
               </p>
             </div>
 
-            <h2>Software Info</h2>
+            <h2>軟體訊息</h2>
             <div class="softwareInfo">
               <div class="softwareGrid">${renderSoftwareInfo(softwareInfo)}</div>
             </div>
           `;
         }
 
-        return html`<p>No data available.</p>`;
+        return html`<p>沒有可用的資料。</p>`;
       }}
     </div>
   `;

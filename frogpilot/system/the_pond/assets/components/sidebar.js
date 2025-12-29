@@ -4,27 +4,27 @@ import { upperFirst, hideSidebar } from "/assets/js/utils.js";
 
 const MenuItems = {
   home: [
-    { name: "Home", link: "/", icon: "bi-house-fill" },
+    { name: "首頁", link: "/", icon: "bi-house-fill" },
   ],
   navigation: [
-    { name: "Manage Keys", link: "/manage_navigation_keys", icon: "bi-key-fill" },
-    { name: "Set Destination", link: "/set_navigation_destination", icon: "bi-globe-americas" },
+    { name: "管理金鑰", link: "/manage_navigation_keys", icon: "bi-key-fill" },
+    { name: "設定目的地", link: "/set_navigation_destination", icon: "bi-globe-americas" },
   ],
   recordings: [
-    { name: "Dashcam Routes", link: "/dashcam_routes", icon: "bi-camera-reels" },
-    { name: "Screen Recordings", link: "/screen_recordings", icon: "bi-record-circle" },
+    { name: "行車記錄", link: "/dashcam_routes", icon: "bi-camera-reels" },
+    { name: "螢幕錄影", link: "/screen_recordings", icon: "bi-record-circle" },
   ],
   tailscale: [
     { name: "Tailscale", link: "/manage_tailscale", icon: "bi-wifi" },
   ],
   tools: [
-    { name: "Download Speed Limits", link: "/download_speed_limits", icon: "bi-download" },
-    { name: "Error Logs", link: "/manage_error_logs", icon: "bi-exclamation-triangle" },
-    { name: "Lock/Unlock Doors", link: "/lock_or_unlock_doors", icon: "bi-door-closed" },
-    { name: "Theme Maker", link: "/theme_maker", icon: "bi-palette-fill" },
-    { name: "Tmux Log", link: "/manage_tmux", icon: "bi-terminal" },
-    { name: "Toggles", link: "/manage_toggles", icon: "bi-toggle-on" },
-    { name: "Toyota Security Keys", link: "/tsk_manager", icon: "bi-key-fill" },
+    { name: "下載速限", link: "/download_speed_limits", icon: "bi-download" },
+    { name: "錯誤日誌", link: "/manage_error_logs", icon: "bi-exclamation-triangle" },
+    { name: "鎖定/解鎖車門", link: "/lock_or_unlock_doors", icon: "bi-door-closed" },
+    { name: "主題製作", link: "/theme_maker", icon: "bi-palette-fill" },
+    { name: "Tmux 日誌", link: "/manage_tmux", icon: "bi-terminal" },
+    { name: "功能設定", link: "/manage_toggles", icon: "bi-toggle-on" },
+    { name: "Toyota 安全金鑰", link: "/tsk_manager", icon: "bi-key-fill" },
   ],
 };
 
@@ -102,11 +102,11 @@ export function Sidebar() {
                 <span class="section-title">${upperFirst(section)}</span>
                 <ul id="${section}">
                   ${links.map(link => {
-                    if (link.name === "Lock/Unlock Doors" && !state.doorsVisible) {
+                    if (link.name === "鎖定/解鎖車門" && !state.doorsVisible) {
                       return "";
                     }
 
-                    if (link.name === "Toyota Security Keys" && !state.tskVisible) {
+                    if (link.name === "Toyota 安全金鑰" && !state.tskVisible) {
                       return "";
                     }
 

@@ -94,11 +94,11 @@ export function NavKeys() {
 
   const getDeleteLabel = (kind) => {
     switch (kind) {
-      case "amap1": return "Amap 1"
-      case "amap2": return "Amap 2"
-      case "google": return "Google Maps"
-      case "public": return "Public Mapbox"
-      case "secret": return "Secret Mapbox"
+      case "amap1": return "高德地圖 1"
+      case "amap2": return "高德地圖 2"
+      case "google": return "Google 地圖"
+      case "public": return "Mapbox 公開"
+      case "secret": return "Mapbox 私密"
       default: return kind
     }
   }
@@ -112,7 +112,7 @@ export function NavKeys() {
     load: async () => {
       const { ok, data } = await util.req(api.path.nav)
       if (!ok) {
-        return showMessage("error", "Failed to load keys...", "")
+        return showMessage("error", "載入金鑰失敗...", "")
       }
 
       state.amap1Key = data.amap1Key ?? ""
@@ -256,13 +256,22 @@ export function NavKeys() {
           const keyMeta = meta[kind]
           let label = kind[0].toUpperCase() + kind.slice(1).replace(/[0-9]/, d => " " + d)
 
-          // Special case for Google to show "API Key" instead of "Google Key"
+          // 特殊處理：將標籤轉換為中文
+          const labelMap = {
+            "Amap 1": "高德 1",
+            "Amap 2": "高德 2",
+            "Public": "公開",
+            "Secret": "私密"
+          }
+
           if (kind === "google") {
             label = "API"
+          } else if (labelMap[label]) {
+            label = labelMap[label]
           }
 
           return html`
-            <label class="navkeys-label" for="${kind}-key">${label} Key</label>
+            <label class="navkeys-label" for="${kind}-key">${label} 金鑰</label>
             <div class="navkeys-row">
               <input
                 autocomplete="off"
@@ -338,7 +347,7 @@ export function NavKeys() {
       <!-- Navigation Provider Selector -->
       <div class="navkeys-container">
         <div class="navkeys-group">
-          <div class="navkeys-title">Navigation Provider</div>
+          <div class="navkeys-title">導航供應商</div>
           <div class="navkeys-provider-selector">
             <button
               class="${() => `navkeys-provider-btn ${state.navigationProvider === "mapbox" ? "active" : ""}`}"
@@ -358,26 +367,26 @@ export function NavKeys() {
       </div>
 
       <div class="navkeys-container">
-        ${renderGroup("AMap Keys", ["amap1", "amap2"])}
+        ${renderGroup("高德地圖金鑰", ["amap1", "amap2"])}
         ${renderStatus("amap")}
       </div>
 
       <div class="navkeys-container">
-        ${renderGroup("Google Maps Key", ["google"])}
+        ${renderGroup("Google 地圖金鑰", ["google"])}
         ${renderStatus("google")}
       </div>
 
       <div class="navkeys-container">
-        ${renderGroup("Mapbox Keys", ["public", "secret"])}
+        ${renderGroup("Mapbox 金鑰", ["public", "secret"])}
         ${renderStatus("mapbox")}
       </div>
     </div>
     ${() => state.showDeleteModal ? Modal({
-      title: "Confirm Delete",
-      message: `Are you sure you want to delete your <strong>${getDeleteLabel(state.keyToDelete)}</strong> key?`,
+      title: "確認刪除",
+      message: `您確定要刪除 <strong>${getDeleteLabel(state.keyToDelete)}</strong> 金鑰嗎？`,
       onConfirm: api.delete,
       onCancel: () => { state.showDeleteModal = false },
-      confirmText: "Yes, Delete"
+      confirmText: "是的，刪除"
     }) : ""}
   `
 }
