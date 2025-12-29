@@ -88,3 +88,20 @@ if __name__ == "__main__":
   spinner.update_progress(0, 100)
   build_metadata = get_build_metadata()
   build(spinner, build_metadata.openpilot.is_dirty, minimal = AGNOS)
+  
+  # Precompile Python modules for faster boot time
+  spinner.update("正在預編譯 Python 模組...")
+  try:
+    import subprocess
+    result = subprocess.run(
+      ["/usr/bin/env", "python3", str(Path(__file__).parent / "precompile_python.py")],
+      cwd=BASEDIR,
+      capture_output=True,
+      timeout=300
+    )
+    if result.returncode == 0:
+      cloudlog.info("Python modules precompiled successfully")
+    else:
+      cloudlog.warning(f"Python precompilation failed: {result.stderr.decode()}")
+  except Exception as e:
+    cloudlog.warning(f"Failed to precompile Python modules: {e}")
