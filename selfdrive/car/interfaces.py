@@ -429,7 +429,7 @@ class CarInterfaceBase(ABC):
     if cs_out.brakePressed and cs_out.standstill:
       events.add(EventName.preEnableStandstill)
       ################################################
-      self.params_memory.put_int("leadspeeddiffProfile", 0)
+      # self.params_memory.put_int("leadspeeddiffProfile", 0)
       ################################################
     if cs_out.gasPressed:
       events.add(EventName.gasPressedOverride)
