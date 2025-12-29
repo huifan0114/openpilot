@@ -58,7 +58,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
     {"VagSpeed", "  時速差調整", "VAG專用。調整車錶速度與C3定速設定不同步的問題。", ""},
     {"VagSpeedFactor", "  時速差調整", "請輸入OP定速為110時儀表板的速度差值.", ""},
-    {"Disablestartstop", "取消怠速熄火", "開啟後將強制關閉怠速熄火功能.", ""},
+    {"Disablestartstop", "  取消怠速熄火", "開啟後將強制關閉怠速熄火功能.", ""},
 
     {"ChangeLaneReminder", "  變換車道語音", "開啟後在變換車道時會發出語音提醒.", ""},
     {"AutoSpeeddistance", "  車速調控跟車距離", "開啟後可依行車路線自動切換跟車距離， 1格 60公里 2格90公里 3格120公里.", ""},
@@ -76,7 +76,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     {"LuggagedoorOpen", "  後車門開啟", "開啟後在引擎啟動狀態下候車門開啟時會發出提醒.", ""},
 
     {"Fuelprice", "  油價計算", "啟動後會計算油費.", ""},
-    {"Fuelcosts", "油價設定", "設定車輛使用油種與價格.", ""},
+    {"Fuelcosts", "  油價設定", "設定車輛使用油種與價格.", ""},
 
 
   };
