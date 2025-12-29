@@ -13,7 +13,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
   QStackedLayout *hfopLayout = new QStackedLayout();
   addItem(hfopLayout);
 
-  FrogPilotListWidget *FuelpricelList = new FrogPilotListWidget(this);
+  FrogPilotListWidget *FuelpriceList = new FrogPilotListWidget(this);
   FrogPilotListWidget *TrafficModelList = new FrogPilotListWidget(this);
   FrogPilotListWidget *VagSpeedList = new FrogPilotListWidget(this);
   FrogPilotListWidget *AutoACCPList = new FrogPilotListWidget(this);
@@ -22,7 +22,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
 
 
-  ScrollView *FuelpricePanel = new ScrollView(FuelpricelList, this);
+  ScrollView *FuelpricePanel = new ScrollView(FuelpriceList, this);
   ScrollView *TrafficModePanel = new ScrollView(TrafficModelList, this);
   ScrollView *VagSpeedPanel = new ScrollView(VagSpeedList, this);
   ScrollView *AutoACCPanel = new ScrollView(AutoACCPList, this);
@@ -162,7 +162,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     if (AutoACCKeys.contains(param)) {
       AutoACCPList->addItem(hfopcontrolsToggle);
     } else if (FuelpriceKeys.contains(param)) {
-      FuelpricelList->addItem(hfopcontrolsToggle);
+      FuelpriceList->addItem(hfopcontrolsToggle);
     } else if (TrafficModeKeys.contains(param)) {
       TrafficModelList->addItem(hfopcontrolsToggle);
     } else if (VagSpeedKeys.contains(param)) {
