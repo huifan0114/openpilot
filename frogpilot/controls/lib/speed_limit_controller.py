@@ -41,6 +41,11 @@ class SpeedLimitController:
     self.mapbox_host = "https://api.mapbox.com"
     self.mapbox_token = params.get("MapboxSecretKey", encoding="utf8")
 
+    # Google Maps API setup
+    self.google_maps_token = params.get("GoogleMapsKey", encoding="utf8")
+    self.google_maps_host = "https://maps.googleapis.com"
+    self.use_google_maps = params.get("NavigationProvider", encoding='utf8') == "google"
+
     self.previous_target = params.get_float("PreviousSpeedLimit")
 
     self.executor = ThreadPoolExecutor(max_workers=1)
@@ -78,6 +83,11 @@ class SpeedLimitController:
     return next((offset for low, high, offset in offset_map if low < self.target < high), 0)
 
   def get_mapbox_speed_limit(self, gps_position, now, time_validated, v_ego, sm):
+    # 根據選擇的服務提供商決定使用哪個 API
+    if self.use_google_maps and self.google_maps_token:
+      self.get_google_maps_speed_limit(gps_position, v_ego, sm)
+      return
+
     if not gps_position or not self.mapbox_token or (sm["carState"].steeringAngleDeg - sm["liveParameters"].angleOffsetDeg) >= 45:
       self.mapbox_limit = 0
       self.segment_distance = 0
@@ -192,6 +202,89 @@ class SpeedLimitController:
 
       except Exception as exception:
         print(f"Mapbox Callback Error: {exception}")
+        self.mapbox_limit = 0
+        self.segment_distance = v_ego
+
+    future = self.executor.submit(make_request)
+    future.add_done_callback(complete_request)
+
+  def get_google_maps_speed_limit(self, gps_position, v_ego, sm):
+    """使用 Google Maps Roads API 查詢速限"""
+    if not gps_position or not self.google_maps_token or (sm["carState"].steeringAngleDeg - sm["liveParameters"].angleOffsetDeg) >= 45:
+      self.mapbox_limit = 0
+      self.segment_distance = 0
+      return
+
+    if v_ego < 1:
+      return
+
+    if self.segment_distance > 0:
+      self.segment_distance -= v_ego * DT_MDL
+      return
+
+    if self.calling_mapbox:
+      self.segment_distance = v_ego
+      return
+
+    def make_request():
+      try:
+        self.calling_mapbox = True
+        successful = False
+
+        if not is_url_pingable(self.google_maps_host):
+          self.segment_distance = 1000
+          return None
+
+        current_latitude = gps_position.get("latitude")
+        current_longitude = gps_position.get("longitude")
+
+        # Google Maps Roads API - Speed Limits
+        url = f"{self.google_maps_host}/maps/api/roads/speedLimits"
+
+        google_params = {
+          "key": self.google_maps_token,
+          "path": f"{current_latitude},{current_longitude}",
+        }
+
+        response = self.session.get(url, params=google_params, timeout=10)
+        response.raise_for_status()
+
+        successful = True
+        return response.json()
+
+      except Exception as exception:
+        print(f"Unexpected error in Google Maps request: {exception}")
+      finally:
+        self.calling_mapbox = False
+        if not successful:
+          self.mapbox_limit = 0
+          self.segment_distance = v_ego
+          return None
+
+    def complete_request(future):
+      try:
+        data = future.result()
+        if data and 'speedLimits' in data:
+          speed_limits = data.get('speedLimits', [])
+          if speed_limits:
+            speed_limit = speed_limits[0]
+            speed_value = speed_limit.get('speedLimit')
+            unit = speed_limit.get('units', 'KPH')
+
+            if speed_value:
+              if unit == 'MPH':
+                self.mapbox_limit = speed_value * CV.MPH_TO_MS
+              else:  # KPH
+                self.mapbox_limit = speed_value * CV.KPH_TO_MS
+
+              self.segment_distance = 100  # Google API 不提供段距，使用固定值
+              return
+
+        self.mapbox_limit = 0
+        self.segment_distance = v_ego
+
+      except Exception as exception:
+        print(f"Google Maps Callback Error: {exception}")
         self.mapbox_limit = 0
         self.segment_distance = v_ego
 

@@ -55,12 +55,22 @@ class RouteEngine:
 
     self.api = None
     self.mapbox_token = None
+    self.google_maps_token = None
+    self.navigation_provider = self.params.get("NavigationProvider", encoding='utf8') or "mapbox"  # "mapbox" or "google"
+
     if "MAPBOX_TOKEN" in os.environ:
       self.mapbox_token = os.environ["MAPBOX_TOKEN"]
       self.mapbox_host = "https://api.mapbox.com"
     else:
       self.mapbox_token = self.params.get("MapboxSecretKey", encoding='utf8')
       self.mapbox_host = "https://api.mapbox.com"
+
+    # Google Maps API setup
+    if "GOOGLE_MAPS_KEY" in os.environ:
+      self.google_maps_token = os.environ["GOOGLE_MAPS_KEY"]
+    else:
+      self.google_maps_token = self.params.get("GoogleMapsKey", encoding='utf8')
+    self.google_maps_host = "https://maps.googleapis.com"
 
     # FrogPilot variables
     self.approaching_intersection = False
@@ -140,6 +150,13 @@ class RouteEngine:
     if lang is not None:
       lang = lang.replace('main_', '')
 
+    # 根據選擇的導航提供商進行路線計算
+    if self.navigation_provider == "google" and self.google_maps_token:
+      self.calculate_route_google(destination, lang)
+    else:
+      self.calculate_route_mapbox(destination, lang)
+
+  def calculate_route_mapbox(self, destination, lang):
     token = self.mapbox_token
     if token is None:
       token = self.api.get_token()
@@ -279,6 +296,140 @@ class RouteEngine:
       self.clear_route()
 
     self.send_route()
+
+  def calculate_route_google(self, destination, lang):
+    """使用 Google Maps Directions API 計算路線"""
+    if not self.google_maps_token:
+      cloudlog.warning("Google Maps API key not found")
+      self.clear_route()
+      return
+
+    params = {
+      'origin': f'{self.last_position.latitude},{self.last_position.longitude}',
+      'destination': f'{destination.latitude},{destination.longitude}',
+      'key': self.google_maps_token,
+      'mode': 'driving',
+      'departure_time': 'now',  # 使用即時交通資訊
+      'alternatives': 'true',
+      'language': lang or 'zh-TW',
+    }
+
+    # 添加途徑點
+    waypoints = self.params.get('NavDestinationWaypoints', encoding='utf8')
+    if waypoints is not None and len(waypoints) > 0:
+      waypoint_coords = json.loads(waypoints)
+      waypoints_str = '|'.join([f'{lat},{lon}' for lon, lat in waypoint_coords])
+      params['waypoints'] = waypoints_str
+
+    url = self.google_maps_host + '/maps/api/directions/json'
+    try:
+      resp = requests.get(url, params=params, timeout=10)
+      if resp.status_code != 200:
+        cloudlog.event("Google Maps API request failed", status_code=resp.status_code, text=resp.text, error=True)
+      resp.raise_for_status()
+
+      r = resp.json()
+      if r.get('status') != 'OK':
+        cloudlog.warning(f"Google Maps API returned status: {r.get('status')}")
+        self.clear_route()
+        return
+
+      # 轉換 Google Maps 格式到內部格式
+      self.parse_google_route(r, destination)
+
+      # 清除途徑點
+      self.params.remove('NavDestinationWaypoints')
+
+    except requests.exceptions.RequestException:
+      cloudlog.exception("failed to get route from Google Maps")
+      self.clear_route()
+
+    self.send_route()
+
+  def parse_google_route(self, response, destination):
+    """將 Google Maps 路線響應轉換為內部格式"""
+    if not response.get('routes'):
+      self.clear_route()
+      return
+
+    chosen_route = response['routes'][0]
+
+    # 解析步驟
+    self.route = []
+    self.route_geometry = []
+    self.stop_signal = []
+    self.stop_coord = []
+
+    for leg in chosen_route['legs']:
+      for step in leg['steps']:
+        # 構建步驟資料
+        route_step = {
+          'distance': step['distance']['value'],
+          'duration': step['duration']['value'],
+          'duration_typical': step.get('duration_in_traffic', {}).get('value'),
+          'maneuver': step.get('maneuver', ''),
+          'name': step.get('html_instructions', ''),
+          'bannerInstructions': [],  # Google Maps 使用不同的指令格式
+          'intersections': [],
+          'speedLimitSign': 'mutcd',  # 預設使用美國標準
+        }
+
+        # 解析路徑幾何
+        coords = []
+        polyline_points = self.decode_polyline(step['polyline']['points'])
+
+        for lat, lng in polyline_points:
+          coord = Coordinate(lat, lng)
+          coords.append(coord)
+
+        self.route.append(route_step)
+        self.route_geometry.append(coords)
+
+    self.step_idx = 0
+
+    # 保存路線資訊
+    self.r2 = {'routes': [{
+      'distance': chosen_route['legs'][0]['distance']['value'],
+      'duration': chosen_route['legs'][0]['duration']['value'],
+      'Destination': destination,
+      'Metric': self.params.get_bool("IsMetric"),
+    }]}
+    self.r3 = {'CurrentStep': 0, 'provider': 'google'}
+
+    with open('navdirections.json', 'w') as json_file:
+      json.dump(self.r2, json_file, indent=4)
+    with open('CurrentStep.json', 'w') as json_file:
+      json.dump(self.r3, json_file, indent=4)
+
+  @staticmethod
+  def decode_polyline(polyline_str):
+    """解碼 Google Maps polyline 格式"""
+    index, lat, lng = 0, 0, 0
+    coordinates = []
+    changes = {'latitude': 0, 'longitude': 0}
+
+    while index < len(polyline_str):
+      for unit in ['latitude', 'longitude']:
+        shift, result = 0, 0
+        while True:
+          byte = ord(polyline_str[index]) - 63
+          index += 1
+          result |= (byte & 0x1f) << shift
+          shift += 5
+          if not byte >= 0x20:
+            break
+
+        if result & 1:
+          changes[unit] = ~(result >> 1)
+        else:
+          changes[unit] = result >> 1
+
+      lat += changes['latitude']
+      lng += changes['longitude']
+
+      coordinates.append((lat / 1e5, lng / 1e5))
+
+    return coordinates
 
   def send_instruction(self):
     msg = messaging.new_message('navInstruction', valid=True)

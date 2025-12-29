@@ -51,6 +51,7 @@ KEYS = {
   "amap2": ("amap2", "", "AMapKey2", "Amap key #2", 39),
   "public": ("public", "pk.", "MapboxPublicKey", "Public key", 80),
   "secret": ("secret", "sk.", "MapboxSecretKey", "Secret key", 80),
+  "google": ("google", "AIza", "GoogleMapsKey", "Google Maps API key", 39),
 }
 
 TMUX_LOGS_PATH = Path("/data/tmux_logs")

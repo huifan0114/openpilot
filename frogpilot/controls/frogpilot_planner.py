@@ -149,7 +149,20 @@ class FrogPilotPlanner:
 
 ####################################################################################
     v_ego_kph = v_ego * 3.6
-    detect_sl = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
+
+    # 从 SpeedLimitController 获取速限和来源
+    detect_sl_raw = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
+    slc_source = self.frogpilot_vcruise.slc.source
+
+    # 根据速限来源决定是否加10%
+    # Map Data（离线地图）或 Navigation（导航）来源时自动+10%
+    if detect_sl_raw > 0 and (slc_source == "Map Data" or slc_source == "Navigation"):
+      detect_sl_adjusted = int(detect_sl_raw * 1.1)  # 加10%
+      # 限制在 40-120 km/h 范围内
+      detect_sl = max(40, min(120, detect_sl_adjusted))
+    else:
+      detect_sl = detect_sl_raw
+
     # speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
 
     # auto_acc_pass = v_ego_kph > frogpilot_toggles.autoacc_speed
@@ -189,29 +202,44 @@ class FrogPilotPlanner:
         if frogpilot_toggles.navspeed:
           self.params_memory.put_bool("SpeedLimitChanged", True)
       elif frogpilot_toggles.roadtype:
-        # 根據路名自動判斷道路類型並設定速限
+        # 根據路名自動判斷道路類型並設定速限與優先級
         road_name = self.params_memory.get("RoadName", encoding="utf-8") or ""
         key_set_speed = 0
         suggested_speed = 0
 
         # 只有在路名改變時才重新判斷
         if road_name and road_name != self.previous_road_name:
-          # 判斷道路類型並設定建議速限
+          # 判斷道路類型並設定建議速限與 SLC 優先級模式
           if "高速" in road_name or "國道" in road_name:
-            # 高速公路：建議 100-110 km/h
-            suggested_speed = 12
+            # 高速公路：使用 Highest 模式（選擇最高速限）
+            suggested_speed = 120
+            self.params.put("SLCPriority1", "Highest")
+            self.params.put("SLCPriority2", "None")
+            self.params.put("SLCPriority3", "None")
           elif "快速" in road_name or "省道" in road_name:
-            # 快速道路：建議 70-80 km/h
+            # 快速道路：建議 70-80 km/h，使用 Map Data → Navigation → Dashboard
             suggested_speed = 80
+            self.params.put("SLCPriority1", "Map Data")
+            self.params.put("SLCPriority2", "Navigation")
+            self.params.put("SLCPriority3", "Dashboard")
           elif "交流道" in road_name:
-            # 交流道：建議 60 km/h
+            # 交流道：建議 60 km/h，使用 Map Data → Navigation → Dashboard
             suggested_speed = 50
+            self.params.put("SLCPriority1", "Map Data")
+            self.params.put("SLCPriority2", "Navigation")
+            self.params.put("SLCPriority3", "Dashboard")
           elif "街" in road_name or "巷" in road_name or "弄" in road_name:
-            # 市區道路：建議 40-50 km/h
+            # 市區道路：建議 40-50 km/h，使用 Map Data → Navigation → Dashboard
             suggested_speed = 40
+            self.params.put("SLCPriority1", "Map Data")
+            self.params.put("SLCPriority2", "Navigation")
+            self.params.put("SLCPriority3", "Dashboard")
           else:
-            # 其他一般道路：建議 50 km/h
+            # 鄉村/一般道路：建議 50 km/h，使用 Map Data → Navigation → Dashboard
             suggested_speed = 50
+            self.params.put("SLCPriority1", "Map Data")
+            self.params.put("SLCPriority2", "Navigation")
+            self.params.put("SLCPriority3", "Dashboard")
 
           # 記錄當前路名
           self.previous_road_name = road_name
