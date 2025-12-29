@@ -161,22 +161,27 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
     if (AutoACCKeys.contains(param)) {
       AutoACCPList->addItem(hfopcontrolsToggle);
+      parentKeys.insert(param);
     } else if (FuelpriceKeys.contains(param)) {
       FuelpriceList->addItem(hfopcontrolsToggle);
+      parentKeys.insert(param);
     } else if (TrafficModeKeys.contains(param)) {
       TrafficModelList->addItem(hfopcontrolsToggle);
+      parentKeys.insert(param);
     } else if (VagSpeedKeys.contains(param)) {
       VagSpeedList->addItem(hfopcontrolsToggle);
+      parentKeys.insert(param);
     } else if (RoadKeys.contains(param)) {
       RoadtypeList->addItem(hfopcontrolsToggle);
+      parentKeys.insert(param);
     } else if (DooropenKeys.contains(param)) {
       DooropenList->addItem(hfopcontrolsToggle);
+      parentKeys.insert(param);
     } else if (NavspeedKeys.contains(param)) {
       hfopList->addItem(hfopcontrolsToggle);
+      parentKeys.insert(param);
     } else {
       hfopList->addItem(hfopcontrolsToggle);
-
-      parentKeys.insert(param);
     }
 
     if (ButtonControl *buttonControl = qobject_cast<ButtonControl*>(hfopcontrolsToggle)) {
