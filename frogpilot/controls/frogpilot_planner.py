@@ -174,7 +174,7 @@ class FrogPilotPlanner:
       # stopDistance = self.params_memory.get_int("stopmarkDistance")
 
     # if frogpilot_toggles.autoacc and not current_isengaged :
-    if frogpilot_toggles.autoacc and not frogpilot_toggles.toggle.current_isengaged :
+    if frogpilot_toggles.autoacc and not self.params.get_bool("IsEngaged") :
       auto_acc_pass = v_ego_kph > frogpilot_toggles.autoacc_speed
       if auto_acc_pass or frogpilot_toggles.autoacc_caraway_status == 1 or frogpilot_toggles.autoacc_greenlight_status == 1:
         self.params_memory.put_bool("KeyResume", True)
