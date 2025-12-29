@@ -11,9 +11,9 @@
   color: var(--text-color);
   display: flex;
   flex-direction: column;
-  font-size: var(--font-size-sm);
+  font-size: 1rem;
   justify-content: center;
-  padding: var(--border-radius-xl);
+  padding: 1rem;
   transition: box-shadow 0.2s, border-color 0.2s;
   width: 100%;
 }
