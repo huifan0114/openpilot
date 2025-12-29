@@ -29,7 +29,7 @@ function loadGoogleMapsAPI(apiKey) {
 
     // 使用 async 加載並設置 callback
     window.initGoogleMaps = resolve;
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,marker&loading=async&callback=initGoogleMaps`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async&callback=initGoogleMaps`;
     script.async = true;
     script.defer = true;
     script.addEventListener('error', reject);
@@ -207,7 +207,7 @@ export function NavDestination() {
       }
 
       if (state.navigationProvider === 'google') {
-        destinationMarker = new google.maps.marker.AdvancedMarkerElement({
+        destinationMarker = new google.maps.Marker({
           position: { lat: coords[1], lng: coords[0] },
           map: map,
           title: name
@@ -425,16 +425,14 @@ export function NavDestination() {
           popupText = `Work: ${fav.name}`;
         }
 
-        // 創建自定義圖標元素
-        const iconElement = document.createElement('div');
-        iconElement.style.fontSize = '24px';
-        iconElement.textContent = icon;
-
-        const marker = new google.maps.marker.AdvancedMarkerElement({
+const marker = new google.maps.Marker({
           position: { lat: fav.latitude, lng: fav.longitude },
           map: map,
           title: popupText,
-          content: iconElement
+          label: {
+            text: icon,
+            fontSize: '24px'
+          }
         });
 
         const infoWindow = new google.maps.InfoWindow({
@@ -697,7 +695,6 @@ export function NavDestination() {
         center: { lat: state.lastPosition.latitude, lng: state.lastPosition.longitude },
         zoom: 15,
         tilt: 45,
-        mapId: 'NAVIGATION_MAP', // AdvancedMarkerElement 需要 mapId
         mapTypeId: 'roadmap',
         disableDefaultUI: false,
         zoomControl: true,
@@ -706,7 +703,7 @@ export function NavDestination() {
         fullscreenControl: false
       });
 
-      new google.maps.marker.AdvancedMarkerElement({
+      new google.maps.Marker({
         position: { lat: state.lastPosition.latitude, lng: state.lastPosition.longitude },
         map: map,
         title: '當前位置'
