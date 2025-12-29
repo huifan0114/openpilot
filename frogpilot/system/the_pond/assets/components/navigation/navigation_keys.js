@@ -308,11 +308,11 @@ googleKey = data.googleMapsKey ?? ""
                   }}"
                 />
               </div>
-            `
-       !-- Navigation Provider Selector -->
-      <div class="navkeys-container">
-        <div class="navkeys-group">
-          <div class="navkeys-title">Navigation Provider</div>
+
+              <!-- Navigation Provider Selector -->
+              <div class="navkeys-container">
+                <div class="navkeys-group">
+                  <div class="navkeys-title">Navigation Provider</div>
           <div class="navkeys-provider-selector">
             <button
               class="${() => `navkeys-provider-btn ${state.navigationProvider === "mapbox" ? "active" : ""}`}"
