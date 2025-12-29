@@ -280,7 +280,6 @@ export function NavDestination() {
             }
           });
         }
-        }
       }
 
       state.suggestions = "[]";
