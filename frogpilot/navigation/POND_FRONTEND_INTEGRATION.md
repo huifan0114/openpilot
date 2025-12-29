@@ -21,7 +21,7 @@
 ### 🔧 修改的檔案
 
 #### 前端檔案
-1. **navigation_keys.js** 
+1. **navigation_keys.js**
    - 添加 Google Maps key 狀態管理
    - 添加導航提供商切換邏輯
    - 添加 PUT API 調用
@@ -73,7 +73,7 @@
 
 1. **訪問 The Pond**
    ```
-   http://YOUR_DEVICE_IP:5050
+   http://YOUR_DEVICE_IP:8082
    ```
 
 2. **進入 Manage Keys**

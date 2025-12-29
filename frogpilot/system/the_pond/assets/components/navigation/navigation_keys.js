@@ -205,7 +205,13 @@ googleKey = data.googleMapsKey ?? ""
         [keyMeta.prop]: ""
       })
 
-     ,
+      if (group === "mapbox") {
+        state.initialMapboxComplete = false
+        bumpImageVersion()
+      }
+
+      showMessage("message", data.message || "Deleted!", group)
+    },
 
     changeProvider: async (provider) => {
       if (state.providerChanging) return;
@@ -226,12 +232,6 @@ googleKey = data.googleMapsKey ?? ""
 
       state.navigationProvider = provider;
       showMessage("message", `Switched to ${provider === "google" ? "Google Maps" : "Mapbox"}!`, "provider")
-    } if (group === "mapbox") {
-        state.initialMapboxComplete = false
-        bumpImageVersion()
-      }
-
-      showMessage("message", data.message || "Deleted!", group)
     }
   }
 

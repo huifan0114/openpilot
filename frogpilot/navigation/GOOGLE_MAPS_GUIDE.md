@@ -31,7 +31,7 @@ FrogPilot 現已支援 Google Maps 作為導航提供商，與 Mapbox 並行使�
 ### 2. 在 FrogPilot 中配置
 
 #### 方法 A: 透過 The Pond 網頁介面（推薦） ⭐
-1. 開啟 The Pond 介面（瀏覽器訪問 FrogPilot IP 地址）
+1. 開啟 The Pond 介面（瀏覽器訪問 `http://YOUR_DEVICE_IP:8082`）
 2. 前往左側選單 **Navigation** → **Manage Keys**
 3. 在 **Google Maps Key** 區域輸入您的 API Key
 4. 點擊 💾 儲存
