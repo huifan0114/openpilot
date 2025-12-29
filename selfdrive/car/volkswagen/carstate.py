@@ -19,19 +19,17 @@ class CarState(CarStateBase):
     self.upscale_lead_car_signal = False
     self.eps_stock_values = False
 #############################
-    # vsf = frogpilot_toggles.vag_speed_factor
-    # self.vagspeedfactor = (110 +vsf) /110
-    # self.dt = 0.0
-    # self.dt_prev = 0.0
-    # self.usefuel_prev = 0
-    # self.frame = 0
-    # self.kpln = 0
-    # self.usetimeout = 0
-    # self.initial_Tank = 0  # 初始油量
-    # self.current_Tank = 0  # 目前油量
-    # self.usefuel_Tank = 0
-    # self.fuelt = 0
-    # self.oiltemperature = 0
+    self.dt = 0.0
+    self.dt_prev = 0.0
+    self.usefuel_prev = 0
+    self.frame = 0
+    self.kpln = 0
+    self.usetimeout = 0
+    self.initial_Tank = 0  # 初始油量
+    self.current_Tank = 0  # 目前油量
+    self.usefuel_Tank = 0
+    self.fuelt = 0
+    self.oiltemperature = 0
     self.start = True
 #############################
 
@@ -203,40 +201,39 @@ class CarState(CarStateBase):
     self.distance_button = bool(pt_cp.vl["GRA_ACC_01"]["GRA_Verstellung_Zeitluecke"])
 
 ####################################
-    # kvsn = body_cp.vl["Motor_04"]["MO_KVS"]
-    # self.dt += ret.vEgo * 0.01
-    # if self.frame % 50 == 0:
-    #   self.frame = 0
-    #   fueld = 0
-    #   if kvsn != self.usefuel_prev:
-    #     if kvsn > self.usefuel_prev:
-    #       fueld = (kvsn - self.usefuel_prev)
-    #     else:
-    #       fueld =  (kvsn + (32767 - self.usefuel_prev))
-    #     if fueld > 0 and (self.dt-self.dt_prev) > 0:
-    #       self.kpln = ((self.dt-self.dt_prev)/1000)/(fueld/1000000)
-    #   self.fuelt += (fueld/1000000)
-    #   self.usefuel_prev = kvsn
-    #   self.dt_prev = self.dt
-    # if self.kpln < 1 or self.kpln > 999:
-    #   self.kpln = 0
-    # ret.kpl = self.kpln
-    # ret.fueltotal = self.fuelt
-
     self.bcm_01 = pt_cp.vl["BCM_01"]
     self.motor_18 = pt_cp.vl["Motor_18"]
 
-    # self.current_Tank = pt_cp.vl["Kombi_03"]["KBI_Tankinhalt_hochaufl"]
-    # self.usetimeout += 1
-    # if self.current_Tank != self.initial_Tank:
-    #   if  self.initial_Tank == 0:
-    #     if self.current_Tank > self.initial_Tank:
-    #       self.initial_Tank = pt_cp.vl["Kombi_03"]["KBI_Tankinhalt_hochaufl"]
-    # if self.usetimeout >10000:
-    #   if self.current_Tank < self.initial_Tank:
-    #     self.usefuel_Tank = ( self.initial_Tank -self.current_Tank)
-    #     self.usetimeout = 0
-    # ret.tankused = self.usefuel_Tank
+    kvsn = body_cp.vl["Motor_04"]["MO_KVS"]
+    self.dt += ret.vEgo * 0.01
+    if self.frame % 50 == 0:
+      self.frame = 0
+      fueld = 0
+      if kvsn != self.usefuel_prev:
+        if kvsn > self.usefuel_prev:
+          fueld = (kvsn - self.usefuel_prev)
+        else:
+          fueld =  (kvsn + (32767 - self.usefuel_prev))
+        if fueld > 0 and (self.dt-self.dt_prev) > 0:
+          self.kpln = ((self.dt-self.dt_prev)/1000)/(fueld/1000000)
+      self.fuelt += (fueld/1000000)
+      self.usefuel_prev = kvsn
+      self.dt_prev = self.dt
+    if self.kpln < 1 or self.kpln > 999:
+      self.kpln = 0
+    ret.kpl = self.kpln
+    ret.fueltotal = self.fuelt
+    self.current_Tank = pt_cp.vl["Kombi_03"]["KBI_Tankinhalt_hochaufl"]
+    self.usetimeout += 1
+    if self.current_Tank != self.initial_Tank:
+      if  self.initial_Tank == 0:
+        if self.current_Tank > self.initial_Tank:
+          self.initial_Tank = pt_cp.vl["Kombi_03"]["KBI_Tankinhalt_hochaufl"]
+    if self.usetimeout >10000:
+      if self.current_Tank < self.initial_Tank:
+        self.usefuel_Tank = ( self.initial_Tank -self.current_Tank)
+        self.usetimeout = 0
+    ret.tankused = self.usefuel_Tank
 ####################################
 
     self.frame += 1
