@@ -264,13 +264,13 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
   // });
   // QObject::connect(parent, &FrogPilotSettingsWindow::updateToggles, this, &FrogPilotHFOPPanel::updateToggles);
 }
-void FrogPilotHFOPPanel::updateState(const UIState &s) {
-  if (!isVisible()) {
-    return;
-  }
+// void FrogPilotHFOPPanel::updateState(const UIState &s) {
+//   if (!isVisible()) {
+//     return;
+//   }
 
-  started = s.scene.started;
-}
+//   started = s.scene.started;
+// }
 
 void FrogPilotHFOPPanel::showEvent(QShowEvent *event) {
   frogpilotToggleLevels = parent->frogpilotToggleLevels;
