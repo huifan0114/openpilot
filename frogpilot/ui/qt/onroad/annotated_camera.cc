@@ -601,8 +601,8 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
     p.setFont(InterFont(40, QFont::Normal));
     p.drawText(ci_rect.adjusted(20, 110, 0, 0), Qt::AlignTop | Qt::AlignJustify, profile_text);
 
-    //QString vr_text = "速差  " +QString::number(leadspeed_diffProfile);
-    //p.drawText(ci_rect.adjusted(20, 155, 0, 0), Qt::AlignTop | Qt::AlignJustify, vr_text);
+    QString vr_text = "速差  " +QString::number(leadspeed_diffProfile);
+    p.drawText(ci_rect.adjusted(20, 155, 0, 0), Qt::AlignTop | Qt::AlignJustify, vr_text);
 
     QString tankvolStr = QString::number(tankvolumeProfile);
     if(tankvolumeProfile >30){

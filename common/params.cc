@@ -246,6 +246,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"KeyResume", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
     {"KeySetSpeed", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
     {"leadtimeGapScaledInt", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
+    {"leadspeeddiffProfile", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
     {"LpassengerdoorOpen", PERSISTENT},
     {"LuggagedoorOpen", PERSISTENT},
     {"MapSpeed", PERSISTENT},
