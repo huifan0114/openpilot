@@ -321,6 +321,8 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("MapAcceleration", "0", 1, "0"),
   ("MapboxPublicKey", "", 0, ""),
   ("MapboxSecretKey", "", 0, ""),
+  ("GoogleMapsKey", "", 0, ""),
+  ("NavigationProvider", "mapbox", 0, "mapbox"),
   ("MapDeceleration", "0", 1, "0"),
   ("MapGears", "0", 2, "0"),
   ("MapsSelected", "", 0, ""),
