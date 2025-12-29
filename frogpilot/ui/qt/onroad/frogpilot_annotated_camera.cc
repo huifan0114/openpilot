@@ -1,6 +1,10 @@
 #include <QMovie>
+#include <fstream>
+#include <sstream>
+#include <map>
 
 #include "frogpilot/ui/qt/onroad/frogpilot_annotated_camera.h"
+#include "selfdrive/ui/qt/maps/map_helpers.h"
 
 FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(QWidget *parent) : QWidget(parent) {
   animationTimer = new QTimer(this);
@@ -256,6 +260,11 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
 
   if (!frogpilot_scene.map_open && !hideBottomIcons) {
     paintWeather(p, frogpilotPlan, frogpilot_scene);
+  }
+
+  // 車輛資訊面板 (HFOP Info Panel)
+  if (!frogpilot_scene.map_open && !hideBottomIcons && frogpilot_toggles.value("hfop_inf").toBool()) {
+    paintVehicleInfoPanel(p, carState, frogpilot_toggles);
   }
 }
 
@@ -757,20 +766,47 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
 
   p.save();
 
-  QFont font = InterFont(40, QFont::Normal);
-
+  QFont font = InterFont(70, QFont::Normal);
   int textWidth = QFontMetrics(font).horizontalAdvance(roadName);
 
-  QRect roadNameRect((width() - (textWidth + 100)) / 2, rect().bottom() - 55 + 1, textWidth + 100, 50);
+  QRect roadNameRect((width() - textWidth * 1.25) / 2, rect().bottom() - 100 + 1, textWidth * 1.25, 70);
 
-  p.setBrush(blackColor(166));
-  p.setOpacity(1.0);
-  p.setPen(QPen(blackColor(), 10));
-  p.drawRoundedRect(roadNameRect, 24, 24);
+  // 背景框（可選）
+  // p.setBrush(blackColor(166));
+  // p.setOpacity(1.0);
+  // p.setPen(QPen(blackColor(), 10));
+  // p.drawRoundedRect(roadNameRect, 24, 24);
 
   p.setFont(font);
   p.setPen(QPen(whiteColor(), 6));
   p.drawText(roadNameRect, Qt::AlignCenter, roadName);
+
+  // 自動道路類型識別
+  bool autoRoadtype = params.getBool("AutoRoadtype");
+  if (autoRoadtype) {
+    int previousRoadProfile = params.getInt("RoadtypeProfile");
+    int newRoadProfile = 2; // 默認：一般平面
+
+    // 根據道路名稱分類
+    if (roadName.contains("高速")) {
+      newRoadProfile = 4; // 高速公路
+    } else if (roadName.contains("快速")) {
+      newRoadProfile = 3; // 快速道路
+    } else if (roadName.contains("交流道")) {
+      newRoadProfile = 2; // 一般平面
+    } else if (roadName.contains("街") || roadName.contains("巷") || roadName.contains("弄")) {
+      newRoadProfile = 1; // 街道巷弄
+    } else {
+      newRoadProfile = 2; // 一般平面
+    }
+
+    // 只有當 roadProfile 真的變更時才更新
+    if (newRoadProfile != previousRoadProfile) {
+      params.putInt("RoadtypeProfile", newRoadProfile);
+      // 觸發 FrogPilot toggles 更新
+      params.putBool("FrogPilotTogglesUpdated", true);
+    }
+  }
 
   p.restore();
 }
@@ -1023,3 +1059,231 @@ void FrogPilotAnnotatedCameraWidget::paintWeather(QPainter &p, const cereal::Fro
 
   p.restore();
 }
+
+QString FrogPilotAnnotatedCameraWidget::translateNavigationText(const cereal::NavInstruction::Reader &nav_instruction, bool is_metric) {
+  QString primary_str = QString::fromStdString(nav_instruction.getManeuverPrimaryText());
+  QString secondary_str = QString::fromStdString(nav_instruction.getManeuverSecondaryText());
+  auto distance_str_pair = map_format_distance(nav_instruction.getManeuverDistance(), is_metric);
+  QString type = QString::fromStdString(nav_instruction.getManeuverType());
+  QString modifier = QString::fromStdString(nav_instruction.getManeuverModifier());
+  QString distance_str = distance_str_pair.first;
+  QString distance_unit = distance_str_pair.second;
+
+  QString fn;
+  fn += "於" + distance_str + distance_unit + "後  ";
+
+  if (!modifier.isEmpty()) {
+    QString moditext;
+    if (modifier == "uturn") {
+      moditext = "迴轉";
+    } else if (modifier == "sharp right") {
+      moditext = "向右急";
+    } else if (modifier == "right") {
+      moditext = "向右";
+    } else if (modifier == "slight right") {
+      moditext = "靠右";
+    } else if (modifier == "straight") {
+      moditext = "直行";
+    } else if (modifier == "slight left") {
+      moditext = "靠左";
+    } else if (modifier == "left") {
+      moditext = "向左";
+    } else if (modifier == "sharp left") {
+      moditext = "向左急";
+    } else {
+      moditext = modifier;
+    }
+    fn += moditext;
+  }
+
+  type = type.trimmed();
+  if (!type.isEmpty()) {
+    QString typetext;
+    if (type == "turn") {
+      typetext = "轉彎";
+    } else if (type == "new name") {
+      typetext = "新路";
+    } else if (type == "depart") {
+      typetext = "出發";
+    } else if (type == "arrive") {
+      typetext = "抵達";
+    } else if (type == "merge") {
+      typetext = "合併";
+    } else if (type == "on ramp") {
+      typetext = "進入交流道";
+    } else if (type == "off ramp") {
+      typetext = "駛出交流道";
+    } else if (type == "fork") {
+      typetext = "換道";
+    } else if (type == "use lane") {
+      typetext = "線道";
+    } else if (type == "end off road") {
+      typetext = "抵達終點";
+    } else if (type == "continue") {
+      typetext = "直行";
+    } else if (type == "roundabout") {
+      typetext = "進入圓環";
+    } else if (type == "takeRoundabout") {
+      typetext = "圓環轉彎";
+    } else if (type == "exit roundabout") {
+      typetext = "駛出圓環";
+    } else if (type == "exit rotary") {
+      typetext = "駛出圓環";
+    } else if (type == "rotary") {
+      typetext = "進入圓環";
+    } else if (type == "notification") {
+      typetext = "注意";
+    } else if (type == "roundabout turn") {
+      typetext = "圓環轉彎";
+    } else {
+      typetext = type;
+    }
+    fn += typetext;
+  }
+
+  return fn + "\n" + primary_str + " " + secondary_str;
+}
+
+void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const cereal::CarState::Reader &carState, const QJsonObject &frogpilot_toggles) {
+  p.save();
+
+  // 繪製資訊面板背景
+  const QRect info_rect(20, height() - 560, 220, 500);
+  p.setPen(Qt::NoPen);
+  p.setBrush(whiteColor());
+  p.drawRoundedRect(info_rect, 24, 24);
+
+  // 根據 AutoRoadtype 狀態改變邊框顏色
+  bool autoRoadtype = params.getBool("AutoRoadtype");
+  if (autoRoadtype) {
+    p.setPen(QPen(QColor(255, 165, 0), 6));
+  } else {
+    p.setPen(QPen(blackColor(), 6));
+  }
+  p.drawRoundedRect(info_rect.adjusted(9, 9, -9, -9), 16, 16);
+
+  // 道路類型
+  int roadProfile = params.getInt("RoadtypeProfile");
+  std::map<int, QString> roadProfileMap = {
+    {0, "未選道路"},
+    {1, "街道巷弄"},
+    {2, "一般平面"},
+    {3, "快速道路"},
+    {4, "高速公路"},
+  };
+  QString roadProfileText = roadProfileMap[roadProfile];
+  p.setFont(InterFont(45, QFont::Normal));
+  p.setPen(QPen(blackColor(), 6));
+  p.drawText(info_rect.adjusted(20, 10, 0, 0), Qt::AlignTop | Qt::AlignLeft, roadProfileText);
+
+  // 駕駛模式
+  int accProfile = params_memory.getInt("AccelerationProfile");
+  std::map<int, QString> accelerationProfileMap = {
+    {0, "標準"},
+    {1, "節能"},
+    {2, "運動"},
+    {3, "超跑"},
+  };
+  QString accProfileText = "駕駛  " + accelerationProfileMap[accProfile];
+  p.setFont(InterFont(40, QFont::Normal));
+  p.drawText(info_rect.adjusted(20, 65, 0, 0), Qt::AlignTop | Qt::AlignLeft, accProfileText);
+
+  // 車距設定
+  std::map<int, QString> personalityProfileMap = {
+    {0, "接近"},
+    {1, "普通"},
+    {2, "遠離"},
+  };
+  int personalityProfile = params.getInt("LongitudinalPersonality");
+  QString profileText = "車距  " + personalityProfileMap[personalityProfile];
+  p.setFont(InterFont(40, QFont::Normal));
+  p.drawText(info_rect.adjusted(20, 110, 0, 0), Qt::AlignTop | Qt::AlignLeft, profileText);
+
+  // 油量顯示
+  float tankVolume = carState.getTankvol();
+  QString tankVolStr = QString::number(tankVolume);
+  if (tankVolume > 30) {
+    p.setPen(QPen(blackColor(), 6));
+  } else if (tankVolume > 10 && tankVolume <= 30) {
+    p.setPen(QPen(QColor(128, 0, 128), 6));
+  } else if (tankVolume <= 10) {
+    p.setPen(QPen(QColor(255, 0, 0), 6));
+  }
+  p.drawText(info_rect.adjusted(20, 290, 0, 0), Qt::AlignTop | Qt::AlignLeft, "油量  " + tankVolStr);
+
+  // 油溫顯示
+  float oilTemp = carState.getOiltemperature();
+  QString oilTempStr = QString::number(oilTemp);
+  if (oilTemp < 90) {
+    p.setPen(QPen(blackColor(), 6));
+  } else if (oilTemp > 90 && oilTemp <= 110) {
+    p.setPen(QPen(QColor(128, 0, 128), 6));
+  } else if (oilTemp > 110) {
+    p.setPen(QPen(QColor(255, 0, 0), 6));
+  }
+  p.drawText(info_rect.adjusted(20, 340, 0, 0), Qt::AlignTop | Qt::AlignLeft, "油溫  " + oilTempStr);
+
+  // 電壓顯示
+  std::stringstream buffer;
+  buffer << std::ifstream("/sys/class/hwmon/hwmon1/in1_input").rdbuf();
+  float voltage = (float)std::atoi(buffer.str().c_str()) / 1000.0f;
+  p.setPen(QPen(blackColor(), 6));
+  p.setFont(InterFont(40, QFont::Normal));
+  QString batteryVolStr = (voltage > 1) ? QString::number(voltage, 'f', 1) : "–";
+  p.drawText(info_rect.adjusted(20, 385, 0, 0), Qt::AlignTop | Qt::AlignLeft, "電壓  " + batteryVolStr);
+
+  // AutoACC 狀態
+  bool autoAcc = params.getBool("AutoACC");
+  std::map<int, QString> autoAccProfileMap = {
+    {0, "手動"},
+    {1, "自動"},
+  };
+  p.setFont(InterFont(40, QFont::Normal));
+  if (autoAcc) {
+    p.setPen(QPen(redColor(), 6));
+  } else {
+    p.setPen(QPen(blackColor(), 6));
+  }
+  QString autoAccProfileText = autoAccProfileMap[autoAcc ? 1 : 0] + " ACC";
+  p.drawText(info_rect.adjusted(20, 430, 0, 0), Qt::AlignTop | Qt::AlignLeft, autoAccProfileText);
+
+  // 油價計算（如果啟用）
+  bool fuelpriceEnabled = params.getBool("Fuelprice");
+  if (fuelpriceEnabled) {
+    int fuelCosts = params.getInt("Fuelcosts") / 10;
+    int fuelCostsNow = params.getInt("Fuelcostsnow");
+    int fuelCostsPre = params.getInt("Fuelcostspre");
+
+    if (fuelCostsNow != 0 && fuelCostsPre == 0) {
+      fuelCostsPre = fuelCostsPre + fuelCostsNow / 100;
+      params.putInt("Fuelcostsnow", 0);
+    }
+
+    float fuelTotal = carState.getFueltotal();
+    if (fuelTotal > 0) {
+      params.putInt("Fuelcostsnow", fuelCostsPre + (std::round(fuelTotal * 10) / 10 * fuelCosts) * 100);
+    }
+
+    int fuelConsumptionNow = params.getInt("Fuelconsumptionnow");
+    int fuelConsumptionPre = params.getInt("Fuelconsumptionpre");
+    if (fuelConsumptionNow != 0 && fuelConsumptionPre == 0) {
+      fuelConsumptionPre = fuelConsumptionPre + fuelConsumptionNow / 100;
+      params.putInt("Fuelconsumptionnow", 0);
+    }
+
+    if (fuelTotal > 0) {
+      params.putInt("Fuelconsumptionnow", fuelConsumptionPre + (std::round(fuelTotal * 100) / 100) * 100);
+    }
+
+    p.setPen(QPen(blackColor(), 6));
+    QString tankUsedText = "油資  " + QString::number(std::round(fuelTotal * 10) / 10 * fuelCosts);
+    p.drawText(info_rect.adjusted(20, 200, 0, 0), Qt::AlignTop | Qt::AlignLeft, tankUsedText);
+
+    QString fuelTotalStr = (fuelTotal > 0) ? QString::number(std::round(fuelTotal * 100) / 100) : "–";
+    p.drawText(info_rect.adjusted(20, 245, 0, 0), Qt::AlignTop | Qt::AlignLeft, "已用  " + fuelTotalStr);
+  }
+
+  p.restore();
+}
+
+

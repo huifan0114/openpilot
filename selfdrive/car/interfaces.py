@@ -355,7 +355,7 @@ class CarInterfaceBase(ABC):
     fp_ret.ecoGear |= ret.gearShifter == GearShifter.eco
     fp_ret.sportGear |= ret.gearShifter == GearShifter.sport
 ####################################
-    # fp_ret.trafficModeActive = FrogPilotButtonType.trafficModeEnabled and (ret.vEgo * 3.6 < self.frogpilot_toggles.trafficmode_speed)
+    fp_ret.trafficModeActive = frogpilot_toggles.traffic_mode and (ret.vEgo * 3.6 < frogpilot_toggles.trafficmode_speed)
 ####################################
 
     # copy back for next iteration
@@ -366,27 +366,35 @@ class CarInterfaceBase(ABC):
 
 
   def create_common_events(self, cs_out, extra_gears=None, pcm_enable=True, allow_enable=True,
-                           enable_buttons=(ButtonType.accelCruise, ButtonType.decelCruise)):
+                           enable_buttons=(ButtonType.accelCruise, ButtonType.decelCruise), frogpilot_toggles=None):
     events = Events()
 
     if cs_out.doorOpen:
       events.add(EventName.doorOpen)
 
 ####################################
-    if self.params.get_bool("Dooropen"):
-      if cs_out.engineRpm > 0 and (cs_out.driverdoorOpen or cs_out.codriverdOpen or cs_out.lpassengerdoorOpen or cs_out.rpassengerdoorOpen or cs_out.luggagedoorOpen):
+    if frogpilot_toggles and frogpilot_toggles.door_open:
+      door_open_detected = (
+        (frogpilot_toggles.driver_door_open and cs_out.driverdoorOpen) or
+        (frogpilot_toggles.codriver_door_open and cs_out.codriverdOpen) or
+        (frogpilot_toggles.lpassenger_door_open and cs_out.lpassengerdoorOpen) or
+        (frogpilot_toggles.rpassenger_door_open and cs_out.rpassengerdoorOpen) or
+        (frogpilot_toggles.luggage_door_open and cs_out.luggagedoorOpen)
+      )
+
+      if cs_out.engineRpm > 0 and door_open_detected:
         events.add(EventName.doorOpen1)
-        self.Dooropen_off_counter = self.Dooropen_off_counter + 1 if self.params.get_bool("Dooropen")  and not self.params.get_bool("Dooropenpre") else 0
-        if self.params.get_bool("Dooropen")  and not self.params.get_bool("Dooropenpre") and self.Dooropen_off_counter > 500:
+        self.Dooropen_off_counter = self.Dooropen_off_counter + 1 if frogpilot_toggles.door_open and not self.params.get_bool("Dooropenpre") else 0
+        if frogpilot_toggles.door_open and not self.params.get_bool("Dooropenpre") and self.Dooropen_off_counter > 500:
           self.params.put_bool("Dooropenpre", True)
-          self.params.put_bool("Dooropen",False)
           self.params.put_bool("FrogPilotTogglesUpdated", True)
           self.Dooropen_on_counter = 0
+
     if self.params.get_bool("Dooropenpre"):
-      self.Dooropen_on_counter = self.Dooropen_on_counter + 1 if not self.params.get_bool("Dooropen")  and  self.params.get_bool("Dooropenpre") and not cs_out.driverdoorOpen  else 0
-    if not self.params.get_bool("Dooropen") and self.Dooropen_on_counter >2000 and (not cs_out.driverdoorOpen):
+      self.Dooropen_on_counter = self.Dooropen_on_counter + 1 if frogpilot_toggles and not frogpilot_toggles.door_open and self.params.get_bool("Dooropenpre") and not cs_out.driverdoorOpen else 0
+
+    if frogpilot_toggles and not frogpilot_toggles.door_open and self.Dooropen_on_counter > 2000 and (not cs_out.driverdoorOpen):
       self.params.put_bool("Dooropenpre", False)
-      self.params.put_bool("Dooropen", True)
       self.params.put_bool("FrogPilotTogglesUpdated", True)
       self.Dooropen_off_counter = 0
 ####################################
@@ -421,7 +429,7 @@ class CarInterfaceBase(ABC):
     if cs_out.brakePressed and cs_out.standstill:
       events.add(EventName.preEnableStandstill)
       ################################################
-      #self.params_memory.put_int("leadspeeddiffProfile", 0)
+      self.params_memory.put_int("leadspeeddiffProfile", 0)
       ################################################
     if cs_out.gasPressed:
       events.add(EventName.gasPressedOverride)
@@ -440,9 +448,9 @@ class CarInterfaceBase(ABC):
         self.always_on_lateral_allowed = not self.always_on_lateral_allowed
 
 ###########################################################################
-    if not self.CP.pcmCruise and self.params_memory.get_bool("KeyResume") :
+    if frogpilot_toggles and not self.CP.pcmCruise and frogpilot_toggles.key_resume:
       events.add(EventName.buttonEnable)
-    if self.params_memory.get_bool("KeyCancel"):
+    if frogpilot_toggles and frogpilot_toggles.key_cancel:
         self.params_memory.put_bool("KeyResume",False)
         events.add(EventName.buttonCancel)
         self.params_memory.put_bool("KeyCancel",False)
