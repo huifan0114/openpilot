@@ -212,8 +212,9 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
   openDescriptions(forceOpenDescriptions, toggles);
 
-  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [this] {
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [hfopLayout, hfopPanel, this] {
     openDescriptions(forceOpenDescriptions, toggles);
+    hfopLayout->setCurrentWidget(hfopPanel);
   });
 
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubSubPanel, [this] {
