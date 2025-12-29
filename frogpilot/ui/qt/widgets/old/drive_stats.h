@@ -2,17 +2,6 @@
 
 #include "selfdrive/ui/ui.h"
 
-struct StatsLabels {
-  QLabel *distance;
-  QLabel *distance_unit;
-  QLabel *hours;
-  QLabel *routes;
-////////////////////////
-  QLabel *Fuelconsumptionsweek;
-  QLabel *Fuelcostsweek;
-////////////////////////
-};
-
 class DriveStats : public QFrame {
   Q_OBJECT
 
@@ -20,24 +9,36 @@ public:
   explicit DriveStats(QWidget *parent = 0);
 
 private:
+  inline QString getDistanceUnit() const { return metric ? tr("公里") : tr("英哩"); }
+
+  struct StatsLabels {
+    QLabel *routes;
+    QLabel *distance;
+    QLabel *distance_unit;
+    QLabel *hours;
+////////////////////////
+    QLabel *Fuelconsumptionsweek;
+    QLabel *Fuelcostsweek;
+////////////////////////
+  };
+
   void addStatsLayouts(const QString &title, StatsLabels &labels, bool FrogPilot = false);
   void showEvent(QShowEvent *event) override;
-  void updateFrogPilotStatsForLabel(StatsLabels &labels);
   void updateStats();
   void updateStatsForLabel(const QJsonObject &obj, StatsLabels &labels);
-
-  bool isMetric;
-  bool konik;
+  void updateFrogPilotStats(const QJsonObject &obj, StatsLabels &labels);
 
   Params params;
+  Params paramsTracking{"/cache/tracking"};
+
+  bool metric;
 
   QJsonDocument stats;
 ////////////////////////
   bool fuelpriceProfile;
 ////////////////////////
-  StatsLabels all;
-  StatsLabels frogPilot;
-  StatsLabels week;
+
+  StatsLabels all, week, frogPilot;
 
 private slots:
   void parseResponse(const QString &response, bool success);

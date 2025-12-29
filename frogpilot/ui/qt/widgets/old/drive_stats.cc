@@ -1,6 +1,7 @@
 #include "selfdrive/ui/qt/request_repeater.h"
+#include "selfdrive/ui/qt/util.h"
 
-#include "frogpilot/ui/qt/widgets/drive_stats.h"
+#include "selfdrive/frogpilot/ui/qt/widgets/drive_stats.h"
 
 static QLabel *newLabel(const QString &text, const QString &type) {
   QLabel *label = new QLabel(text);
@@ -9,19 +10,19 @@ static QLabel *newLabel(const QString &text, const QString &type) {
 }
 
 DriveStats::DriveStats(QWidget *parent) : QFrame(parent) {
-  isMetric = params.getBool("IsMetric");
-  konik = useKonikServer();
+  metric = params.getBool("IsMetric");
 ////////////////////////////////////////////////////////
   fuelpriceProfile = params.getBool("Fuelprice");
 ////////////////////////////////////////////////////////
+
   QVBoxLayout *main_layout = new QVBoxLayout(this);
 ////////////////////////////////////////////////////////
   main_layout->setContentsMargins(20, 20, 20, 20);
 ////////////////////////////////////////////////////////
 
-  addStatsLayouts(tr(konik ? "全部旅程 (KONIK)" : "全部旅程"), all);
-  addStatsLayouts(tr(konik ? "過去一週 (KONIK)" : "過去一週"), week);
-  addStatsLayouts(tr("FROGPILOT"), frogPilot, true);
+  addStatsLayouts(tr("總時數"), all);
+  addStatsLayouts(tr("上星期"), week);
+  addStatsLayouts(tr("FrogPilot_HFOP_VAG"), frogPilot, true);
 
   std::optional<QString> dongleId = getDongleId();
   if (dongleId.has_value()) {
@@ -36,17 +37,11 @@ DriveStats::DriveStats(QWidget *parent) : QFrame(parent) {
       border-radius: 10px;
     }
 
+    QLabel[type="title"] { font-size: 50px; font-weight: 500; }
     QLabel[type="frogpilot_title"] { font-size: 50px; font-weight: 500; color: #178643; }
     QLabel[type="number"] { font-size: 65px; font-weight: 400; }
-    QLabel[type="title"] { font-size: 50px; font-weight: 500; }
     QLabel[type="unit"] { font-size: 50px; font-weight: 300; color: #A0A0A0; }
   )");
-}
-
-void DriveStats::showEvent(QShowEvent *event) {
-  isMetric = params.getBool("IsMetric");
-
-  updateStats();
 }
 
 void DriveStats::addStatsLayouts(const QString &title, StatsLabels &labels, bool FrogPilot) {
@@ -69,9 +64,8 @@ void DriveStats::addStatsLayouts(const QString &title, StatsLabels &labels, bool
       }
     }
 ////////////////////////////////////////////////////////
-
-  grid_layout->addWidget(newLabel(tr("行程"), "unit"), row + 1, 0, Qt::AlignLeft);
-  grid_layout->addWidget(labels.distance_unit = newLabel(isMetric ? tr("公里") : tr("英里"), "unit"), row + 1, 1, Qt::AlignLeft);
+  grid_layout->addWidget(newLabel(tr("旅程"), "unit"), row + 1, 0, Qt::AlignLeft);
+  grid_layout->addWidget(labels.distance_unit = newLabel(getDistanceUnit(), "unit"), row + 1, 1, Qt::AlignLeft);
   grid_layout->addWidget(newLabel(tr("小時"), "unit"), row + 1, 2, Qt::AlignLeft);
 ////////////////////////////////////////////////////////
     if (fuelpriceProfile){
@@ -81,42 +75,23 @@ void DriveStats::addStatsLayouts(const QString &title, StatsLabels &labels, bool
       }
     }
 ////////////////////////////////////////////////////////
-
   QVBoxLayout *main_layout = static_cast<QVBoxLayout *>(layout());
   main_layout->addLayout(grid_layout);
   main_layout->addStretch(1);
 }
 
-void DriveStats::parseResponse(const QString &response, bool success) {
-  if (!success) {
-    return;
-  }
-
-  QJsonDocument doc = QJsonDocument::fromJson(response.trimmed().toUtf8());
-  if (doc.isNull()) {
-    qDebug() << "JSON Parse failed on getting past drives statistics";
-    return;
-  }
-  stats = doc;
-  updateStats();
-}
-
 void DriveStats::updateStatsForLabel(const QJsonObject &obj, StatsLabels &labels) {
-  labels.distance->setText(QString::number(int(obj["distance"].toDouble() * (isMetric ? MILE_TO_KM : 1))));
-  labels.distance_unit->setText(isMetric ? tr("公里") : tr("英里"));
-  labels.hours->setText(QString::number((int)(obj["minutes"].toDouble() / 60)));
   labels.routes->setText(QString::number((int)obj["routes"].toDouble()));
+  labels.distance->setText(QString::number(int(obj["distance"].toDouble() * (metric ? MILE_TO_KM : 1))));
+  labels.distance_unit->setText(getDistanceUnit());
+  labels.hours->setText(QString::number((int)(obj["minutes"].toDouble() / 60)));
 }
 
-void DriveStats::updateFrogPilotStatsForLabel(StatsLabels &labels) {
-  QJsonObject frogpilot_stats = QJsonDocument::fromJson(QByteArray::fromStdString(params.get("FrogPilotStats"))).object();
-
-  labels.distance->setText(QString::number(int(frogpilot_stats.value("FrogPilotMeters").toDouble() * (isMetric ? 0.001 : METER_TO_MILE))));
-  labels.distance_unit->setText(isMetric ? tr("公里") : tr("英里"));
-  labels.hours->setText(QString::number(int(frogpilot_stats.value("FrogPilotSeconds").toDouble() / (60 * 60))));
-  labels.routes->setText(QString::number(frogpilot_stats.value("FrogPilotDrives").toInt()));
-
-  // 更新油耗油資數據
+void DriveStats::updateFrogPilotStats(const QJsonObject &obj, StatsLabels &labels) {
+  labels.routes->setText(QString::number(paramsTracking.getInt("FrogPilotDrives")));
+  labels.distance->setText(QString::number(int(paramsTracking.getFloat("FrogPilotKilometers") * (metric ? 1 : KM_TO_MILE))));
+  labels.distance_unit->setText(getDistanceUnit());
+  labels.hours->setText(QString::number(int(paramsTracking.getFloat("FrogPilotMinutes") / 60)));
 ////////////////////////////////////////////////////////
     if (fuelpriceProfile) {
       labels.Fuelconsumptionsweek->setText(QString::number(params.getFloat("Fuelconsumptionweek") / 100, 'f', 1));
@@ -127,8 +102,6 @@ void DriveStats::updateFrogPilotStatsForLabel(StatsLabels &labels) {
 
 void DriveStats::updateStats() {
   QJsonObject json = stats.object();
-
-  // 油耗油資累積處理
 ////////////////////////////////////////////////////////
   if (fuelpriceProfile) {
     int Fuelconsumptionnow = params.getInt("Fuelconsumptionnow");
@@ -150,10 +123,29 @@ void DriveStats::updateStats() {
     }
   }
 ////////////////////////////////////////////////////////
-
+  updateFrogPilotStats(json["frogpilot"].toObject(), frogPilot);
   updateStatsForLabel(json["all"].toObject(), all);
   updateStatsForLabel(json["week"].toObject(), week);
-  updateFrogPilotStatsForLabel(frogPilot);
 
-  params.putIntNonBlocking(konik ? "KonikMinutes" : "openpilotMinutes", json["all"].toObject()["minutes"].toDouble());
+  int all_time_minutes = (int)(json["all"].toObject()["minutes"].toDouble());
+  params.put("openpilotMinutes", QString::number(all_time_minutes).toStdString());
+}
+
+void DriveStats::parseResponse(const QString &response, bool success) {
+  if (!success) {
+    return;
+  }
+
+  QJsonDocument doc = QJsonDocument::fromJson(response.trimmed().toUtf8());
+  if (doc.isNull()) {
+    qDebug() << "JSON Parse failed on getting past drives statistics";
+    return;
+  }
+  stats = doc;
+  updateStats();
+}
+
+void DriveStats::showEvent(QShowEvent *event) {
+  metric = params.getBool("IsMetric");
+  updateStats();
 }

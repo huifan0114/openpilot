@@ -7,7 +7,7 @@ FrogPilotDriveSummary::FrogPilotDriveSummary(QWidget *parent, bool randomEvents)
   mainLayout->setContentsMargins(20, 20, 20, 20);
   mainLayout->setSpacing(15);
 
-  titleLabel = new QLabel(randomEvents ? tr("Random Events Summary") : tr("Drive Summary"), this);
+  titleLabel = new QLabel(randomEvents ? tr("隨機事件摘要") : tr("駕駛摘要"), this);
   titleLabel->setAlignment(Qt::AlignCenter);
   titleLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
   titleLabel->setStyleSheet(R"(
@@ -44,10 +44,12 @@ FrogPilotDriveSummary::FrogPilotDriveSummary(QWidget *parent, bool randomEvents)
     randomEventsMap.insert("yourFrogTriedToKillMe", tr("Attempted Frog Murders"));
     randomEventsMap.insert("youveGotMail", tr("Total Mail Received"));
   } else {
-    listLayout->addWidget(createStatBox(tr("% of Drive With openpilot Engaged"), &engagementValue, this));
-    listLayout->addWidget(createStatBox(tr("Drive Distance"), &frogPilotMetersValue, this));
-    listLayout->addWidget(createStatBox(tr("Drive Time"), &trackedTimeValue, this));
-    listLayout->addWidget(createStatBox(tr("% of Drive In \"Experimental Mode\""), &experimentalModeTimeValue, this));
+    listLayout->addWidget(createStatBox(tr("駕駛過程 % 啟用 openpilot"), &engagementValue, this));
+    listLayout->addWidget(createStatBox(tr("駕駛距離"), &frogPilotMetersValue, this));
+    listLayout->addWidget(createStatBox(tr("駕駛時間"), &trackedTimeValue, this));
+    listLayout->addWidget(createStatBox(tr(" 駕駛過程 % 處於“實驗模式”"), &experimentalModeTimeValue, this));
+    listLayout->addWidget(createStatBox(tr("油耗"), &fuelConsumptionValue, this));
+    listLayout->addWidget(createStatBox(tr("油資"), &avgFuelEconomyValue, this));
   }
 
   if (displayRandomEvents) {
@@ -119,7 +121,7 @@ void FrogPilotDriveSummary::showEvent(QShowEvent *event) {
     if (eventsList.isEmpty()) {
       eventsListLayout->setAlignment(Qt::AlignCenter);
 
-      QLabel *noEventsLabel = new QLabel(tr("No Random Events Played!"), this);
+      QLabel *noEventsLabel = new QLabel(tr("沒有隨機事件發生!"), this);
       noEventsLabel->setAlignment(Qt::AlignCenter);
       noEventsLabel->setStyleSheet(R"(
         QLabel {
@@ -149,10 +151,10 @@ void FrogPilotDriveSummary::showEvent(QShowEvent *event) {
       QString unit;
       if (isMetric) {
         value = meters / 1000.0;
-        unit = (qRound(value) == 1) ? tr(" kilometer") : tr(" kilometers");
+        unit = (qRound(value) == 1) ? tr(" 公里") : tr(" 公里");
       } else {
         value = meters * METER_TO_MILE;
-        unit = (qRound(value) == 1) ? tr(" mile") : tr(" miles");
+        unit = (qRound(value) == 1) ? tr(" 英里") : tr(" 英里");
       }
       return QLocale().toString(qRound(value)) + unit;
     };
@@ -166,9 +168,9 @@ void FrogPilotDriveSummary::showEvent(QShowEvent *event) {
       int minutes = (seconds % secondsInHour) / 60;
 
       QString result;
-      if (days > 0) result += QLocale().toString(days) + (days == 1 ? tr(" day ") : tr(" days "));
-      if (hours > 0 || days > 0) result += QLocale().toString(hours) + (hours == 1 ? tr(" hour ") : tr(" hours "));
-      result += QLocale().toString(minutes) + (minutes == 1 ? tr(" minute") : tr(" minutes"));
+      if (days > 0) result += QLocale().toString(days) + (days == 1 ? tr(" 天 ") : tr(" 天 "));
+      if (hours > 0 || days > 0) result += QLocale().toString(hours) + (hours == 1 ? tr(" 小時 ") : tr(" 小時 "));
+      result += QLocale().toString(minutes) + (minutes == 1 ? tr(" 分鐘") : tr(" 分鐘"));
       return result.trimmed();
     };
 
@@ -180,6 +182,27 @@ void FrogPilotDriveSummary::showEvent(QShowEvent *event) {
     experimentalModeTimeValue->setText(QLocale().toString((trackedTime > 0) ? (experimentalTime * 100 / trackedTime) : 0) + "%");
     frogPilotMetersValue->setText(formatDistance(diffDouble("FrogPilotMeters")));
     trackedTimeValue->setText(formatTime(trackedTime));
+
+    // 油耗油資計算（比照 drive_stats.cc 的方式）
+    int fuelConsumptionNow = params.getInt("Fuelconsumptionnow");
+    int fuelConsumptionPre = params.getInt("Fuelconsumptionpre");
+    int fuelCostsNow = params.getInt("Fuelcostsnow");
+    int fuelCostsPre = params.getInt("Fuelcostspre");
+
+    int fuelConsumptionDiff = fuelConsumptionNow - fuelConsumptionPre;
+    int fuelCostsDiff = fuelCostsNow - fuelCostsPre;
+
+    if (fuelConsumptionDiff > 0) {
+      fuelConsumptionValue->setText(QString::number(fuelConsumptionDiff / 100.0, 'f', 1));
+    } else {
+      fuelConsumptionValue->setText("-");
+    }
+
+    if (fuelCostsDiff > 0) {
+      avgFuelEconomyValue->setText(QString::number(fuelCostsDiff / 100.0, 'f', 1));
+    } else {
+      avgFuelEconomyValue->setText("-");
+    }
   }
 }
 
