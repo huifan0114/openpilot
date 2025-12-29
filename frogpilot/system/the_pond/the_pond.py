@@ -143,26 +143,31 @@ def setup(app):
 
   @app.route("/api/navigation", methods=["GET"])
   def navigation():
-    last_position = json.loads(
-      params.get("LastGPSPosition", encoding="utf8") or
-      "{\"latitude\": 51.276824158421331, \"longitude\": 30.221928335547232, \"altitude\": 111.0}"
-    )
+    try:
+      last_position = json.loads(
+        params.get("LastGPSPosition", encoding="utf8") or
+        "{\"latitude\": 51.276824158421331, \"longitude\": 30.221928335547232, \"altitude\": 111.0}"
+      )
 
-    return {
-      "amap1Key": params.get("AMapKey1", encoding="utf8") or "",
-      "amap2Key": params.get("AMapKey2", encoding="utf8") or "",
-      "destination": params.get("NavDestination", encoding="utf8") or "",
-      "googleMapsKey": params.get("GoogleMapsKey", encoding="utf8") or "",
-      "isMetric": params.get_bool("IsMetric"),
-      "lastPosition": {
-        "latitude": str(last_position["latitude"]),
-        "longitude": str(last_position["longitude"])
-      },
-      "mapboxPublic": params.get("MapboxPublicKey", encoding="utf8") or "",
-      "mapboxSecret": params.get("MapboxSecretKey", encoding="utf8") or "",
-      "navigationProvider": params.get("NavigationProvider", encoding="utf8") or "mapbox",
-      "previousDestinations": params.get("ApiCache_NavDestinations", encoding="utf8") or "",
-    }
+      return {
+        "amap1Key": params.get("AMapKey1", encoding="utf8") or "",
+        "amap2Key": params.get("AMapKey2", encoding="utf8") or "",
+        "destination": params.get("NavDestination", encoding="utf8") or "",
+        "googleMapsKey": params.get("GoogleMapsKey", encoding="utf8") or "",
+        "isMetric": params.get_bool("IsMetric"),
+        "lastPosition": {
+          "latitude": str(last_position["latitude"]),
+          "longitude": str(last_position["longitude"])
+        },
+        "mapboxPublic": params.get("MapboxPublicKey", encoding="utf8") or "",
+        "mapboxSecret": params.get("MapboxSecretKey", encoding="utf8") or "",
+        "navigationProvider": params.get("NavigationProvider", encoding="utf8") or "mapbox",
+        "previousDestinations": params.get("ApiCache_NavDestinations", encoding="utf8") or "",
+      }
+    except Exception as e:
+      print(f"Error in navigation GET: {e}")
+      traceback.print_exc()
+      return jsonify(error=str(e)), 500
 
   @app.route("/api/navigation", methods=["POST"])
   def set_navigation():
