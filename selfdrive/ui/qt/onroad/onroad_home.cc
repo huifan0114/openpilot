@@ -113,8 +113,8 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
 
   // 最大速度區 - 切換自動 ACC 模式
   if (maxSpeedRect.contains(pos)) {
-    bool autoaccProfile = !fs.params.getBool("AutoACC");
-    fs.params.putBool("AutoACC", autoaccProfile);
+    bool currentAutoACC = fs.params.getBool("AutoACC");
+    fs.params.putBool("AutoACC", !currentAutoACC);
     updateFrogPilotToggles();
     return;
   }
@@ -138,33 +138,31 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
 
   // 速限區 - 切換交通模式
   if (speedLimitRect.contains(pos)) {
-    bool Traffic_Mode = !fs.params.getBool("TrafficMode");
-    fs.params.putBool("TrafficMode", Traffic_Mode);
+    bool currentTrafficMode = fs.params.getBool("TrafficMode");
+    fs.params.putBool("TrafficMode", !currentTrafficMode);
     updateFrogPilotToggles();
     return;
   }
 
   // 自動道路類型區 - 切換自動道路類型
   if (autoRoadtypeRect.contains(pos)) {
-    bool Auto_Roadtype = !fs.params.getBool("AutoRoadtype");
-    fs.params.putBool("AutoRoadtype", Auto_Roadtype);
+    bool currentAutoRoadtype = fs.params.getBool("AutoRoadtype");
+    fs.params.putBool("AutoRoadtype", !currentAutoRoadtype);
     updateFrogPilotToggles();
     return;
   }
 
   // 道路類型配置檔區 - 輪換配置檔
   if (roadtypeProfileRect.contains(pos)) {
-    bool Auto_Roadtype = fs.params.getBool("AutoRoadtype");
-    int roadtypeProfile = fs.params.getInt("RoadtypeProfile");
-    if (Auto_Roadtype) {
-      Auto_Roadtype = !Auto_Roadtype;
-      fs.params.putBool("AutoRoadtype", Auto_Roadtype);
+    bool isAutoRoadtype = fs.params.getBool("AutoRoadtype");
+    if (isAutoRoadtype) {
+      // 如果是自動模式，切換為手動模式
+      fs.params.putBool("AutoRoadtype", false);
     } else {
-      roadtypeProfile = roadtypeProfile + 1;
-      if (roadtypeProfile > 4) {
-        roadtypeProfile = 0;
-      }
-      fs.params.putInt("RoadtypeProfile", roadtypeProfile);
+      // 如果是手動模式，輪換配置檔
+      int currentProfile = fs.params.getInt("RoadtypeProfile");
+      int nextProfile = (currentProfile + 1) % 5;  // 0-4 循環
+      fs.params.putInt("RoadtypeProfile", nextProfile);
     }
     updateFrogPilotToggles();
     return;
