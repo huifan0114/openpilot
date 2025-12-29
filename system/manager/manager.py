@@ -74,7 +74,7 @@ def manager_init() -> None:
     ("Fuelconsumptionweek", "0"),
     # ("GreenLightReminderstatus", "0"),
     # ("GooffScreen", "0"),
-    # ("HFOPinf", "1"),
+    ("HFOPinf", "1"),
     ("NavReminderstatus", "0"),
     ("Navspeed", "1"),
     ("NavReminder", "1"),

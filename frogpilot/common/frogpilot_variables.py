@@ -1062,7 +1062,7 @@ class FrogPilotVariables:
 
     toggle.volt_sng = toggle.car_model == "CHEVROLET_VOLT" and (params.get_bool("VoltSNG") if tuning_level >= level["VoltSNG"] else default.get_bool("VoltSNG"))
 ###################################################################
-    # toggle.hfop_inf = params.get_bool("HFOPinf")
+    toggle.hfop_inf = params.get_bool("HFOPinf")
     # toggle.gooff_screen = params.get_bool("GooffScreen")
     toggle.disablestartstop = params.get_bool("Disablestartstop")
     toggle.speedoverreminder = params.get_bool("speedoverreminder")
