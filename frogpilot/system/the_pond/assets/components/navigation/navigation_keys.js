@@ -308,44 +308,45 @@ googleKey = data.googleMapsKey ?? ""
                   }}"
                 />
               </div>
+            `
+          }
+        }}
 
-              <!-- Navigation Provider Selector -->
-              <div class="navkeys-container">
-                <div class="navkeys-group">
-                  <div class="navkeys-title">Navigation Provider</div>
-          <div class="navkeys-provider-selector">
-            <button
-              class="${() => `navkeys-provider-btn ${state.navigationProvider === "mapbox" ? "active" : ""}`}"
-              @click="${() => api.changeProvider("mapbox")}"
-              disabled="${() => state.providerChanging || state.navigationProvider === "mapbox"}">
-              <i class="bi bi-box"></i> Mapbox
-            </button>
-            <button
-              class="${() => `navkeys-provider-btn ${state.navigationProvider === "google" ? "active" : ""}`}"
-              @click="${() => api.changeProvider("google")}"
-              disabled="${() => state.providerChanging || state.navigationProvider === "google"}">
-              <i class="bi bi-google"></i> Google Maps
-            </button>
+        <!-- Navigation Provider Selector -->
+        <div class="navkeys-container">
+          <div class="navkeys-group">
+            <div class="navkeys-title">Navigation Provider</div>
+            <div class="navkeys-provider-selector">
+              <button
+                class="${() => `navkeys-provider-btn ${state.navigationProvider === "mapbox" ? "active" : ""}`}"
+                @click="${() => api.changeProvider("mapbox")}"
+                disabled="${() => state.providerChanging || state.navigationProvider === "mapbox"}">
+                <i class="bi bi-box"></i> Mapbox
+              </button>
+              <button
+                class="${() => `navkeys-provider-btn ${state.navigationProvider === "google" ? "active" : ""}`}"
+                @click="${() => api.changeProvider("google")}"
+                disabled="${() => state.providerChanging || state.navigationProvider === "google"}">
+                <i class="bi bi-google"></i> Google Maps
+              </button>
+            </div>
+            ${renderStatus("provider")}
           </div>
-          ${renderStatus("provider")}
         </div>
-      </div>
 
-      <!-- AMap Keys -->
-      <div class="navkeys-container">
-        ${renderGroup("AMap Keys", ["amap1", "amap2"])}
-        ${renderStatus("amap")}
-      </div>
+        <!-- AMap Keys -->
+        <div class="navkeys-container">
+          ${renderGroup("AMap Keys", ["amap1", "amap2"])}
+          ${renderStatus("amap")}
+        </div>
 
-      <!-- Google Maps Key -->
-      <div class="navkeys-container">
-        ${renderGroup("Google Maps Key", ["google"])}
-        ${renderStatus("google")}
-      </div>
+        <!-- Google Maps Key -->
+        <div class="navkeys-container">
+          ${renderGroup("Google Maps Key", ["google"])}
+          ${renderStatus("google")}
+        </div>
 
-      <!-- Mapbox Keys -->
-    `
-  }
+        <!-- Mapbox Keys -->
 
   function renderStatus(group) {
     return html`
