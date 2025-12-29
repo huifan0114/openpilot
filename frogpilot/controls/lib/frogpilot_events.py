@@ -84,8 +84,8 @@ class FrogPilotEvents:
       self.played_events.add("holidayActive")
 
 ##################################################################
-    if lead_departing < 10 :
-      if self.frogpilot_planner.tracking_lead and sm["carState"].standstill and sm["carState"].gearShifter not in NON_DRIVING_GEARS and frogpilot_toggles.lead_departing_alert:
+    if self.frogpilot_planner.tracking_lead and self.frogpilot_planner.lead_one.dRel < 10:
+      if sm["carState"].standstill and sm["carState"].gearShifter not in NON_DRIVING_GEARS and frogpilot_toggles.lead_departing_alert:
         if self.tracked_lead_distance == 0:
           self.tracked_lead_distance = self.frogpilot_planner.lead_one.dRel
 
@@ -96,8 +96,8 @@ class FrogPilotEvents:
           self.events.add(FrogPilotEventName.leadDeparting)
           if frogpilot_toggles.autoacc_caraway:
             params_memory.put_int("AutoACCCarAwaystatus", 1)
-      else:
-        self.tracked_lead_distance = 0
+    else:
+      self.tracked_lead_distance = 0
 ##################################################################
 
     if "torqueNNLoad" not in self.played_events and self.startup_seen and alerts_empty and len(self.events) == 0 and params.get("NNFFModelName", encoding="utf-8") is not None and frogpilot_toggles.nnff:
