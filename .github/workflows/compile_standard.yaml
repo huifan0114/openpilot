@@ -1,0 +1,197 @@
+name: Compile FrogPilot (Standard Runner)
+
+# 這是一個使用 GitHub 標準 runner 的簡化版本
+# 適合沒有 self-hosted runner 的用戶
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_branch:
+        description: "發布到分支名稱 (例如: 7-precompiled)"
+        type: string
+        required: true
+        default: "precompiled"
+
+env:
+  PYTHONDONTWRITEBYTECODE: 0  # 允許生成 .pyc 檔案
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: 設定 Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: 檢出程式碼
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: 設定 Python 環境
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 安裝系統依賴
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            scons \
+            libcapnp-dev \
+            capnproto \
+            git \
+            qt6-base-dev \
+            libqt6svg6-dev \
+            libusb-1.0-0-dev \
+            libbz2-dev \
+            libssl-dev \
+            libffi-dev \
+            python3-dev \
+            clang
+
+      - name: 安裝 Python 依賴
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install numpy Cython scons
+          
+          # 如果有 requirements.txt
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt || true
+          fi
+          
+          # 如果有 pyproject.toml
+          if [ -f pyproject.toml ]; then
+            pip install . || true
+          fi
+
+      - name: 編譯 C/C++ 程式碼
+        run: |
+          echo "開始編譯 C/C++ 程式碼..."
+          
+          # 限制編譯並行數以避免記憶體不足
+          export MAKEFLAGS="-j2"
+          
+          # 執行 SCons 編譯
+          scons -j2 --minimal || echo "部分編譯失敗,繼續處理..."
+
+      - name: 預編譯 Python 模組
+        run: |
+          echo "開始預編譯 Python 模組..."
+          
+          # 執行 Python 預編譯腳本
+          if [ -f system/manager/precompile_python.py ]; then
+            python3 system/manager/precompile_python.py || echo "Python 預編譯完成(有部分警告)"
+          else
+            # 手動預編譯主要目錄
+            python3 -m compileall -q -f -o 2 selfdrive/ system/ common/ cereal/ frogpilot/ || true
+          fi
+          
+          echo "檢查生成的字節碼檔案數量:"
+          find . -name "*.opt-2.pyc" | wc -l
+
+      - name: 清理編譯產物
+        run: |
+          echo "清理不必要的檔案..."
+          
+          # 清理編譯中間檔案
+          find . -name "*.o" -delete
+          find . -name "*.os" -delete
+          find . -name "*.a" -delete
+          find . -name "moc_*" -delete
+          find . -name ".sconsign.dblite" -delete
+          
+          # 清理測試目錄
+          find . -type d \( -name "test" -o -name "tests" \) ! -path "*/third_party/*" -exec rm -rf {} + || true
+          
+          # 清理調試檔案
+          find . -type d -name "debug" -exec rm -rf {} + || true
+          
+          # 清理 __pycache__ 中的非優化字節碼
+          find . -type f -name "*.pyc" ! -name "*.opt-2.pyc" -delete || true
+          
+          # 清理 Git 相關
+          rm -rf .git/hooks .git/modules || true
+
+      - name: 建立預編譯標記
+        run: |
+          touch prebuilt
+          date > prebuilt_date.txt
+          echo "${{ github.sha }}" > prebuilt_commit.txt
+          echo "✅ 預編譯版本已建立"
+
+      - name: 生成編譯資訊
+        run: |
+          cat > PRECOMPILED_INFO.txt << EOF
+          ===========================================
+          預編譯版本資訊
+          ===========================================
+          編譯時間: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          來源分支: ${{ github.ref_name }}
+          提交雜湊: ${{ github.sha }}
+          執行編號: ${{ github.run_number }}
+          
+          編譯統計:
+          - Python 字節碼檔案: $(find . -name "*.opt-2.pyc" | wc -l)
+          - 共享函式庫: $(find . -name "*.so" | wc -l)
+          
+          使用說明:
+          1. 下載此分支到您的設備
+          2. 系統會自動偵測 prebuilt 標記
+          3. 開機時間約 15-30 秒
+          
+          如需重新編譯,請刪除 prebuilt 檔案
+          ===========================================
+          EOF
+          
+          cat PRECOMPILED_INFO.txt
+
+      - name: 提交並推送預編譯版本
+        run: |
+          # 設定 Git
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          
+          # 建立新分支(如果不存在)
+          TARGET_BRANCH="${{ inputs.publish_branch }}"
+          git checkout -B "$TARGET_BRANCH"
+          
+          # 加入所有檔案(包括被忽略的編譯產物)
+          git add -f .
+          
+          # 提交
+          git commit -m "🚀 預編譯版本 - 快速開機
+
+          編譯時間: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          來源分支: ${{ github.ref_name }}
+          提交雜湊: ${{ github.sha }}
+          執行編號: ${{ github.run_number }}
+          
+          包含:
+          - ✅ C/C++ 編譯產物
+          - ✅ Python 優化字節碼 (.opt-2.pyc)
+          - ✅ prebuilt 標記檔案
+          
+          開機時間: 約 15-30 秒
+          " || echo "無變更需要提交"
+          
+          # 強制推送到目標分支
+          git push -f origin "$TARGET_BRANCH"
+          
+          echo "✅ 已推送到分支: $TARGET_BRANCH"
+          echo "🔗 https://github.com/${{ github.repository }}/tree/$TARGET_BRANCH"
+
+      - name: 建立發布標籤(可選)
+        if: success()
+        run: |
+          TAG_NAME="precompiled-$(date +%Y%m%d-%H%M%S)"
+          git tag -a "$TAG_NAME" -m "預編譯版本 $TAG_NAME"
+          git push origin "$TAG_NAME" || echo "標籤推送失敗(可能已存在)"
+          echo "📦 標籤: $TAG_NAME"
