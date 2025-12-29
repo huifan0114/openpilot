@@ -148,7 +148,7 @@ class FrogPilotPlanner:
 
 ####################################################################################
     v_ego_kph = v_ego * 3.6
-    detect_sl = self.frogpilot_vcruise.slc.desired_speed_limit * 3.6
+    detect_sl = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
     # speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
 
     # auto_acc_pass = v_ego_kph > frogpilot_toggles.autoacc_speed
