@@ -27,8 +27,11 @@ function loadGoogleMapsAPI(apiKey) {
       return;
     }
 
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-    script.addEventListener('load', resolve);
+    // 使用 async 加載並設置 callback
+    window.initGoogleMaps = resolve;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,marker&loading=async&callback=initGoogleMaps`;
+    script.async = true;
+    script.defer = true;
     script.addEventListener('error', reject);
   });
 }
@@ -204,7 +207,7 @@ export function NavDestination() {
       }
 
       if (state.navigationProvider === 'google') {
-        destinationMarker = new google.maps.Marker({
+        destinationMarker = new google.maps.marker.AdvancedMarkerElement({
           position: { lat: coords[1], lng: coords[0] },
           map: map,
           title: name
@@ -422,14 +425,16 @@ export function NavDestination() {
           popupText = `Work: ${fav.name}`;
         }
 
-        const marker = new google.maps.Marker({
+        // 創建自定義圖標元素
+        const iconElement = document.createElement('div');
+        iconElement.style.fontSize = '24px';
+        iconElement.textContent = icon;
+
+        const marker = new google.maps.marker.AdvancedMarkerElement({
           position: { lat: fav.latitude, lng: fav.longitude },
           map: map,
           title: popupText,
-          label: {
-            text: icon,
-            fontSize: '24px'
-          }
+          content: iconElement
         });
 
         const infoWindow = new google.maps.InfoWindow({
@@ -700,7 +705,7 @@ export function NavDestination() {
         fullscreenControl: false
       });
 
-      new google.maps.Marker({
+      new google.maps.marker.AdvancedMarkerElement({
         position: { lat: state.lastPosition.latitude, lng: state.lastPosition.longitude },
         map: map,
         title: '當前位置'
