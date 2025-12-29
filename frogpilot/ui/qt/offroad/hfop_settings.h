@@ -26,13 +26,13 @@ private:
 
   std::map<QString, AbstractControl*> toggles;
 
-  QSet<QString> FuelpriceKeys = {"Fuelcosts"};
-  QSet<QString> TrafficModeKeys = {"TrafficModespeed"};
-  QSet<QString> VagSpeedKeys = {"VagSpeedFactor"};
+  // QSet<QString> FuelpriceKeys = {"Fuelcosts"};
+  // QSet<QString> TrafficModeKeys = {"TrafficModespeed"};
+  // QSet<QString> VagSpeedKeys = {"VagSpeedFactor"};
   QSet<QString> AutoACCKeys = {"AutoACCspeed", "AutoACCCarAway", "AutoACCGreenLight"};
-  QSet<QString> RoadKeys = {"AutoRoadtype","RoadtypeProfile"};
-  QSet<QString> NavspeedKeys = {"NavReminder", "speedoverreminder", "speedreminderreset"};
-  QSet<QString> DooropenKeys= {"DriverdoorOpen", "CodriverdoorOpen","LpassengerdoorOpen","RpassengerdoorOpen","LuggagedoorOpen"};
+  // QSet<QString> RoadKeys = {"AutoRoadtype","RoadtypeProfile"};
+  // QSet<QString> NavspeedKeys = {"NavReminder", "speedoverreminder", "speedreminderreset"};
+  // QSet<QString> DooropenKeys= {"DriverdoorOpen", "CodriverdoorOpen","LpassengerdoorOpen","RpassengerdoorOpen","LuggagedoorOpen"};
 
   QSet<QString> parentKeys;
 

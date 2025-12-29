@@ -164,21 +164,20 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     }
 
     toggles[param] = hfopcontrolsToggle;
-
-    if (FuelpriceKeys.contains(param)) {
-      FuelpricelList->addItem(hfopcontrolsToggle);
-    } else if (TrafficModeKeys.contains(param)) {
-      TrafficModelList->addItem(hfopcontrolsToggle);
-    } else if (VagSpeedKeys.contains(param)) {
-      VagSpeedList->addItem(hfopcontrolsToggle);
-    } else if (AutoACCKeys.contains(param)) {
+    if (AutoACCKeys.contains(param)) {
       AutoACCPList->addItem(hfopcontrolsToggle);
-    } else if (RoadKeys.contains(param)) {
-      RoadtypeList->addItem(hfopcontrolsToggle);
-    } else if (NavspeedKeys.contains(param)) {
-      developerWidgetList->addItem(hfopcontrolsToggle);
-    } else if (DooropenKeys.contains(param)) {
-      DooropenList->addItem(hfopcontrolsToggle);
+    // } else if (FuelpriceKeys.contains(param)) {
+    //   FuelpricelList->addItem(hfopcontrolsToggle);
+    // } else if (TrafficModeKeys.contains(param)) {
+    //   TrafficModelList->addItem(hfopcontrolsToggle);
+    // } else if (VagSpeedKeys.contains(param)) {
+    //   VagSpeedList->addItem(hfopcontrolsToggle);
+    // } else if (RoadKeys.contains(param)) {
+    //   RoadtypeList->addItem(hfopcontrolsToggle);
+    // } else if (NavspeedKeys.contains(param)) {
+    //   developerWidgetList->addItem(hfopcontrolsToggle);
+    // } else if (DooropenKeys.contains(param)) {
+    //   DooropenList->addItem(hfopcontrolsToggle);
     // } else if (navigationUIKeys.contains(param)) {
     //   navigationUIList->addItem(visualToggle);
     // } else if (qualityOfLifeKeys.contains(param)) {
