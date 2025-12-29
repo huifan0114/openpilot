@@ -305,7 +305,25 @@ export function NavDestination() {
       state.selectedRoute = null;
       state.confirmedRoute = null;
       state.suggestions = "[]";
-      if (state.searchProvider === "mapbox") {
+
+      if (state.navigationProvider === "google" && state.googleKey) {
+        // 使用 Google Places API Autocomplete
+        const params = new URLSearchParams({
+          input: val,
+          key: state.googleKey,
+          location: `${state.lastPosition.latitude},${state.lastPosition.longitude}`,
+          radius: 50000
+        });
+        const res = await fetch(`https://maps.googleapis.com/maps/api/place/autocomplete/json?${params}`);
+        const data = await res.json();
+        if (data.predictions) {
+          state.suggestions = JSON.stringify(data.predictions.map(p => ({
+            name: p.description,
+            place_id: p.place_id,
+            full_address: p.description
+          })));
+        }
+      } else if (state.searchProvider === "mapbox" || state.navigationProvider === "mapbox") {
         const prox = `${state.lastPosition.longitude},${state.lastPosition.latitude}`;
         const params = new URLSearchParams({
           proximity: prox,
@@ -318,12 +336,7 @@ export function NavDestination() {
         const data = await res.json();
         state.suggestions = JSON.stringify(data.suggestions);
       } else {
-        const auto = new AMap.Autocomplete({ city: "auto" });
-        auto.search(val, (status, result) => {
-          if (status === "complete" && result.tips) {
-            state.suggestions = JSON.stringify(result.tips);
-          }
-        });
+        showSnackbar("請設定 Mapbox 或 Google Maps 金鑰");
       }
     }
   }
