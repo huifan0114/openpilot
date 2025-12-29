@@ -307,14 +307,14 @@ export function NavDestination() {
       state.suggestions = "[]";
 
       if (state.navigationProvider === "google" && state.googleKey) {
-        // 使用 Google Places API Autocomplete
+        // 使用後端代理呼叫 Google Places API Autocomplete
         const params = new URLSearchParams({
+          type: 'autocomplete',
           input: val,
-          key: state.googleKey,
           location: `${state.lastPosition.latitude},${state.lastPosition.longitude}`,
           radius: 50000
         });
-        const res = await fetch(`https://maps.googleapis.com/maps/api/place/autocomplete/json?${params}`);
+        const res = await fetch(`/api/google_maps_proxy?${params}`);
         const data = await res.json();
         if (data.predictions) {
           state.suggestions = JSON.stringify(data.predictions.map(p => ({
@@ -476,14 +476,14 @@ export function NavDestination() {
       state.suggestions = "[]";
 
       if (state.navigationProvider === "google" && state.googleKey) {
-        // 使用 Google Places API Autocomplete
+        // 使用後端代理呼叫 Google Places API Autocomplete
         const params = new URLSearchParams({
+          type: 'autocomplete',
           input: val,
-          key: state.googleKey,
           location: `${state.lastPosition.latitude},${state.lastPosition.longitude}`,
           radius: 50000
         });
-        const res = await fetch(`https://maps.googleapis.com/maps/api/place/autocomplete/json?${params}`);
+        const res = await fetch(`/api/google_maps_proxy?${params}`);
         const data = await res.json();
         if (data.predictions) {
           // 轉換為統一格式
@@ -527,13 +527,12 @@ export function NavDestination() {
     state.loadingRoute = true;
     try {
       if (state.navigationProvider === "google" && sugg.place_id) {
-        // 使用 Google Place Details API 獲取座標
+        // 使用 Google Place Details API 獲取座標(通過後端代理)
         const params = new URLSearchParams({
-          place_id: sugg.place_id,
-          fields: 'geometry',
-          key: state.googleKey
+          type: 'place_details',
+          place_id: sugg.place_id
         });
-        const res = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?${params}`);
+        const res = await fetch(`/api/google_maps_proxy?${params}`);
         const data = await res.json();
         if (data.result && data.result.geometry) {
           const location = data.result.geometry.location;

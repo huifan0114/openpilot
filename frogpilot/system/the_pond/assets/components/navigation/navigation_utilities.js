@@ -143,12 +143,12 @@ export function addRouteToMap(map, routes, start, dest, onRouteSelect, useMetric
 
 export async function getCoordinatesFromSearch(searchValue, mapboxPublic, provider = 'mapbox', googleKey = '') {
   if (provider === 'google' && googleKey) {
-    // 使用 Google Geocoding API
+    // 使用 Google Geocoding API(通過後端代理)
     const params = new URLSearchParams({
-      address: searchValue,
-      key: googleKey
+      type: 'geocode',
+      address: searchValue
     });
-    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?${params.toString()}`);
+    const response = await fetch(`/api/google_maps_proxy?${params.toString()}`);
     const data = await response.json();
     if (data.results && data.results.length > 0) {
       const location = data.results[0].geometry.location;
@@ -166,18 +166,18 @@ export async function getCoordinatesFromSearch(searchValue, mapboxPublic, provid
 
 export async function getRoutes(from, to, mapboxPublic, provider = 'mapbox', googleKey = '') {
   if (provider === 'google' && googleKey) {
-    // 使用 Google Directions API
+    // 使用 Google Directions API(通過後端代理)
     const [fromLng, fromLat] = from.split(',');
     const [toLng, toLat] = to.split(',');
     const params = new URLSearchParams({
+      type: 'directions',
       origin: `${fromLat},${fromLng}`,
       destination: `${toLat},${toLng}`,
-      key: googleKey,
       alternatives: 'true',
       traffic_model: 'best_guess',
       departure_time: 'now'
     });
-    const response = await fetch(`https://maps.googleapis.com/maps/api/directions/json?${params.toString()}`);
+    const response = await fetch(`/api/google_maps_proxy?${params.toString()}`);
     const data = await response.json();
 
     // 轉換 Google Maps 格式到 Mapbox 格式

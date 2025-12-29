@@ -334,6 +334,82 @@ def setup(app):
       traceback.print_exc()
       return jsonify(error=str(e)), 500
 
+  @app.route("/api/google_maps_proxy", methods=["GET"])
+  def google_maps_proxy():
+    """代理 Google Maps API 請求以避免 CORS 問題"""
+    try:
+      api_type = request.args.get("type")  # autocomplete, place_details, directions, geocode
+      google_key = params.get("GoogleMapsKey", encoding="utf8") or ""
+      
+      if not google_key:
+        return jsonify(error="Google Maps API key not configured"), 400
+      
+      if api_type == "autocomplete":
+        # Places Autocomplete API
+        input_text = request.args.get("input", "")
+        location = request.args.get("location", "")
+        radius = request.args.get("radius", "50000")
+        
+        url = f"https://maps.googleapis.com/maps/api/place/autocomplete/json"
+        params_dict = {
+          "input": input_text,
+          "key": google_key,
+          "location": location,
+          "radius": radius
+        }
+        response = requests.get(url, params=params_dict)
+        return response.json()
+        
+      elif api_type == "place_details":
+        # Place Details API
+        place_id = request.args.get("place_id", "")
+        
+        url = f"https://maps.googleapis.com/maps/api/place/details/json"
+        params_dict = {
+          "place_id": place_id,
+          "fields": "geometry",
+          "key": google_key
+        }
+        response = requests.get(url, params=params_dict)
+        return response.json()
+        
+      elif api_type == "directions":
+        # Directions API
+        origin = request.args.get("origin", "")
+        destination = request.args.get("destination", "")
+        
+        url = f"https://maps.googleapis.com/maps/api/directions/json"
+        params_dict = {
+          "origin": origin,
+          "destination": destination,
+          "key": google_key,
+          "alternatives": "true",
+          "traffic_model": "best_guess",
+          "departure_time": "now"
+        }
+        response = requests.get(url, params=params_dict)
+        return response.json()
+        
+      elif api_type == "geocode":
+        # Geocoding API
+        address = request.args.get("address", "")
+        
+        url = f"https://maps.googleapis.com/maps/api/geocode/json"
+        params_dict = {
+          "address": address,
+          "key": google_key
+        }
+        response = requests.get(url, params=params_dict)
+        return response.json()
+        
+      else:
+        return jsonify(error="Invalid API type"), 400
+        
+    except Exception as e:
+      print(f"Error in google_maps_proxy: {e}")
+      traceback.print_exc()
+      return jsonify(error=str(e)), 500
+
   @app.route("/api/params", methods=["GET"])
   def get_param():
     return params.get(request.args.get("key")) or "", 200
