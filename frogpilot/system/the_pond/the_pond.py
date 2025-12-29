@@ -152,6 +152,7 @@ def setup(app):
       "amap1Key": params.get("AMapKey1", encoding="utf8") or "",
       "amap2Key": params.get("AMapKey2", encoding="utf8") or "",
       "destination": params.get("NavDestination", encoding="utf8") or "",
+      "googleMapsKey": params.get("GoogleMapsKey", encoding="utf8") or "",
       "isMetric": params.get_bool("IsMetric"),
       "lastPosition": {
         "latitude": str(last_position["latitude"]),
@@ -159,6 +160,7 @@ def setup(app):
       },
       "mapboxPublic": params.get("MapboxPublicKey", encoding="utf8") or "",
       "mapboxSecret": params.get("MapboxSecretKey", encoding="utf8") or "",
+      "navigationProvider": params.get("NavigationProvider", encoding="utf8") or "mapbox",
       "previousDestinations": params.get("ApiCache_NavDestinations", encoding="utf8") or "",
     }
 
@@ -298,6 +300,17 @@ def setup(app):
       return jsonify(error="Nothing to update..."), 400
 
     return jsonify(message=f"{', '.join(saved)} saved successfully!")
+
+  @app.route("/api/navigation_key", methods=["PUT"])
+  def change_navigation_provider():
+    data = request.get_json() or {}
+    provider = data.get("provider", "").strip().lower()
+
+    if provider not in ["mapbox", "google"]:
+      return jsonify(error="Invalid provider. Must be 'mapbox' or 'google'"), 400
+
+    params.put("NavigationProvider", provider)
+    return jsonify(message=f"Navigation provider changed to {provider}")
 
   @app.route("/api/params", methods=["GET"])
   def get_param():

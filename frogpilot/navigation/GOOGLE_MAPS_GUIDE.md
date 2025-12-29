@@ -30,20 +30,43 @@ FrogPilot 現已支援 Google Maps 作為導航提供商，與 Mapbox 並行使�
 
 ### 2. 在 FrogPilot 中配置
 
-#### 方法 A: 透過 The Pond 設定
-1. 開啟 The Pond 介面
-2. 前往「API Keys」或「Navigation」設定
-3. 輸入 Google Maps API Key
-4. 選擇「Google Maps」作為導航提供商
+#### 方法 A: 透過 The Pond 網頁介面（推薦） ⭐
+1. 開啟 The Pond 介面（瀏覽器訪問 FrogPilot IP 地址）
+2. 前往左側選單 **Navigation** → **Manage Keys**
+3. 在 **Google Maps Key** 區域輸入您的 API Key
+4. 點擊 💾 儲存
+5. 在頁面頂部的 **Navigation Provider** 區域
+6. 點擊 **Google Maps** 按鈕切換提供商
 
 #### 方法 B: 透過參數設定
 ```bash
 # SSH 連線到設備後執行
-/data/params/d/GoogleMapsKey "YOUR_API_KEY_HERE"
-/data/params/d/NavigationProvider "google"
+echo -n "YOUR_API_KEY_HERE" > /data/params/d/GoogleMapsKey
+echo -n "google" > /data/params/d/NavigationProvider
 ```
 
-#### 方法 C: 透過環境變數（開發用）
+或使用設定腳本：
+```bash
+cd /data/openpilot/frogpilot/navigation
+python setup_google_maps.py
+```
+
+#### 方法 C: 透過 Python 程式設定
+```python
+from openpilot.common.params import Params
+from openpilot.frogpilot.navigation.navigation_config import NavigationConfig
+
+params = Params()
+config = NavigationConfig()
+
+# 設定 API Key
+config.set_api_key("google", "YOUR_API_KEY_HERE")
+
+# 切換到 Google Maps
+config.set_provider("google")
+```
+
+#### 方法 D: 透過環境變數（開發用）
 ```bash
 export GOOGLE_MAPS_KEY="YOUR_API_KEY_HERE"
 ```

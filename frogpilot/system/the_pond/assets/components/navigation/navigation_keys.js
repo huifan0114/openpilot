@@ -17,9 +17,16 @@ export function NavKeys() {
     editA1: false, editA2: false,
     savedA1: false, savedA2: false,
 
+    googleKey: "",
+    editGoogle: false,
+    savedGoogle: false,
+
     publicKey: "", secretKey: "",
     editPublic: false, editSecret: false,
     savedPublic: false, savedSecret: false,
+
+    navigationProvider: "mapbox",
+    providerChanging: false,
 
     showDeleteModal: false,
     keyToDelete: null,
@@ -64,10 +71,11 @@ export function NavKeys() {
   }
 
   const meta = {
-    amap1:  { prop: "amap1Key",  saved: "savedA1",     edit: "editA1",     prefix: "",    body: "amap1", minLength: 39  },
-    amap2:  { prop: "amap2Key",  saved: "savedA2",     edit: "editA2",     prefix: "",    body: "amap2", minLength: 39  },
-    public: { prop: "publicKey", saved: "savedPublic", edit: "editPublic", prefix: "pk.", body: "public", minLength: 80 },
-    secret: { prop: "secretKey", saved: "savedSecret", edit: "editSecret", prefix: "sk.", body: "secret", minLength: 80 }
+    amap1:  { prop: "amap1Key",  saved: "savedA1",     edit: "editA1",     prefix: "",      body: "amap1", minLength: 39  },
+    amap2:  { prop: "amap2Key",  saved: "savedA2",     edit: "editA2",     prefix: "",      body: "amap2", minLength: 39  },
+    google: { prop: "googleKey", saved: "savedGoogle", edit: "editGoogle", prefix: "AIza",  body: "google", minLength: 39 },
+    public: { prop: "publicKey", saved: "savedPublic", edit: "editPublic", prefix: "pk.",   body: "public", minLength: 80 },
+    secret: { prop: "secretKey", saved: "savedSecret", edit: "editSecret", prefix: "sk.",   body: "secret", minLength: 80 }
   }
 
   const canSave = (kind) => {
@@ -88,6 +96,7 @@ export function NavKeys() {
     switch (kind) {
       case "amap1": return "Amap 1"
       case "amap2": return "Amap 2"
+      case "google": return "Google Maps"
       case "public": return "Public Mapbox"
       case "secret": return "Secret Mapbox"
       default: return kind
@@ -110,10 +119,15 @@ export function NavKeys() {
       state.amap2Key = data.amap2Key ?? ""
       state.savedA1 = !!state.amap1Key
       state.savedA2 = !!state.amap2Key
+googleKey = data.googleMapsKey ?? ""
+      state.savedGoogle = !!state.googleKey
 
       state.publicKey = data.mapboxPublic ?? ""
       state.secretKey = data.mapboxSecret ?? ""
       state.savedPublic = !!state.publicKey
+      state.savedSecret = !!state.secretKey
+
+      state.navigationProvider = data.navigationProvider ?? "mapbox"
       state.savedSecret = !!state.secretKey
 
       state.initialMapboxComplete = state.savedPublic && state.savedSecret
@@ -191,7 +205,28 @@ export function NavKeys() {
         [keyMeta.prop]: ""
       })
 
-      if (group === "mapbox") {
+     ,
+
+    changeProvider: async (provider) => {
+      if (state.providerChanging) return;
+
+      state.providerChanging = true;
+
+      const { ok, data } = await util.req(api.path.key, {
+        body: JSON.stringify({ provider }),
+        headers: { "Content-Type": "application/json" },
+        method: "PUT"
+      })
+
+      state.providerChanging = false;
+
+      if (!ok) {
+        return showMessage("error", data.error || "Failed to change provider...", "provider")
+      }
+
+      state.navigationProvider = provider;
+      showMessage("message", `Switched to ${provider === "google" ? "Google Maps" : "Mapbox"}!`, "provider")
+    } if (group === "mapbox") {
         state.initialMapboxComplete = false
         bumpImageVersion()
       }
@@ -218,7 +253,12 @@ export function NavKeys() {
 
         ${kinds.map(kind => {
           const keyMeta = meta[kind]
-          const label = kind[0].toUpperCase() + kind.slice(1).replace(/[0-9]/, d => " " + d)
+          let label = kind[0].toUpperCase() + kind.slice(1).replace(/[0-9]/, d => " " + d)
+
+          // Special case for Google to show "API Key" instead of "Google Key"
+          if (kind === "google") {
+            label = "API"
+          }
 
           return html`
             <label class="navkeys-label" for="${kind}-key">${label} Key</label>
@@ -269,10 +309,41 @@ export function NavKeys() {
                 />
               </div>
             `
-          }
-          return ""
-        }}
+       !-- Navigation Provider Selector -->
+      <div class="navkeys-container">
+        <div class="navkeys-group">
+          <div class="navkeys-title">Navigation Provider</div>
+          <div class="navkeys-provider-selector">
+            <button
+              class="${() => `navkeys-provider-btn ${state.navigationProvider === "mapbox" ? "active" : ""}`}"
+              @click="${() => api.changeProvider("mapbox")}"
+              disabled="${() => state.providerChanging || state.navigationProvider === "mapbox"}">
+              <i class="bi bi-box"></i> Mapbox
+            </button>
+            <button
+              class="${() => `navkeys-provider-btn ${state.navigationProvider === "google" ? "active" : ""}`}"
+              @click="${() => api.changeProvider("google")}"
+              disabled="${() => state.providerChanging || state.navigationProvider === "google"}">
+              <i class="bi bi-google"></i> Google Maps
+            </button>
+          </div>
+          ${renderStatus("provider")}
+        </div>
       </div>
+
+      <!-- AMap Keys -->
+      <div class="navkeys-container">
+        ${renderGroup("AMap Keys", ["amap1", "amap2"])}
+        ${renderStatus("amap")}
+      </div>
+
+      <!-- Google Maps Key -->
+      <div class="navkeys-container">
+        ${renderGroup("Google Maps Key", ["google"])}
+        ${renderStatus("google")}
+      </div>
+
+      <!-- Mapbox Keys -->
     `
   }
 
