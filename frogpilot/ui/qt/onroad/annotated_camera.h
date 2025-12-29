@@ -153,13 +153,13 @@ private:
   bool vtscControllingCurve;
   bool vtscEnabled;
 ////////////////////////////////////////////////////////
-  bool hfopinf;
   bool autoacc;
-  // bool autoroadtype;
-  // bool autospeeddistance;
+  bool autoroadtype;
+  bool autospeeddistance;
+  bool hfopinf;
   int accProfile;
-  // int roadProfile;
   int leadspeed_diffProfile;
+  int roadProfile;
 ////////////////////////////////////////////////////////
 
   float dashboardSpeedLimit;

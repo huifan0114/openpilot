@@ -550,18 +550,23 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
   }
 ///////////////////////////////////////////////
   if (hfopinf){
+    leadspeed_diffProfile = paramsMemory.getInt("leadspeeddiffProfile");
     const QRect ci_rect(rect().left() + 20, rect().bottom() - 560, 220, 500);
     p.setPen(Qt::NoPen);
-    p.setBrush(whiteColor());
-    p.drawRoundedRect(ci_rect, 24, 24);
-    bool autoroadtype = params.getBool("AutoRoadtype");
+    if (leadspeed_diffProfile < -20) {
+      p.setBrush(Qt::red);
+    } else if  (leadspeed_diffProfile <0 && leadspeed_diffProfile >-20) {
+      p.setBrush(QColor(255, 165, 0));
+    }
+    else {
+      p.setBrush(whiteColor());
+    }
     if (autoroadtype){
       p.setPen(QPen(QColor(255, 165, 0), 6));
     }else {
       p.setPen(QPen(blackColor(), 6));
     }
     p.drawRoundedRect(ci_rect.adjusted(9, 9, -9, -9), 16, 16);
-    int roadProfile = params.getInt("RoadtypeProfile");
     std::map<int, QString> roadprofileMap = {
       {0, "未選道路"},
       {1, "街道巷弄"},
@@ -1039,11 +1044,11 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState
   if (leadInfo) {
     float lead_speed = std::max(v_rel + v_ego, 0.0f);
 ////////////////////////////////////////////////////////////////////////
-    // if (autospeeddistance && lead_speed > 20) {
-    //   float leadtimeGapScaled = d_rel / std::max(v_ego, 1.0f);
-    //   int leadtimeGapScaledInt = static_cast<int>(leadtimeGapScaled * 1000);
-    //   params_memory.putInt("leadtimeGapScaledInt", leadtimeGapScaledInt);
-    // }
+    if (autospeeddistance && lead_speed > 20) {
+      float leadtimeGapScaled = d_rel / std::max(v_ego, 1.0f);
+      int leadtimeGapScaledInt = static_cast<int>(leadtimeGapScaled * 1000);
+      params_memory.putInt("leadtimeGapScaledInt", leadtimeGapScaledInt);
+    }
 ////////////////////////////////////////////////////////////////////////
     painter.setPen(Qt::white);
     painter.setFont(InterFont(35, QFont::Normal));
@@ -1406,9 +1411,9 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
 ////////////////////////////////////////////////////////
   hfopinf = scene.hfop_inf;
   autoacc = scene.autoacc;
-  // autoroadtype = scene.autoroadtype;
-  // autospeeddistance = scene.auto_speeddistance;
-  // roadProfile = scene.roadtypeprofile;
+  autoroadtype = scene.autoroadtype;
+  autospeeddistance = scene.auto_speeddistance;
+  roadProfile = scene.roadtypeprofile;
   accProfile = scene.acceleration_profile;
 ////////////////////////////////////////////////////////
   bool stoppedTimer = scene.stopped_timer && scene.standstill && scene.started_timer / UI_FREQ >= 10 && !mapOpen;
