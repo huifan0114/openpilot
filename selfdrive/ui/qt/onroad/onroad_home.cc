@@ -1,7 +1,10 @@
 #include "selfdrive/ui/qt/onroad/onroad_home.h"
 
+#include <QApplication>
 #include <QPainter>
 #include <QStackedLayout>
+
+#include "frogpilot/ui/qt/widgets/frogpilot_controls.h"
 
 #ifdef ENABLE_MAPS
 #include "selfdrive/ui/qt/maps/map_helpers.h"
@@ -94,9 +97,76 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   FrogPilotUIState &fs = *frogpilotUIState();
   QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
   SubMaster &fpsm = *(fs.sm);
+  QPoint pos = e->pos();
 
-  if (fpsm["frogpilotPlan"].getFrogpilotPlan().getSpeedLimitChanged() && nvg->frogpilot_nvg->newSpeedLimitRect.contains(e->pos())) {
+  // 定義觸控區域
+  QRect hideSpeedRect(rect().center().x() - 175, 50, 350, 350);
+  QRect maxSpeedRect(7, 25, 225, 225);
+  QRect speedLimitRect(7, 250, 225, 225);
+  QRect autoRoadtypeRect(20, 560, 225, 225);
+  QRect roadtypeProfileRect(20, 800, 225, 225);
+
+  if (fpsm["frogpilotPlan"].getFrogpilotPlan().getSpeedLimitChanged() && nvg->frogpilot_nvg->newSpeedLimitRect.contains(pos)) {
     fs.params_memory.putBool("SpeedLimitAccepted", true);
+    return;
+  }
+
+  // 最大速度區 - 切換自動 ACC 模式
+  if (maxSpeedRect.contains(pos)) {
+    bool autoaccProfile = !fs.params.getBool("AutoACC");
+    fs.params.putBool("AutoACC", autoaccProfile);
+    updateFrogPilotToggles();
+    return;
+  }
+
+  // 隱藏速度區 - 切換速度顯示和螢幕亮度
+  if (hideSpeedRect.contains(pos)) {
+    bool hide_speed = !frogpilot_toggles.value("hide_speed").toBool();
+    fs.params.putBool("HideSpeed", hide_speed);
+
+    int ScreenBrightnessOnroadpre = fs.params.getInt("ScreenBrightnessOnroadpre");
+    if (ScreenBrightnessOnroadpre == 0) {
+      fs.params.putInt("ScreenBrightnessOnroadpre", fs.params.getInt("ScreenBrightnessOnroad"));
+      fs.params.putInt("ScreenBrightnessOnroad", 0);
+    } else {
+      fs.params.putInt("ScreenBrightnessOnroad", ScreenBrightnessOnroadpre);
+      fs.params.putInt("ScreenBrightnessOnroadpre", 0);
+    }
+    updateFrogPilotToggles();
+    return;
+  }
+
+  // 速限區 - 切換交通模式
+  if (speedLimitRect.contains(pos)) {
+    bool Traffic_Mode = !fs.params.getBool("TrafficMode");
+    fs.params.putBool("TrafficMode", Traffic_Mode);
+    updateFrogPilotToggles();
+    return;
+  }
+
+  // 自動道路類型區 - 切換自動道路類型
+  if (autoRoadtypeRect.contains(pos)) {
+    bool Auto_Roadtype = !fs.params.getBool("AutoRoadtype");
+    fs.params.putBool("AutoRoadtype", Auto_Roadtype);
+    updateFrogPilotToggles();
+    return;
+  }
+
+  // 道路類型配置檔區 - 輪換配置檔
+  if (roadtypeProfileRect.contains(pos)) {
+    bool Auto_Roadtype = fs.params.getBool("AutoRoadtype");
+    int roadtypeProfile = fs.params.getInt("RoadtypeProfile");
+    if (Auto_Roadtype) {
+      Auto_Roadtype = !Auto_Roadtype;
+      fs.params.putBool("AutoRoadtype", Auto_Roadtype);
+    } else {
+      roadtypeProfile = roadtypeProfile + 1;
+      if (roadtypeProfile > 4) {
+        roadtypeProfile = 0;
+      }
+      fs.params.putInt("RoadtypeProfile", roadtypeProfile);
+    }
+    updateFrogPilotToggles();
     return;
   }
 
