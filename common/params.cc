@@ -280,9 +280,9 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"StopmarkApplied", PERSISTENT},
     {"OriginalKeySetSpeed", PERSISTENT},
     {"StopmarkRestored", PERSISTENT},
+    {"GoogleMapsKey", PERSISTENT},
+    {"NavigationProvider", PERSISTENT},
 
-    ("GoogleMapsKey", PERSISTENT),
-    ("NavigationProvider", PERSISTENT),
 /////////////////////////////////////////////
 
     // FrogPilot parameters
