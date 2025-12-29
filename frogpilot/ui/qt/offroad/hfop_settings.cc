@@ -278,7 +278,7 @@ void FrogPilotHFOPPanel::updateToggles() {
       continue;
     }
 
-    bool setVisible = parent->tuningLevel >= frogpilotToggleLevels[key].toDouble();
+    // bool setVisible = parent->tuningLevel >= frogpilotToggleLevels[key].toDouble();
 
     // if (key == "Fuelprice") {
     //   setVisible &= parent->hasOpenpilotLongitudinal;
@@ -306,7 +306,7 @@ void FrogPilotHFOPPanel::updateToggles() {
 
     // else if (key == "Dooropen") {
     //   setVisible &= parent->hasOpenpilotLongitudinal;
-    }
+    // }
     // else if (key == "AdjacentLeadsUI") {
     //   setVisible &= parent->hasRadar && !(params.getBool("AdvancedCustomUI") && params.getBool("HideLeadMarker"));
     // }
