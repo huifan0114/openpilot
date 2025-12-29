@@ -93,8 +93,8 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
       });
       hfopcontrolsToggle = AutoACCToggle;
 
-    } else if (param == "AutoACCspeed") {
-      hfopcontrolsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 50, "公里");
+    // } else if (param == "AutoACCspeed") {
+    //   hfopcontrolsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 50, "公里");
 
     // } else if (param == "Fuelprice") {
     //   FrogPilotManageControl *FuelpriceToggle = new FrogPilotManageControl(param, title, desc, icon);
@@ -164,6 +164,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     }
 
     toggles[param] = hfopcontrolsToggle;
+
     if (AutoACCKeys.contains(param)) {
       AutoACCPList->addItem(hfopcontrolsToggle);
     // } else if (FuelpriceKeys.contains(param)) {
@@ -188,12 +189,16 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
       parentKeys.insert(param);
     }
 
-    if (FrogPilotManageControl *frogPilotManageToggle = qobject_cast<FrogPilotManageControl*>(hfopcontrolsToggle)) {
-      QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
-        emit openSubPanel();
-        openDescriptions(forceOpenDescriptions, toggles);
-      });
+    if (ButtonControl *buttonControl = qobject_cast<ButtonControl*>(hfopcontrolsToggle)) {
+      QObject::connect(buttonControl, &ButtonControl::clicked, this, &FrogPilotHFOPPanel::openSubPanel);
     }
+
+    // if (FrogPilotManageControl *frogPilotManageToggle = qobject_cast<FrogPilotManageControl*>(hfopcontrolsToggle)) {
+    //   QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
+    //     emit openSubPanel();
+    //     openDescriptions(forceOpenDescriptions, toggles);
+    //   });
+    // }
 
     QObject::connect(hfopcontrolsToggle, &AbstractControl::hideDescriptionEvent, [this]() {
       update();
@@ -258,6 +263,13 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
   //   }
   // });
   // QObject::connect(parent, &FrogPilotSettingsWindow::updateToggles, this, &FrogPilotHFOPPanel::updateToggles);
+}
+void FrogPilotHFOPPanel::updateState(const UIState &s) {
+  if (!isVisible()) {
+    return;
+  }
+
+  started = s.scene.started;
 }
 
 void FrogPilotHFOPPanel::showEvent(QShowEvent *event) {
