@@ -49,10 +49,11 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
   addItem(flashPandaButton);
 
   FrogPilotButtonsControl *forceStartedButton = new FrogPilotButtonsControl(tr("強制駕駛狀態"), tr("<b>手動將 openpilot 設為離線或上路狀態。</b>"), "", {tr("離線"), tr("上路"), tr("關閉")}, true);
-  QObject::connect(forceStartedButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
+  QObject::connect(forceStartedButton, &FrogPilotButtonsControl::buttonClicked, [this, forceStartedButton](int id) {
     if (id == 0) {
       params_memory.putBool("ForceOffroad", true);
       params_memory.putBool("ForceOnroad", false);
+      forceStartedButton->setCheckedButton(0);
 
       updateFrogPilotToggles();
     } else if (id == 1) {
@@ -61,11 +62,13 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
 
       params_memory.putBool("ForceOffroad", false);
       params_memory.putBool("ForceOnroad", true);
+      forceStartedButton->setCheckedButton(1);
 
       updateFrogPilotToggles();
     } else if (id == 2) {
       params_memory.putBool("ForceOffroad", false);
       params_memory.putBool("ForceOnroad", false);
+      forceStartedButton->setCheckedButton(2);
 
       updateFrogPilotToggles();
     }
