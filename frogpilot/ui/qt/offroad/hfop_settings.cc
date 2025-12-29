@@ -212,7 +212,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubSubPanel, [this] {
     openDescriptions(forceOpenDescriptions, toggles);
   });
-  QObject::connect(parent, &FrogPilotSettingsWindow::updateToggles, this, &FrogPilotHFOPPanel::updateToggles);
+  // QObject::connect(parent, &FrogPilotSettingsWindow::updateToggles, this, &FrogPilotHFOPPanel::updateToggles);
 }
 void FrogPilotHFOPPanel::showEvent(QShowEvent *event) {
   frogpilotToggleLevels = parent->frogpilotToggleLevels;
