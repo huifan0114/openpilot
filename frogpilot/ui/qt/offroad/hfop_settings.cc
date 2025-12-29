@@ -183,7 +183,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     // } else if (qualityOfLifeKeys.contains(param)) {
     //   qualityOfLifeList->addItem(visualToggle);
     } else {
-      visualsList->addItem(hfopcontrolsToggle);
+      AutoACCPList->addItem(hfopcontrolsToggle);
 
       parentKeys.insert(param);
     }
@@ -205,14 +205,14 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
   QSet<QString> forceUpdateKeys = {"AutoACCspeed"};
   for (const QString &key : forceUpdateKeys) {
-    QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, this, &FrogPilotVisualsPanel::updateToggles);
+    QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, this, &FrogPilotHFOPPanel::updateToggles);
   }
 
   openDescriptions(forceOpenDescriptions, toggles);
 
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [hfopLayout, AutoACCPanel, this] {
     openDescriptions(forceOpenDescriptions, toggles);
-    hfopLayout->setCurrentWidget(FuelpricePanel);
+    hfopLayout->setCurrentWidget(AutoACCPanel);
   });
 
   // QObject::connect(parent, &FrogPilotSettingsWindow::closeSubSubPanel, [hfopLayout, FuelpricePanel, this] {
