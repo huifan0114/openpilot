@@ -697,6 +697,7 @@ export function NavDestination() {
         center: { lat: state.lastPosition.latitude, lng: state.lastPosition.longitude },
         zoom: 15,
         tilt: 45,
+        mapId: 'NAVIGATION_MAP', // AdvancedMarkerElement 需要 mapId
         mapTypeId: 'roadmap',
         disableDefaultUI: false,
         zoomControl: true,
