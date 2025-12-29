@@ -70,7 +70,16 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
       updateFrogPilotToggles();
     }
   });
-  forceStartedButton->setCheckedButton(2);
+
+  // 從記憶體讀取當前狀態並設置按鈕
+  int currentButton = 2; // 默認關閉
+  if (params_memory.getBool("ForceOffroad")) {
+    currentButton = 0; // 離線
+  } else if (params_memory.getBool("ForceOnroad")) {
+    currentButton = 1; // 上路
+  }
+  forceStartedButton->setCheckedButton(currentButton);
+
   if (forceOpenDescriptions) {
     forceStartedButton->showDescription();
   }
