@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    
+
     steps:
       - name: 設定 Git
         run: |
@@ -61,12 +61,12 @@ jobs:
         run: |
           pip install --upgrade pip setuptools wheel
           pip install numpy Cython scons
-          
+
           # 如果有 requirements.txt
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt || true
           fi
-          
+
           # 如果有 pyproject.toml
           if [ -f pyproject.toml ]; then
             pip install . || true
@@ -75,17 +75,17 @@ jobs:
       - name: 編譯 C/C++ 程式碼
         run: |
           echo "開始編譯 C/C++ 程式碼..."
-          
+
           # 限制編譯並行數以避免記憶體不足
           export MAKEFLAGS="-j2"
-          
+
           # 執行 SCons 編譯
           scons -j2 --minimal || echo "部分編譯失敗,繼續處理..."
 
       - name: 預編譯 Python 模組
         run: |
           echo "開始預編譯 Python 模組..."
-          
+
           # 執行 Python 預編譯腳本
           if [ -f system/manager/precompile_python.py ]; then
             python3 system/manager/precompile_python.py || echo "Python 預編譯完成(有部分警告)"
@@ -93,30 +93,30 @@ jobs:
             # 手動預編譯主要目錄
             python3 -m compileall -q -f -o 2 selfdrive/ system/ common/ cereal/ frogpilot/ || true
           fi
-          
+
           echo "檢查生成的字節碼檔案數量:"
           find . -name "*.opt-2.pyc" | wc -l
 
       - name: 清理編譯產物
         run: |
           echo "清理不必要的檔案..."
-          
+
           # 清理編譯中間檔案
           find . -name "*.o" -delete
           find . -name "*.os" -delete
           find . -name "*.a" -delete
           find . -name "moc_*" -delete
           find . -name ".sconsign.dblite" -delete
-          
+
           # 清理測試目錄
           find . -type d \( -name "test" -o -name "tests" \) ! -path "*/third_party/*" -exec rm -rf {} + || true
-          
+
           # 清理調試檔案
           find . -type d -name "debug" -exec rm -rf {} + || true
-          
+
           # 清理 __pycache__ 中的非優化字節碼
           find . -type f -name "*.pyc" ! -name "*.opt-2.pyc" -delete || true
-          
+
           # 清理 Git 相關
           rm -rf .git/hooks .git/modules || true
 
@@ -137,20 +137,20 @@ jobs:
           來源分支: ${{ github.ref_name }}
           提交雜湊: ${{ github.sha }}
           執行編號: ${{ github.run_number }}
-          
+
           編譯統計:
           - Python 字節碼檔案: $(find . -name "*.opt-2.pyc" | wc -l)
           - 共享函式庫: $(find . -name "*.so" | wc -l)
-          
+
           使用說明:
           1. 下載此分支到您的設備
           2. 系統會自動偵測 prebuilt 標記
           3. 開機時間約 15-30 秒
-          
+
           如需重新編譯,請刪除 prebuilt 檔案
           ===========================================
           EOF
-          
+
           cat PRECOMPILED_INFO.txt
 
       - name: 提交並推送預編譯版本
@@ -158,14 +158,14 @@ jobs:
           # 設定 Git
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
-          
+
           # 建立新分支(如果不存在)
           TARGET_BRANCH="${{ inputs.publish_branch }}"
           git checkout -B "$TARGET_BRANCH"
-          
+
           # 加入所有檔案(包括被忽略的編譯產物)
           git add -f .
-          
+
           # 提交
           git commit -m "🚀 預編譯版本 - 快速開機
 
@@ -173,18 +173,18 @@ jobs:
           來源分支: ${{ github.ref_name }}
           提交雜湊: ${{ github.sha }}
           執行編號: ${{ github.run_number }}
-          
+
           包含:
           - ✅ C/C++ 編譯產物
           - ✅ Python 優化字節碼 (.opt-2.pyc)
           - ✅ prebuilt 標記檔案
-          
+
           開機時間: 約 15-30 秒
           " || echo "無變更需要提交"
-          
+
           # 強制推送到目標分支
           git push -f origin "$TARGET_BRANCH"
-          
+
           echo "✅ 已推送到分支: $TARGET_BRANCH"
           echo "🔗 https://github.com/${{ github.repository }}/tree/$TARGET_BRANCH"
 

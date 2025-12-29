@@ -13,7 +13,7 @@ BASEDIR = Path(__file__).resolve().parent.parent.parent
 def precompile_python():
     """預編譯所有 Python 檔案為字節碼"""
     print("開始預編譯 Python 模組...")
-    
+
     # 需要編譯的目錄
     dirs_to_compile = [
         BASEDIR / "selfdrive",
@@ -23,17 +23,17 @@ def precompile_python():
         BASEDIR / "frogpilot",
         BASEDIR / "openpilot",
     ]
-    
+
     compiled_count = 0
     error_count = 0
-    
+
     for directory in dirs_to_compile:
         if not directory.exists():
             print(f"跳過不存在的目錄: {directory}")
             continue
-            
+
         print(f"編譯目錄: {directory}")
-        
+
         # 使用 compileall 批量編譯
         # force=True: 強制重新編譯
         # quiet=1: 只顯示錯誤
@@ -56,11 +56,11 @@ def precompile_python():
         except Exception as e:
             error_count += 1
             print(f"  錯誤: {directory} 編譯失敗 - {e}")
-    
+
     print(f"\n預編譯完成!")
     print(f"  成功: {compiled_count} 個目錄")
     print(f"  錯誤: {error_count} 個目錄")
-    
+
     # 清理舊的未優化的 .pyc 檔案
     print("\n清理未優化的字節碼檔案...")
     removed_count = 0
@@ -75,7 +75,7 @@ def precompile_python():
                     removed_count += 1
                 except Exception:
                     pass
-    
+
     print(f"已清理 {removed_count} 個未優化的字節碼檔案")
     return error_count == 0
 

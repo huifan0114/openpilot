@@ -176,7 +176,7 @@ jobs:
             -name '*.os' -o \
             -name 'moc_*' \
           \) -delete
-          
+
           # 保留優化過的 Python 字節碼 (.opt-2.pyc),但刪除其他 .pyc
           find . -type f -name '*.pyc' ! -name '*.opt-2.pyc' -delete
 

@@ -88,7 +88,7 @@ if __name__ == "__main__":
   spinner.update_progress(0, 100)
   build_metadata = get_build_metadata()
   build(spinner, build_metadata.openpilot.is_dirty, minimal = AGNOS)
-  
+
   # Precompile Python modules for faster boot time
   spinner.update("正在預編譯 Python 模組...")
   try:
