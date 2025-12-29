@@ -210,7 +210,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     });
   }
 
-  QSet<QString> forceUpdateKeys = {"AutoACCspeed"};
+  QSet<QString> forceUpdateKeys = {"AutoACC", "AutoACCspeed"};
   for (const QString &key : forceUpdateKeys) {
     QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, this, &FrogPilotHFOPPanel::updateToggles);
   }
@@ -325,7 +325,10 @@ void FrogPilotHFOPPanel::updateToggles() {
 
     if (setVisible) {
       if (AutoACCKeys.contains(key)) {
-        toggles["AutoACCspeed"]->setVisible(true);
+        bool autoACCEnabled = params.getBool("AutoACC");
+        toggles["AutoACCspeed"]->setVisible(autoACCEnabled);
+        toggles["AutoACCCarAway"]->setVisible(autoACCEnabled);
+        toggles["AutoACCGreenLight"]->setVisible(autoACCEnabled);
 
       // } else if (FuelpriceKeys.contains(key)) {
       //   toggles["Fuelcosts"]->setVisible(true);
