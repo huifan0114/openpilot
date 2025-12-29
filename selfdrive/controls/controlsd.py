@@ -391,18 +391,12 @@ class Controls:
       self.events.add(EventName.canError)
 
     ###################################################
-    # nav_reminder_status = params_memory.get_int("NavReminderstatus")
+    nav_reminder_status = params_memory.get_int("NavReminderstatus")
     ###################################################
     #超速提醒
     if self.frogpilot_toggles.speedoverreminder :
       if self.sm['frogpilotPlan'].speedover:
        self.events.add(EventName.speedover)
-      #  speedover_reminder_status = 1
-      #  print("[PONTEST][controlsd.py][update_events()] speedover_reminder_status1=", speedover_reminder_status)
-      # else:
-      #   speedover_reminder_status = 0
-        # print("[PONTEST][controlsd.py][update_events()] speedover_reminder_status0=", speedover_reminder_status)
-      # params_memory.put_int('speedoverreminderstatus',speedover_reminder_status)
 
     # 依車速調整跟車距離
     if self.frogpilot_toggles.auto_speeddistance :
@@ -428,26 +422,26 @@ class Controls:
       params_memory.put_bool("StopmarkOn", False)
 
     ##################NAV語音#####################################################
-    # if self.frogpilot_toggles.navreminder:
-    #   if params_memory.get_bool("navTurn") and nav_reminder_status == 0:
-    #     self.events.add(EventName.navturn)
-    #     nav_reminder_status = 1
-    #   elif nav_reminder_status == 1:
-    #     if params_memory.get_bool("navUturn"):
-    #       self.events.add(EventName.navuturn)
-    #     elif params_memory.get_bool("navturnRight"):
-    #       self.events.add(EventName.navturnright)
-    #     elif params_memory.get_bool("navturnLeft"):
-    #       self.events.add(EventName.navturnleft)
-    #     elif params_memory.get_bool("navSharpright"):
-    #       self.events.add(EventName.navsharpright)
-    #     elif params_memory.get_bool("navSharpleft"):
-    #       self.events.add(EventName.navsharpleft)
-    #     elif params_memory.get_bool("navOfframp"):
-    #       self.events.add(EventName.navofframp)
+    if self.frogpilot_toggles.navreminder:
+      if params_memory.get_bool("navTurn") and nav_reminder_status == 0:
+        self.events.add(EventName.navturn)
+        nav_reminder_status = 1
+      elif nav_reminder_status == 1:
+        if params_memory.get_bool("navUturn"):
+          self.events.add(EventName.navuturn)
+        elif params_memory.get_bool("navturnRight"):
+          self.events.add(EventName.navturnright)
+        elif params_memory.get_bool("navturnLeft"):
+          self.events.add(EventName.navturnleft)
+        elif params_memory.get_bool("navSharpright"):
+          self.events.add(EventName.navsharpright)
+        elif params_memory.get_bool("navSharpleft"):
+          self.events.add(EventName.navsharpleft)
+        elif params_memory.get_bool("navOfframp"):
+          self.events.add(EventName.navofframp)
 
-      #   nav_reminder_status = 0
-      # params_memory.put_int('NavReminderstatus', nav_reminder_status)
+        nav_reminder_status = 0
+      params_memory.put_int('NavReminderstatus', nav_reminder_status)
 
     #############################################################################
 

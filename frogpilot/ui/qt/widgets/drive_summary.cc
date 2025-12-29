@@ -48,8 +48,15 @@ FrogPilotDriveSummary::FrogPilotDriveSummary(QWidget *parent, bool randomEvents)
     listLayout->addWidget(createStatBox(tr("駕駛距離"), &frogPilotMetersValue, this));
     listLayout->addWidget(createStatBox(tr("駕駛時間"), &trackedTimeValue, this));
     listLayout->addWidget(createStatBox(tr(" 駕駛過程 % 處於“實驗模式”"), &experimentalModeTimeValue, this));
-    listLayout->addWidget(createStatBox(tr("油耗"), &fuelConsumptionValue, this));
-    listLayout->addWidget(createStatBox(tr("油資"), &avgFuelEconomyValue, this));
+    
+    // 油耗和油資左右並排顯示
+    QWidget *fuelContainer = new QWidget(this);
+    QHBoxLayout *fuelLayout = new QHBoxLayout(fuelContainer);
+    fuelLayout->setSpacing(20);
+    fuelLayout->setContentsMargins(0, 0, 0, 0);
+    fuelLayout->addWidget(createStatBox(tr("油耗"), &fuelConsumptionValue, this));
+    fuelLayout->addWidget(createStatBox(tr("油資"), &avgFuelEconomyValue, this));
+    listLayout->addWidget(fuelContainer);
   }
 
   if (displayRandomEvents) {

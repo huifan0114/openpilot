@@ -43,8 +43,19 @@ def assets_checks(model_manager, theme_manager, frogpilot_toggles):
       run_thread_with_lock("download_theme", theme_manager.download_theme, (asset_type, asset_to_download, asset_param, frogpilot_toggles))
 
 def update_checks(model_manager, now, theme_manager, frogpilot_toggles, boot_run=False):
-  while not (is_url_pingable("https://github.com") or is_url_pingable("https://gitlab.com")):
-    time.sleep(60)
+  # 優化開機速度：限制網路等待時間
+  max_wait_attempts = 3 if boot_run else 60
+  wait_interval = 5 if boot_run else 60
+  
+  for attempt in range(max_wait_attempts):
+    if is_url_pingable("https://github.com") or is_url_pingable("https://gitlab.com"):
+      break
+    if attempt < max_wait_attempts - 1:
+      time.sleep(wait_interval)
+  else:
+    # 如果網路連接失敗，在開機時跳過更新檢查
+    if boot_run:
+      return
 
   model_manager.update_models(boot_run)
   theme_manager.update_themes(frogpilot_toggles, boot_run)

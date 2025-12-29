@@ -83,23 +83,23 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
 /////////////////////////////////////////////////////
 
   std::vector<std::vector<std::tuple<QString, QWidget*>>> panelButtons = {
+    {{tr("H F O P"), frogpilotHFOPPanel}},
     {{tr("管理"), frogpilotSoundsPanel}},
     {{tr("行駛模型"), frogpilotModelPanel}, {tr("油門 / 煞車"), frogpilotLongitudinalPanel}, {tr("轉向"), frogpilotLateralPanel}},
     {{tr("地圖數據"), frogpilotMapsPanel}, {tr("導航"), frogpilotNavigationPanel}},
     {{tr("資料"), frogpilotDataPanel}, {tr("裝置控制"), frogpilotDevicePanel}, {tr("工具"), new FrogPilotUtilitiesPanel(this)}},
     {{tr("外觀"), frogpilotVisualsPanel}, {tr("佈景主題"), frogpilotThemesPanel}},
-    {{tr("車輛設定"), frogpilotVehiclesPanel}, {tr("方向盤控制"), frogpilotWheelPanel}},
-    {{tr("H F O P"), frogpilotHFOPPanel}}
+    {{tr("車輛設定"), frogpilotVehiclesPanel}, {tr("方向盤控制"), frogpilotWheelPanel}}
   };
 
   std::vector<std::tuple<QString, QString, QString>> panelInfo = {
+    {tr("HFOP 的功能"), tr("管理 HFOP 相關設定."), "../../frogpilot/assets/toggle_icons/icon_system.png"},
     {tr("提醒和聲音"), tr("<b>調整提醒音量並啟用自訂通知。</b>"), "../../frogpilot/assets/toggle_icons/icon_sound.png"},
     {tr("駕駛控制"), tr("<b>微調 FrogPilot 自訂加速、制動和轉向控制。</b>"), "../../frogpilot/assets/toggle_icons/icon_steering.png"},
     {tr("導航"), tr("<b>下載 \"速度限制控制器\" 的地圖數據並設定 \"在 openpilot 上導航\" (NOO)。</b>"), "../../frogpilot/assets/toggle_icons/icon_map.png"},
-    {tr("系統設定"), tr("<b>管理備份、裝置設定、螢幕選項、儲存空間和工具，保持 FrogPilot 平穩執行。</b>"), "../../frogpilot/assets/toggle_icons/icon_system.png"},
-    {tr("佈景主題和外觀"), tr("<b>自訂駕駛螢幕和介面的外觀，包括佈景主題！</b>"), "../../frogpilot/assets/toggle_icons/icon_display.png"},
-    {tr("車輛設定"), tr("<b>設定車型特定選項和方向盤按鈕對應。</b>"), "../../frogpilot/assets/toggle_icons/icon_vehicle.png"},
-    {tr("HFOP 的功能"), tr("管理 HFOP 相關設定."), "../../frogpilot/assets/toggle_icons/icon_system.png"}
+    {tr("系統設定"), tr("<b>管理備份、裝置設定、螢幕選項、儲存空間和工具,保持 FrogPilot 平穩執行。</b>"), "../../frogpilot/assets/toggle_icons/icon_system.png"},
+    {tr("佈景主題和外觀"), tr("<b>自訂駕駛螢幕和介面的外觀,包括佈景主題！</b>"), "../../frogpilot/assets/toggle_icons/icon_display.png"},
+    {tr("車輛設定"), tr("<b>設定車型特定選項和方向盤按鈕對應。</b>"), "../../frogpilot/assets/toggle_icons/icon_vehicle.png"}
   };
 
   for (size_t i = 0; i < panelInfo.size(); ++i) {
@@ -124,13 +124,13 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
     }
 
     FrogPilotButtonsControl *panelButton = new FrogPilotButtonsControl(title, description, icon, labels);
+    if (title == tr("HFOP 的功能")) HFOPPanelButtons = panelButton;
     if (title == tr("提醒和聲音")) soundPanelButtons = panelButton;
     if (title == tr("駕駛控制")) drivingPanelButtons = panelButton;
     if (title == tr("導航")) navigationPanelButtons = panelButton;
     if (title == tr("系統設定")) systemPanelButtons = panelButton;
     if (title == tr("佈景主題和外觀")) themePanelButtons = panelButton;
     if (title == tr("車輛設定")) vehiclePanelButtons = panelButton;
-    if (title == tr("HFOP")) HFOPPanelButtons = panelButton;
 
     if (forceOpenDescriptions) {
       panelButton->showDescription();
@@ -165,7 +165,6 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
 /////////////////////////////////////////////////////
   QObject::connect(frogpilotHFOPPanel, &FrogPilotHFOPPanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
   QObject::connect(frogpilotHFOPPanel, &FrogPilotHFOPPanel::openSubSubPanel, this, &FrogPilotSettingsWindow::openSubSubPanel);
-  // QObject::connect(frogpilotHFOPPanel, &FrogPilotHFOPPanel::openSubSubSubPanel, this, &FrogPilotSettingsWindow::openSubSubSubPanel);
 /////////////////////////////////////////////////////
 }
 
