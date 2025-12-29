@@ -29,7 +29,7 @@ function loadGoogleMapsAPI(apiKey) {
 
     // 使用 async 加載並設置 callback
     window.initGoogleMaps = resolve;
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async&callback=initGoogleMaps`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,marker&loading=async&callback=initGoogleMaps`;
     script.async = true;
     script.defer = true;
     script.addEventListener('error', reject);
@@ -207,7 +207,7 @@ export function NavDestination() {
       }
 
       if (state.navigationProvider === 'google') {
-        destinationMarker = new google.maps.Marker({
+        destinationMarker = new google.maps.marker.AdvancedMarkerElement({
           position: { lat: coords[1], lng: coords[0] },
           map: map,
           title: name
@@ -425,14 +425,17 @@ export function NavDestination() {
           popupText = `Work: ${fav.name}`;
         }
 
-const marker = new google.maps.Marker({
+// 創建自定義圖標元素
+        const iconElement = document.createElement('div');
+        iconElement.style.fontSize = '32px';
+        iconElement.style.cursor = 'pointer';
+        iconElement.textContent = icon;
+
+        const marker = new google.maps.marker.AdvancedMarkerElement({
           position: { lat: fav.latitude, lng: fav.longitude },
           map: map,
           title: popupText,
-          label: {
-            text: icon,
-            fontSize: '24px'
-          }
+          content: iconElement
         });
 
         const infoWindow = new google.maps.InfoWindow({
@@ -695,6 +698,7 @@ const marker = new google.maps.Marker({
         center: { lat: state.lastPosition.latitude, lng: state.lastPosition.longitude },
         zoom: 15,
         tilt: 45,
+        mapId: '5622116a27da1e3951da6448',
         mapTypeId: 'roadmap',
         disableDefaultUI: false,
         zoomControl: true,
@@ -703,7 +707,7 @@ const marker = new google.maps.Marker({
         fullscreenControl: false
       });
 
-      new google.maps.Marker({
+      new google.maps.marker.AdvancedMarkerElement({
         position: { lat: state.lastPosition.latitude, lng: state.lastPosition.longitude },
         map: map,
         title: '當前位置'
@@ -794,8 +798,9 @@ const marker = new google.maps.Marker({
                     ${() => (state.favoritesCount > 0 ? html`<button class="favorites-toggle-button" @click="${handleFavoritesClick}">❤️ Favorites</button>` : "")}
                     ${() => (state.canToggleProvider ? html`
                       <div class="search-provider-toggle">
-                        <button class="${() => (state.searchProvider === "amap" ? "active" : "")}" @click="${() => { state.searchProvider = "amap"; state.suggestions = "[]"; }}">AMap</button>
-                        <button class="${() => (state.searchProvider === "mapbox" ? "active" : "")}" @click="${() => { state.searchProvider = "mapbox"; state.suggestions = "[]"; }}">Mapbox</button>
+                        ${() => state.googleKey ? html`<button class="${() => (state.searchProvider === "google" ? "active" : "")}" @click="${() => { state.searchProvider = "google"; state.suggestions = "[]"; }}">Google</button>` : ""}
+                        ${() => (state.mapboxPublic && state.mapboxSecret) ? html`<button class="${() => (state.searchProvider === "mapbox" ? "active" : "")}" @click="${() => { state.searchProvider = "mapbox"; state.suggestions = "[]"; }}">Mapbox</button>` : ""}
+                        ${() => (state.amap1Key && state.amap2Key) ? html`<button class="${() => (state.searchProvider === "amap" ? "active" : "")}" @click="${() => { state.searchProvider = "amap"; state.suggestions = "[]"; }}">AMap</button>` : ""}
                       </div>
                     ` : "")}
                   </div>
