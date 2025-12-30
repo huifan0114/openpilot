@@ -401,7 +401,7 @@ def torque_nn_load_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
     return Alert(
       "NNFF 扭矩控制已載入",
       model_name,
-      AlertStatus.frogpilot, AlertSize.mid,
+      FrogPilotAlertStatus.frogpilot, AlertSize.mid,
       Priority.LOW, VisualAlert.none, AudibleAlert.none, 5.0)
 
 
