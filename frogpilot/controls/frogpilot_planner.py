@@ -148,29 +148,35 @@ class FrogPilotPlanner:
       self.frogpilot_weather.weather_id = 0
 
 ####################################################################################
-    v_ego_kph = v_ego * 3.6
+
     # speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
     # 从 SpeedLimitController 获取速限和来源
-    detect_sl_raw = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
-    slc_source = self.frogpilot_vcruise.slc.source
+    # detect_sl_raw = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
+    # slc_source = self.frogpilot_vcruise.slc.source
 
-    # 根据速限来源决定是否加10%
-    # Map Data（离线地图）或 Navigation（导航）来源时自动+10%
-    if detect_sl_raw > 0 and (slc_source == "Map Data" or slc_source == "Navigation"):
-      detect_sl_adjusted = int(detect_sl_raw * 1.1)  # 加10%
-      # 限制在 40-120 km/h 范围内
-      detect_sl = max(40, min(120, detect_sl_adjusted))
-    else:
-      detect_sl = detect_sl_raw
 
-    speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
+    # # 根据速限来源决定是否加10%
+    # # Map Data（离线地图）或 Navigation（导航）来源时自动+10%
+    # if detect_sl_raw > 0 and (slc_source == "Map Data" or slc_source == "Navigation"):
+    #   detect_sl_adjusted = int(detect_sl_raw * 1.1)  # 加10%
+    #   # 限制在 40-120 km/h 范围内
+    #   detect_sl = max(40, min(120, detect_sl_adjusted))
+    # else:
+    #   detect_sl = detect_sl_raw
 
     # auto_acc_pass = v_ego_kph > frogpilot_toggles.autoacc_speed
-    # current_isengaged = self.params.get_bool("IsEngaged")
+    current_isengaged = self.params.get_bool("IsEngaged")
     # current_setspeed = self.params_memory.get_int("KeySetSpeed")
     # detect_speedlimit = self.params_memory.get_int("DetectSpeedLimit")
-    # autoacc_caraway_status = self.params_memory.get_int("AutoACCCarAwaystatus")
-    # autoacc_greenlight_status = self.params_memory.get_int("AutoACCGreenLightstatus")
+    autoacc_caraway_status = self.params_memory.get_int("AutoACCCarAwaystatus")
+    autoacc_greenlight_status = self.params_memory.get_int("AutoACCGreenLightstatus")
+    v_ego_kph = v_ego * 3.6
+    detect_sl = self.frogpilot_vcruise.slc.desired_speed_limit * 3.6
+    speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
+    detect_speedlimit = self.params_memory.get_int("DetectSpeedLimit")
+    stopmark_on = self.params_memory.get_bool("StopmarkOn")  # 讀取停止標記狀態
+    stopDistance = self.params_memory.get_int("stopmarkDistance")
+
 
     if frogpilot_toggles.auto_speeddistance:
       # leadtimeGapScaledInt = self.params_memory.get_int("leadtimeGapScaledInt")
@@ -184,13 +190,11 @@ class FrogPilotPlanner:
       if increased_stopped_distance != frogpilot_toggles.prev_increased_stopped_distance:
         self.params.put_int("IncreasedStoppedDistance", increased_stopped_distance)
 
-      # stopmark_on = self.params_memory.get_bool("StopmarkOn")  # 讀取停止標記狀態
-      # stopDistance = self.params_memory.get_int("stopmarkDistance")
 
     # if frogpilot_toggles.autoacc and not current_isengaged :
-    if frogpilot_toggles.autoacc and not self.params.get_bool("IsEngaged") :
+    if frogpilot_toggles.autoacc and not current_isengaged :
       auto_acc_pass = v_ego_kph > frogpilot_toggles.autoacc_speed
-      if auto_acc_pass or self.params_memory.get_int("AutoACCCarAwaystatus") == 1 or self.params_memory.get_int("AutoACCGreenLightstatus") == 1:
+      if auto_acc_pass or autoacc_caraway_status == 1 or autoacc_greenlight_status == 1:
         self.params_memory.put_bool("KeyResume", True)
         self.params_memory.put_bool("KeyChanged", True)
         self.params_memory.put_int("AutoACCCarAwaystatus", 0)
@@ -198,7 +202,7 @@ class FrogPilotPlanner:
         self.params_memory.put_bool("StopmarkApplied", False)
 
       # 速限變更邏輯
-      if self.params_memory.get_int('DetectSpeedLimit') != 0 and frogpilot_toggles.roadtype_profile != 0:
+      if detect_speedlimit != 0 and frogpilot_toggles.roadtype_profile != 0:
         if frogpilot_toggles.navspeed:
           self.params_memory.put_bool("SpeedLimitChanged", True)
       elif frogpilot_toggles.roadtype:
@@ -264,16 +268,16 @@ class FrogPilotPlanner:
           self.params_memory.put_bool("KeyChanged", True)
           self.params_memory.put_int("SpeedPrev", 0)
 
-    if self.params_memory.get_bool('StopmarkOn'):
+    if stopmark_on:
       minSpeedLimit = 10.0   # 最低速限
       maxDistance = 100.0    # 最大距離
       minDistance = 10.0     # 最小距離
 
       # 取得當前速限
-      currentSpeedLimit = self.params_memory.get_int('KeySetSpeed')
+      currentSpeedLimit = self.params_memory.get_int("KeySetSpeed")
 
       # **只在 stopmark_on 第一次啟動時記錄當前速限**
-      if not self.params_memory.get_bool('StopmarkApplied'):
+      if not self.params_memory.get_bool("StopmarkApplied"):
           self.params_memory.put_int("OriginalKeySetSpeed", currentSpeedLimit)
           self.params_memory.put_bool("StopmarkApplied", True)
 
@@ -281,7 +285,6 @@ class FrogPilotPlanner:
       maxSpeedLimit = currentSpeedLimit
 
       # **計算線性降速**
-      stopDistance = self.params_memory.get_int('stopmarkDistance')
       stopmarkspeedLimit = minSpeedLimit + (stopDistance - minDistance) * (maxSpeedLimit - minSpeedLimit) / (maxDistance - minDistance)
       newSpeedLimit = round(stopmarkspeedLimit)
 
@@ -297,8 +300,8 @@ class FrogPilotPlanner:
 
     else:
       # **只執行一次恢復邏輯**
-      if not self.params_memory.get_bool('StopmarkRestored') and (self.params_memory.get_int('AutoACCCarAwaystatus') == 1 or self.params_memory.get_int('AutoACCGreenLightstatus') == 1):
-        originalSpeedLimit = self.params_memory.get_int('OriginalKeySetSpeed')
+      if not self.params_memory.get_bool("StopmarkRestored") and (autoacc_caraway_status == 1 or autoacc_greenlight_status == 1):
+        originalSpeedLimit = self.params_memory.get_int("OriginalKeySetSpeed")
         self.params_memory.put_bool("StopmarkApplied", False)  # 清除 Stopmark 記錄
 
         if frogpilot_toggles.navspeed:
@@ -309,25 +312,25 @@ class FrogPilotPlanner:
           self.params_memory.put_int("SpeedPrev", 0)
 
         self.params_memory.put_bool("StopmarkRestored", True)  # 避免重複執行
-        # **恢復原本的 KeySetSpeed**
-        if self.params_memory.get_bool('StopmarkApplied'):
-            originalSpeedLimit = self.params_memory.get_int('OriginalKeySetSpeed')
-            self.params_memory.put_bool("StopmarkApplied", False)  # 清除標記
-        else:
-            # **如果沒有存過原始速限,則預設為當前 KeySetSpeed**
-            originalSpeedLimit = self.params_memory.get_int('KeySetSpeed')
+        # # **恢復原本的 KeySetSpeed**
+        # if self.params_memory.get_bool('StopmarkApplied'):
+        #     originalSpeedLimit = self.params_memory.get_int('OriginalKeySetSpeed')
+        #     self.params_memory.put_bool("StopmarkApplied", False)  # 清除標記
+        # else:
+        #     # **如果沒有存過原始速限,則預設為當前 KeySetSpeed**
+        #     originalSpeedLimit = self.params_memory.get_int('KeySetSpeed')
 
-        # **直接恢復為當時的最高速限**
-        key_set_speed = originalSpeedLimit
+        # # **直接恢復為當時的最高速限**
+        # key_set_speed = originalSpeedLimit
 
-        # **更新速限**
-        if key_set_speed > 0:
-            self.params_memory.put_int("KeySetSpeed", key_set_speed)
-            self.params_memory.put_bool("KeyChanged", True)
-            self.params_memory.put_int("SpeedPrev", 0)
+        # # **更新速限**
+        # if key_set_speed > 0:
+        #     self.params_memory.put_int("KeySetSpeed", key_set_speed)
+        #     self.params_memory.put_bool("KeyChanged", True)
+        #     self.params_memory.put_int("SpeedPrev", 0)
 
-        #**設定 StopmarkRestored，避免重複執行**
-        self.params_memory.put_bool("StopmarkRestored", True)
+        # #**設定 StopmarkRestored，避免重複執行**
+        # self.params_memory.put_bool("StopmarkRestored", True)
     #################################################################
     # 速限變更偵測
     if frogpilot_toggles.navspeed:
@@ -341,7 +344,7 @@ class FrogPilotPlanner:
     if frogpilot_toggles.speedoverreminder:
       speed_over = v_ego_kph >= 40 and speedlimit >= 40 and (v_ego_kph - speedlimit) >= 1
       self.speed_over = speed_over  # 修正變數名稱
-      detect_speedlimit = self.params_memory.get_int('DetectSpeedLimit')
+      # detect_speedlimit = self.params_memory.get_int('DetectSpeedLimit')
 
       if speed_over and detect_speedlimit != 0 and frogpilot_toggles.speedreminderreset:
           self.params_memory.put_int("DetectSpeedLimit", max(detect_speedlimit, 40))
