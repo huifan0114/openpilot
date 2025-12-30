@@ -171,10 +171,8 @@ def setup(app):
 
   @app.route("/api/navigation", methods=["POST"])
   def set_navigation():
-    params.remove("NavDestination")
-
-    time.sleep(1)
-
+    # 直接更新NavDestination,避免中間狀態導致UI watchdog timeout
+    # 不使用sleep,因為params操作本身是原子性的
     params.put("NavDestination", json.dumps(request.json))
     return {"message": "Destination set"}
 
