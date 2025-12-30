@@ -271,9 +271,9 @@ class FrogPilotPlanner:
       currentSpeedLimit = frogpilot_toggles.key_set_speed
 
       # **只在 stopmark_on 第一次啟動時記錄當前速限**
-      #if not frogpilot_toggles.stopmark_applied:
-        #  self.params_memory.put_int("OriginalKeySetSpeed", currentSpeedLimit)
-        #  self.params_memory.put_bool("StopmarkApplied", True)
+      if not frogpilot_toggles.stopmark_applied:
+          self.params_memory.put_int("OriginalKeySetSpeed", currentSpeedLimit)
+          self.params_memory.put_bool("StopmarkApplied", True)
 
       # **以當時速限作為最大速限**
       maxSpeedLimit = currentSpeedLimit
