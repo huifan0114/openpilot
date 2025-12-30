@@ -149,7 +149,7 @@ class FrogPilotPlanner:
 
 ####################################################################################
     v_ego_kph = v_ego * 3.6
-
+    # speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
     # 从 SpeedLimitController 获取速限和来源
     detect_sl_raw = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
     slc_source = self.frogpilot_vcruise.slc.source
@@ -163,7 +163,7 @@ class FrogPilotPlanner:
     else:
       detect_sl = detect_sl_raw
 
-    # speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
+    speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
 
     # auto_acc_pass = v_ego_kph > frogpilot_toggles.autoacc_speed
     # current_isengaged = self.params.get_bool("IsEngaged")
@@ -339,7 +339,6 @@ class FrogPilotPlanner:
           self.params_memory.put_bool("SpeedLimitChanged", True)
     #超速偵測
     if frogpilot_toggles.speedoverreminder:
-      speedlimit = self.params_memory.get_int('SpeedLimit')
       speed_over = v_ego_kph >= 40 and speedlimit >= 40 and (v_ego_kph - speedlimit) >= 1
       self.speed_over = speed_over  # 修正變數名稱
       detect_speedlimit = self.params_memory.get_int('DetectSpeedLimit')
