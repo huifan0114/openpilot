@@ -2,6 +2,7 @@
 import json
 import math
 
+from cereal import log
 import cereal.messaging as messaging
 
 #########################################
