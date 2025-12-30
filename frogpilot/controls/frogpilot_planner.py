@@ -149,34 +149,25 @@ class FrogPilotPlanner:
 
 ####################################################################################
     v_ego_kph = v_ego * 3.6
-    # speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
     # 从 SpeedLimitController 获取速限和来源
     detect_sl_raw = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
     slc_source = self.frogpilot_vcruise.slc.source
 
-    # 根据速限来源决定是否加10%
-    # Map Data（离线地图）或 Navigation（导航）来源时自动+10%
-    if detect_sl_raw > 0 and (slc_source == "Map Data" or slc_source == "Navigation"):
-      detect_sl_adjusted = int(detect_sl_raw * 1.1)  # 加10%
-      # 限制在 40-120 km/h 范围内
-      detect_sl = max(40, min(120, detect_sl_adjusted))
-    else:
-      detect_sl = detect_sl_raw
-
     speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
-
+    detect_speedlimit = self.params_memory.get_int("DetectSpeedLimit")
     # auto_acc_pass = v_ego_kph > frogpilot_toggles.autoacc_speed
     # current_isengaged = self.params.get_bool("IsEngaged")
     # current_setspeed = self.params_memory.get_int("KeySetSpeed")
-    # detect_speedlimit = self.params_memory.get_int("DetectSpeedLimit")
     # autoacc_caraway_status = self.params_memory.get_int("AutoACCCarAwaystatus")
     # autoacc_greenlight_status = self.params_memory.get_int("AutoACCGreenLightstatus")
+    # leadtimeGapScaledInt = self.params_memory.get_int("leadtimeGapScaledInt")
+    # prev_increased_stopped_distance = self.params.get_int("IncreasedStoppedDistance")
+    # stopmark_on = self.params_memory.get_bool("StopmarkOn")  # 讀取停止標記狀態
+    # stopDistance = self.params_memory.get_int("stopmarkDistance")
 
+    #根據速度調整跟車距離
     if frogpilot_toggles.auto_speeddistance:
-      # leadtimeGapScaledInt = self.params_memory.get_int("leadtimeGapScaledInt")
-      # prev_increased_stopped_distance = self.params.get_int("IncreasedStoppedDistance")
       increased_stopped_distance = frogpilot_toggles.prev_increased_stopped_distance
-
       if v_ego_kph >= 50 and increased_stopped_distance != 1 and frogpilot_toggles.leadtime_gap_scaled_int < 3000 :
         increased_stopped_distance = 1
       elif v_ego_kph < 20 and increased_stopped_distance != 0 and frogpilot_toggles.leadtime_gap_scaled_int > 2000:
@@ -184,8 +175,6 @@ class FrogPilotPlanner:
       if increased_stopped_distance != frogpilot_toggles.prev_increased_stopped_distance:
         self.params.put_int("IncreasedStoppedDistance", increased_stopped_distance)
 
-      # stopmark_on = self.params_memory.get_bool("StopmarkOn")  # 讀取停止標記狀態
-      # stopDistance = self.params_memory.get_int("stopmarkDistance")
 
     # if frogpilot_toggles.autoacc and not current_isengaged :
     if frogpilot_toggles.autoacc and not self.params.get_bool("IsEngaged") :
@@ -328,6 +317,14 @@ class FrogPilotPlanner:
 
         #**設定 StopmarkRestored，避免重複執行**
         self.params_memory.put_bool("StopmarkRestored", True)
+    # 根据速限来源决定是否加10%
+    # Map Data（离线地图）或 Navigation（导航）来源时自动+10%
+    if detect_sl_raw > 0 and (slc_source == "Map Data" or slc_source == "Navigation"):
+      detect_sl_adjusted = int(detect_sl_raw * 1.1)  # 加10%
+      # 限制在 40-120 km/h 范围内
+      detect_sl = max(40, min(120, detect_sl_adjusted))
+    else:
+      detect_sl = detect_sl_raw
     #################################################################
     # 速限變更偵測
     if frogpilot_toggles.navspeed:
@@ -341,7 +338,7 @@ class FrogPilotPlanner:
     if frogpilot_toggles.speedoverreminder:
       speed_over = v_ego_kph >= 40 and speedlimit >= 40 and (v_ego_kph - speedlimit) >= 1
       self.speed_over = speed_over  # 修正變數名稱
-      detect_speedlimit = self.params_memory.get_int('DetectSpeedLimit')
+      # detect_speedlimit = self.params_memory.get_int('DetectSpeedLimit')
 
       if speed_over and detect_speedlimit != 0 and frogpilot_toggles.speedreminderreset:
           self.params_memory.put_int("DetectSpeedLimit", max(detect_speedlimit, 40))
