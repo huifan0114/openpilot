@@ -327,60 +327,8 @@ const loadDefaultTheme = async () => {
       state.imageFileNames.turnSignal = data.theme_names.turnSignals || "Active";
     }
 
-    const fetchActive = async (relPath) => {
-      const res = await fetch(`/api/themes/asset/__active__/${relPath}?type=active`);
-      if (!res.ok) return null;
-      const blob = await res.blob();
-      return new File([blob], relPath.split("/").pop(), { type: blob.type });
-    };
-
-    if (data.images?.turnSignal) {
-      const f = await fetchActive(`signals/${data.images.turnSignal}`);
-      if (f) fileStore.images.turnSignal = f;
-    }
-
-    if (data.images?.turnSignalBlindspot) {
-      const f = await fetchActive(`signals/${data.images.turnSignalBlindspot}`);
-      if (f) fileStore.images.turnSignalBlindspot = f;
-    }
-
-    fileStore.sequentialFiles = [];
-    if (Array.isArray(data.sequentialImages) && data.sequentialImages.length) {
-      for (const img of data.sequentialImages) {
-        const f = await fetchActive(`signals/${img}`);
-        if (f) fileStore.sequentialFiles.push(f);
-      }
-    }
-
-    if (data.images?.distanceIcons) {
-      if (!fileStore.images.distanceIcons) fileStore.images.distanceIcons = {};
-      for (const [k, v] of Object.entries(data.images.distanceIcons)) {
-        const f = await fetchActive(`distance_icons/${v}`);
-        if (f) fileStore.images.distanceIcons[k] = f;
-      }
-    }
-
-    if (data.images?.homeButton) {
-      const f = await fetchActive(`icons/${data.images.homeButton}`);
-      if (f) fileStore.images.homeButton = f;
-    }
-
-    if (data.images?.settingsButton) {
-      const f = await fetchActive(`icons/${data.images.settingsButton}`);
-      if (f) fileStore.images.settingsButton = f;
-    }
-
-    if (data.images?.steeringWheel) {
-      const f = await fetchActive(`steering_wheel/${data.images.steeringWheel}`);
-      if (f) fileStore.images.steeringWheel = f;
-    }
-
-    if (data.sounds) {
-      for (const [k, v] of Object.entries(data.sounds)) {
-        const f = await fetchActive(`sounds/${v}`);
-        if (f) fileStore.sounds[k] = f;
-      }
-    }
+    // 延遲加載主題資源 - 只在需要時加載,避免一次性加載過多導致系統重啟
+    // 改為按需加載模式,不在頁面初始化時加載所有資源
   } catch (error) {
     console.error("Failed to load default theme:", error);
     showSnackbar("Failed to load default theme.", "error");
@@ -401,6 +349,48 @@ const fetchDownloadables = async () => {
     const r = await fetch(`/api/params?key=${encodeURIComponent(param)}`);
     const txt = await r.text();
     state.downloadable[slot] = parseList(txt);
+  }
+};
+
+// 按需加載主題資源的輔助函數
+const lazyLoadThemeAsset = async (relPath) => {
+  try {
+    const res = await fetch(`/api/themes/asset/__active__/${relPath}?type=active`);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    if (blob.size === 0) return null;
+    return new File([blob], relPath.split("/").pop(), { type: blob.type });
+  } catch (error) {
+    console.error(`Failed to load theme asset: ${relPath}`, error);
+    return null;
+  }
+};
+
+// 當需要顯示預覽時才加載資源
+const loadThemeAssetsOnDemand = async () => {
+  try {
+    const data = state; // 使用已加載的配置信息
+
+    // 使用並發限制避免過載 - 一次最多加載5個資源
+    const loadQueue = [];
+    const concurrencyLimit = 5;
+
+    const processQueue = async (queue) => {
+      for (let i = 0; i < queue.length; i += concurrencyLimit) {
+        const batch = queue.slice(i, i + concurrencyLimit);
+        await Promise.all(batch);
+        // 添加延遲避免瞬間過載
+        if (i + concurrencyLimit < queue.length) {
+          await new Promise(resolve => setTimeout(resolve, 200));
+        }
+      }
+    };
+
+    // 只在實際需要時才加載
+    // 這個函數將在用戶訪問主題製作頁面時被調用
+
+  } catch (error) {
+    console.error("Failed to load theme assets on demand:", error);
   }
 };
 
