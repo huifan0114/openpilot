@@ -416,10 +416,10 @@ class Controls:
           self.params.put_int("IncreasedStoppedDistance", 2)
           params_memory.put_bool("FrogPilotTogglesUpdated", True)
 
-    if params_memory.get_bool("StopmarkOn") :
-      params_memory.put_bool("KeyChanged", True)
-      params_memory.put_int("SpeedPrev", 0)
-      params_memory.put_bool("StopmarkOn", False)
+    # if params_memory.get_bool("StopmarkOn") :
+    #   params_memory.put_bool("KeyChanged", True)
+    #   params_memory.put_int("SpeedPrev", 0)
+    #   params_memory.put_bool("StopmarkOn", False)
 
     ##################NAV語音#####################################################
     if self.frogpilot_toggles.navreminder:

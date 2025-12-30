@@ -502,61 +502,61 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
 ##################NAV語音#####################################################
-  EventName.navturn: {
-    ET.WARNING: Alert(
-      "準備轉彎!!",
-      "",
-      AlertStatus.userPrompt, AlertSize.none,
-      Priority.LOW, VisualAlert.none, AudibleAlert.navturn, 1.),
-  },
+  # EventName.navturn: {
+  #   ET.WARNING: Alert(
+  #     "準備轉彎!!",
+  #     "",
+  #     AlertStatus.userPrompt, AlertSize.none,
+  #     Priority.LOW, VisualAlert.none, AudibleAlert.navturn, 1.),
+  # },
 
-  EventName.navuturn: {
-    ET.WARNING: Alert(
-      "準備迴轉!!",
-      "",
-      AlertStatus.userPrompt, AlertSize.none,
-      Priority.LOW, VisualAlert.none, AudibleAlert.navuturn, 1.),
-  },
+  # EventName.navuturn: {
+  #   ET.WARNING: Alert(
+  #     "準備迴轉!!",
+  #     "",
+  #     AlertStatus.userPrompt, AlertSize.none,
+  #     Priority.LOW, VisualAlert.none, AudibleAlert.navuturn, 1.),
+  # },
 
-  EventName.navturnleft: {
-    ET.WARNING: Alert(
-      "準備左轉!!",
-      "",
-      AlertStatus.userPrompt, AlertSize.none,
-      Priority.LOW, VisualAlert.none, AudibleAlert.navturnleft, 1.),
-  },
+  # EventName.navturnleft: {
+  #   ET.WARNING: Alert(
+  #     "準備左轉!!",
+  #     "",
+  #     AlertStatus.userPrompt, AlertSize.none,
+  #     Priority.LOW, VisualAlert.none, AudibleAlert.navturnleft, 1.),
+  # },
 
-  EventName.navturnright: {
-    ET.WARNING: Alert(
-      "準備右轉!!",
-      "",
-      AlertStatus.userPrompt, AlertSize.none,
-      Priority.LOW, VisualAlert.none, AudibleAlert.navturnright, 1.),
-  },
+  # EventName.navturnright: {
+  #   ET.WARNING: Alert(
+  #     "準備右轉!!",
+  #     "",
+  #     AlertStatus.userPrompt, AlertSize.none,
+  #     Priority.LOW, VisualAlert.none, AudibleAlert.navturnright, 1.),
+  # },
 
-  EventName.navsharpleft: {
-    ET.WARNING: Alert(
-      "準備緊急左轉!!",
-      "",
-      AlertStatus.userPrompt, AlertSize.none,
-      Priority.LOW, VisualAlert.none, AudibleAlert.navsharpleft, 1.),
-  },
+  # EventName.navsharpleft: {
+  #   ET.WARNING: Alert(
+  #     "準備緊急左轉!!",
+  #     "",
+  #     AlertStatus.userPrompt, AlertSize.none,
+  #     Priority.LOW, VisualAlert.none, AudibleAlert.navsharpleft, 1.),
+  # },
 
-  EventName.navsharpright: {
-    ET.WARNING: Alert(
-      "準備緊急右轉!!",
-      "",
-      AlertStatus.userPrompt, AlertSize.none,
-      Priority.LOW, VisualAlert.none, AudibleAlert.navsharpright, 1.),
-  },
+  # EventName.navsharpright: {
+  #   ET.WARNING: Alert(
+  #     "準備緊急右轉!!",
+  #     "",
+  #     AlertStatus.userPrompt, AlertSize.none,
+  #     Priority.LOW, VisualAlert.none, AudibleAlert.navsharpright, 1.),
+  # },
 
-  EventName.navofframp: {
-    ET.WARNING: Alert(
-      "準備下交流道!!",
-      "",
-      AlertStatus.userPrompt, AlertSize.none,
-      Priority.LOW, VisualAlert.none, AudibleAlert.navofframp, 1.),
-  },
+  # EventName.navofframp: {
+  #   ET.WARNING: Alert(
+  #     "準備下交流道!!",
+  #     "",
+  #     AlertStatus.userPrompt, AlertSize.none,
+  #     Priority.LOW, VisualAlert.none, AudibleAlert.navofframp, 1.),
+  # },
   ##################NAV語音#####################################################
   EventName.speedover: {
     ET.WARNING: Alert(
