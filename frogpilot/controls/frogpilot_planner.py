@@ -171,7 +171,7 @@ class FrogPilotPlanner:
     autoacc_caraway_status = self.params_memory.get_int("AutoACCCarAwaystatus")
     autoacc_greenlight_status = self.params_memory.get_int("AutoACCGreenLightstatus")
     v_ego_kph = v_ego * 3.6
-    detect_sl = self.frogpilot_vcruise.slc.desired_speed_limit * 3.6
+    detect_sl = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
     speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
     detect_speedlimit = self.params_memory.get_int("DetectSpeedLimit")
     stopmark_on = self.params_memory.get_bool("StopmarkOn")  # 讀取停止標記狀態
