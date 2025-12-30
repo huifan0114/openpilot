@@ -7,7 +7,7 @@ static QLabel *addLabel(QWidget *parent, QVBoxLayout *layout, const QString &tex
     QLabel {
       color: #FFFFFF;
       font-size: %2px;
-      font-weight: bold;
+      font-weight: normal;
     }
   )").arg(fontSize));
   layout->addWidget(label);
@@ -24,7 +24,7 @@ static QLabel *addTitleLabel(QWidget *parent, QVBoxLayout *layout, const QString
       border-radius: 12px;
       color: #FFFFFF;
       font-size: 50px;
-      font-weight: bold;
+      font-weight: normal;
       padding: 12px 28px;
     }
   )");
@@ -68,7 +68,7 @@ static QWidget *createStatBox(const QString &title, QLabel **valueLabel, QWidget
     QLabel {
       color: #FFFFFF;
       font-size: 75px;
-      font-weight: bold;
+      font-weight: normal;
     }
   )");
   *valueLabel = value;
@@ -138,7 +138,7 @@ FrogPilotModelReview::FrogPilotModelReview(QWidget *parent) : QFrame(parent) {
       border-radius: 12px;
       color: #FFFFFF;
       font-size: 65px;
-      font-weight: bold;
+      font-weight: normal;
       padding: 12px 24px;
     }
   )");
@@ -158,7 +158,7 @@ FrogPilotModelReview::FrogPilotModelReview(QWidget *parent) : QFrame(parent) {
     QLabel {
       color: #C92231;
       font-size: 50px;
-      font-weight: bold;
+      font-weight: normal;
     }
   )");
   bottomLayout->addWidget(blacklistMessageLabel);
@@ -178,7 +178,7 @@ FrogPilotModelReview::FrogPilotModelReview(QWidget *parent) : QFrame(parent) {
       border-radius: 12px;
       color: #C92231;
       font-size: 45px;
-      font-weight: bold;
+      font-weight: normal;
       padding: 12px 24px;
     }
     QPushButton#ratingButton {
@@ -186,7 +186,7 @@ FrogPilotModelReview::FrogPilotModelReview(QWidget *parent) : QFrame(parent) {
       border-radius: 12px;
       color: #FFFFFF;
       font-size: 100px;
-      font-weight: bold;
+      font-weight: normal;
       padding: 12px 24px;
     }
     QPushButton#ratingButton:hover {

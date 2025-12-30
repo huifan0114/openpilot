@@ -190,7 +190,7 @@ body::after {
   writing-mode: vertical-rl;
   text-orientation: upright;
   letter-spacing: 2px;
-  font-weight: bold;
+  font-weight: normal;
 }
 
 /* ===== 中間一排 (左側 + 中央 + 右側) ===== */

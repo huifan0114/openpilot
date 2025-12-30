@@ -436,7 +436,7 @@ body {
   writing-mode: vertical-rl;
   text-orientation: upright;
   color: #fff;
-  font-weight: bold;
+  font-weight: normal;
   letter-spacing: 4px;
 }
 

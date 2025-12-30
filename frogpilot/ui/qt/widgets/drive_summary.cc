@@ -16,7 +16,7 @@ FrogPilotDriveSummary::FrogPilotDriveSummary(QWidget *parent, bool randomEvents)
       border-radius: 12px;
       color: #FFFFFF;
       font-size: 50px;
-      font-weight: bold;
+      font-weight: normal;
       padding: 12px 28px;
     }
   )");
@@ -133,7 +133,7 @@ void FrogPilotDriveSummary::showEvent(QShowEvent *event) {
       noEventsLabel->setStyleSheet(R"(
         QLabel {
           font-size: 50px;
-          font-weight: bold;
+          font-weight: normal;
           color: #FFFFFF;
         }
       )");
@@ -231,7 +231,7 @@ QWidget *FrogPilotDriveSummary::createStatBox(const QString &title, QLabel **val
     QLabel {
       color: #AAAAAA;
       font-size: 40px;
-      font-weight: bold;
+      font-weight: normal;
     }
   )");
 
@@ -242,7 +242,7 @@ QWidget *FrogPilotDriveSummary::createStatBox(const QString &title, QLabel **val
     QLabel {
       color: #FFFFFF;
       font-size: 75px;
-      font-weight: bold;
+      font-weight: normal;
     }
   )");
 

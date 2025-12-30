@@ -148,7 +148,7 @@
 .error-logs-wrapper #errorLogs #fileList .fileEntry.header {
   background-color: var(--secondary-bg);
   cursor: default;
-  font-weight: bold;
+  font-weight: normal;
 }
 
 .delete-all-button {

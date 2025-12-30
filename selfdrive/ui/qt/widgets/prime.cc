@@ -106,7 +106,7 @@ PairingPopup::PairingPopup(QWidget *parent) : DialogBase(parent) {
     .arg(tr("點選 \"新增設備\" 後掃描右邊的二維碼"))
     .arg(tr("將 connect.comma.ai 加入主螢幕，以便像應用程式一樣使用它")), this);
 
-    instructions->setStyleSheet("font-size: 47px; font-weight: bold; color: black;");
+    instructions->setStyleSheet("font-size: 47px; font-weight: normal; color: black;");
     instructions->setWordWrap(true);
     vlayout->addWidget(instructions);
 
@@ -126,11 +126,11 @@ PrimeUserWidget::PrimeUserWidget(QWidget *parent) : QFrame(parent) {
   mainLayout->setSpacing(20);
 
   QLabel *subscribed = new QLabel(tr("✓ 訂閱"));
-  subscribed->setStyleSheet("font-size: 41px; font-weight: bold; color: #86FF4E;");
+  subscribed->setStyleSheet("font-size: 41px; font-weight: normal; color: #86FF4E;");
   mainLayout->addWidget(subscribed);
 
   QLabel *commaPrime = new QLabel(tr("comma 高級會員"));
-  commaPrime->setStyleSheet("font-size: 75px; font-weight: bold;");
+  commaPrime->setStyleSheet("font-size: 75px; font-weight: normal;");
   mainLayout->addWidget(commaPrime);
 }
 
@@ -141,7 +141,7 @@ PrimeAdWidget::PrimeAdWidget(QWidget* parent) : QFrame(parent) {
   main_layout->setSpacing(0);
 
   QLabel *upgrade = new QLabel(tr("立即升級"));
-  upgrade->setStyleSheet("font-size: 75px; font-weight: bold;");
+  upgrade->setStyleSheet("font-size: 75px; font-weight: normal;");
   main_layout->addWidget(upgrade, 0, Qt::AlignTop);
   main_layout->addSpacing(50);
 
@@ -153,7 +153,7 @@ PrimeAdWidget::PrimeAdWidget(QWidget* parent) : QFrame(parent) {
   main_layout->addStretch();
 
   QLabel *features = new QLabel(tr("高級會員特點:"));
-  features->setStyleSheet("font-size: 41px; font-weight: bold; color: #E5E5E5;");
+  features->setStyleSheet("font-size: 41px; font-weight: normal; color: #E5E5E5;");
   main_layout->addWidget(features, 0, Qt::AlignBottom);
   main_layout->addSpacing(30);
 
@@ -187,7 +187,7 @@ SetupWidget::SetupWidget(QWidget* parent) : QFrame(parent) {
   finishRegistationLayout->setContentsMargins(64, 48, 64, 48);
 
   QLabel* registrationTitle = new QLabel(tr("完成設定"));
-  registrationTitle->setStyleSheet("font-size: 75px; font-weight: bold;");
+  registrationTitle->setStyleSheet("font-size: 75px; font-weight: normal;");
   finishRegistationLayout->addWidget(registrationTitle);
 
   QLabel* registrationDescription = new QLabel(useKonikServer() ? tr("Pair your device with Konik connect (stable.konik.ai).") : tr("Pair your device with comma connect (connect.comma.ai) and claim your comma prime offer."));

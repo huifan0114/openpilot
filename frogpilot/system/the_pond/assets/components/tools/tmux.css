@@ -204,7 +204,7 @@
   }
   #fileList .fileEntry p .label {
     display: inline;
-    font-weight: bold;
+    font-weight: normal;
     margin-right: 1em;
   }
   #fileList .fileEntry p .value {

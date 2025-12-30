@@ -95,7 +95,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
       checkForUpdates();
 
       if (selection.toStdString() != current) {
-        if (FrogPilotConfirmationDialog::yesorno(tr("This branch must be downloaded before switching. Would you like to download it now?"), this)) {
+        if (FrogPilotConfirmationDialog::yesorno(tr("切換之前必須下載該分支。您想立即下載嗎?"), this)) {
           std::system("pkill -SIGHUP -f system.updated.updated");
 
           frogpilotUIState()->params_memory.putBool("ManualUpdateInitiated", true);

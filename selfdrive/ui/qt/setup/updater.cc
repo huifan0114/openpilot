@@ -21,7 +21,7 @@ Updater::Updater(const QString &updater_path, const QString &manifest_path, QWid
     layout->setContentsMargins(100, 250, 100, 100);
 
     QLabel *title = new QLabel(tr("設備需要更新"));
-    title->setStyleSheet("font-size: 80px; font-weight: bold;");
+    title->setStyleSheet("font-size: 80px; font-weight: normal;");
     layout->addWidget(title);
 
     layout->addSpacing(75);

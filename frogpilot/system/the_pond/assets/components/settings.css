@@ -140,7 +140,7 @@ input:focus + .slider {
 .options > input:checked + label {
   background-color: var(--success-bg);
   color: var(--text-color);
-  font-weight: bold;
+  font-weight: normal;
 }
 
 .options label {
@@ -192,7 +192,7 @@ input:focus + .slider {
   color: var(--text-color);
   display: inline-block;
   font-size: 14px;
-  font-weight: bold;
+  font-weight: normal;
   justify-self: end;
   margin-left: var(--border-radius-xl);
   padding: var(--border-radius-lg);

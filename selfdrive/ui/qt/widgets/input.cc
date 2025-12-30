@@ -59,7 +59,7 @@ InputDialog::InputDialog(const QString &title, QWidget *parent, const QString &s
   QVBoxLayout *vlayout = new QVBoxLayout;
   header_layout->addLayout(vlayout);
   label = new QLabel(title, this);
-  label->setStyleSheet("font-size: 90px; font-weight: bold;");
+  label->setStyleSheet("font-size: 90px; font-weight: normal;");
   vlayout->addWidget(label, 1, Qt::AlignTop | Qt::AlignLeft);
 
   if (!subtitle.isEmpty()) {
@@ -219,7 +219,7 @@ ConfirmationDialog::ConfirmationDialog(const QString &prompt_text, const QString
   QLabel *prompt = new QLabel(prompt_text, this);
   prompt->setWordWrap(true);
   prompt->setAlignment(rich ? Qt::AlignLeft : Qt::AlignHCenter);
-  prompt->setStyleSheet((rich ? "font-size: 42px; font-weight: light;" : "font-size: 70px; font-weight: bold;") + QString(" margin: 45px;"));
+  prompt->setStyleSheet((rich ? "font-size: 42px; font-weight: light;" : "font-size: 70px; font-weight: normal;") + QString(" margin: 45px;"));
   main_layout->addWidget(rich ? (QWidget*)new ScrollView(prompt, this) : (QWidget*)prompt, 1, Qt::AlignTop);
 
   // cancel + confirm buttons

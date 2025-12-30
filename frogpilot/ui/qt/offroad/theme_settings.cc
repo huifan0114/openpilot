@@ -574,11 +574,11 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       QString currentTop = QString::fromStdString(params.get("StartupMessageTop"));
       QString currentBottom = QString::fromStdString(params.get("StartupMessageBottom"));
 
-      QString stockTop = "Be ready to take over at any time";
-      QString stockBottom = "Always keep hands on wheel and eyes on road";
+      QString stockTop = "請注意路況並準備隨時接管";
+      QString stockBottom = "~~祝福您行車平安~~";
 
-      QString frogpilotTop = "Hop in and buckle up!";
-      QString frogpilotBottom = "Human-tested, frog-approved 🐸";
+      QString frogpilotTop = "請注意路況並準備隨時接管!";
+      QString frogpilotBottom = "~~祝福您行車平安~~";
 
       if (currentTop == stockTop && currentBottom == stockBottom) {
         startupAlertButton->setCheckedButton(0);

@@ -87,7 +87,7 @@
       display: flex;
       align-items: center;
       padding: 0 6px;
-      font-weight: bold;
+      font-weight: normal;
     }
     .btn {
       height: 32px;
@@ -116,7 +116,7 @@
     <div class="loader" id="spinner"></div>
     <div id="loading_text">Loading trace data...</div>
   </div>
-  
+
   <iframe id="perfetto_frame" src="https://ui.perfetto.dev" allow="clipboard-write"></iframe>
 
   <script type="text/javascript">
@@ -132,12 +132,12 @@
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const jsonData = await response.json();
-        
+
         // Convert JSON to string and then to blob
         const jsonString = JSON.stringify(jsonData);
         const blob = new Blob([jsonString], { type: 'application/json' });
         const arrayBuffer = await blob.arrayBuffer();
-        
+
         openTrace(arrayBuffer);
       } catch (error) {
         document.getElementById('spinner').remove();

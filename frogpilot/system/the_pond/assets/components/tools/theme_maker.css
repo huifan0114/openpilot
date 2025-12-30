@@ -240,7 +240,7 @@ label.file-upload-button {
   color: var(--text-color);
   cursor: pointer;
   display: inline-block;
-  font-weight: bold;
+  font-weight: normal;
   height: 1.2em;
   line-height: 1.2em;
   margin-left: 0.5em;
