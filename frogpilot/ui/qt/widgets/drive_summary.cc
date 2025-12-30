@@ -48,7 +48,7 @@ FrogPilotDriveSummary::FrogPilotDriveSummary(QWidget *parent, bool randomEvents)
     listLayout->addWidget(createStatBox(tr("駕駛距離"), &frogPilotMetersValue, this));
     listLayout->addWidget(createStatBox(tr("駕駛時間"), &trackedTimeValue, this));
     listLayout->addWidget(createStatBox(tr(" 駕駛過程 % 處於“實驗模式”"), &experimentalModeTimeValue, this));
-    
+
     // 油耗和油資左右並排顯示
     QWidget *fuelContainer = new QWidget(this);
     QHBoxLayout *fuelLayout = new QHBoxLayout(fuelContainer);
@@ -220,13 +220,13 @@ void FrogPilotDriveSummary::hideEvent(QHideEvent *event) {
 QWidget *FrogPilotDriveSummary::createStatBox(const QString &title, QLabel **valueLabel, QWidget *parent) {
   QWidget *box = new QWidget(parent);
 
-  QVBoxLayout *layout = new QVBoxLayout(box);
-  layout->setAlignment(Qt::AlignCenter);
+  QHBoxLayout *layout = new QHBoxLayout(box);
+  layout->setAlignment(Qt::AlignLeft);
   layout->setContentsMargins(10, 10, 10, 10);
-  layout->setSpacing(8);
+  layout->setSpacing(20);
 
   QLabel *statTitleLabel = new QLabel(title, box);
-  statTitleLabel->setAlignment(Qt::AlignCenter);
+  statTitleLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
   statTitleLabel->setStyleSheet(R"(
     QLabel {
       color: #AAAAAA;
@@ -236,8 +236,8 @@ QWidget *FrogPilotDriveSummary::createStatBox(const QString &title, QLabel **val
   )");
 
   QLabel *value = new QLabel("-", box);
-  value->setAlignment(Qt::AlignCenter);
-  value->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+  value->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+  value->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
   value->setStyleSheet(R"(
     QLabel {
       color: #FFFFFF;
