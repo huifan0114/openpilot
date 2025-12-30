@@ -9,6 +9,9 @@
 #include "frogpilot/ui/qt/onroad/frogpilot_annotated_camera.h"
 #include "frogpilot/ui/qt/onroad/frogpilot_buttons.h"
 #include "frogpilot/ui/screenrecorder/screenrecorder.h"
+////////////////////////
+#include "selfdrive/ui/qt/maps/map_instructions.h"
+////////////////////////
 
 class AnnotatedCameraWidget : public CameraWidget {
   Q_OBJECT
@@ -53,6 +56,11 @@ private:
   // FrogPilot variables
   void paintEvent(QPaintEvent *event) override;
   void resizeEvent(QResizeEvent *event);
+/////////////////////////
+  Params params;
+  QString navBanner;
+/////////////////////////
+  Params params_memory{"/dev/shm/params"};
 
   DistanceButton *distance_btn;
 

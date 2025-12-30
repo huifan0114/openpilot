@@ -29,22 +29,28 @@ struct FrogPilotCarControl {
       prompt @6;
       promptRepeat @7;
       promptDistracted @8;
+      ########HFOP###########
+      lanechangesound @9;
+      lanechangeblockedsound @10;
+      carawayed  @11;
+      greenlightsound @12;
+      ############################
 
       # Random Events
-      angry @9;
-      continued @10;
-      dejaVu @11;
-      doc @12;
-      fart @13;
-      firefox @14;
-      goat @15;
-      hal9000 @16;
-      mail @17;
-      nessie @18;
-      noice @19;
-      startup @20;
-      thisIsFine @21;
-      uwu @22;
+      angry @13;
+      continued @14;
+      dejaVu @15;
+      doc @16;
+      fart @17;
+      firefox @18;
+      goat @19;
+      hal9000 @20;
+      mail @21;
+      nessie @22;
+      noice @23;
+      startup @24;
+      thisIsFine @25;
+      uwu @26;
     }
   }
 }
@@ -178,6 +184,12 @@ struct FrogPilotNavigation @0xf416ec09499d9d19 {
   approachingIntersection @0 :Bool;
   approachingTurn @1 :Bool;
   navigationSpeedLimit @2 :Float32;
+
+  # NavBridge 狀態 (來自 NavDash APP)
+  navBridgeConnected @3 :Bool;           # NavDash APP 是否連接
+  distanceToManeuver @4 :Int32;          # 距離下個轉彎 (公尺)
+  maneuverType @5 :Text;                 # 轉彎類型 (turn, off_ramp, roundabout...)
+  maneuverModifier @6 :Text;             # 轉彎方向 (left, right, slight_left...)
 }
 
 struct FrogPilotPlan @0xa1680744031fdb2d {
@@ -219,6 +231,9 @@ struct FrogPilotPlan @0xa1680744031fdb2d {
   vCruise @35 :Float32;
   weatherDaytime @36 :Bool;
   weatherId @37 :Int16;
+  #########################
+  speedover @38:Bool;
+  #############################
 }
 
 struct FrogPilotRadarState @0xcb9fd56c7057593a {

@@ -13,6 +13,7 @@ from openpilot.common.basedir import BASEDIR
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.simple_kalman import KF1D, get_kalman_gain
 from openpilot.common.numpy_fast import clip
+from openpilot.common.params import Params
 from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.car import apply_hysteresis, gen_empty_fingerprint, scale_rot_inertia, scale_tire_stiffness, STD_CARGO_KG
 from openpilot.selfdrive.car.chrysler.values import CAR as ChryslerCAR, ChryslerFrogPilotFlags
@@ -27,6 +28,7 @@ from openpilot.selfdrive.car.values import PLATFORMS
 from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX, get_friction
 from openpilot.selfdrive.controls.lib.events import Events
 from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
+# from openpilot.selfdrive.frogpilot.frogpilot_variables import get_frogpilot_toggles, params, params_memory
 from panda import Panda
 
 ButtonType = car.CarState.ButtonEvent.Type
@@ -115,6 +117,12 @@ class CarInterfaceBase(ABC):
     self.CC: CarControllerBase = CarController(dbc_name, CP, self.VM)
 
     # FrogPilot variables
+    self.params = Params()
+    self.params_memory = Params("/dev/shm/params")
+    ##############################################
+    self.Dooropen_off_counter = 0
+    self.Dooropen_on_counter = 0
+    ##############################################
     self.always_on_lateral_allowed = False
 
   def apply(self, c: car.CarControl, now_nanos: int, frogpilot_toggles) -> tuple[car.CarControl.Actuators, list[tuple[int, int, bytes, int]]]:
@@ -346,6 +354,7 @@ class CarInterfaceBase(ABC):
     fp_ret.distancePressed = bool(self.CS.distance_button)
     fp_ret.ecoGear |= ret.gearShifter == GearShifter.eco
     fp_ret.sportGear |= ret.gearShifter == GearShifter.sport
+    # 自動塞車模式已在 frogpilot_card.py 中實現
 
     # copy back for next iteration
     if self.CS is not None:
@@ -355,11 +364,39 @@ class CarInterfaceBase(ABC):
 
 
   def create_common_events(self, cs_out, extra_gears=None, pcm_enable=True, allow_enable=True,
-                           enable_buttons=(ButtonType.accelCruise, ButtonType.decelCruise)):
+                           enable_buttons=(ButtonType.accelCruise, ButtonType.decelCruise), frogpilot_toggles=None):
     events = Events()
 
     if cs_out.doorOpen:
       events.add(EventName.doorOpen)
+
+####################################
+    if frogpilot_toggles and frogpilot_toggles.door_open:
+      door_open_detected = (
+        (frogpilot_toggles.driver_door_open and cs_out.driverdoorOpen) or
+        (frogpilot_toggles.codriver_door_open and cs_out.codriverdOpen) or
+        (frogpilot_toggles.lpassenger_door_open and cs_out.lpassengerdoorOpen) or
+        (frogpilot_toggles.rpassenger_door_open and cs_out.rpassengerdoorOpen) or
+        (frogpilot_toggles.luggage_door_open and cs_out.luggagedoorOpen)
+      )
+
+      if cs_out.engineRpm > 0 and door_open_detected:
+        events.add(EventName.doorOpen1)
+        self.Dooropen_off_counter = self.Dooropen_off_counter + 1 if frogpilot_toggles.door_open and not self.params.get_bool("Dooropenpre") else 0
+        if frogpilot_toggles.door_open and not self.params.get_bool("Dooropenpre") and self.Dooropen_off_counter > 500:
+          self.params.put_bool("Dooropenpre", True)
+          self.params.put_bool("FrogPilotTogglesUpdated", True)
+          self.Dooropen_on_counter = 0
+
+    if self.params.get_bool("Dooropenpre"):
+      self.Dooropen_on_counter = self.Dooropen_on_counter + 1 if frogpilot_toggles and not frogpilot_toggles.door_open and self.params.get_bool("Dooropenpre") and not cs_out.driverdoorOpen else 0
+
+    if frogpilot_toggles and not frogpilot_toggles.door_open and self.Dooropen_on_counter > 2000 and (not cs_out.driverdoorOpen):
+      self.params.put_bool("Dooropenpre", False)
+      self.params.put_bool("FrogPilotTogglesUpdated", True)
+      self.Dooropen_off_counter = 0
+####################################
+
     if cs_out.seatbeltUnlatched:
       events.add(EventName.seatbeltNotLatched)
     if cs_out.gearShifter != GearShifter.drive and (extra_gears is None or
@@ -389,6 +426,9 @@ class CarInterfaceBase(ABC):
       events.add(EventName.steerOverride)
     if cs_out.brakePressed and cs_out.standstill:
       events.add(EventName.preEnableStandstill)
+      ################################################
+      self.params_memory.put_int("leadspeeddiffProfile", 0)
+      ################################################
     if cs_out.gasPressed:
       events.add(EventName.gasPressedOverride)
 
@@ -405,6 +445,14 @@ class CarInterfaceBase(ABC):
       if b.type == FrogPilotButtonType.lkas and b.pressed:
         self.always_on_lateral_allowed = not self.always_on_lateral_allowed
 
+###########################################################################
+    if not self.CP.pcmCruise and self.params_memory.get_bool("KeyResume"):
+      events.add(EventName.buttonEnable)
+    if self.params_memory.get_bool("KeyCancel"):
+        self.params_memory.put_bool("KeyResume",False)
+        events.add(EventName.buttonCancel)
+        self.params_memory.put_bool("KeyCancel",False)
+############################################################################
     # Handle permanent and temporary steering faults
     self.steering_unpressed = 0 if cs_out.steeringPressed else self.steering_unpressed + 1
     if cs_out.steerFaultTemporary:

@@ -12,6 +12,9 @@
 #include "frogpilot/ui/qt/offroad/vehicle_settings.h"
 #include "frogpilot/ui/qt/offroad/visual_settings.h"
 #include "frogpilot/ui/qt/offroad/wheel_settings.h"
+////////////////////////////
+#include "frogpilot/ui/qt/offroad/hfop_settings.h"
+////////////////////////////
 
 bool nnffLogFileExists(const QString &carFingerprint) {
   static QStringList files;
@@ -75,23 +78,28 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
   FrogPilotVehiclesPanel *frogpilotVehiclesPanel = new FrogPilotVehiclesPanel(this);
   FrogPilotVisualsPanel *frogpilotVisualsPanel = new FrogPilotVisualsPanel(this);
   FrogPilotWheelPanel *frogpilotWheelPanel = new FrogPilotWheelPanel(this);
+/////////////////////////////////////////////////////
+  FrogPilotHFOPPanel *frogpilotHFOPPanel = new FrogPilotHFOPPanel(this);
+/////////////////////////////////////////////////////
 
   std::vector<std::vector<std::tuple<QString, QWidget*>>> panelButtons = {
-    {{tr("MANAGE"), frogpilotSoundsPanel}},
-    {{tr("DRIVING MODEL"), frogpilotModelPanel}, {tr("GAS / BRAKE"), frogpilotLongitudinalPanel}, {tr("STEERING"), frogpilotLateralPanel}},
-    {{tr("MAP DATA"), frogpilotMapsPanel}, {tr("NAVIGATION"), frogpilotNavigationPanel}},
-    {{tr("DATA"), frogpilotDataPanel}, {tr("DEVICE CONTROLS"), frogpilotDevicePanel}, {tr("UTILITIES"), new FrogPilotUtilitiesPanel(this)}},
-    {{tr("APPEARANCE"), frogpilotVisualsPanel}, {tr("THEME"), frogpilotThemesPanel}},
-    {{tr("VEHICLE SETTINGS"), frogpilotVehiclesPanel}, {tr("WHEEL CONTROLS"), frogpilotWheelPanel}}
+    {{tr("H F O P"), frogpilotHFOPPanel}},
+    {{tr("管理"), frogpilotSoundsPanel}},
+    {{tr("行駛模型"), frogpilotModelPanel}, {tr("油門 / 煞車"), frogpilotLongitudinalPanel}, {tr("轉向"), frogpilotLateralPanel}},
+    {{tr("地圖數據"), frogpilotMapsPanel}, {tr("導航"), frogpilotNavigationPanel}},
+    {{tr("資料"), frogpilotDataPanel}, {tr("裝置控制"), frogpilotDevicePanel}, {tr("工具"), new FrogPilotUtilitiesPanel(this)}},
+    {{tr("外觀"), frogpilotVisualsPanel}, {tr("佈景主題"), frogpilotThemesPanel}},
+    {{tr("車輛設定"), frogpilotVehiclesPanel}, {tr("方向盤控制"), frogpilotWheelPanel}}
   };
 
   std::vector<std::tuple<QString, QString, QString>> panelInfo = {
-    {tr("Alerts and Sounds"), tr("<b>Adjust alert volumes and enable custom notifications.</b>"), "../../frogpilot/assets/toggle_icons/icon_sound.png"},
-    {tr("Driving Controls"), tr("<b>Fine-tune custom FrogPilot acceleration, braking, and steering controls.</b>"), "../../frogpilot/assets/toggle_icons/icon_steering.png"},
-    {tr("Navigation"), tr("<b>Download map data for the \"Speed Limit Controller\" and configure \"Navigate on openpilot\" (NOO).</b>"), "../../frogpilot/assets/toggle_icons/icon_map.png"},
-    {tr("System Settings"), tr("<b>Manage backups, device settings, screen options, storage, and tools to keep FrogPilot running smoothly.</b>"), "../../frogpilot/assets/toggle_icons/icon_system.png"},
-    {tr("Theme and Appearance"), tr("<b>Customize the look of the driving screen and interface, including themes!</b>"), "../../frogpilot/assets/toggle_icons/icon_display.png"},
-    {tr("Vehicle Settings"), tr("<b>Configure car-specific options and steering wheel button mappings.</b>"), "../../frogpilot/assets/toggle_icons/icon_vehicle.png"}
+    {tr("HFOP 的功能"), tr("管理 HFOP 相關設定."), "../../frogpilot/assets/toggle_icons/icon_system.png"},
+    {tr("提醒和聲音"), tr("<b>調整提醒音量並啟用自訂通知。</b>"), "../../frogpilot/assets/toggle_icons/icon_sound.png"},
+    {tr("駕駛控制"), tr("<b>微調 FrogPilot 自訂加速、制動和轉向控制。</b>"), "../../frogpilot/assets/toggle_icons/icon_steering.png"},
+    {tr("導航"), tr("<b>下載 \"速度限制控制器\" 的地圖數據並設定 \"在 openpilot 上導航\" (NOO)。</b>"), "../../frogpilot/assets/toggle_icons/icon_map.png"},
+    {tr("系統設定"), tr("<b>管理備份、裝置設定、螢幕選項、儲存空間和工具,保持 FrogPilot 平穩執行。</b>"), "../../frogpilot/assets/toggle_icons/icon_system.png"},
+    {tr("佈景主題和外觀"), tr("<b>自訂駕駛螢幕和介面的外觀,包括佈景主題！</b>"), "../../frogpilot/assets/toggle_icons/icon_display.png"},
+    {tr("車輛設定"), tr("<b>設定車型特定選項和方向盤按鈕對應。</b>"), "../../frogpilot/assets/toggle_icons/icon_vehicle.png"}
   };
 
   for (size_t i = 0; i < panelInfo.size(); ++i) {
@@ -116,12 +124,13 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
     }
 
     FrogPilotButtonsControl *panelButton = new FrogPilotButtonsControl(title, description, icon, labels);
-    if (title == tr("Alerts and Sounds")) soundPanelButtons = panelButton;
-    if (title == tr("Driving Controls")) drivingPanelButtons = panelButton;
-    if (title == tr("Navigation")) navigationPanelButtons = panelButton;
-    if (title == tr("System Settings")) systemPanelButtons = panelButton;
-    if (title == tr("Theme and Appearance")) themePanelButtons = panelButton;
-    if (title == tr("Vehicle Settings")) vehiclePanelButtons = panelButton;
+    if (title == tr("HFOP 的功能")) HFOPPanelButtons = panelButton;
+    if (title == tr("提醒和聲音")) soundPanelButtons = panelButton;
+    if (title == tr("駕駛控制")) drivingPanelButtons = panelButton;
+    if (title == tr("導航")) navigationPanelButtons = panelButton;
+    if (title == tr("系統設定")) systemPanelButtons = panelButton;
+    if (title == tr("佈景主題和外觀")) themePanelButtons = panelButton;
+    if (title == tr("車輛設定")) vehiclePanelButtons = panelButton;
 
     if (forceOpenDescriptions) {
       panelButton->showDescription();
@@ -153,6 +162,10 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
   QObject::connect(frogpilotVehiclesPanel, &FrogPilotVehiclesPanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
   QObject::connect(frogpilotVisualsPanel, &FrogPilotVisualsPanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
   QObject::connect(frogpilotVisualsPanel, &FrogPilotVisualsPanel::openSubSubPanel, this, &FrogPilotSettingsWindow::openSubSubPanel);
+/////////////////////////////////////////////////////
+  QObject::connect(frogpilotHFOPPanel, &FrogPilotHFOPPanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
+  QObject::connect(frogpilotHFOPPanel, &FrogPilotHFOPPanel::openSubSubPanel, this, &FrogPilotSettingsWindow::openSubSubPanel);
+/////////////////////////////////////////////////////
 }
 
 FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFrame(parent) {
@@ -179,13 +192,13 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
   FrogPilotListWidget *list = new FrogPilotListWidget(this);
   frogpilotLayout->addWidget(list);
 
-  std::vector<QString> togglePresets{tr("Minimal"), tr("Standard"), tr("Advanced"), tr("Developer")};
-  togglePreset = new FrogPilotButtonsControl(tr("Tuning Level"),
-                                             tr("Choose your tuning level. Lower levels keep it simple; higher levels unlock more toggles for finer control.\n\n"
-                                                "Minimal - Ideal for those who prefer simplicity or ease of use\n"
-                                                "Standard - Recommended for most users for a balanced experience\n"
-                                                "Advanced - Fine-tuning for experienced users\n"
-                                                "Developer - Highly customizable settings for seasoned enthusiasts"),
+  std::vector<QString> togglePresets{tr("最簡"), tr("標準"), tr("進階"), tr("開發者")};
+  togglePreset = new FrogPilotButtonsControl(tr("調整等級"),
+                                             tr("選擇您的調整等級。較低的等級保持簡單；較高的等級解鎖更多切換以進行更精細的控制。\n\n"
+                                                "最簡 - 適合喜歡簡單性或易用性的人\n"
+                                                "標準 - 推薦給大多數用戶以獲得平衡的體驗\n"
+                                                "進階 - 為經驗豐富的用戶進行微調\n"
+                                                "開發者 - 資深愛好者的高度可自訂設定"),
                                               "../../frogpilot/assets/toggle_icons/icon_tuning.png", togglePresets, true);
   QObject::connect(togglePreset, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
     tuningLevel = id;
@@ -195,7 +208,7 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
     updateVariables();
 
     if (id == 3) {
-      ConfirmationDialog::alert(tr("WARNING: These settings are risky and can drastically change how openpilot drives. Only change if you fully understand what they do!"), this);
+      ConfirmationDialog::alert(tr("警告：這些設定是有風險的，可能會大幅改變 openpilot 的駕駛方式。只有在您完全瞭解它們的作用時才進行更改！"), this);
     }
   });
   togglePreset->setCheckedButton(params.getInt("TuningLevel"));
@@ -242,9 +255,10 @@ void FrogPilotSettingsWindow::showEvent(QShowEvent *event) {
     systemPanelButtons->showDescription();
     themePanelButtons->showDescription();
     vehiclePanelButtons->showDescription();
+    HFOPPanelButtons->showDescription();
 
     if (!alertShown) {
-      ConfirmationDialog::alert(tr("All toggle descriptions are currently expanded. You can tap a toggle's name to open or close its description at any time!"), this);
+      ConfirmationDialog::alert(tr("所有切換說明目前已展開。您可以隨時點選切換的名稱以展開或關閉其說明！"), this);
       alertShown = true;
     }
   }
@@ -264,6 +278,7 @@ void FrogPilotSettingsWindow::closePanel() {
     systemPanelButtons->showDescription();
     themePanelButtons->showDescription();
     vehiclePanelButtons->showDescription();
+    HFOPPanelButtons->showDescription();
   }
 
   mainLayout->setCurrentWidget(frogpilotPanel);

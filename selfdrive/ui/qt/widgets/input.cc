@@ -59,7 +59,7 @@ InputDialog::InputDialog(const QString &title, QWidget *parent, const QString &s
   QVBoxLayout *vlayout = new QVBoxLayout;
   header_layout->addLayout(vlayout);
   label = new QLabel(title, this);
-  label->setStyleSheet("font-size: 90px; font-weight: bold;");
+  label->setStyleSheet("font-size: 90px; font-weight: normal;");
   vlayout->addWidget(label, 1, Qt::AlignTop | Qt::AlignLeft);
 
   if (!subtitle.isEmpty()) {
@@ -68,7 +68,7 @@ InputDialog::InputDialog(const QString &title, QWidget *parent, const QString &s
     vlayout->addWidget(sublabel, 1, Qt::AlignTop | Qt::AlignLeft);
   }
 
-  QPushButton* cancel_btn = new QPushButton(tr("Cancel"));
+  QPushButton* cancel_btn = new QPushButton(tr("取消"));
   cancel_btn->setFixedSize(386, 125);
   cancel_btn->setStyleSheet(R"(
     QPushButton {
@@ -219,7 +219,7 @@ ConfirmationDialog::ConfirmationDialog(const QString &prompt_text, const QString
   QLabel *prompt = new QLabel(prompt_text, this);
   prompt->setWordWrap(true);
   prompt->setAlignment(rich ? Qt::AlignLeft : Qt::AlignHCenter);
-  prompt->setStyleSheet((rich ? "font-size: 42px; font-weight: light;" : "font-size: 70px; font-weight: bold;") + QString(" margin: 45px;"));
+  prompt->setStyleSheet((rich ? "font-size: 42px; font-weight: light;" : "font-size: 70px; font-weight: normal;") + QString(" margin: 45px;"));
   main_layout->addWidget(rich ? (QWidget*)new ScrollView(prompt, this) : (QWidget*)prompt, 1, Qt::AlignTop);
 
   // cancel + confirm buttons
@@ -252,7 +252,7 @@ bool ConfirmationDialog::alert(const QString &prompt_text, QWidget *parent, bool
 }
 
 bool ConfirmationDialog::confirm(const QString &prompt_text, const QString &confirm_text, QWidget *parent) {
-  ConfirmationDialog d = ConfirmationDialog(prompt_text, confirm_text, tr("Cancel"), false, parent);
+  ConfirmationDialog d = ConfirmationDialog(prompt_text, confirm_text, tr("取消"), false, parent);
   return d.exec();
 }
 
@@ -333,7 +333,7 @@ MultiOptionDialog::MultiOptionDialog(const QString &prompt_text, const QStringLi
   main_layout->addLayout(blayout);
   blayout->setSpacing(50);
 
-  QPushButton *cancel_btn = new QPushButton(tr("Cancel"));
+  QPushButton *cancel_btn = new QPushButton(tr("取消"));
   QObject::connect(cancel_btn, &QPushButton::clicked, this, &ConfirmationDialog::reject);
   QObject::connect(confirm_btn, &QPushButton::clicked, this, &ConfirmationDialog::accept);
   blayout->addWidget(cancel_btn);

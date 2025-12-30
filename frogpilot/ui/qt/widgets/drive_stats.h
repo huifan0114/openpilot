@@ -7,6 +7,10 @@ struct StatsLabels {
   QLabel *distance_unit;
   QLabel *hours;
   QLabel *routes;
+////////////////////////
+  QLabel *Fuelconsumptionsweek;
+  QLabel *Fuelcostsweek;
+////////////////////////
 };
 
 class DriveStats : public QFrame {
@@ -28,7 +32,9 @@ private:
   Params params;
 
   QJsonDocument stats;
-
+////////////////////////
+  bool fuelpriceProfile;
+////////////////////////
   StatsLabels all;
   StatsLabels frogPilot;
   StatsLabels week;

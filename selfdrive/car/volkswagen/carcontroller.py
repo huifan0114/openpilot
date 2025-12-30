@@ -32,6 +32,14 @@ class CarController(CarControllerBase):
     hud_control = CC.hudControl
     can_sends = []
 
+#######################################################################################
+    if frogpilot_toggles.disablestartstop:
+    ###### BCM_01 #####
+      if self.frame % self.CCP.BCM_01_STEP == 0:
+        if CS.motor_18["MO_Hybrid_StartStopp_LED"] == 0:
+          can_sends.append(self.CCS.create_bcm_01_control(self.packer_pt, CANBUS.body, CS.bcm_01))
+#######################################################################################
+
     # **** Steering Controls ************************************************ #
 
     if self.frame % self.CCP.STEER_STEP == 0:

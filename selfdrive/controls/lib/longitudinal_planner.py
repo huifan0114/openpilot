@@ -15,6 +15,9 @@ from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX, V_CRUIS
 from openpilot.common.swaglog import cloudlog
 
 from openpilot.frogpilot.common.frogpilot_variables import MINIMUM_LATERAL_ACCELERATION
+######################################
+from openpilot.common.params import Params
+######################################
 
 LON_MPC_STEP = 0.2  # first step is 0.2s
 A_CRUISE_MAX_VALS = [1.6, 1.2, 0.8, 0.6]
@@ -73,7 +76,9 @@ class LongitudinalPlanner:
     self.a_desired_trajectory = np.zeros(CONTROL_N)
     self.j_desired_trajectory = np.zeros(CONTROL_N)
     self.solverExecutionTime = 0.0
-
+######################################
+    self.params_memory = Params("/dev/shm/params")
+######################################
   @staticmethod
   def parse_model(model_msg, v_ego, taco_tune):
     if (len(model_msg.position.x) == ModelConstants.IDX_N and
@@ -117,6 +122,10 @@ class LongitudinalPlanner:
 
     long_control_off = sm['controlsState'].longControlState == LongCtrlState.off
     force_slow_decel = sm['controlsState'].forceDecel
+####################################
+    if sm['controlsState'].enabled:
+      self.params_memory.put_bool('KeyResume',False)
+####################################
 
     # Reset current state when not engaged, or user is controlling the speed
     reset_state = long_control_off if self.CP.openpilotLongitudinalControl else not sm['controlsState'].enabled

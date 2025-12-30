@@ -133,7 +133,7 @@ void ParamControl::toggleClicked(bool state) {
   auto do_confirm = [this]() {
     QString content("<body><h2 style=\"text-align: center;\">" + title_label->text() + "</h2><br>"
                     "<p style=\"text-align: center; margin: 0 128px; font-size: 50px;\">" + getDescription() + "</p></body>");
-    return ConfirmationDialog(content, tr("Enable"), tr("Cancel"), true, this).exec();
+    return ConfirmationDialog(content, tr("開啟"), tr("取消"), true, this).exec();
   };
 
   bool confirmed = store_confirm && params.getBool(key + "Confirmed");

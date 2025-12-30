@@ -227,20 +227,20 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
   themesLayout->addWidget(customThemesPanel);
 
   const std::vector<std::tuple<QString, QString, QString, QString>> themeToggles {
-    {"PersonalizeOpenpilot", tr("Custom Themes"), tr("<b>The overall look and feel of openpilot.</b> Use the \"Theme Maker\" in \"The Pond\" to create and share your own themes!"), "../../frogpilot/assets/toggle_icons/icon_frog.png"},
-    {"CustomColors", tr("Color Scheme"), tr("<b>The color scheme used throughout openpilot.</b> Use the \"Theme Maker\" in \"The Pond\" to create and share your own themes!"), ""},
-    {"CustomDistanceIcons", tr("Distance Button"), tr("<b>The distance button icons shown on the driving screen.</b> Use the \"Theme Maker\" in \"The Pond\" to create and share your own themes!"), ""},
-    {"CustomIcons", tr("Icon Pack"), tr("<b>The icon style used across openpilot.</b> Use the \"Theme Maker\" in \"The Pond\" to create and share your own themes!"), ""},
-    {"CustomSounds", tr("Sound Pack"), tr("<b>The sound pack used by openpilot.</b> Use the \"Theme Maker\" in \"The Pond\" to create and share your own themes!"), ""},
-    {"WheelIcon", tr("Steering Wheel"), tr("<b>The steering-wheel icon</b> shown at the top-right of the driving screen. Use the \"Theme Maker\" in \"The Pond\" to create and share your own themes!"), ""},
-    {"CustomSignals", tr("Turn Signal"), tr("<b>Themed turn-signal animations.</b> Use the \"Theme Maker\" in \"The Pond\" to create and share your own themes!"), ""},
-    {"DownloadStatusLabel", tr("Download Status"), "", ""},
+    {"PersonalizeOpenpilot", tr("自訂主題"), tr("<b>openpilot 的整體外觀與風格。</b> 使用 \"The Pond\" 中的「主題製作器」來建立並分享您的主題！"), "../../frogpilot/assets/toggle_icons/icon_frog.png"},
+    {"CustomColors", tr("配色方案"), tr("<b>整個 openpilot 使用的配色方案。</b> 使用 \"The Pond\" 中的「主題製作器」建立並分享您的主題！"), ""},
+    {"CustomDistanceIcons", tr("距離按鈕"), tr("<b>顯示於駕駛畫面的距離按鈕圖示。</b> 使用 \"The Pond\" 中的「主題製作器」建立並分享您的主題！"), ""},
+    {"CustomIcons", tr("圖示套件"), tr("<b>整個 openpilot 使用的圖示風格。</b> 使用 \"The Pond\" 中的「主題製作器」建立並分享您的主題！"), ""},
+    {"CustomSounds", tr("音效套件"), tr("<b>openpilot 使用的音效套件。</b> 使用 \"The Pond\" 中的「主題製作器」建立並分享您的主題！"), ""},
+    {"WheelIcon", tr("方向盤圖示"), tr("<b>顯示於駕駛畫面右上方的方向盤圖示</b>。 使用 \"The Pond\" 中的「主題製作器」建立並分享您的主題！"), ""},
+    {"CustomSignals", tr("方向燈"), tr("<b>主題化的方向燈動畫。</b> 使用 \"The Pond\" 中的「主題製作器」建立並分享您的主題！"), ""},
+    {"DownloadStatusLabel", tr("下載狀態"), "", ""},
 
-    {"HolidayThemes", tr("Holiday Themes"), tr("<b>Themes based on U.S. holidays.</b> Minor holidays last one day; major holidays (Christmas, Easter, Halloween) run for a full week."), "../../frogpilot/assets/toggle_icons/icon_calendar.png"},
-    {"RainbowPath", tr("Rainbow Path"), tr("<b>Color the driving path like a Mario Kart–style \"Rainbow Road\".</b>"), "../../frogpilot/assets/toggle_icons/icon_rainbow.png"},
-    {"RandomEvents", tr("Random Events"), tr("<b>Occasional on-screen effects triggered by driving conditions.</b> These are purely a visual and don't impact how openpilot drives!"), "../../frogpilot/assets/toggle_icons/icon_random.png"},
-    {"RandomThemes", tr("Random Themes"), tr("<b>Pick a random theme between each drive</b> from the themes you have downloaded. Great for variety without changing settings while driving."), "../../frogpilot/assets/toggle_icons/icon_random_themes.png"},
-    {"StartupAlert", tr("Startup Alert"), tr("<b>Customize the \"Startup Alert\" message</b> shown at the start of each drive."), "../../frogpilot/assets/toggle_icons/icon_message.png"}
+    {"HolidayThemes", tr("節日主題"), tr("<b>基於美國節日的主題。</b> 小型節日持續一天；重大節日（聖誕節、復活節、萬聖節）則為期一週。"), "../../frogpilot/assets/toggle_icons/icon_calendar.png"},
+    {"RainbowPath", tr("彩虹路徑"), tr("<b>將行駛路徑著色成類似 Mario Kart 的 \"彩虹之路\"。</b>"), "../../frogpilot/assets/toggle_icons/icon_rainbow.png"},
+    {"RandomEvents", tr("隨機事件"), tr("<b>依照行車情況觸發的偶發畫面效果。</b> 這些僅為視覺效果，並不影響 openpilot 的行駛！"), "../../frogpilot/assets/toggle_icons/icon_random.png"},
+    {"RandomThemes", tr("隨機主題"), tr("<b>在每次行駛之間從已下載的主題中隨機選擇一個主題</b>，可在不變更設定的情況下增加多樣性。"), "../../frogpilot/assets/toggle_icons/icon_random_themes.png"},
+    {"StartupAlert", tr("啟動提示"), tr("<b>自訂每次行駛開始時顯示的 \"啟動提示\" 訊息</b>。"), "../../frogpilot/assets/toggle_icons/icon_message.png"}
   };
 
   for (const auto &[param, title, desc, icon] : themeToggles) {
@@ -253,13 +253,13 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       });
       themeToggle = personalizeOpenpilotToggle;
     } else if (param == "CustomColors") {
-      manageCustomColorsButton = new FrogPilotButtonsControl(title, desc, icon, {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
+      manageCustomColorsButton = new FrogPilotButtonsControl(title, desc, icon, {tr("刪除"), tr("下載"), tr("選擇")});
       QObject::connect(manageCustomColorsButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
         QStringList colorSchemes = getThemeList(randomThemes, QDir(themePacksDirectory.path()), "colors", "CustomColors", params);
 
         if (id == 0) {
-          QString colorSchemeToDelete = MultiOptionDialog::getSelection(tr("Select a color scheme to delete"), colorSchemes, "", this);
-          if (!colorSchemeToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Delete the \"%1\" color scheme?").arg(colorSchemeToDelete), tr("Delete"), this)) {
+          QString colorSchemeToDelete = MultiOptionDialog::getSelection(tr("選擇要刪除的配色方案"), colorSchemes, "", this);
+          if (!colorSchemeToDelete.isEmpty() && ConfirmationDialog::confirm(tr("刪除「%1」配色方案？").arg(colorSchemeToDelete), tr("刪除"), this)) {
             colorsDownloaded = false;
 
             deleteThemeAsset(themePacksDirectory, "colors", "DownloadableColors", colorSchemeToDelete, params);
@@ -279,7 +279,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
             });
           } else {
             QStringList downloadableColorSchemes = QString::fromStdString(params.get("DownloadableColors")).split(",");
-            colorSchemeToDownload = MultiOptionDialog::getSelection(tr("Select a color scheme to download"), downloadableColorSchemes, "", this);
+            colorSchemeToDownload = MultiOptionDialog::getSelection(tr("選擇要下載的配色方案"), downloadableColorSchemes, "", this);
             if (!colorSchemeToDownload.isEmpty()) {
               colorDownloading = true;
               themeDownloading = true;
@@ -288,7 +288,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
 
               downloadThemeAsset(colorSchemeToDownload, "ColorToDownload", "DownloadableColors", params, params_memory);
 
-              downloadStatusLabel->setText(tr("Downloading..."));
+              downloadStatusLabel->setText(tr("下載中..."));
             }
           }
         } else if (id == 2) {
@@ -296,7 +296,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           colorSchemes.append(getHolidayThemes());
           colorSchemes.sort();
 
-          QString colorSchemeToSelect = MultiOptionDialog::getSelection(tr("Select a color scheme"), colorSchemes, getThemeName("CustomColors", params), this);
+          QString colorSchemeToSelect = MultiOptionDialog::getSelection(tr("選擇配色方案"), colorSchemes, getThemeName("CustomColors", params), this);
           if (!colorSchemeToSelect.isEmpty()) {
             manageCustomColorsButton->setValue(storeThemeName(colorSchemeToSelect, "CustomColors", params));
           }
@@ -305,13 +305,13 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       manageCustomColorsButton->setValue(getThemeName(param.toStdString(), params));
       themeToggle = manageCustomColorsButton;
     } else if (param == "CustomDistanceIcons") {
-      manageDistanceIconsButton = new FrogPilotButtonsControl(title, desc, icon, {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
+      manageDistanceIconsButton = new FrogPilotButtonsControl(title, desc, icon, {tr("刪除"), tr("下載"), tr("選擇")});
       QObject::connect(manageDistanceIconsButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
         QStringList distanceIconPacks = getThemeList(randomThemes, QDir(themePacksDirectory.path()), "distance_icons", "CustomDistanceIcons", params);
 
         if (id == 0) {
-          QString distanceIconPackToDelete = MultiOptionDialog::getSelection(tr("Select a distance icon pack to delete"), distanceIconPacks, "", this);
-          if (!distanceIconPackToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Delete the \"%1\" distance icon pack?").arg(distanceIconPackToDelete), tr("Delete"), this)) {
+          QString distanceIconPackToDelete = MultiOptionDialog::getSelection(tr("選擇要刪除的距離圖示套件"), distanceIconPacks, "", this);
+          if (!distanceIconPackToDelete.isEmpty() && ConfirmationDialog::confirm(tr("刪除「%1」距離圖示套件？").arg(distanceIconPackToDelete), tr("刪除"), this)) {
             distanceIconsDownloaded = false;
 
             deleteThemeAsset(themePacksDirectory, "distance_icons", "DownloadableDistanceIcons", distanceIconPackToDelete, params);
@@ -331,7 +331,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
             });
           } else {
             QStringList downloadableDistanceIconPacks = QString::fromStdString(params.get("DownloadableDistanceIcons")).split(",");
-            distanceIconPackToDownload = MultiOptionDialog::getSelection(tr("Select a distance icon pack to download"), downloadableDistanceIconPacks, "", this);
+            distanceIconPackToDownload = MultiOptionDialog::getSelection(tr("選擇要下載的距離圖示套件"), downloadableDistanceIconPacks, "", this);
             if (!distanceIconPackToDownload.isEmpty()) {
               distanceIconDownloading = true;
               themeDownloading = true;
@@ -340,7 +340,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
 
               downloadThemeAsset(distanceIconPackToDownload, "DistanceIconToDownload", "DownloadableDistanceIcons", params, params_memory);
 
-              downloadStatusLabel->setText(tr("Downloading..."));
+              downloadStatusLabel->setText(tr("下載中..."));
             }
           }
         } else if (id == 2) {
@@ -348,7 +348,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           distanceIconPacks.append(getHolidayThemes());
           distanceIconPacks.sort();
 
-          QString distanceIconPackToSelect = MultiOptionDialog::getSelection(tr("Select a distance icon pack"), distanceIconPacks, getThemeName("CustomDistanceIcons", params), this);
+          QString distanceIconPackToSelect = MultiOptionDialog::getSelection(tr("選擇距離圖示套件"), distanceIconPacks, getThemeName("CustomDistanceIcons", params), this);
           if (!distanceIconPackToSelect.isEmpty()) {
             manageDistanceIconsButton->setValue(storeThemeName(distanceIconPackToSelect, "CustomDistanceIcons", params));
           }
@@ -357,13 +357,13 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       manageDistanceIconsButton->setValue(getThemeName(param.toStdString(), params));
       themeToggle = manageDistanceIconsButton;
     } else if (param == "CustomIcons") {
-      manageCustomIconsButton = new FrogPilotButtonsControl(title, desc, icon, {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
+      manageCustomIconsButton = new FrogPilotButtonsControl(title, desc, icon, {tr("刪除"), tr("下載"), tr("選擇")});
       QObject::connect(manageCustomIconsButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
         QStringList iconPacks = getThemeList(randomThemes, QDir(themePacksDirectory.path()), "icons", "CustomIcons", params);
 
         if (id == 0) {
-          QString iconPackToDelete = MultiOptionDialog::getSelection(tr("Select an icon pack to delete"), iconPacks, "", this);
-          if (!iconPackToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Delete the \"%1\" icon pack?").arg(iconPackToDelete), tr("Delete"), this)) {
+          QString iconPackToDelete = MultiOptionDialog::getSelection(tr("選擇要刪除的圖示套件"), iconPacks, "", this);
+          if (!iconPackToDelete.isEmpty() && ConfirmationDialog::confirm(tr("刪除「%1」圖示套件？").arg(iconPackToDelete), tr("刪除"), this)) {
             iconsDownloaded = false;
 
             deleteThemeAsset(themePacksDirectory, "icons", "DownloadableIcons", iconPackToDelete, params);
@@ -383,7 +383,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
             });
           } else {
             QStringList downloadableIconPacks = QString::fromStdString(params.get("DownloadableIcons")).split(",");
-            iconPackToDownload = MultiOptionDialog::getSelection(tr("Select an icon pack to download"), downloadableIconPacks, "", this);
+            iconPackToDownload = MultiOptionDialog::getSelection(tr("選擇要下載的圖示套件"), downloadableIconPacks, "", this);
             if (!iconPackToDownload.isEmpty()) {
               iconDownloading = true;
               themeDownloading = true;
@@ -392,7 +392,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
 
               downloadThemeAsset(iconPackToDownload, "IconToDownload", "DownloadableIcons", params, params_memory);
 
-              downloadStatusLabel->setText(tr("Downloading..."));
+              downloadStatusLabel->setText(tr("下載中..."));
             }
           }
         } else if (id == 2) {
@@ -400,7 +400,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           iconPacks.append(getHolidayThemes());
           iconPacks.sort();
 
-          QString iconPackToSelect = MultiOptionDialog::getSelection(tr("Select an icon pack"), iconPacks, getThemeName("CustomIcons", params), this);
+          QString iconPackToSelect = MultiOptionDialog::getSelection(tr("選擇圖示套件"), iconPacks, getThemeName("CustomIcons", params), this);
           if (!iconPackToSelect.isEmpty()) {
             manageCustomIconsButton->setValue(storeThemeName(iconPackToSelect, "CustomIcons", params));
           }
@@ -409,13 +409,13 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       manageCustomIconsButton->setValue(getThemeName(param.toStdString(), params));
       themeToggle = manageCustomIconsButton;
     } else if (param == "CustomSignals") {
-      manageCustomSignalsButton = new FrogPilotButtonsControl(title, desc, icon, {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
+      manageCustomSignalsButton = new FrogPilotButtonsControl(title, desc, icon, {tr("刪除"), tr("下載"), tr("選擇")});
       QObject::connect(manageCustomSignalsButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
         QStringList signalAnimations = getThemeList(randomThemes, QDir(themePacksDirectory.path()), "signals", "CustomSignals", params);
 
         if (id == 0) {
-          QString signalAnimationToDelete = MultiOptionDialog::getSelection(tr("Select a signal animation to delete"), signalAnimations, "", this);
-          if (!signalAnimationToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Delete the \"%1\" signal animation?").arg(signalAnimationToDelete), tr("Delete"), this)) {
+          QString signalAnimationToDelete = MultiOptionDialog::getSelection(tr("選擇要刪除的方向燈動畫"), signalAnimations, "", this);
+          if (!signalAnimationToDelete.isEmpty() && ConfirmationDialog::confirm(tr("刪除「%1」方向燈動畫？").arg(signalAnimationToDelete), tr("刪除"), this)) {
             signalsDownloaded = false;
 
             deleteThemeAsset(themePacksDirectory, "signals", "DownloadableSignals", signalAnimationToDelete, params);
@@ -435,7 +435,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
             });
           } else {
             QStringList downloadableSignalAnimations = QString::fromStdString(params.get("DownloadableSignals")).split(",");
-            signalAnimationToDownload = MultiOptionDialog::getSelection(tr("Select a signal animation to download"), downloadableSignalAnimations, "", this);
+            signalAnimationToDownload = MultiOptionDialog::getSelection(tr("選擇要下載的方向燈動畫"), downloadableSignalAnimations, "", this);
             if (!signalAnimationToDownload.isEmpty()) {
               signalDownloading = true;
               themeDownloading = true;
@@ -444,7 +444,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
 
               downloadThemeAsset(signalAnimationToDownload, "SignalToDownload", "DownloadableSignals", params, params_memory);
 
-              downloadStatusLabel->setText(tr("Downloading..."));
+              downloadStatusLabel->setText(tr("下載中..."));
             }
           }
         } else if (id == 2) {
@@ -452,7 +452,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           signalAnimations.append(getHolidayThemes());
           signalAnimations.sort();
 
-          QString signalAnimationToSelect = MultiOptionDialog::getSelection(tr("Select a signal animation"), signalAnimations, getThemeName("CustomSignals", params), this);
+          QString signalAnimationToSelect = MultiOptionDialog::getSelection(tr("選擇方向燈動畫"), signalAnimations, getThemeName("CustomSignals", params), this);
           if (!signalAnimationToSelect.isEmpty()) {
             manageCustomSignalsButton->setValue(storeThemeName(signalAnimationToSelect, "CustomSignals", params));
           }
@@ -461,13 +461,13 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       manageCustomSignalsButton->setValue(getThemeName(param.toStdString(), params));
       themeToggle = manageCustomSignalsButton;
     } else if (param == "CustomSounds") {
-      manageCustomSoundsButton = new FrogPilotButtonsControl(title, desc, icon, {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
+      manageCustomSoundsButton = new FrogPilotButtonsControl(title, desc, icon, {tr("刪除"), tr("下載"), tr("選擇")});
       QObject::connect(manageCustomSoundsButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
         QStringList soundPacks = getThemeList(randomThemes, QDir(themePacksDirectory.path()), "sounds", "CustomSounds", params);
 
         if (id == 0) {
-          QString soundPackToDelete = MultiOptionDialog::getSelection(tr("Select a sound pack to delete"), soundPacks, "", this);
-          if (!soundPackToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Delete the \"%1\" sound pack?").arg(soundPackToDelete), tr("Delete"), this)) {
+          QString soundPackToDelete = MultiOptionDialog::getSelection(tr("選擇要刪除的音效套件"), soundPacks, "", this);
+          if (!soundPackToDelete.isEmpty() && ConfirmationDialog::confirm(tr("刪除「%1」音效套件？").arg(soundPackToDelete), tr("刪除"), this)) {
             soundsDownloaded = false;
 
             deleteThemeAsset(themePacksDirectory, "sounds", "DownloadableSounds", soundPackToDelete, params);
@@ -487,7 +487,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
             });
           } else {
             QStringList downloadableSoundPacks = QString::fromStdString(params.get("DownloadableSounds")).split(",");
-            soundPackToDownload = MultiOptionDialog::getSelection(tr("Select a sound pack to download"), downloadableSoundPacks, "", this);
+            soundPackToDownload = MultiOptionDialog::getSelection(tr("選擇要下載的音效套件"), downloadableSoundPacks, "", this);
             if (!soundPackToDownload.isEmpty()) {
               soundDownloading = true;
               themeDownloading = true;
@@ -496,7 +496,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
 
               downloadThemeAsset(soundPackToDownload, "SoundToDownload", "DownloadableSounds", params, params_memory);
 
-              downloadStatusLabel->setText(tr("Downloading..."));
+              downloadStatusLabel->setText(tr("下載中..."));
             }
           }
         } else if (id == 2) {
@@ -504,7 +504,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           soundPacks.append(getHolidayThemes());
           soundPacks.sort();
 
-          QString soundPackToSelect = MultiOptionDialog::getSelection(tr("Select a sound pack"), soundPacks, getThemeName("CustomSounds", params), this);
+          QString soundPackToSelect = MultiOptionDialog::getSelection(tr("選擇音效套件"), soundPacks, getThemeName("CustomSounds", params), this);
           if (!soundPackToSelect.isEmpty()) {
             manageCustomSoundsButton->setValue(storeThemeName(soundPackToSelect, "CustomSounds", params));
           }
@@ -513,13 +513,13 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       manageCustomSoundsButton->setValue(getThemeName(param.toStdString(), params));
       themeToggle = manageCustomSoundsButton;
     } else if (param == "WheelIcon") {
-      manageWheelIconsButton = new FrogPilotButtonsControl(title, desc, icon, {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
+      manageWheelIconsButton = new FrogPilotButtonsControl(title, desc, icon, {tr("刪除"), tr("下載"), tr("選擇")});
       QObject::connect(manageWheelIconsButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
         QStringList wheelIcons = getThemeList(randomThemes, QDir(wheelsDirectory.path()), "", "WheelIcon", params);
 
         if (id == 0) {
-          QString wheelIconToDelete = MultiOptionDialog::getSelection(tr("Select a steering wheel to delete"), wheelIcons, "", this);
-          if (!wheelIconToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Delete the \"%1\" steering wheel?").arg(wheelIconToDelete), tr("Delete"), this)) {
+          QString wheelIconToDelete = MultiOptionDialog::getSelection(tr("選擇要刪除的方向盤圖示"), wheelIcons, "", this);
+          if (!wheelIconToDelete.isEmpty() && ConfirmationDialog::confirm(tr("刪除「%1」方向盤圖示？").arg(wheelIconToDelete), tr("刪除"), this)) {
             wheelsDownloaded = false;
 
             deleteThemeAsset(wheelsDirectory, "", "DownloadableWheels", wheelIconToDelete, params);
@@ -539,7 +539,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
             });
           } else {
             QStringList downloadableWheels = QString::fromStdString(params.get("DownloadableWheels")).split(",");
-            wheelToDownload = MultiOptionDialog::getSelection(tr("Select a steering wheel to download"), downloadableWheels, "", this);
+            wheelToDownload = MultiOptionDialog::getSelection(tr("選擇要下載的方向盤圖示"), downloadableWheels, "", this);
             if (!wheelToDownload.isEmpty()) {
               wheelDownloading = true;
               themeDownloading = true;
@@ -548,7 +548,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
 
               downloadThemeAsset(wheelToDownload, "WheelToDownload", "DownloadableWheels", params, params_memory);
 
-              downloadStatusLabel->setText(tr("Downloading..."));
+              downloadStatusLabel->setText(tr("下載中..."));
             }
           }
         } else if (id == 2) {
@@ -557,7 +557,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           wheelIcons.append(getHolidayThemes());
           wheelIcons.sort();
 
-          QString steeringWheelToSelect = MultiOptionDialog::getSelection(tr("Select a steering wheel"), wheelIcons, getThemeName("WheelIcon", params), this);
+          QString steeringWheelToSelect = MultiOptionDialog::getSelection(tr("選擇方向盤圖示"), wheelIcons, getThemeName("WheelIcon", params), this);
           if (!steeringWheelToSelect.isEmpty()) {
             manageWheelIconsButton->setValue(storeThemeName(steeringWheelToSelect, "WheelIcon", params));
           }
@@ -569,16 +569,16 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       downloadStatusLabel = new LabelControl(title, tr("Idle"));
       themeToggle = downloadStatusLabel;
     } else if (param == "StartupAlert") {
-      FrogPilotButtonsControl *startupAlertButton = new FrogPilotButtonsControl(title, desc, icon, {tr("STOCK"), tr("FROGPILOT"), tr("CUSTOM"), tr("CLEAR")}, true);
+      FrogPilotButtonsControl *startupAlertButton = new FrogPilotButtonsControl(title, desc, icon, {tr("原廠"), tr("FROGPILOT"), tr("自訂"), tr("清除")}, true);
 
       QString currentTop = QString::fromStdString(params.get("StartupMessageTop"));
       QString currentBottom = QString::fromStdString(params.get("StartupMessageBottom"));
 
-      QString stockTop = "Be ready to take over at any time";
-      QString stockBottom = "Always keep hands on wheel and eyes on road";
+      QString stockTop = "請注意路況並準備隨時接管";
+      QString stockBottom = "~~祝福您行車平安~~";
 
-      QString frogpilotTop = "Hop in and buckle up!";
-      QString frogpilotBottom = "Human-tested, frog-approved 🐸";
+      QString frogpilotTop = "請注意路況並準備隨時接管!";
+      QString frogpilotBottom = "~~祝福您行車平安~~";
 
       if (currentTop == stockTop && currentBottom == stockBottom) {
         startupAlertButton->setCheckedButton(0);
@@ -600,18 +600,18 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           params.put("StartupMessageBottom", frogpilotBottom.toStdString());
         } else if (id == 2) {
           QString currentTop = QString::fromStdString(params.get("StartupMessageTop"));
-          QString newTop = InputDialog::getText(tr("Enter the text for the top half"), this, tr("Characters: 0/%1").arg(maxLengthTop), false, -1, currentTop, maxLengthTop).trimmed();
+          QString newTop = InputDialog::getText(tr("輸入上半段文字"), this, tr("字元數：0/%1").arg(maxLengthTop), false, -1, currentTop, maxLengthTop).trimmed();
           if (!newTop.isEmpty()) {
             params.put("StartupMessageTop", newTop.toStdString());
 
             QString currentBottom = QString::fromStdString(params.get("StartupMessageBottom"));
-            QString newBottom = InputDialog::getText(tr("Enter the text for the bottom half"), this, tr("Characters: 0/%1").arg(maxLengthBottom), false, -1, currentBottom, maxLengthBottom).trimmed();
+            QString newBottom = InputDialog::getText(tr("輸入下半段文字"), this, tr("字元數：0/%1").arg(maxLengthBottom), false, -1, currentBottom, maxLengthBottom).trimmed();
             if (!newBottom.isEmpty()) {
               params.put("StartupMessageBottom", newBottom.toStdString());
             }
           }
         } else if (id == 3) {
-          if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your startup message?"), this)) {
+          if (FrogPilotConfirmationDialog::yesorno(tr("確定要完全重設啟動訊息嗎？"), this)) {
             params.remove("StartupMessageTop");
             params.remove("StartupMessageBottom");
 
@@ -657,7 +657,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
   QObject::connect(static_cast<ToggleControl *>(toggles["PersonalizeOpenpilot"]), &ToggleControl::toggleFlipped, this, &FrogPilotThemesPanel::updateToggles);
   QObject::connect(static_cast<ToggleControl*>(toggles["RandomThemes"]), &ToggleControl::toggleFlipped, [this](bool state) {
     if (state) {
-      ConfirmationDialog::alert(tr("\"Random Themes\" only works with downloaded themes, so make sure you download the themes you want it to use!"), this);
+      ConfirmationDialog::alert(tr("「隨機主題」僅適用於已下載的主題，請先下載您想要使用的主題！"), this);
 
       manageCustomColorsButton->setValue("");
       manageCustomColorsButton->setVisibleButton(2, false);
@@ -752,14 +752,14 @@ void FrogPilotThemesPanel::updateState(const UIState &s, const FrogPilotUIState 
 
    if (progress != "Downloading...") {
       static const QMap<QString, QString> progressTranslations = {
-        {"Unpacking theme...", tr("Unpacking theme...")},
-        {"Downloaded!", tr("Downloaded!")},
-        {"Download cancelled...", tr("Download cancelled...")},
-        {"Download failed...", tr("Download failed...")},
-        {"Repository unavailable", tr("Repository unavailable")},
-        {"GitHub and GitLab are offline...", tr("GitHub and GitLab are offline...")}
+        {"Unpacking theme...", tr("拆解主題...")},
+        {"Downloaded!", tr("已下載!")},
+        {"Download cancelled...", tr("下載已取消...")},
+        {"Download failed...", tr("下載失敗...")},
+        {"Repository unavailable", tr("倉庫不可用")},
+        {"GitHub and GitLab are offline...", tr("GitHub 和 GitLab 離線...")}
       };
-      downloadStatusLabel->setText(progressTranslations.value(progress, tr("Idle")));
+      downloadStatusLabel->setText(progressTranslations.value(progress, tr("閒置的")));
     }
 
     if (progress == "Downloaded!" || downloadFailed) {
@@ -792,32 +792,32 @@ void FrogPilotThemesPanel::updateState(const UIState &s, const FrogPilotUIState 
 
   bool parked = !s.scene.started || fs.frogpilot_scene.parked || fs.frogpilot_toggles.value("frogs_go_moo").toBool();
 
-  manageCustomColorsButton->setText(1, colorDownloading ? tr("CANCEL") : tr("DOWNLOAD"));
+  manageCustomColorsButton->setText(1, colorDownloading ? tr("取消") : tr("下載"));
   manageCustomColorsButton->setEnabledButtons(0, !themeDownloading);
   manageCustomColorsButton->setEnabledButtons(1, fs.frogpilot_scene.online && (!themeDownloading || colorDownloading) && !cancellingDownload && !finalizingDownload && !colorsDownloaded && parked);
   manageCustomColorsButton->setEnabledButtons(2, !themeDownloading);
 
-  manageCustomIconsButton->setText(1, iconDownloading ? tr("CANCEL") : tr("DOWNLOAD"));
+  manageCustomIconsButton->setText(1, iconDownloading ? tr("取消") : tr("下載"));
   manageCustomIconsButton->setEnabledButtons(0, !themeDownloading);
   manageCustomIconsButton->setEnabledButtons(1, fs.frogpilot_scene.online && (!themeDownloading || iconDownloading) && !cancellingDownload && !finalizingDownload && !iconsDownloaded && parked);
   manageCustomIconsButton->setEnabledButtons(2, !themeDownloading);
 
-  manageCustomSignalsButton->setText(1, signalDownloading ? tr("CANCEL") : tr("DOWNLOAD"));
+  manageCustomSignalsButton->setText(1, signalDownloading ? tr("取消") : tr("下載"));
   manageCustomSignalsButton->setEnabledButtons(0, !themeDownloading);
   manageCustomSignalsButton->setEnabledButtons(1, fs.frogpilot_scene.online && (!themeDownloading || signalDownloading) && !cancellingDownload && !finalizingDownload && !signalsDownloaded && parked);
   manageCustomSignalsButton->setEnabledButtons(2, !themeDownloading);
 
-  manageCustomSoundsButton->setText(1, soundDownloading ? tr("CANCEL") : tr("DOWNLOAD"));
+  manageCustomSoundsButton->setText(1, soundDownloading ? tr("取消") : tr("下載"));
   manageCustomSoundsButton->setEnabledButtons(0, !themeDownloading);
   manageCustomSoundsButton->setEnabledButtons(1, fs.frogpilot_scene.online && (!themeDownloading || soundDownloading) && !cancellingDownload && !finalizingDownload && !soundsDownloaded && parked);
   manageCustomSoundsButton->setEnabledButtons(2, !themeDownloading);
 
-  manageDistanceIconsButton->setText(1, distanceIconDownloading ? tr("CANCEL") : tr("DOWNLOAD"));
+  manageDistanceIconsButton->setText(1, distanceIconDownloading ? tr("取消") : tr("下載"));
   manageDistanceIconsButton->setEnabledButtons(0, !themeDownloading);
   manageDistanceIconsButton->setEnabledButtons(1, fs.frogpilot_scene.online && (!themeDownloading || distanceIconDownloading) && !cancellingDownload && !finalizingDownload && !distanceIconsDownloaded && parked);
   manageDistanceIconsButton->setEnabledButtons(2, !themeDownloading);
 
-  manageWheelIconsButton->setText(1, wheelDownloading ? tr("CANCEL") : tr("DOWNLOAD"));
+  manageWheelIconsButton->setText(1, wheelDownloading ? tr("取消") : tr("下載"));
   manageWheelIconsButton->setEnabledButtons(0, !themeDownloading);
   manageWheelIconsButton->setEnabledButtons(1, fs.frogpilot_scene.online && (!themeDownloading || wheelDownloading) && !cancellingDownload && !finalizingDownload && !wheelsDownloaded && parked);
   manageWheelIconsButton->setEnabledButtons(2, !themeDownloading);

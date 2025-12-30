@@ -7,7 +7,7 @@ static QLabel *addLabel(QWidget *parent, QVBoxLayout *layout, const QString &tex
     QLabel {
       color: #FFFFFF;
       font-size: %2px;
-      font-weight: bold;
+      font-weight: normal;
     }
   )").arg(fontSize));
   layout->addWidget(label);
@@ -24,7 +24,7 @@ static QLabel *addTitleLabel(QWidget *parent, QVBoxLayout *layout, const QString
       border-radius: 12px;
       color: #FFFFFF;
       font-size: 50px;
-      font-weight: bold;
+      font-weight: normal;
       padding: 12px 28px;
     }
   )");
@@ -68,7 +68,7 @@ static QWidget *createStatBox(const QString &title, QLabel **valueLabel, QWidget
     QLabel {
       color: #FFFFFF;
       font-size: 75px;
-      font-weight: bold;
+      font-weight: normal;
     }
   )");
   *valueLabel = value;
@@ -83,12 +83,12 @@ FrogPilotModelReview::FrogPilotModelReview(QWidget *parent) : QFrame(parent) {
   QVBoxLayout *ratingLayout = new QVBoxLayout();
   ratingLayout->setContentsMargins(50, 25, 50, 25);
 
-  addTitleLabel(this, ratingLayout, tr("Drive Rating Selection"));
+  addTitleLabel(this, ratingLayout, tr("行駛計量選择"));
   ratingLayout->addStretch(1);
 
   QVBoxLayout *ratingGroup = new QVBoxLayout();
   ratingGroup->setAlignment(Qt::AlignCenter);
-  addLabel(this, ratingGroup, tr("How would you rate that drive?"));
+  addLabel(this, ratingGroup, tr("您如何計量本次行駛？"));
 
   QHBoxLayout *row = new QHBoxLayout();
   row->setSpacing(25);
@@ -113,9 +113,9 @@ FrogPilotModelReview::FrogPilotModelReview(QWidget *parent) : QFrame(parent) {
 
   QVBoxLayout *blacklistGroup = new QVBoxLayout();
   blacklistGroup->setAlignment(Qt::AlignCenter);
-  addLabel(this, blacklistGroup, tr("Blacklist this model to remove it from rotation"), 40);
+  addLabel(this, blacklistGroup, tr("將此模型欄上黑名單以從轉換中移除"), 40);
 
-  blacklistButton = createButton(this, tr("Blacklist Model"), "blacklistButton", 0, 600, 100);
+  blacklistButton = createButton(this, tr("將模型欄上黑名單"), "blacklistButton", 0, 600, 100);
   QObject::connect(blacklistButton, &QPushButton::clicked, this, &FrogPilotModelReview::onBlacklistButtonClicked);
   blacklistGroup->addWidget(blacklistButton, 0, Qt::AlignCenter);
 
@@ -128,7 +128,7 @@ FrogPilotModelReview::FrogPilotModelReview(QWidget *parent) : QFrame(parent) {
   QVBoxLayout *modelInfoLayout = new QVBoxLayout();
   modelInfoLayout->setContentsMargins(50, 25, 50, 20);
 
-  addLabel(this, modelInfoLayout, tr("Model used during that drive:"));
+  addLabel(this, modelInfoLayout, tr("此行駛使用的模型："));
 
   modelLabel = new QLabel("", this);
   modelLabel->setAlignment(Qt::AlignCenter);
@@ -138,7 +138,7 @@ FrogPilotModelReview::FrogPilotModelReview(QWidget *parent) : QFrame(parent) {
       border-radius: 12px;
       color: #FFFFFF;
       font-size: 65px;
-      font-weight: bold;
+      font-weight: normal;
       padding: 12px 24px;
     }
   )");
@@ -147,10 +147,10 @@ FrogPilotModelReview::FrogPilotModelReview(QWidget *parent) : QFrame(parent) {
   modelInfoLayout->addSpacing(50);
 
   QVBoxLayout *bottomLayout = new QVBoxLayout();
-  bottomLayout->addWidget(createStatBox(tr("Model Rank"), &modelRankLabel, this));
-  bottomLayout->addWidget(createStatBox(tr("Model Rating"), &modelRatingLabel, this));
-  bottomLayout->addWidget(createStatBox(tr("Model Drives"), &totalDrivesLabel, this));
-  bottomLayout->addWidget(createStatBox(tr("Total Drives"), &totalOverallDrivesLabel, this));
+  bottomLayout->addWidget(createStatBox(tr("模型排名"), &modelRankLabel, this));
+  bottomLayout->addWidget(createStatBox(tr("模型計量"), &modelRatingLabel, this));
+  bottomLayout->addWidget(createStatBox(tr("模型行駛"), &totalDrivesLabel, this));
+  bottomLayout->addWidget(createStatBox(tr("總行駛"), &totalOverallDrivesLabel, this));
 
   blacklistMessageLabel = new QLabel("", this);
   blacklistMessageLabel->setAlignment(Qt::AlignCenter);
@@ -158,7 +158,7 @@ FrogPilotModelReview::FrogPilotModelReview(QWidget *parent) : QFrame(parent) {
     QLabel {
       color: #C92231;
       font-size: 50px;
-      font-weight: bold;
+      font-weight: normal;
     }
   )");
   bottomLayout->addWidget(blacklistMessageLabel);
@@ -178,7 +178,7 @@ FrogPilotModelReview::FrogPilotModelReview(QWidget *parent) : QFrame(parent) {
       border-radius: 12px;
       color: #C92231;
       font-size: 45px;
-      font-weight: bold;
+      font-weight: normal;
       padding: 12px 24px;
     }
     QPushButton#ratingButton {
@@ -186,7 +186,7 @@ FrogPilotModelReview::FrogPilotModelReview(QWidget *parent) : QFrame(parent) {
       border-radius: 12px;
       color: #FFFFFF;
       font-size: 100px;
-      font-weight: bold;
+      font-weight: normal;
       padding: 12px 24px;
     }
     QPushButton#ratingButton:hover {
@@ -278,7 +278,7 @@ void FrogPilotModelReview::onBlacklistButtonClicked() {
 
   params.put("ModelDrivesAndScores", QJsonDocument(modelDrivesAndScores).toJson(QJsonDocument::Compact).toStdString());
 
-  blacklistMessageLabel->setText(tr("Model successfully blacklisted!"));
+  blacklistMessageLabel->setText(tr("模型已成功欄上黑名單！"));
 
   updateLabel();
 }
@@ -305,8 +305,8 @@ void FrogPilotModelReview::updateLabel() {
   modelLabel->setText(currentModelFiltered);
   modelRankLabel->setText(tr("#%1").arg(getModelRank()));
   modelRatingLabel->setText(tr("%1%").arg(finalRating));
-  totalDrivesLabel->setText(tr("%1 %2").arg(totalDrives).arg(totalDrives == 1 ? tr("Drive") : tr("Drives")));
-  totalOverallDrivesLabel->setText(tr("%1 Total %2").arg(totalOverallDrives).arg(totalOverallDrives == 1 ? tr("Drive") : tr("Drives")));
+  totalDrivesLabel->setText(tr("%1 %2").arg(totalDrives).arg(totalDrives == 1 ? tr("行駛") : tr("行駛")));
+  totalOverallDrivesLabel->setText(tr("%1 總 %2").arg(totalOverallDrives).arg(totalOverallDrives == 1 ? tr("行駛") : tr("行駛")));
 
   mainLayout->setCurrentIndex(1);
 }

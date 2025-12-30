@@ -3,12 +3,12 @@
 #include "frogpilot/ui/frogpilot_ui.h"
 
 bool FrogPilotConfirmationDialog::toggleReboot(QWidget *parent) {
-  ConfirmationDialog d(tr("Reboot required to take effect."), tr("Reboot Now"), tr("Reboot Later"), false, parent);
+  ConfirmationDialog d(tr("需要重啟以使設定生效。"), tr("立即重啟"), tr("稍後重啟"), false, parent);
   return d.exec();
 }
 
 bool FrogPilotConfirmationDialog::yesorno(const QString &prompt_text, QWidget *parent) {
-  ConfirmationDialog d(prompt_text, tr("Yes"), tr("No"), false, parent);
+  ConfirmationDialog d(prompt_text, tr("是"), tr("否"), false, parent);
   return d.exec();
 }
 

@@ -71,17 +71,17 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, const SubMaster 
     // Handle controls timeout
     if (controls_frame < started_frame) {
       // car is started, but controlsState hasn't been seen at all
-      a = {tr("openpilot Unavailable"), tr("Waiting for controls to start"),
+      a = {tr("openpilot 無法使用"), tr("等待啟動"),
            "controlsWaiting", cereal::ControlsState::AlertSize::MID,
            cereal::ControlsState::AlertStatus::NORMAL};
     } else if (controls_missing > CONTROLS_TIMEOUT && !Hardware::PC()) {
       // car is started, but controls is lagging or died
       if (cs.getEnabled() && (controls_missing - CONTROLS_TIMEOUT) < 10) {
-        a = {tr("TAKE CONTROL IMMEDIATELY"), tr("Controls Unresponsive"),
+        a = {tr("立即接管控制"), tr("控制延遲"),
              "controlsUnresponsive", cereal::ControlsState::AlertSize::FULL,
              cereal::ControlsState::AlertStatus::CRITICAL};
       } else {
-        a = {tr("Controls Unresponsive"), tr("Reboot Device"),
+        a = {tr("控制延遲"), tr("重啟設備"),
              "controlsUnresponsivePermanent", cereal::ControlsState::AlertSize::MID,
              cereal::ControlsState::AlertStatus::NORMAL};
       }
@@ -101,8 +101,10 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
     return;
   }
   static std::map<cereal::ControlsState::AlertSize, const int> alert_heights = {
-    {cereal::ControlsState::AlertSize::SMALL, 271},
-    {cereal::ControlsState::AlertSize::MID, 420},
+////////////////////////////////////////
+    {cereal::ControlsState::AlertSize::SMALL, 200},
+    {cereal::ControlsState::AlertSize::MID, 400},
+////////////////////////////////////////
     {cereal::ControlsState::AlertSize::FULL, height()},
   };
   alertHeight = alert_heights[alert.size];
@@ -115,7 +117,9 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
     radius = 0;
   }
   alertHeight -= margin;
-  QRect r = QRect(0 + margin, height() - h + margin, width() - margin*2, h - margin*2);
+////////////////////////////////////////
+  QRect r = QRect(0 + margin, height() - h + margin , width() - margin*2, h - margin*2);
+////////////////////////////////////////
 
   QPainter p(this);
 
@@ -140,18 +144,18 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
   p.setRenderHint(QPainter::TextAntialiasing);
   if (alert.size == cereal::ControlsState::AlertSize::SMALL) {
     bool long_alert1 = alert.text1.length() > 40;
-    p.setFont(InterFont(long_alert1 && sidebarsOpen ? 64 : 74, QFont::DemiBold));
+    p.setFont(InterFont(long_alert1 && sidebarsOpen ? 64 : 70, QFont::Normal));
     p.drawText(r, Qt::AlignCenter, alert.text1);
   } else if (alert.size == cereal::ControlsState::AlertSize::MID) {
     bool long_alert1 = alert.text1.length() > 30;
-    p.setFont(InterFont(long_alert1 && sidebarsOpen ? 78 : 88, QFont::Bold));
+    p.setFont(InterFont(long_alert1 && sidebarsOpen ? 78 : 70, QFont::Normal));
     p.drawText(QRect(0, c.y() - 125, width(), 150), Qt::AlignHCenter | Qt::AlignTop, alert.text1);
     bool long_alert2 = alert.text2.length() > 40;
     p.setFont(InterFont(long_alert2 && sidebarsOpen ? 56 : 66));
     p.drawText(QRect(0, c.y() + 21, width(), 90), Qt::AlignHCenter, alert.text2);
   } else if (alert.size == cereal::ControlsState::AlertSize::FULL) {
     bool l = alert.text1.length() > 15;
-    p.setFont(InterFont(l ? 132 : 177, QFont::Bold));
+    p.setFont(InterFont(l ? 132 : 177, QFont::Normal));
     p.drawText(QRect(0, r.y() + (l ? 240 : 270), width(), 600), Qt::AlignHCenter | Qt::TextWordWrap, alert.text1);
     p.setFont(InterFont(88));
     p.drawText(QRect(0, r.height() - (l ? 361 : 420), width(), 300), Qt::AlignHCenter | Qt::TextWordWrap, alert.text2);

@@ -42,21 +42,25 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
   soundsLayout->addWidget(customAlertsPanel);
 
   const std::vector<std::tuple<QString, QString, QString, QString>> soundsToggles {
-    {"AlertVolumeControl", tr("Alert Volume Controller"), tr("<b>Set how loud each type of openpilot alert is</b> to keep routine prompts from becoming distracting."), "../../frogpilot/assets/toggle_icons/icon_mute.png"},
-    {"DisengageVolume", tr("Disengage Volume"), tr("<b>Set the volume for alerts when openpilot disengages.</b><br><br>Examples include: \"Cruise Fault: Restart the Car\", \"Parking Brake Engaged\", \"Pedal Pressed\"."), ""},
-    {"EngageVolume", tr("Engage Volume"), tr("<b>Set the volume for the chime when openpilot engages</b>, such as after pressing the \"RESUME\" or \"SET\" steering wheel buttons."), ""},
-    {"PromptVolume", tr("Prompt Volume"), tr("<b>Set the volume for prompts that need attention.</b><br><br>Examples include: \"Car Detected in Blindspot\", \"Steering Temporarily Unavailable\", \"Turn Exceeds Steering Limit\"."), ""},
-    {"PromptDistractedVolume", tr("Prompt Distracted Volume"), tr("<b>Set the volume for prompts when openpilot detects driver distraction or unresponsiveness.</b><br><br>Examples include: \"Pay Attention\", \"Touch Steering Wheel\"."), ""},
-    {"RefuseVolume", tr("Refuse Volume"), tr("<b>Set the volume for alerts when openpilot refuses to engage.</b><br><br>Examples include: \"Brake Hold Active\", \"Door Open\", \"Seatbelt Unlatched\"."), ""},
-    {"WarningSoftVolume", tr("Warning Soft Volume"), tr("<b>Set the volume for softer warnings about potential risks.</b><br><br>Examples include: \"BRAKE! Risk of Collision\", \"Steering Temporarily Unavailable\"."), ""},
-    {"WarningImmediateVolume", tr("Warning Immediate Volume"), tr("<b>Set the volume for the loudest warnings that require urgent attention.</b><br><br>Examples include: \"DISENGAGE IMMEDIATELY — Driver Distracted\", \"DISENGAGE IMMEDIATELY — Driver Unresponsive\"."), ""},
+    {"AlertVolumeControl", tr("提醒音量控制"), tr("<b>設定每種類型的 openpilot 提示音量</b>，以避免日常提示造成干擾。"), "../../frogpilot/assets/toggle_icons/icon_mute.png"},
+    {"DisengageVolume", tr("解除音量"), tr("<b>設定 openpilot 解除控制時的提示音量。</b><br><br>例如：『定速故障：請重新啟動車輛』、『手煞車已拉起』、『踩下油門踏板』。"), ""},
+    {"EngageVolume", tr("啟動音量"), tr("<b>設定 openpilot 啟動時的提示音量</b>，例如按下方向盤上的『RESUME』或『SET』按鈕後。"), ""},
+    {"PromptVolume", tr("提示音量"), tr("<b>設定需要注意之提示的音量。</b><br><br>例如：『偵測到盲點車輛』、『方向暫時不可用』、『轉向超出限制』。"), ""},
+    {"PromptDistractedVolume", tr("分心提示音量"), tr("<b>設定當 openpilot 偵測到駕駛分心或無反應時的提示音量。</b><br><br>例如：『請注意』、『觸摸方向盤』。"), ""},
+    {"RefuseVolume", tr("拒絕啟動音量"), tr("<b>設定 openpilot 拒絕啟動時的提示音量。</b><br><br>例如：『剎車保持啟用』、『車門未關閉』、『安全帶未扣上』。"), ""},
+    {"WarningSoftVolume", tr("軟性警告音量"), tr("<b>設定針對潛在風險之較柔和警告音量。</b><br><br>例如：『剎車！有碰撞風險』、『方向暫時不可用』。"), ""},
+    {"WarningImmediateVolume", tr("緊急警告音量"), tr("<b>設定最需立即注意之最大音量警告。</b><br><br>例如：『立即解除 — 駕駛分心』、『立即解除 — 駕駛無反應』。"), ""},
+    {"CarawayedVolume", tr("車輛遠離提示音量"), tr("<b>設定當前車離開時播放的提示音量。</b>"), ""},
+    {"GreenLightVolume", tr("綠燈提示音量"), tr("<b>設定綠燈提示的音量。</b>"), ""},
+    {"LanechangeblockedsoundVolume", tr("被阻擋變換車道音量"), tr("<b>設定在變換車道被阻擋時的提示音量。</b>"), ""},
+    {"LanechangesoundVolume", tr("變換車道音量"), tr("<b>設定變換車道時的提示音量。</b>"), ""},
 
-    {"CustomAlerts", tr("FrogPilot Alerts"), tr("<b>Optional FrogPilot alerts</b> that highlight driving events in a more noticeable way."), "../../frogpilot/assets/toggle_icons/icon_green_light.png"},
-    {"GoatScream", tr("Goat Scream"), tr("<b>Play the infamous \"Goat Scream\" when the steering controller reaches its limit.</b> Based on the \"Turn Exceeds Steering Limit\" event."), ""},
-    {"GreenLightAlert", tr("Green Light Alert"), tr("<b>Play an alert when the model predicts a red light has turned green.</b><br><br><i><b>Disclaimer</b>: openpilot does not explicitly detect traffic lights. This alert is based on end-to-end model predictions from camera input and may trigger even when the light has not changed.</i>"), ""},
-    {"LeadDepartingAlert", tr("Lead Departing Alert"), tr("<b>Play an alert when the lead vehicle departs from a stop.</b>"), ""},
-    {"LoudBlindspotAlert", tr("Loud \"Car Detected in Blindspot\" Alert"), tr("<b>Play a louder alert if a vehicle is in the blind spot when attempting to change lanes.</b> Based on the \"Car Detected in Blindspot\" event."), ""},
-    {"SpeedLimitChangedAlert", tr("Speed Limit Changed Alert"), tr("<b>Play an alert when the posted speed limit changes.</b>"), ""}
+    {"CustomAlerts", tr("FrogPilot 提示"), tr("<b>選用的 FrogPilot 提示</b>，可更明顯地標示行車事件。"), "../../frogpilot/assets/toggle_icons/icon_green_light.png"},
+    {"GoatScream", tr("山羊尖叫"), tr("<b>當方向控制器達到極限時播放著名的「山羊尖叫」。</b> 基於『轉向超出限制』事件。"), ""},
+    {"GreenLightAlert", tr("綠燈提示"), tr("<b>當模型預測紅燈轉為綠燈時播放提示。</b><br><br><i><b>免責聲明</b>：openpilot 並不直接偵測交通號誌。此提示基於相機輸入的端對端模型預測，可能會在號誌未變更時觸發。</i>"), ""},
+    {"LeadDepartingAlert", tr("前車起步提示"), tr("<b>當前車從停車狀態起步時播放提示。</b>"), ""},
+    {"LoudBlindspotAlert", tr("大聲「偵測到盲點車輛」提示"), tr("<b>當嘗試變換車道時，如盲點有車輛則播放較大聲的提示。</b> 基於『偵測到盲點車輛』事件。"), ""},
+    {"SpeedLimitChangedAlert", tr("速限變更提示"), tr("<b>當路 posted 速限變更時播放提示。</b>"), ""}
   };
 
   for (const auto &[param, title, desc, icon] : soundsToggles) {
@@ -71,9 +75,9 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
     } else if (alertVolumeControlKeys.contains(param)) {
       std::map<float, QString> volumeLabels;
       for (int i = 0; i <= 101; ++i) {
-        volumeLabels[i] = i == 0 ? tr("Muted") : i == 101 ? tr("Auto") : QString::number(i) + "%";
+        volumeLabels[i] = i == 0 ? tr("靜音") : i == 101 ? tr("自動") : QString::number(i) + "%";
       }
-      std::vector<QString> alertButton{tr("Test")};
+      std::vector<QString> alertButton{tr("測試提示音")};
       if (param == "WarningImmediateVolume" || param == "WarningSoftVolume") {
         soundsToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 25, 101, QString(), volumeLabels, 1, true, {}, alertButton, false, false);
       } else {

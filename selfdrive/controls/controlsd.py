@@ -69,6 +69,11 @@ ENABLED_STATES = (State.preEnabled, *ACTIVE_STATES)
 class Controls:
   def __init__(self, CI=None):
     self.params = Params()
+    self.params_memory = Params("/dev/shm/params")
+###################################################
+    params_memory.put_bool("KeyResume", False)
+    params_memory.put_bool("KeyCancel", False)
+###################################################
 
     if CI is None:
       cloudlog.info("controlsd is waiting for CarParams")
@@ -105,11 +110,17 @@ class Controls:
     if REPLAY:
       # no vipc in replay will make them ignored anyways
       ignore += ['roadCameraState', 'wideRoadCameraState']
+########################
+    ignore += ['driverMonitoringState']
+    self.params.put_bool_nonblocking("DmModelInitialized", True)
+########################
     self.sm = messaging.SubMaster(['deviceState', 'pandaStates', 'peripheralState', 'modelV2', 'liveCalibration',
                                    'carOutput', 'driverMonitoringState', 'longitudinalPlan', 'liveLocationKalman',
                                    'managerState', 'liveParameters', 'radarState', 'liveTorqueParameters', 'liveDelay',
                                    'testJoystick', 'frogpilotCarState', 'frogpilotPlan'] + self.camera_packets + self.sensor_packets,
-                                  ignore_alive=ignore, ignore_avg_freq=ignore+['radarState', 'testJoystick'], ignore_valid=['testJoystick', ],
+######################################
+                                  ignore_alive=ignore, ignore_avg_freq=ignore+['radarState', 'testJoystick', 'driverMonitoringState'], ignore_valid=['testJoystick', ],
+######################################
                                   frequency=int(1/DT_CTRL))
 
     self.joystick_mode = self.params.get_bool("JoystickDebugMode")
@@ -325,7 +336,11 @@ class Controls:
             self.frogpilot_events.add(FrogPilotEventName.noLaneAvailable)
     elif self.sm['modelV2'].meta.laneChangeState in (LaneChangeState.laneChangeStarting,
                                                     LaneChangeState.laneChangeFinishing):
-      self.events.add(EventName.laneChange)
+      ##########################################################
+      if self.frogpilot_toggles.changelane_reminder :
+        self.events.add(EventName.laneChange)
+      ##########################################################
+
 
     for i, pandaState in enumerate(self.sm['pandaStates']):
       # All pandas must match the list of safetyConfigs, and if outside this list, must be silent or noOutput
@@ -374,6 +389,61 @@ class Controls:
       self.events.add(EventName.canBusMissing)
     elif not CS.canValid and not self.frogpilot_toggles.force_onroad:
       self.events.add(EventName.canError)
+
+    ###################################################
+    nav_reminder_status = params_memory.get_int("NavReminderstatus")
+    ###################################################
+    #超速提醒
+    if self.frogpilot_toggles.speedoverreminder :
+      if self.sm['frogpilotPlan'].speedover:
+       self.events.add(EventName.speedover)
+
+    # 依車速調整跟車距離
+    if self.frogpilot_toggles.auto_speeddistance :
+      v_ego_kph = CS.vEgo*3.6
+      if  v_ego_kph < 60:
+        if self.params.get_int("LongitudinalPersonality") != 0 :
+          self.params.put_int("LongitudinalPersonality", 0)
+          self.params.put_int("IncreasedStoppedDistance", 1)
+          params_memory.put_bool("FrogPilotTogglesUpdated", True)
+      elif v_ego_kph > 60 and v_ego_kph < 90:
+        if self.params.get_int("LongitudinalPersonality") != 1 :
+          self.params.put_int("LongitudinalPersonality",1)
+          params_memory.put_bool("FrogPilotTogglesUpdated", True)
+      elif v_ego_kph > 90 and v_ego_kph < 120:
+        if self.params.get_int("LongitudinalPersonality") != 1 :
+          self.params.put_int("LongitudinalPersonality",1)
+          self.params.put_int("IncreasedStoppedDistance", 2)
+          params_memory.put_bool("FrogPilotTogglesUpdated", True)
+
+    if params_memory.get_bool("StopmarkOn") :
+      params_memory.put_bool("KeyChanged", True)
+      params_memory.put_int("SpeedPrev", 0)
+      params_memory.put_bool("StopmarkOn", False)
+
+    ##################NAV語音#####################################################
+    if self.frogpilot_toggles.navreminder:
+      if params_memory.get_bool("navTurn") and nav_reminder_status == 0:
+        self.events.add(EventName.navturn)
+        nav_reminder_status = 1
+      elif nav_reminder_status == 1:
+        if params_memory.get_bool("navUturn"):
+          self.events.add(EventName.navuturn)
+        elif params_memory.get_bool("navturnRight"):
+          self.events.add(EventName.navturnright)
+        elif params_memory.get_bool("navturnLeft"):
+          self.events.add(EventName.navturnleft)
+        elif params_memory.get_bool("navSharpright"):
+          self.events.add(EventName.navsharpright)
+        elif params_memory.get_bool("navSharpleft"):
+          self.events.add(EventName.navsharpleft)
+        elif params_memory.get_bool("navOfframp"):
+          self.events.add(EventName.navofframp)
+
+        nav_reminder_status = 0
+      params_memory.put_int('NavReminderstatus', nav_reminder_status)
+
+    #############################################################################
 
     # generic catch-all. ideally, a more specific event should be added above instead
     has_disable_events = self.contains_event_type(ET.NO_ENTRY) and self.contains_event_type(ET.SOFT_DISABLE, ET.IMMEDIATE_DISABLE)

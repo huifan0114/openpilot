@@ -80,6 +80,10 @@ private:
   uint64_t route_rcv_frame = 0;
 
   // FrogPilot variables
+  Params params;
+  /////////////////////////
+  Params params_memory{"/dev/shm/params"};
+  /////////////////////////
   void updateFavoritesMarkers();
 
   uint64_t model_rcv_frame = 0;

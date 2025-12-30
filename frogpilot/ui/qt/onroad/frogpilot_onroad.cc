@@ -96,7 +96,7 @@ void FrogPilotOnroadWindow::paintFPS(QPainter &p, const QRect &rect) {
                                 .arg(qRound(maxFPS))
                                 .arg(qRound(avgFPS));
 
-  p.setFont(InterFont(28, QFont::DemiBold));
+  p.setFont(InterFont(28, QFont::Normal));
   p.setPen(Qt::white);
 
   int xPos = (rect.width() - p.fontMetrics().horizontalAdvance(fpsDisplayString)) / 2;

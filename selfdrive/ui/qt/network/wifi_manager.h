@@ -67,7 +67,7 @@ private:
   unsigned int raw_adapter_state = NM_DEVICE_STATE_UNKNOWN;  // Connection status https://developer.gnome.org/NetworkManager/1.26/nm-dbus-types.html#NMDeviceState
   QString connecting_to_network;
   QString tethering_ssid;
-  const QString defaultTetheringPassword = "swagswagcomma";
+  const QString defaultTetheringPassword = "comma1234";
   QString activeAp;
   QDBusObjectPath lteConnectionPath;
 

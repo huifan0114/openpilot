@@ -318,7 +318,7 @@ public:
   FrogPilotManageControl(const QString &param, const QString &title, const QString &desc, const QString &icon) : ParamControl(param, title, desc, icon) {
     key = param.toStdString();
 
-    manageButton = new ButtonControl("", tr("MANAGE"), "", this);
+    manageButton = new ButtonControl("", tr("管理"), "", this);
 
     hlayout->insertWidget(hlayout->indexOf(&toggle) - 1, manageButton);
 
