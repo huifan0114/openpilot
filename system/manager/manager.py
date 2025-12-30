@@ -72,7 +72,7 @@ def manager_init() -> None:
     ("Fuelcostsweek", "0"),
     ("Fuelconsumptionweek", "0"),
     ("HFOPinf", "1"),
-    ("NavReminderstatus", "0"),
+    # ("NavReminderstatus", "0"),
     ("Navspeed", "1"),
     ("NavReminder", "1"),
     ("Roadtype", "1"),

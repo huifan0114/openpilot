@@ -1103,8 +1103,8 @@ class FrogPilotVariables:
     toggle.speedreminderreset = params.get_bool("speedreminderreset")
     toggle.stopDistance = params_memory.get_int("stopmarkDistance")
     toggle.stopmark_applied = params_memory.get_bool("StopmarkApplied")
-    toggle.stopmark_on = params_memory.get_bool("StopmarkOn")
-    toggle.stopmark_restored = params_memory.get_bool("StopmarkRestored")
+    # toggle.stopmark_on = params_memory.get_bool("StopmarkOn")
+    # toggle.stopmark_restored = params_memory.get_bool("StopmarkRestored")
     toggle.trafficmode = params.get_bool("TrafficMode")
     toggle.trafficmode_speed = params.get_int("TrafficModespeed")
     toggle.vag_speed_factor = params.get_int("VagSpeedFactor")/2
