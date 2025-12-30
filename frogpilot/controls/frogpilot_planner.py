@@ -108,11 +108,11 @@ class FrogPilotPlanner:
         "bearing": math.degrees(sm["liveLocationKalman"].calibratedOrientationNED.value[2])
       }
 
-      params_memory.put("LastGPSPosition", json.dumps(gps_position))
+      self.params_memory.put("LastGPSPosition", json.dumps(gps_position))
     else:
       gps_position = None
 
-      params_memory.remove("LastGPSPosition")
+      self.params_memory.remove("LastGPSPosition")
 
     check_lane_width = frogpilot_toggles.adjacent_paths or frogpilot_toggles.adjacent_path_metrics or frogpilot_toggles.blind_spot_path or frogpilot_toggles.lane_detection
     if check_lane_width and v_ego >= frogpilot_toggles.minimum_lane_change_speed:
@@ -307,12 +307,12 @@ class FrogPilotPlanner:
 
         self.params_memory.put_bool("StopmarkRestored", True)  # 避免重複執行
         # **恢復原本的 KeySetSpeed**
-        if frogpilot_toggles.StopmarkApplied :
-            originalSpeedLimit = frogpilot_toggles.original_speedLimit
+        if frogpilot_toggles.stopmark_applied :
+            originalSpeedLimit = frogpilot_toggles.original_speed_limit
             self.params_memory.put_bool("StopmarkApplied", False)  # 清除標記
         else:
             # **如果沒有存過原始速限，則預設為當前 KeySetSpeed**
-            originalSpeedLimit = frogpilot_toggles.KeySetSpeed
+            originalSpeedLimit = frogpilot_toggles.key_set_speed
 
         # **直接恢復為當時的最高速限**
         key_set_speed = originalSpeedLimit
@@ -404,7 +404,7 @@ class FrogPilotPlanner:
     frogpilotPlan.speedLimitChanged = self.frogpilot_vcruise.slc.speed_limit_changed_timer > DT_MDL
     frogpilotPlan.unconfirmedSlcSpeedLimit = self.frogpilot_vcruise.slc.unconfirmed_speed_limit
 
-    frogpilotPlan.themeUpdated = theme_updated or params_memory.get_bool("UseActiveTheme")
+    frogpilotPlan.themeUpdated = theme_updated or self.params_memory.get_bool("UseActiveTheme")
 
     frogpilotPlan.togglesUpdated = toggles_updated
 
