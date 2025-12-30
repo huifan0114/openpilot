@@ -388,7 +388,7 @@ void MapWindow::updateState(const UIState &s) {
       "mapbox://styles/mapbox/traffic-night-v2",               // Mapbox Traffic Night
       "mapbox://styles/mike854/clt0hm8mw01ok01p4blkr27jp"      // Mike854's Personalized Style
       //////////////////////////////////////////////////////////
-      "mapbox://styles/huifan/cm100vqzq02bf01pqaurkfe25"
+      "mapbox://styles/huifan/cm100vqzq02bf01pqaurkfe25"      // Huifan's Personalized Style
       //////////////////////////////////////////////////////////
     };
 

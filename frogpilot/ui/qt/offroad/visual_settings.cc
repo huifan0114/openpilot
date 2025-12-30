@@ -308,7 +308,8 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
         {8, tr("Mapbox Satellite")},
         {9, tr("Mapbox Satellite Streets")},
         {10, tr("Mapbox Traffic Night")},
-        {11, tr("Mike's Personalized Style")}
+        {11, tr("Mike's Personalized Style")},
+        {12, tr("Huifan's Personalized Style")}
       };
 
       ButtonControl *mapStyleButton = new ButtonControl(title, tr("選擇"), desc);
