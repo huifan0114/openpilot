@@ -126,7 +126,7 @@ procs = [
   NativeProcess("bridge", "cereal/messaging", ["./bridge"], notcar),
   PythonProcess("webrtcd", "system.webrtc.webrtcd", notcar),
   PythonProcess("webjoystick", "tools.bodyteleop.web", notcar),
-  PythonProcess("simple_dash", "tools.simple_dash.server", run_simple_dash),
+  #PythonProcess("simple_dash", "tools.simple_dash.server", run_simple_dash),
 
   # FrogPilot processes
   NativeProcess("classic_modeld", "frogpilot/classic_modeld", ["./classic_modeld"], run_classic_modeld),

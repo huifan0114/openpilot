@@ -1,0 +1,495 @@
+/**
+ * FrogPilot Dashboard - SIMPLE-DASH 主題
+ * 適應式設計，與 HFOP-GTI-NAVDASH 結構一致
+ */
+
+/* ===== CSS 變數定義 ===== */
+:root {
+  /* 顏色 */
+  --bg-primary: #000000;
+  --bg-card: rgba(20, 20, 20, 0.85);
+  --bg-card-border: rgba(0, 255, 136, 0.3);
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-dim: #707070;
+
+  /* 主題色 - 霓虹綠 */
+  --accent-color: #00ff88;
+  --accent-glow: rgba(0, 255, 136, 0.4);
+
+  /* 狀態顏色 */
+  --status-safe: #00ff88;
+  --status-warning: #ffaa00;
+  --status-danger: #ff3366;
+  --status-info: #00ccff;
+
+  /* 尺寸 */
+  --card-radius: 12px;
+  --spacing-sm: 10px;
+  --spacing-md: 15px;
+}
+
+/* ===== 基礎重置 ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: linear-gradient(135deg, #0a0a0a 0%, #000000 100%);
+  color: var(--text-primary);
+}
+
+/* 網格背景效果 */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    linear-gradient(rgba(0, 255, 136, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ===== 主容器 ===== */
+#dashboard {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ===== 通用卡片樣式 ===== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--card-radius);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.label-small {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.value-top {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--accent-color);
+  font-family: 'SF Mono', 'Monaco', monospace;
+  text-shadow: 0 0 15px var(--accent-glow);
+}
+
+/* ===== 頂部連接狀態 ===== */
+#top-center-status {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.connection-badge {
+  background: rgba(255, 170, 0, 0.2);
+  border: 1px solid #ffaa00;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 12px;
+}
+
+/* ===== 頂部一排 (6個卡片) ===== */
+#top-row {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.top-card {
+  flex: 1;
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.top-card .value-top {
+  font-size: 42px;
+}
+
+/* ===== 盲點警示 ===== */
+.blindspot-indicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 30%;
+  background: rgba(255, 51, 102, 0.2);
+  border: 2px solid var(--status-danger);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
+/* 定位在側欄旁邊 */
+#left-blindspot {
+  left: 150px;
+}
+
+#right-blindspot {
+  right: 150px;
+}
+
+.blindspot-indicator.active {
+  background: var(--status-danger);
+  box-shadow: 0 0 30px var(--status-danger);
+  animation: pulse-danger 0.5s infinite alternate;
+}
+
+@keyframes pulse-danger {
+  from { box-shadow: 0 0 20px var(--status-danger); }
+  to { box-shadow: 0 0 40px var(--status-danger); }
+}
+
+.blindspot-icon {
+  font-size: 20px;
+}
+
+.blindspot-label {
+  font-size: 12px;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 2px;
+  font-weight: bold;
+}
+
+/* ===== 中間一排 (左側 + 中央 + 右側) ===== */
+#middle-row {
+  flex: 1;
+  display: flex;
+  gap: var(--spacing-md);
+  min-height: 0;
+}
+
+/* 左右側欄 */
+.side-column {
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+.mini-card {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.mini-card .value-top {
+  font-size: 36px;
+}
+
+/* 實驗模式圖標 */
+#experimental-card {
+  padding: 15px;
+}
+
+#experimental-icon {
+  width: 50px;
+  height: 50px;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+#experimental-card.active #experimental-icon {
+  opacity: 1;
+  filter: drop-shadow(0 0 10px var(--accent-glow));
+}
+
+/* STOP 卡片 */
+#stop-card {
+  padding: 10px;
+}
+
+#stop-icon {
+  width: 40px;
+  height: 40px;
+  filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.8));
+}
+
+.stop-distance-text {
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 8px;
+}
+
+/* ===== 中央前車資訊 ===== */
+#center-lead-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lead-info-card {
+  width: 100%;
+  max-width: 600px;
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 無前車狀態 */
+#no-lead-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.no-lead-icon {
+  font-size: 80px;
+  opacity: 0.3;
+  margin-bottom: 15px;
+}
+
+.no-lead-text {
+  font-size: 28px;
+  color: var(--text-dim);
+}
+
+/* 有前車狀態 */
+#has-lead-state {
+  width: 100%;
+}
+
+.info-row-flex {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+}
+
+.info-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-label {
+  font-size: 20px;
+  color: var(--text-secondary);
+}
+
+.info-value-medium {
+  font-size: 56px;
+  font-weight: 700;
+  color: var(--accent-color);
+  font-family: 'SF Mono', 'Monaco', monospace;
+  text-shadow: 0 0 20px var(--accent-glow);
+}
+
+/* ===== 底部區域 ===== */
+#bottom-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.nav-placeholder {
+  display: none;
+}
+
+#road-name-card {
+  padding: 10px 30px;
+  border-radius: 30px;
+}
+
+#road-name-text {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ===== 狀態顏色 ===== */
+.status-safe, .status-safe .info-value-medium, .status-safe .value-top {
+  color: var(--status-safe) !important;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
+}
+
+.status-warning, .status-warning .info-value-medium, .status-warning .value-top {
+  color: var(--status-warning) !important;
+  text-shadow: 0 0 10px rgba(255, 170, 0, 0.4);
+}
+
+.status-danger, .status-danger .info-value-medium, .status-danger .value-top {
+  color: var(--status-danger) !important;
+  text-shadow: 0 0 10px rgba(255, 51, 102, 0.4);
+}
+
+.controlling .value-top {
+  color: #ff8800 !important;
+  text-shadow: 0 0 10px rgba(255, 136, 0, 0.4);
+}
+
+/* 數值正負色 */
+.positive {
+  color: var(--status-safe) !important;
+}
+
+.negative {
+  color: var(--status-danger) !important;
+}
+
+.neutral {
+  color: var(--text-dim) !important;
+}
+
+/* ===== 響應式設計 ===== */
+@media (max-width: 1000px) {
+  .top-card .value-top {
+    font-size: 34px;
+  }
+
+  .side-column {
+    width: 130px;
+  }
+
+  .mini-card .value-top {
+    font-size: 28px;
+  }
+
+  .info-value-medium {
+    font-size: 44px;
+  }
+
+  .label-small {
+    font-size: 14px;
+  }
+}
+
+@media (max-height: 500px) {
+  #top-row {
+    margin-bottom: 8px;
+  }
+
+  .top-card {
+    padding: 12px 8px;
+  }
+
+  .top-card .value-top {
+    font-size: 28px;
+  }
+
+  .lead-info-card {
+    padding: 20px;
+  }
+
+  .info-value-medium {
+    font-size: 36px;
+  }
+
+  .no-lead-icon {
+    font-size: 50px;
+  }
+
+  .label-small {
+    font-size: 12px;
+  }
+}
+
+/* ===== 啟動動畫 ===== */
+.startup-fadeout {
+  animation: fadeout 1.5s ease-out forwards;
+}
+
+@keyframes fadeout {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.blindspot-fadeout {
+  animation: blindspot-fade 1.5s ease-out forwards;
+}
+
+@keyframes blindspot-fade {
+  from {
+    opacity: 1;
+    box-shadow: 0 0 30px var(--status-danger);
+  }
+  to {
+    opacity: 0;
+    box-shadow: none;
+  }
+}
+
+
+/* ===== WYSIWYG CSS 編輯器修改 ===== */
+/* 時間: 2025/12/13 下午4:23:49 */
+#lead-card {
+  padding-top: 12px;
+  padding-left: 12px;
+  padding-right: 12px;
+  margin-right: 45px;
+  margin-left: 45px;
+}
+
+#bottom-row {
+  padding-top: 0px;
+}
+
+#road-name-card {
+  padding-left: 200px;
+  padding-right: 200px;
+}
+
+.side-column.left-column {
+  margin-bottom: 15px;
+}
+
+.side-column.right-column {
+  margin-bottom: 15px;
+}
+
+#middle-row {
+  padding-bottom: 0px;
+  margin-bottom: 35px;
+}
+

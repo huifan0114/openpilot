@@ -749,34 +749,34 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   # ********** events that affect controls state transitions **********
 
   EventName.pcmEnable: {
-    ET.ENABLE: EngagementAlert(AudibleAlert.engage),
+    ET.ENABLE: EngagementAlert(AudibleAlert.none),
   },
 
   EventName.buttonEnable: {
-    ET.ENABLE: EngagementAlert(AudibleAlert.engage),
+    ET.ENABLE: EngagementAlert(AudibleAlert.none),
   },
 
   EventName.pcmDisable: {
-    ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
+    ET.USER_DISABLE: EngagementAlert(AudibleAlert.none),
   },
 
   EventName.buttonCancel: {
-    ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
+    ET.USER_DISABLE: EngagementAlert(AudibleAlert.none),
     ET.NO_ENTRY: NoEntryAlert("取消鍵被按著"),
   },
 
   EventName.brakeHold: {
-    ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
+    ET.USER_DISABLE: EngagementAlert(AudibleAlert.none),
     ET.NO_ENTRY: NoEntryAlert("煞車維持啟動"),
   },
 
   EventName.parkBrake: {
-    ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
+    ET.USER_DISABLE: EngagementAlert(AudibleAlert.none),
     ET.NO_ENTRY: NoEntryAlert("手煞車使用中"),
   },
 
   EventName.pedalPressed: {
-    ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
+    ET.USER_DISABLE: EngagementAlert(AudibleAlert.none),
     ET.NO_ENTRY: NoEntryAlert("煞車踩著",
                               visual_alert=VisualAlert.brakePressed),
   },
@@ -806,7 +806,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   EventName.wrongCarMode: {
-    ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
+    ET.USER_DISABLE: EngagementAlert(AudibleAlert.none),
     ET.NO_ENTRY: wrong_car_mode_alert,
   },
 
@@ -1084,7 +1084,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "openpilot 被取消",
       "速度太低",
       AlertStatus.normal, AlertSize.mid,
-      Priority.HIGH, VisualAlert.none, AudibleAlert.disengage, 3.),
+      Priority.HIGH, VisualAlert.none, AudibleAlert.none, 3.),
   },
 
   # When the car is driving faster than most cars in the training data, the model outputs can be unpredictable.
@@ -1218,7 +1218,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "塞車模式啟動",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, 3.),
   },
 
   FrogPilotEventName.trafficModeInactive: {
