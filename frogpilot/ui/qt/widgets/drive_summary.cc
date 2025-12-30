@@ -44,10 +44,10 @@ FrogPilotDriveSummary::FrogPilotDriveSummary(QWidget *parent, bool randomEvents)
     randomEventsMap.insert("yourFrogTriedToKillMe", tr("Attempted Frog Murders"));
     randomEventsMap.insert("youveGotMail", tr("Total Mail Received"));
   } else {
-    listLayout->addWidget(createStatBox(tr("駕駛過程 % 啟用 openpilot"), &engagementValue, this));
+    listLayout->addWidget(createStatBox(tr("駕駛過程啟用 openpilot"), &engagementValue, this));
     listLayout->addWidget(createStatBox(tr("駕駛距離"), &frogPilotMetersValue, this));
     listLayout->addWidget(createStatBox(tr("駕駛時間"), &trackedTimeValue, this));
-    listLayout->addWidget(createStatBox(tr(" 駕駛過程 % 處於“實驗模式”"), &experimentalModeTimeValue, this));
+    listLayout->addWidget(createStatBox(tr("駕駛過程處於“實驗模式”"), &experimentalModeTimeValue, this));
 
     // 油耗和油資左右並排顯示
     QWidget *fuelContainer = new QWidget(this);
