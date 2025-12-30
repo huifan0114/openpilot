@@ -110,11 +110,11 @@ class VCruiseHelper:
 
     if button_type is None:
  ###################################################################################################
-      if frogpilot_toggles.key_changed:
-        self.v_cruise_kph = frogpilot_toggles.current_setspeed
+      if self.params_memory.get_bool('KeyChanged'):
+        self.v_cruise_kph = self.params_memory.get_int('KeySetSpeed')
         self.params_memory.put_bool('KeyChanged', False)
-      elif frogpilot_toggles.speed_limit_changed:
-        self.v_cruise_kph = frogpilot_toggles.speedlimit
+      elif self.params_memory.get_bool('SpeedLimitChanged'):
+        self.v_cruise_kph = self.params_memory.get_int('SpeedLimit')
         if self.v_cruise_kph > 120:
           self.v_cruise_kph= 120
         elif  self.v_cruise_kph < 40:
@@ -132,7 +132,7 @@ class VCruiseHelper:
     # Don't adjust speed when pressing resume to exit standstill
     cruise_standstill = self.button_change_states[button_type]["standstill"] or CS.cruiseState.standstill
 ###################################################################################################
-    if (button_type == ButtonType.accelCruise or frogpilot_toggles.key_resume) and cruise_standstill:
+    if (button_type == ButtonType.accelCruise or self.params_memory.get_bool('KeyResume')) and cruise_standstill:
       self.params_memory.put_bool('KeyChanged', False)
 ###################################################################################################
       return
@@ -164,7 +164,7 @@ class VCruiseHelper:
 ###################################################################################################
     self.params_memory.put_int('KeySetSpeed', self.v_cruise_kph)
     self.params_memory.put_bool('KeyChanged', False)
-    if frogpilot_toggles.key_resume:
+    if self.params_memory.get_bool('KeyResume'):
       self.params_memory.put_bool('KeyResume', False)
 ###################################################################################################
 
@@ -183,7 +183,7 @@ class VCruiseHelper:
   def initialize_v_cruise(self, CS, experimental_mode: bool, desired_speed_limit, frogpilot_toggles) -> None:
     # initializing is handled by the PCM
 ###################################################################################################
-    if self.CP.pcmCruise or frogpilot_toggles.key_resume:
+    if self.CP.pcmCruise or self.params_memory.get_bool('KeyResume'):
 ###################################################################################################
       return
 
@@ -191,7 +191,7 @@ class VCruiseHelper:
 
     # 250kph or above probably means we never had a set speed
 ###################################################################################################
-    if (any(b.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for b in CS.buttonEvents) or frogpilot_toggles.key_resume) and self.v_cruise_kph_last < 250:
+    if (any(b.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for b in CS.buttonEvents) or self.params_memory.get_bool('KeyResume')) and self.v_cruise_kph_last < 250:
 ###################################################################################################
       self.v_cruise_kph = self.v_cruise_kph_last
 ###################################################################################################

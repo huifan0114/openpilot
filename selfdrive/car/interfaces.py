@@ -446,9 +446,9 @@ class CarInterfaceBase(ABC):
         self.always_on_lateral_allowed = not self.always_on_lateral_allowed
 
 ###########################################################################
-    if frogpilot_toggles and not self.CP.pcmCruise and frogpilot_toggles.key_resume:
+    if not self.CP.pcmCruise and self.params_memory.get_bool("KeyResume"):
       events.add(EventName.buttonEnable)
-    if frogpilot_toggles and frogpilot_toggles.key_cancel:
+    if self.params_memory.get_bool("KeyCancel"):
         self.params_memory.put_bool("KeyResume",False)
         events.add(EventName.buttonCancel)
         self.params_memory.put_bool("KeyCancel",False)
