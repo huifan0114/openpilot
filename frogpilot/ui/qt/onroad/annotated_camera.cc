@@ -173,47 +173,55 @@ void AnnotatedCameraWidget::updateState(int alert_height, const UIState &s) {
   navBanner = fn + "\n" + primary_str + " " + secondary_str;
 
   ////////////NAV語音////////////////////////
-  if (type.contains("turn") && (distance_value >200 && distance_value < 500)) {
-    params_memory.putBool("navTurn", true);
-    } else {
-      params_memory.putBool("navTurn", false);
+  // 使用靜態變數緩存上次的狀態,避免每幀都寫入params
+  static std::unordered_map<std::string, bool> nav_param_cache;
+  static int last_distance_value = -1;
+  static QString last_type = "";
+  static QString last_modifier = "";
+  static int update_counter = 0;
+
+  // 只在距離或類型變化顯著時才更新參數(節流機制)
+  bool should_update = (std::abs(distance_value - last_distance_value) > 10) ||
+                       (type != last_type) ||
+                       (modifier != last_modifier) ||
+                       (++update_counter % 10 == 0); // 每10幀強制更新一次
+
+  if (should_update) {
+    last_distance_value = distance_value;
+    last_type = type;
+    last_modifier = modifier;
+
+    // 批量檢查並更新參數
+    std::unordered_map<std::string, bool> new_states = {
+      {"navTurn", type.contains("turn") && (distance_value > 200 && distance_value < 500)},
+      {"navturnRight", modifier.contains("right") && (distance_value > 1 && distance_value < 200)},
+      {"navSharpright", modifier.contains("sharp right") && (distance_value > 1 && distance_value < 200)},
+      {"navturnLeft", modifier.contains("left") && (distance_value > 1 && distance_value < 200)},
+      {"navSharpleft", modifier.contains("sharp left") && (distance_value > 1 && distance_value < 200)},
+      {"navUturn", modifier.contains("uturn") && (distance_value > 1 && distance_value < 200)},
+      {"navOfframp", type.contains("off_ramp") && (distance_value > 200 && distance_value < 500)}
+    };
+
+    // 只寫入狀態變化的參數
+    for (const auto& [key, value] : new_states) {
+      if (nav_param_cache[key] != value) {
+        params_memory.putBool(key.c_str(), value);
+        nav_param_cache[key] = value;
       }
-  if (modifier.contains("right") &&  (distance_value >1 && distance_value < 200)) {
-    params_memory.putBool("navturnRight", true);
-    } else {
-      params_memory.putBool("navturnRight", false);
-      }
-  if (modifier.contains("sharp right") && (distance_value >1 && distance_value < 200)) {
-    params_memory.putBool("navSharpright", true);
-    } else {
-      params_memory.putBool("navSharpright", false);
-      }
-  if (modifier.contains("left") && (distance_value >1 && distance_value < 200)) {
-    params_memory.putBool("navturnLeft", true);
-    } else {
-      params_memory.putBool("navturnLeft", false);
-      }
-  if (modifier.contains("sharp left") && (distance_value >1 && distance_value < 200)) {
-    params_memory.putBool("navSharpleft", true);
-    } else {
-      params_memory.putBool("navSharpleft", false);
-      }
-  if (modifier.contains("uturn") && (distance_value >1 && distance_value < 200)) {
-    params_memory.putBool("navUturn", true);
-    } else {
-      params_memory.putBool("navUturn", false);
-      }
-  if (type.contains("off_ramp") && (distance_value >200 && distance_value < 500)) {
-    params_memory.putBool("navOfframp", true);
-    } else {
-      params_memory.putBool("navOfframp", false);
-      }
-  if (type.contains("reachEnd") && distance_value <1) {
-    params_memory.remove("NavDestination");
     }
-  if (type.contains("arrive") && distance_value <1) {
-    params_memory.remove("NavDestination");
+
+    // 處理目的地移除(只在到達時執行一次)
+    if ((type.contains("reachEnd") || type.contains("arrive")) && distance_value < 1) {
+      static bool destination_removed = false;
+      if (!destination_removed) {
+        params_memory.remove("NavDestination");
+        destination_removed = true;
+      }
+    } else {
+      static bool destination_removed = false;
+      destination_removed = false;
     }
+  }
   } else {
     navBanner = "";
   }
