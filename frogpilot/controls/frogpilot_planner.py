@@ -171,8 +171,8 @@ class FrogPilotPlanner:
       prev_increased_stopped_distance = self.params.get_int("IncreasedStoppedDistance")
 
       if lead_distance < 10 or v_ego_kph < 10:
-        self.params_memory.put_int("leaddisProfile", 0)
-        self.params_memory.put_int("leadspeedProfile", 0)
+        # self.params_memory.put_int("leaddisProfile", 0)
+        # self.params_memory.put_int("leadspeedProfile", 0)
         self.params_memory.put_int("leadspeeddiffProfile", 0)
 
       if v_ego_kph > 50:
@@ -199,8 +199,6 @@ class FrogPilotPlanner:
       if stopping_distance != prev_increased_stopped_distance:
         self.params.put_int("IncreasedStoppedDistance", stopping_distance)
 
-
-    # if frogpilot_toggles.autoacc and not current_isengaged :
     if frogpilot_toggles.autoacc and not current_isengaged :
       auto_acc_pass = v_ego_kph > frogpilot_toggles.autoacc_speed
       if auto_acc_pass or autoacc_caraway_status == 1 or autoacc_greenlight_status == 1:
@@ -238,7 +236,7 @@ class FrogPilotPlanner:
               self.params.put("SLCPriority1", "Highest")
               self.params.put("SLCPriority2", "None")
               self.params.put("SLCPriority3", "None")
-            elif "快速" in road_name or "省道" in road_name:
+            elif "快速" in road_name:
               # 快速道路：建議 70-80 km/h，使用 Map Data → Navigation → Dashboard
               suggested_speed = 80
               self.params.put("SLCPriority1", "Map Data")
@@ -262,6 +260,7 @@ class FrogPilotPlanner:
               self.params.put("SLCPriority1", "Map Data")
               self.params.put("SLCPriority2", "Navigation")
               self.params.put("SLCPriority3", "Dashboard")
+            self.params.putBool("FrogPilotTogglesUpdated", True)
 
             # 記錄當前路名
             self.previous_road_name = road_name
