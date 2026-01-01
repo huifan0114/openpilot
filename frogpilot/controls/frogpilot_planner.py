@@ -267,7 +267,7 @@ class FrogPilotPlanner:
                 self.params.put("SLCPriority1", "Map Data")
                 self.params.put("SLCPriority2", "Navigation")
                 self.params.put("SLCPriority3", "Dashboard")
-              self.params.putBool("FrogPilotTogglesUpdated", True)
+              self.params.put("FrogPilotTogglesUpdated", True)
 
               # 記錄當前路名
               self.previous_road_name = road_name
