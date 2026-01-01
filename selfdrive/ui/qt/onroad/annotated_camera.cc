@@ -2,6 +2,7 @@
 #include "selfdrive/ui/qt/onroad/annotated_camera.h"
 
 #include <QPainter>
+#include <QTime>
 #include <algorithm>
 #include <cmath>
 
@@ -130,7 +131,9 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
 
   // Header gradient
   QLinearGradient bg(0, UI_HEADER_HEIGHT - (UI_HEADER_HEIGHT / 2.5), 0, UI_HEADER_HEIGHT);
-  bg.setColorAt(0, QColor::fromRgbF(0, 0, 0, 0.45));
+  //////////////////////////
+  bg.setColorAt(0, QColor::fromRgbF(0, 0, 0, 0.0));
+  ////////////////////////////
   bg.setColorAt(1, QColor::fromRgbF(0, 0, 0, 0));
   p.fillRect(0, 0, width(), UI_HEADER_HEIGHT, bg);
 
@@ -244,11 +247,36 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
 
   // current speed
   if (!frogpilot_nvg->bigMapOpen && frogpilot_nvg->standstillDuration == 0 && !frogpilot_toggles.value("hide_speed").toBool()) {
+    ////////////////////////////////////////////////
+    // 判斷白天/晚上
+    QTime now = QTime::currentTime();
+    bool isNight = (now < QTime(6, 0) || now >= QTime(18, 30));
+
     p.setFont(InterFont(176, QFont::Normal));
-    drawText(p, rect().center().x(), 210, speedStr);
+
+    if (isNight) {
+      // 晚上：白色外框，黑色填色
+      QPainterPath textPath;
+      textPath.addText(0, 0, p.font(), speedStr);
+      QRectF bounds = textPath.boundingRect();
+      textPath.translate(rect().center().x() - bounds.width() / 2, 210);
+
+      p.setPen(QPen(Qt::white, 6, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+      p.setBrush(Qt::NoBrush);
+      p.drawPath(textPath);
+
+      p.setPen(Qt::NoPen);
+      p.setBrush(Qt::black);
+      p.drawPath(textPath);
+    } else {
+      // 白天：原始白色顯示
+      drawText(p, rect().center().x(), 210, speedStr);
+    }
+
     p.setFont(InterFont(66));
     drawText(p, rect().center().x(), 290, speedUnit, 200);
   }
+  ////////////////////////////////////////////////
 
   p.restore();
 
