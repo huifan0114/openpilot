@@ -1153,9 +1153,16 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   p.save();
 
   // 繪製資訊面板背景
-  const QRect info_rect(20, height() - 560, 220, 500);
+  leadspeed_diffProfile = paramsMemory.getInt("leadspeeddiffProfile");
+  const QRect info_rect(rect().left() + 20, rect().bottom() - 560, 220, 500);
   p.setPen(Qt::NoPen);
-  p.setBrush(whiteColor());
+  if (leadspeed_diffProfile < -20) {
+    p.setBrush(Qt::red);
+  } else if (leadspeed_diffProfile < 0 && leadspeed_diffProfile > -20) {
+    p.setBrush(QColor(255, 165, 0));
+  } else {
+    p.setBrush(whiteColor());
+  }
   p.drawRoundedRect(info_rect, 24, 24);
 
   // 根據 AutoRoadtype 狀態改變邊框顏色
@@ -1203,6 +1210,11 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   QString profileText = "車距  " + personalityProfileMap[personalityProfile];
   p.setFont(InterFont(40, QFont::Normal));
   p.drawText(info_rect.adjusted(20, 110, 0, 0), Qt::AlignTop | Qt::AlignLeft, profileText);
+
+  //速差顯示
+  QString vr_text = "速差  " + QString::number(leadspeed_diffProfile);
+  p.drawText(info_rect.adjusted(20, 155, 0, 0), Qt::AlignTop | Qt::AlignLeft, vr_text);
+
 
   // 油量顯示
   float tankVolume = carState.getTankvol();

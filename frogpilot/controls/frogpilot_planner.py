@@ -171,8 +171,6 @@ class FrogPilotPlanner:
       prev_increased_stopped_distance = self.params.get_int("IncreasedStoppedDistance")
 
       if lead_distance < 10 or v_ego_kph < 10:
-        # self.params_memory.put_int("leaddisProfile", 0)
-        # self.params_memory.put_int("leadspeedProfile", 0)
         self.params_memory.put_int("leadspeeddiffProfile", 0)
 
       if v_ego_kph > 50:
