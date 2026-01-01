@@ -226,78 +226,78 @@ class FrogPilotPlanner:
               detect_sl = detect_sl_raw
             self.params_memory.put_bool("SpeedLimitChanged", True)
         elif detect_speedlimit == 0 and frogpilot_toggles.roadtype_profile != 0:
-          # 无速限来源时的备用处理逻辑
-          if frogpilot_toggles.roadtype:
-            # 根據路名自動判斷道路類型並設定速限與優先級
-            road_name = self.params_memory.get("RoadName", encoding="utf-8") or ""
-            key_set_speed = 0
-            suggested_speed = 0
+          # 无速限来源时的备用处理逻辑：优先使用路名判断
+          road_name = self.params_memory.get("RoadName", encoding="utf-8") or ""
+          key_set_speed = 0
+          suggested_speed = 0
+          should_update_priority = False
 
-            # 只有在路名改變時才重新判斷
-            if road_name and road_name != self.previous_road_name:
-              current_setspeed = self.params_memory.get_int('KeySetSpeed')
-              # 判斷道路類型並設定建議速限與 SLC 優先級模式
-              if "高速" in road_name or "國道" in road_name:
-                # 高速公路：使用 Highest 模式（選擇最高速限）
-                suggested_speed = 120
-                self.params.put_bool("SLCPriority1", "Highest")
-                self.params.put_bool("SLCPriority2", "None")
-                self.params.put_bool("SLCPriority3", "None")
-              elif "快速" in road_name:
-                # 快速道路：建議 70-80 km/h，使用 Map Data → Navigation → Dashboard
-                suggested_speed = 80
-                self.params.put_bool("SLCPriority1", "Map Data")
-                self.params.put_bool("SLCPriority2", "Navigation")
-                self.params.put_bool("SLCPriority3", "Dashboard")
-              elif "交流道" in road_name:
-                # 交流道：建議 60 km/h，使用 Map Data → Navigation → Dashboard
-                suggested_speed = 50
-                self.params.put_bool("SLCPriority1", "Map Data")
-                self.params.put_bool("SLCPriority2", "Navigation")
-                self.params.put_bool("SLCPriority3", "Dashboard")
-              elif "街" in road_name or "巷" in road_name or "弄" in road_name:
-                # 市區道路：建議 40-50 km/h，使用 Map Data → Navigation → Dashboard
-                suggested_speed = 40
-                self.params.put_bool("SLCPriority1", "Map Data")
-                self.params.put_bool("SLCPriority2", "Navigation")
-                self.params.put_bool("SLCPriority3", "Dashboard")
-              else:
-                # 鄉村/一般道路：建議 50 km/h，使用 Map Data → Navigation → Dashboard
-                suggested_speed = 50
-                self.params.put_bool("SLCPriority1", "Map Data")
-                self.params.put_bool("SLCPriority2", "Navigation")
-                self.params.put_bool("SLCPriority3", "Lowest")
+          # 优先尝试路名判断（无论是否启用 roadtype，只要有路名就尝试判断）
+          if road_name and road_name != self.previous_road_name:
+            current_setspeed = self.params_memory.get_int('KeySetSpeed')
+
+            # 判斷道路類型並設定建議速限與 SLC 優先級模式
+            if "高速" in road_name or "國道" in road_name:
+              suggested_speed = 120
+              if frogpilot_toggles.roadtype:
+                self.params.put("SLCPriority1", "Highest")
+                self.params.put("SLCPriority2", "None")
+                self.params.put("SLCPriority3", "None")
+                should_update_priority = True
+            elif "快速" in road_name or "省道" in road_name:
+              suggested_speed = 80
+              if frogpilot_toggles.roadtype:
+                self.params.put("SLCPriority1", "Map Data")
+                self.params.put("SLCPriority2", "Navigation")
+                self.params.put("SLCPriority3", "Dashboard")
+                should_update_priority = True
+            elif "交流道" in road_name:
+              suggested_speed = 50
+              if frogpilot_toggles.roadtype:
+                self.params.put("SLCPriority1", "Map Data")
+                self.params.put("SLCPriority2", "Navigation")
+                self.params.put("SLCPriority3", "Dashboard")
+                should_update_priority = True
+            elif "街" in road_name or "巷" in road_name or "弄" in road_name:
+              suggested_speed = 40
+              if frogpilot_toggles.roadtype:
+                self.params.put("SLCPriority1", "Map Data")
+                self.params.put("SLCPriority2", "Navigation")
+                self.params.put("SLCPriority3", "Dashboard")
+                should_update_priority = True
+            else:
+              # 鄉村/一般道路
+              suggested_speed = 50
+              if frogpilot_toggles.roadtype:
+                self.params.put("SLCPriority1", "Map Data")
+                self.params.put("SLCPriority2", "Navigation")
+                self.params.put("SLCPriority3", "Lowest")
+                should_update_priority = True
+
+            if should_update_priority:
               self.params.put_bool("FrogPilotTogglesUpdated", True)
 
-              # 記錄當前路名
-              self.previous_road_name = road_name
+            # 記錄當前路名
+            self.previous_road_name = road_name
 
-              # 如果根據路名判斷出建議速限，且與當前設定不同，則更新
-              if suggested_speed > 0 and current_setspeed != suggested_speed:
-                key_set_speed = suggested_speed
-            else:
-              # 沒有路名時使用原有的 profile 邏輯
-              current_setspeed = self.params_memory.get_int('KeySetSpeed')
-              profile = frogpilot_toggles.roadtype_profile
-              if profile in PROFILE_LIMITS:
-                min_speed, max_speed = PROFILE_LIMITS[profile]
-                if not (min_speed <= current_setspeed < max_speed):
-                  key_set_speed = min_speed
+            # 根據路名判斷的建議速限優先使用
+            if suggested_speed > 0 and current_setspeed != suggested_speed:
+              key_set_speed = suggested_speed
 
-            if key_set_speed > 0:
-              self.params_memory.put_int("KeySetSpeed", key_set_speed)
-              self.params_memory.put_bool("KeyChanged", True)
-              self.params_memory.put_int("SpeedPrev", 0)
-          else:
-            # 既無速限來源，也未啟用路名自動判斷，使用基礎 profile 邏輯
+          # 沒有路名或路名未變更時，才使用 profile 邏輯作為備用
+          if key_set_speed == 0:
             current_setspeed = self.params_memory.get_int('KeySetSpeed')
+            profile = frogpilot_toggles.roadtype_profile
             if profile in PROFILE_LIMITS:
               min_speed, max_speed = PROFILE_LIMITS[profile]
               if not (min_speed <= current_setspeed < max_speed):
                 key_set_speed = min_speed
-                self.params_memory.put_int("KeySetSpeed", key_set_speed)
-                self.params_memory.put_bool("KeyChanged", True)
-                self.params_memory.put_int("SpeedPrev", 0)
+
+          # 統一更新速限
+          if key_set_speed > 0:
+            self.params_memory.put_int("KeySetSpeed", key_set_speed)
+            self.params_memory.put_bool("KeyChanged", True)
+            self.params_memory.put_int("SpeedPrev", 0)
 
     if stopmark_on:
       # 取得當前速限

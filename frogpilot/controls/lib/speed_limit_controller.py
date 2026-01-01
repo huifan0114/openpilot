@@ -34,6 +34,8 @@ class SpeedLimitController:
     self.previous_source = "None"
     self.source = "None"
 
+    self.no_speed_limit_timer = 0  # 計時所有來源都沒速限的時間
+
     self.mapbox_requests = json.loads(params.get("MapBoxRequests") or "{}")
     self.mapbox_requests.setdefault("total_requests", 0)
     self.mapbox_requests.setdefault("max_requests", FREE_MAPBOX_REQUESTS - (28 * 100))
@@ -273,6 +275,18 @@ class SpeedLimitController:
     else:
       desired_source = "None"
       desired_target = 0
+
+    # 檢測所有來源是否都沒有速限（包括原始 3 個來源）
+    all_sources_unavailable = dashboard_speed_limit < 1 and self.map_speed_limit < 1 and navigation_speed_limit < 1
+
+    if all_sources_unavailable:
+      self.no_speed_limit_timer += DT_MDL
+      # 如果所有來源都沒速限超過 10 秒，清除舊的 previous_target，避免一直卡在舊速限
+      if self.no_speed_limit_timer > 10:
+        self.previous_target = 0
+        self.previous_source = "None"
+    else:
+      self.no_speed_limit_timer = 0
 
     if desired_target == 0 or self.target == 0:
       if self.mapbox_requests["total_requests"] < self.mapbox_requests["max_requests"] and self.frogpilot_toggles.slc_mapbox_filler:
