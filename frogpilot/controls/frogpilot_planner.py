@@ -266,7 +266,7 @@ class FrogPilotPlanner:
                 suggested_speed = 50
                 self.params.put_bool("SLCPriority1", "Map Data")
                 self.params.put_bool("SLCPriority2", "Navigation")
-                self.params.put_bool("SLCPriority3", "Dashboard")
+                self.params.put_bool("SLCPriority3", "Lowest")
               self.params.put_bool("FrogPilotTogglesUpdated", True)
 
               # 記錄當前路名
