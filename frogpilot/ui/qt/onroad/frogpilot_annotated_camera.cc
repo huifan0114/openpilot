@@ -846,7 +846,7 @@ void FrogPilotAnnotatedCameraWidget::paintSmartControllerTraining(QPainter &p, c
 
   p.setFont(InterFont(35, QFont::Normal));
   p.setPen(QPen(whiteColor(), 6));
-  p.drawText(textRect.adjusted(20, 0, 0, 0), Qt::AlignVCenter | Qt::AlignLeft, "Training...");
+  p.drawText(textRect.adjusted(20, 0, 0, 0), Qt::AlignVCenter | Qt::AlignLeft, "訓練...");
 
   p.restore();
 }
@@ -892,15 +892,20 @@ void FrogPilotAnnotatedCameraWidget::paintSpeedLimitSources(QPainter &p, const c
     p.drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, fullText);
   };
 
-  QRect dashboardRect(speedLimitRect.x() - signMargin, speedLimitRect.y() + speedLimitRect.height() + UI_BORDER_SIZE, 450, 60);
+  // 显示在右下角，paintVehicleInfoPanel 右边
+  // paintVehicleInfoPanel: x=20, width=220, 所以右边从 20+220=240 开始
+  const int info_panel_right = 20 + 220 + 20;  // 加上 20 的间距
+  const int info_panel_bottom = height() - 560;
+
+  QRect dashboardRect(info_panel_right, info_panel_bottom, 450, 60);
   QRect mapDataRect(dashboardRect.x(), dashboardRect.y() + dashboardRect.height() + UI_BORDER_SIZE / 2, 450, 60);
   QRect navigationRect(mapDataRect.x(), mapDataRect.y() + mapDataRect.height() + UI_BORDER_SIZE / 2, 450, 60);
   QRect nextLimitRect(navigationRect.x(), navigationRect.y() + navigationRect.height() + UI_BORDER_SIZE / 2, 450, 60);
 
-  drawSource(dashboardRect, dashboardIcon, "Dashboard", frogpilotCarState.getDashboardSpeedLimit() * speedConversion);
-  drawSource(mapDataRect, mapDataIcon, "Map Data", frogpilotPlan.getSlcMapSpeedLimit() * speedConversion);
-  drawSource(navigationRect, navigationIcon, "Navigation", frogpilotNavigation.getNavigationSpeedLimit() * speedConversion);
-  drawSource(nextLimitRect, nextMapsIcon, "Upcoming", frogpilotPlan.getSlcNextSpeedLimit() * speedConversion);
+  drawSource(dashboardRect, dashboardIcon, tr("儀表板"), frogpilotCarState.getDashboardSpeedLimit() * speedConversion);
+  drawSource(mapDataRect, mapDataIcon, tr("地圖資料"), frogpilotPlan.getSlcMapSpeedLimit() * speedConversion);
+  drawSource(navigationRect, navigationIcon, tr("導航"), frogpilotNavigation.getNavigationSpeedLimit() * speedConversion);
+  drawSource(nextLimitRect, nextMapsIcon, tr("下一個"), frogpilotPlan.getSlcNextSpeedLimit() * speedConversion);
 
   p.restore();
 }
