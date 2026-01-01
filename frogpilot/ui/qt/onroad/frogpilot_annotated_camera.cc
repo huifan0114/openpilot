@@ -1153,7 +1153,7 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   p.save();
 
   // 繪製資訊面板背景
-  leadspeed_diffProfile = paramsMemory.getInt("leadspeeddiffProfile");
+  int leadspeed_diffProfile = params_memory.getInt("leadspeeddiffProfile");
   const QRect info_rect(rect().left() + 20, rect().bottom() - 560, 220, 500);
   p.setPen(Qt::NoPen);
   if (leadspeed_diffProfile < -20) {
