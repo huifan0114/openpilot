@@ -240,34 +240,34 @@ class FrogPilotPlanner:
               if "高速" in road_name or "國道" in road_name:
                 # 高速公路：使用 Highest 模式（選擇最高速限）
                 suggested_speed = 120
-                self.params.put("SLCPriority1", "Highest")
-                self.params.put("SLCPriority2", "None")
-                self.params.put("SLCPriority3", "None")
+                self.params.put_bool("SLCPriority1", "Highest")
+                self.params.put_bool("SLCPriority2", "None")
+                self.params.put_bool("SLCPriority3", "None")
               elif "快速" in road_name:
                 # 快速道路：建議 70-80 km/h，使用 Map Data → Navigation → Dashboard
                 suggested_speed = 80
-                self.params.put("SLCPriority1", "Map Data")
-                self.params.put("SLCPriority2", "Navigation")
-                self.params.put("SLCPriority3", "Dashboard")
+                self.params.put_bool("SLCPriority1", "Map Data")
+                self.params.put_bool("SLCPriority2", "Navigation")
+                self.params.put_bool("SLCPriority3", "Dashboard")
               elif "交流道" in road_name:
                 # 交流道：建議 60 km/h，使用 Map Data → Navigation → Dashboard
                 suggested_speed = 50
-                self.params.put("SLCPriority1", "Map Data")
-                self.params.put("SLCPriority2", "Navigation")
-                self.params.put("SLCPriority3", "Dashboard")
+                self.params.put_bool("SLCPriority1", "Map Data")
+                self.params.put_bool("SLCPriority2", "Navigation")
+                self.params.put_bool("SLCPriority3", "Dashboard")
               elif "街" in road_name or "巷" in road_name or "弄" in road_name:
                 # 市區道路：建議 40-50 km/h，使用 Map Data → Navigation → Dashboard
                 suggested_speed = 40
-                self.params.put("SLCPriority1", "Map Data")
-                self.params.put("SLCPriority2", "Navigation")
-                self.params.put("SLCPriority3", "Dashboard")
+                self.params.put_bool("SLCPriority1", "Map Data")
+                self.params.put_bool("SLCPriority2", "Navigation")
+                self.params.put_bool("SLCPriority3", "Dashboard")
               else:
                 # 鄉村/一般道路：建議 50 km/h，使用 Map Data → Navigation → Dashboard
                 suggested_speed = 50
-                self.params.put("SLCPriority1", "Map Data")
-                self.params.put("SLCPriority2", "Navigation")
-                self.params.put("SLCPriority3", "Dashboard")
-              self.params.put("FrogPilotTogglesUpdated", True)
+                self.params.put_bool("SLCPriority1", "Map Data")
+                self.params.put_bool("SLCPriority2", "Navigation")
+                self.params.put_bool("SLCPriority3", "Dashboard")
+              self.params.put_bool("FrogPilotTogglesUpdated", True)
 
               # 記錄當前路名
               self.previous_road_name = road_name
