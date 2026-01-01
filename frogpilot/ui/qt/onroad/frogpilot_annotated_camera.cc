@@ -891,22 +891,24 @@ void FrogPilotAnnotatedCameraWidget::paintSpeedLimitSources(QPainter &p, const c
     QRect textRect(iconRect.right() + 10, rect.y(), rect.width() - iconRect.width() - 30, rect.height());
     p.drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, fullText);
   };
-
-  // 显示在右下角，paintVehicleInfoPanel 右边
+/////////////////////////////////////////////////////////////////////
+  // 显示在右下角，paintVehicleInfoPanel 右边，贴齐底部
   // paintVehicleInfoPanel: x=20, width=220, 所以右边从 20+220=240 开始
   const int info_panel_right = 20 + 220 + 20;  // 加上 20 的间距
-  const int info_panel_bottom = height() - 560;
+  const int rect_height = 60;
+  const int total_height = rect_height * 4 + UI_BORDER_SIZE / 2 * 3;
+  const int info_panel_bottom = height() - total_height - 20;  // 距离底部20像素
 
-  QRect dashboardRect(info_panel_right, info_panel_bottom, 450, 60);
-  QRect mapDataRect(dashboardRect.x(), dashboardRect.y() + dashboardRect.height() + UI_BORDER_SIZE / 2, 450, 60);
-  QRect navigationRect(mapDataRect.x(), mapDataRect.y() + mapDataRect.height() + UI_BORDER_SIZE / 2, 450, 60);
-  QRect nextLimitRect(navigationRect.x(), navigationRect.y() + navigationRect.height() + UI_BORDER_SIZE / 2, 450, 60);
+  QRect dashboardRect(info_panel_right, info_panel_bottom, 450, rect_height);
+  QRect mapDataRect(dashboardRect.x(), dashboardRect.y() + dashboardRect.height() + UI_BORDER_SIZE / 2, 450, rect_height);
+  QRect navigationRect(mapDataRect.x(), mapDataRect.y() + mapDataRect.height() + UI_BORDER_SIZE / 2, 450, rect_height);
+  QRect nextLimitRect(navigationRect.x(), navigationRect.y() + navigationRect.height() + UI_BORDER_SIZE / 2, 450, rect_height);
 
   drawSource(dashboardRect, dashboardIcon, tr("儀表板"), frogpilotCarState.getDashboardSpeedLimit() * speedConversion);
   drawSource(mapDataRect, mapDataIcon, tr("地圖資料"), frogpilotPlan.getSlcMapSpeedLimit() * speedConversion);
   drawSource(navigationRect, navigationIcon, tr("導航"), frogpilotNavigation.getNavigationSpeedLimit() * speedConversion);
   drawSource(nextLimitRect, nextMapsIcon, tr("下一個"), frogpilotPlan.getSlcNextSpeedLimit() * speedConversion);
-
+/////////////////////////////////////////////////////////////////////
   p.restore();
 }
 
