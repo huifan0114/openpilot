@@ -159,8 +159,8 @@ class FrogPilotPlanner:
     detect_sl = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
     speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
     detect_speedlimit = self.params_memory.get_int("DetectSpeedLimit")
-    stopmark_on = self.params_memory.get_bool("StopmarkOn")  # 讀取停止標記狀態
-    stopDistance = self.params_memory.get_int("stopmarkDistance")
+    # stopmark_on = self.params_memory.get_bool("StopmarkOn")  # 讀取停止標記狀態
+    # stopDistance = self.params_memory.get_int("stopmarkDistance")
     roadtype = self.params.get_bool("Roadtype")
     roadtype_profile = self.params.get_int("RoadtypeProfile")
     navspeed = self.params.get_bool("Navspeed")
@@ -170,10 +170,10 @@ class FrogPilotPlanner:
 
     # 定义常量（优化：避免魔法数字）
     PROFILE_LIMITS = {1: (40, 60), 2: (60, 90), 3: (90, 120), 4: (120, float("inf"))}
-    STOPMARK_MIN_SPEED = 10.0
-    STOPMARK_MAX_DISTANCE = 100.0
-    STOPMARK_MIN_DISTANCE = 10.0
-    MAP_SPEED_THRESHOLDS = [(10, 0), (30, 1), (50, 2), (70, 3), (90, 4)]
+    # STOPMARK_MIN_SPEED = 10.0
+    # STOPMARK_MAX_DISTANCE = 100.0
+    # STOPMARK_MIN_DISTANCE = 10.0
+    # MAP_SPEED_THRESHOLDS = [(10, 0), (30, 1), (50, 2), (70, 3), (90, 4)]
 
 
     if frogpilot_toggles.autoacc and not current_isengaged :
@@ -183,7 +183,7 @@ class FrogPilotPlanner:
         self.params_memory.put_bool("KeyChanged", True)
         self.params_memory.put_int("AutoACCCarAwaystatus", 0)
         self.params_memory.put_int("AutoACCGreenLightstatus", 0)
-        self.params_memory.put_bool("StopmarkApplied", False)
+        # self.params_memory.put_bool("StopmarkApplied", False)
 
         # 速限變更邏輯（AutoACC 觸發時，每次都檢查）
         # 優先序：1) Map Data / Navigation -> 2) 路名 -> 3) 手動 roadtype_profile
@@ -200,56 +200,56 @@ class FrogPilotPlanner:
 
         else:
           # 2) 無 map/nav 速限時：每次 AutoACC 都用路名嘗試設定（只要拿得到路名）
-          road_name = self.params_memory.get("RoadName", encoding="utf-8") or ""
+          # road_name = self.params_memory.get("RoadName", encoding="utf-8") or ""
           current_setspeed = self.params_memory.get_int("KeySetSpeed")
 
-          if road_name:
-            # 計算 suggested_speed（每次都算，不再要求 road_name 必須變更）
-            if "高速" in road_name or "國道" in road_name:
-              suggested_speed = 120
-              if roadtype and road_name != self.previous_road_name:
-                self.params.put("SLCPriority1", "Highest")
-                self.params.put("SLCPriority2", "None")
-                self.params.put("SLCPriority3", "None")
-                should_update_priority = True
-            elif "快速" in road_name or "省道" in road_name:
-              suggested_speed = 80
-              if roadtype and road_name != self.previous_road_name:
-                self.params.put("SLCPriority1", "Map Data")
-                self.params.put("SLCPriority2", "Navigation")
-                self.params.put("SLCPriority3", "Dashboard")
-                should_update_priority = True
-            elif "交流道" in road_name:
-              suggested_speed = 50
-              if roadtype and road_name != self.previous_road_name:
-                self.params.put("SLCPriority1", "Map Data")
-                self.params.put("SLCPriority2", "Navigation")
-                self.params.put("SLCPriority3", "Dashboard")
-                should_update_priority = True
-            elif "街" in road_name or "巷" in road_name or "弄" in road_name:
-              suggested_speed = 40
-              if roadtype and road_name != self.previous_road_name:
-                self.params.put("SLCPriority1", "Map Data")
-                self.params.put("SLCPriority2", "Navigation")
-                self.params.put("SLCPriority3", "Dashboard")
-                should_update_priority = True
-            else:
-              suggested_speed = 50
-              if roadtype and road_name != self.previous_road_name:
-                self.params.put("SLCPriority1", "Map Data")
-                self.params.put("SLCPriority2", "Navigation")
-                self.params.put("SLCPriority3", "Lowest")
-                should_update_priority = True
+          # if road_name:
+          #   # 計算 suggested_speed（每次都算，不再要求 road_name 必須變更）
+          #   if "高速" in road_name or "國道" in road_name:
+          #     suggested_speed = 120
+          #     if roadtype and road_name != self.previous_road_name:
+          #       self.params.put("SLCPriority1", "Highest")
+          #       self.params.put("SLCPriority2", "None")
+          #       self.params.put("SLCPriority3", "None")
+          #       should_update_priority = True
+          #   elif "快速" in road_name or "省道" in road_name:
+          #     suggested_speed = 80
+          #     if roadtype and road_name != self.previous_road_name:
+          #       self.params.put("SLCPriority1", "Map Data")
+          #       self.params.put("SLCPriority2", "Navigation")
+          #       self.params.put("SLCPriority3", "Dashboard")
+          #       should_update_priority = True
+          #   elif "交流道" in road_name:
+          #     suggested_speed = 50
+          #     if roadtype and road_name != self.previous_road_name:
+          #       self.params.put("SLCPriority1", "Map Data")
+          #       self.params.put("SLCPriority2", "Navigation")
+          #       self.params.put("SLCPriority3", "Dashboard")
+          #       should_update_priority = True
+          #   elif "街" in road_name or "巷" in road_name or "弄" in road_name:
+          #     suggested_speed = 40
+          #     if roadtype and road_name != self.previous_road_name:
+          #       self.params.put("SLCPriority1", "Map Data")
+          #       self.params.put("SLCPriority2", "Navigation")
+          #       self.params.put("SLCPriority3", "Dashboard")
+          #       should_update_priority = True
+          #   else:
+          #     suggested_speed = 50
+          #     if roadtype and road_name != self.previous_road_name:
+          #       self.params.put("SLCPriority1", "Map Data")
+          #       self.params.put("SLCPriority2", "Navigation")
+          #       self.params.put("SLCPriority3", "Lowest")
+          #       should_update_priority = True
 
-            if should_update_priority:
-              self.params.put_bool("FrogPilotTogglesUpdated", True)
+          #   if should_update_priority:
+          #     self.params.put_bool("FrogPilotTogglesUpdated", True)
 
-            # 記錄路名（仍然記錄，用於「只在路名變更時才更新 priority」）
-            self.previous_road_name = road_name
+          #   # 記錄路名（仍然記錄，用於「只在路名變更時才更新 priority」）
+          #   self.previous_road_name = road_name
 
-            # 每次 AutoACC 都允許重新套用路名推斷速限
-            if suggested_speed > 0 and current_setspeed != suggested_speed:
-              key_set_speed = suggested_speed
+          #   # 每次 AutoACC 都允許重新套用路名推斷速限
+          #   if suggested_speed > 0 and current_setspeed != suggested_speed:
+          #     key_set_speed = suggested_speed
 
           # 3) 拿不到路名（例如 GPS 不可用）或路名推斷未產生變更時，用 profile 兜底
           if key_set_speed == 0 and roadtype_profile != 0:
@@ -264,45 +264,45 @@ class FrogPilotPlanner:
             self.params_memory.put_bool("KeyChanged", True)
             self.params_memory.put_int("SpeedPrev", 0)
 
-    if stopmark_on:
-      # 取得當前速限
-      currentSpeedLimit = self.params_memory.get_int("KeySetSpeed")
+    # if stopmark_on:
+    #   # 取得當前速限
+    #   currentSpeedLimit = self.params_memory.get_int("KeySetSpeed")
 
-      # **只在 stopmark_on 第一次啟動時記錄當前速限**
-      if not self.params_memory.get_bool("StopmarkApplied"):
-          self.params_memory.put_int("OriginalKeySetSpeed", currentSpeedLimit)
-          self.params_memory.put_bool("StopmarkApplied", True)
+    #   # **只在 stopmark_on 第一次啟動時記錄當前速限**
+    #   if not self.params_memory.get_bool("StopmarkApplied"):
+    #       self.params_memory.put_int("OriginalKeySetSpeed", currentSpeedLimit)
+    #       self.params_memory.put_bool("StopmarkApplied", True)
 
-      # **計算線性降速**
-      stopmarkspeedLimit = STOPMARK_MIN_SPEED + (stopDistance - STOPMARK_MIN_DISTANCE) * (currentSpeedLimit - STOPMARK_MIN_SPEED) / (STOPMARK_MAX_DISTANCE - STOPMARK_MIN_DISTANCE)
-      newSpeedLimit = round(stopmarkspeedLimit)
+    #   # **計算線性降速**
+    #   stopmarkspeedLimit = STOPMARK_MIN_SPEED + (stopDistance - STOPMARK_MIN_DISTANCE) * (currentSpeedLimit - STOPMARK_MIN_SPEED) / (STOPMARK_MAX_DISTANCE - STOPMARK_MIN_DISTANCE)
+    #   newSpeedLimit = round(stopmarkspeedLimit)
 
-      # **只有當前速限比新計算的速限高時，才更新**
-      if currentSpeedLimit > newSpeedLimit:
-          self.params_memory.put_int("KeySetSpeed", newSpeedLimit)
-          self.params_memory.put_bool("KeyChanged", True)
-          self.params_memory.put_int("SpeedPrev", 0)
-          self.params_memory.put_bool("StopmarkOn", False)
+    #   # **只有當前速限比新計算的速限高時，才更新**
+    #   if currentSpeedLimit > newSpeedLimit:
+    #       self.params_memory.put_int("KeySetSpeed", newSpeedLimit)
+    #       self.params_memory.put_bool("KeyChanged", True)
+    #       self.params_memory.put_int("SpeedPrev", 0)
+    #       self.params_memory.put_bool("StopmarkOn", False)
 
-      # **確保恢復機制可再次執行**
-      self.params_memory.put_bool("StopmarkRestored", False)
+    #   # **確保恢復機制可再次執行**
+    #   self.params_memory.put_bool("StopmarkRestored", False)
 
-    else:
-      # **只執行一次恢復邏輯**
-      if not self.params_memory.get_bool("StopmarkRestored") and (autoacc_caraway_status == 1 or autoacc_greenlight_status == 1):
-        originalSpeedLimit = self.params_memory.get_int("OriginalKeySetSpeed")
+    # else:
+    #   # **只執行一次恢復邏輯**
+    #   if not self.params_memory.get_bool("StopmarkRestored") and (autoacc_caraway_status == 1 or autoacc_greenlight_status == 1):
+    #     originalSpeedLimit = self.params_memory.get_int("OriginalKeySetSpeed")
 
-        # 優化：統一恢復邏輯，避免重複
-        if navspeed:
-          self.params_memory.put_bool("SpeedLimitChanged", True)
-        elif originalSpeedLimit > 0:
-          self.params_memory.put_int("KeySetSpeed", originalSpeedLimit)
-          self.params_memory.put_bool("KeyChanged", True)
-          self.params_memory.put_int("SpeedPrev", 0)
+    #     # 優化：統一恢復邏輯，避免重複
+    #     if navspeed:
+    #       self.params_memory.put_bool("SpeedLimitChanged", True)
+    #     elif originalSpeedLimit > 0:
+    #       self.params_memory.put_int("KeySetSpeed", originalSpeedLimit)
+    #       self.params_memory.put_bool("KeyChanged", True)
+    #       self.params_memory.put_int("SpeedPrev", 0)
 
-        # 清除記錄
-        self.params_memory.put_bool("StopmarkApplied", False)
-        self.params_memory.put_bool("StopmarkRestored", True)
+    #     # 清除記錄
+    #     self.params_memory.put_bool("StopmarkApplied", False)
+    #     self.params_memory.put_bool("StopmarkRestored", True)
 
     if frogpilot_toggles.auto_speeddistance:
       leadtimeGapScaled = self.lead_one.dRel / max(v_ego, 1.0)
