@@ -697,8 +697,8 @@ void FrogPilotAnnotatedCameraWidget::paintPendingSpeedLimit(QPainter &p, const c
     p.drawRoundedRect(newSpeedLimitRect.adjusted(9, 9, -9, -9), 16, 16);
 
     p.setFont(InterFont(28, QFont::Normal));
-    p.drawText(newSpeedLimitRect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("待辦的"));
-    p.drawText(newSpeedLimitRect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("限制"));
+    p.drawText(newSpeedLimitRect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("下一段"));
+    p.drawText(newSpeedLimitRect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("速限"));
     p.setFont(InterFont(70, QFont::Normal));
     p.drawText(newSpeedLimitRect.adjusted(0, 85, 0, 0), Qt::AlignTop | Qt::AlignHCenter, newSpeedLimitStr);
   } else {
@@ -892,22 +892,38 @@ void FrogPilotAnnotatedCameraWidget::paintSpeedLimitSources(QPainter &p, const c
     p.drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, fullText);
   };
 /////////////////////////////////////////////////////////////////////
-  // 显示在右下角，paintVehicleInfoPanel 右边，贴齐底部
-  // paintVehicleInfoPanel: x=20, width=220, 所以右边从 20+220=240 开始
-  const int info_panel_right = 20 + 220 + 20;  // 加上 20 的间距
-  const int rect_height = 60;
-  const int total_height = rect_height * 4 + UI_BORDER_SIZE / 2 * 3;
-  const int info_panel_bottom = height() - total_height - 20;  // 距离底部20像素
+const int rect_height = 60;
+const int spacing = UI_BORDER_SIZE / 2;
+const int info_panel_top = 20;  // 距離畫面頂部 20 像素
+const int info_panel_left = speedLimitRect.right() + 20;  // 速限右邊 20 像素
 
-  QRect dashboardRect(info_panel_right, info_panel_bottom, 450, rect_height);
-  QRect mapDataRect(dashboardRect.x(), dashboardRect.y() + dashboardRect.height() + UI_BORDER_SIZE / 2, 450, rect_height);
-  QRect navigationRect(mapDataRect.x(), mapDataRect.y() + mapDataRect.height() + UI_BORDER_SIZE / 2, 450, rect_height);
-  QRect nextLimitRect(navigationRect.x(), navigationRect.y() + navigationRect.height() + UI_BORDER_SIZE / 2, 450, rect_height);
+// 初始化繪製位置
+int current_y = info_panel_top;
 
+// 繪製有效項目
+if (frogpilotCarState.getDashboardSpeedLimit() > 0) {
+  QRect dashboardRect(info_panel_left, current_y, 450, rect_height);
   drawSource(dashboardRect, dashboardIcon, tr("儀表板"), frogpilotCarState.getDashboardSpeedLimit() * speedConversion);
+  current_y += rect_height + spacing;
+}
+
+if (frogpilotPlan.getSlcMapSpeedLimit() > 0) {
+  QRect mapDataRect(info_panel_left, current_y, 450, rect_height);
   drawSource(mapDataRect, mapDataIcon, tr("地圖資料"), frogpilotPlan.getSlcMapSpeedLimit() * speedConversion);
+  current_y += rect_height + spacing;
+}
+
+if (frogpilotNavigation.getNavigationSpeedLimit() > 0) {
+  QRect navigationRect(info_panel_left, current_y, 450, rect_height);
   drawSource(navigationRect, navigationIcon, tr("導航"), frogpilotNavigation.getNavigationSpeedLimit() * speedConversion);
-  drawSource(nextLimitRect, nextMapsIcon, tr("下一個"), frogpilotPlan.getSlcNextSpeedLimit() * speedConversion);
+  current_y += rect_height + spacing;
+}
+
+if (frogpilotPlan.getSlcNextSpeedLimit() > 0) {
+  QRect nextLimitRect(info_panel_left, current_y, 450, rect_height);
+  drawSource(nextLimitRect, nextMapsIcon, tr("下一段"), frogpilotPlan.getSlcNextSpeedLimit() * speedConversion);
+  current_y += rect_height + spacing;
+}
 /////////////////////////////////////////////////////////////////////
   p.restore();
 }
