@@ -110,17 +110,26 @@ class VCruiseHelper:
 
     if button_type is None:
  ###################################################################################################
-      if self.params_memory.get_bool('KeyChanged'):
+      key_changed = self.params_memory.get_bool('KeyChanged')
+      speed_limit_changed = self.params_memory.get_bool('SpeedLimitChanged')
+
+      # 優先級：KeyChanged > SpeedLimitChanged
+      # 兩者可能同時成立（AutoACC 觸發且有 map/nav 速限）
+      if key_changed:
         self.v_cruise_kph = self.params_memory.get_int('KeySetSpeed')
-        self.params_memory.put_bool('KeyChanged', False)
-      elif self.params_memory.get_bool('SpeedLimitChanged'):
+      elif speed_limit_changed:
         # DetectSpeedLimit should be raw kph (no +10% applied in planner)
         raw_sl_kph = self.params_memory.get_int('DetectSpeedLimit')
+        # 應用 +10% 寬容度並 clamp 到有效範圍
         self.v_cruise_kph = int(clip(raw_sl_kph * 1.1, 40, 120))
 
+        # 更新 KeySetSpeed 作為新的基準值
         self.params_memory.put_int('KeySetSpeed', self.v_cruise_kph)
-        self.params_memory.put_bool('SpeedLimitChanged', False)
+
+      # 同時清除兩個標誌，防止下次誤觸發（即使只有其中一個被處理）
+      if key_changed or speed_limit_changed:
         self.params_memory.put_bool('KeyChanged', False)
+        self.params_memory.put_bool('SpeedLimitChanged', False)
 ########################################################################################
       return
 
