@@ -114,11 +114,10 @@ class VCruiseHelper:
         self.v_cruise_kph = self.params_memory.get_int('KeySetSpeed')
         self.params_memory.put_bool('KeyChanged', False)
       elif self.params_memory.get_bool('SpeedLimitChanged'):
-        self.v_cruise_kph = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
-        if self.v_cruise_kph > 120:
-          self.v_cruise_kph= 120
-        elif  self.v_cruise_kph < 40:
-          self.v_cruise_kph= 40
+        # DetectSpeedLimit should be raw kph (no +10% applied in planner)
+        raw_sl_kph = self.params_memory.get_int('DetectSpeedLimit')
+        self.v_cruise_kph = int(clip(raw_sl_kph * 1.1, 40, 120))
+
         self.params_memory.put_int('KeySetSpeed', self.v_cruise_kph)
         self.params_memory.put_bool('SpeedLimitChanged', False)
         self.params_memory.put_bool('KeyChanged', False)
