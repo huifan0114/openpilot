@@ -274,6 +274,8 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"stopmarkDistance", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
     {"StopmarkOn", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
     {"StopmarkRestored", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
+    {"StopmarkActive", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
+    {"StopmarkRecovering", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
     {"TrafficMode", PERSISTENT},
     {"TrafficModespeed", PERSISTENT},
     {"VagSpeed", PERSISTENT},
