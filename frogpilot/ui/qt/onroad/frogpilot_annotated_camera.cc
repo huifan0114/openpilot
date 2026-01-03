@@ -246,7 +246,10 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
   }
 
   if (scene.track_vertices.length() >= 1 && frogpilotPlan.getRedLight() && frogpilot_toggles.value("show_stopping_point").toBool()) {
+    params_memory.putBool("StopmarkOn", true);
     paintStoppingPoint(p, scene, frogpilot_scene, frogpilot_toggles);
+  } else {
+    params_memory.putBool("StopmarkOn", false);
   }
 
   if (!bigMapOpen && (carState.getLeftBlinker() || carState.getRightBlinker()) && signalStyle != "None") {
