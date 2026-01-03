@@ -505,7 +505,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("WheelIcon", "frog", 0, "stock"),
   ("WheelSpeed", "0", 2, "0"),
   ("SimpleDashServer", "1", 0, "1"),
-  ("SimpleDashTheme", "1", 0, "1")
+  ("SimpleDashTheme", "SIMPLE-DASH", 0, "SIMPLE-DASH"),
 ########################################
 ## AutoACC 相關參數 ##
   ("AutoACC", "0", 2, "0"),
