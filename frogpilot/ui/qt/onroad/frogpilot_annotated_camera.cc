@@ -244,14 +244,19 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
   if (!frogpilot_scene.map_open && standstillDuration != 0 && frogpilot_scene.started_timer / UI_FREQ >= 60) {
     paintStandstillTimer(p);
   }
-
+/////////////////停車標記//////////////////
   if (scene.track_vertices.length() >= 1 && frogpilotPlan.getRedLight() && frogpilot_toggles.value("show_stopping_point").toBool()) {
-    params_memory.putBool("StopmarkOn", true);
-    paintStoppingPoint(p, scene, frogpilot_scene, frogpilot_toggles);
+    int roadProfile = params.getInt("RoadtypeProfile");
+    if (roadProfile >= 1 && roadProfile <= 3) {
+      params_memory.putBool("StopmarkOn", true);
+      paintStoppingPoint(p, scene, frogpilot_scene, frogpilot_toggles);
+    } else {
+      params_memory.putBool("StopmarkOn", false);
+    }
   } else {
     params_memory.putBool("StopmarkOn", false);
   }
-
+////////////////////////////////////////
   if (!bigMapOpen && (carState.getLeftBlinker() || carState.getRightBlinker()) && signalStyle != "None") {
     if (!animationTimer->isActive()) {
       animationTimer->start(signalAnimationLength);

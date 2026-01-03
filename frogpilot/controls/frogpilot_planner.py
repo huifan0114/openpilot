@@ -291,20 +291,18 @@ class FrogPilotPlanner:
     # 統一恢復出口（一定執行）
     # =========================================================
     if self.params_memory.get_bool("StopmarkRecovering"):
+        # 使用 ACC 啟動時判斷的速限
+        restore_speed = self.params_memory.get_int("OriginalKeySetSpeed")
 
-        # 優先使用即時導航速限
+        # 優先使用最新的導航速限
         if navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation"):
-            restore_speed = detect_sl_raw
-            # 使用 SpeedLimitChanged 路徑（+10% 在 drive_helpers）
-            self.params_memory.put_int("DetectSpeedLimit", restore_speed)
+            self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
             self.params_memory.put_bool("SpeedLimitChanged", True)
-        else:
-            restore_speed = self.params_memory.get_int("OriginalKeySetSpeed")
-            # 無導航時使用 KeyChanged 路徑（直接套用）
-            if restore_speed > 0:
-                self.params_memory.put_int("KeySetSpeed", restore_speed)
-                self.params_memory.put_bool("KeyChanged", True)
-                self.params_memory.put_int("SpeedPrev", 0)
+        elif restore_speed > 0:
+            # 恢復到 ACC 啟動時判斷的速限
+            self.params_memory.put_int("KeySetSpeed", restore_speed)
+            self.params_memory.put_bool("KeyChanged", True)
+            self.params_memory.put_int("SpeedPrev", 0)
 
         # 設置保護 flag（防止本輪被其他邏輯覆蓋）
         self.params_memory.put_bool("ForceSpeedApply", True)
@@ -317,22 +315,6 @@ class FrogPilotPlanner:
         self.params_memory.put_bool("StopmarkRecovering", False)
         self.params_memory.put_bool("StopmarkRestored", True)
 
-
-    # =========================================================
-    # 一般導航速限更新（非 Stopmark 恢復時）
-    # =========================================================
-    if self.params_memory.get_bool("ForceSpeedApply"):
-        # 本輪只允許 Stopmark 恢復，跳過一般更新
-        self.params_memory.put_bool("ForceSpeedApply", False)
-    else:
-        # 持續偵測邏輯（已啟動 ACC 時）
-        if navspeed and current_isengaged and v_ego_kph > 5:
-            if detect_sl != self.detect_speed_prev:
-                self.detect_speed_prev = detect_sl
-                # 只在有有效速限時才更新
-                if detect_sl > 0:
-                    self.params_memory.put_int("DetectSpeedLimit", detect_sl)
-                    self.params_memory.put_bool("SpeedLimitChanged", True)
 #################################################################
     if frogpilot_toggles.auto_speeddistance:
       leadtimeGapScaled = self.lead_one.dRel / max(v_ego, 1.0)
