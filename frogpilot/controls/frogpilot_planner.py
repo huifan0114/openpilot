@@ -243,16 +243,20 @@ class FrogPilotPlanner:
             self.params_memory.put_bool("StopmarkApplied", True)
             self.params_memory.put_bool("StopmarkRestored", False)
 
-        # 線性降速（只會越來越慢）
-        stopmarkspeedLimit = STOPMARK_MIN_SPEED + (
+        # 使用保存的原始速限計算目標降速速限
+        original_speed = self.params_memory.get_int("OriginalKeySetSpeed")
+        target_stopmark_speed = STOPMARK_MIN_SPEED + (
             (stopDistance - STOPMARK_MIN_DISTANCE)
-            * (currentSpeedLimit - STOPMARK_MIN_SPEED)
+            * (original_speed - STOPMARK_MIN_SPEED)
             / (STOPMARK_MAX_DISTANCE - STOPMARK_MIN_DISTANCE)
         )
+        target_speed_limit = max(round(target_stopmark_speed), int(STOPMARK_MIN_SPEED))
 
-        newSpeedLimit = round(stopmarkspeedLimit)
+        # 漸進式降速：每次最多降低 5 km/h
+        MAX_SPEED_DECREASE = 5  # 每個週期最多降低 5 km/h
 
-        if currentSpeedLimit > newSpeedLimit:
+        if currentSpeedLimit > target_speed_limit:
+            newSpeedLimit = max(currentSpeedLimit - MAX_SPEED_DECREASE, target_speed_limit)
             self.params_memory.put_int("KeySetSpeed", newSpeedLimit)
             self.params_memory.put_bool("KeyChanged", True)
             self.params_memory.put_int("SpeedPrev", 0)
