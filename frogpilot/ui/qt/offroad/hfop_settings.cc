@@ -252,31 +252,7 @@ void FrogPilotHFOPPanel::updateToggles() {
 
     bool setVisible = parent->tuningLevel >= frogpilotToggleLevels[key].toDouble();
 
-    if (key == "Roadtype") {
-      setVisible &= parent->hasOpenpilotLongitudinal;
-    }
-
-    else if (key == "StopmarkOn") {
-      setVisible &= parent->hasOpenpilotLongitudinal;
-    }
-
-    else if (key == "TrafficMode") {
-      setVisible &= parent->hasOpenpilotLongitudinal;
-    }
-
-    else if (key == "VagSpeed") {
-      setVisible &= parent->hasOpenpilotLongitudinal;
-    }
-
-    else if (key == "Navspeed") {
-      setVisible &= parent->hasOpenpilotLongitudinal;
-    }
-
-    else if (key == "Dooropen") {
-      setVisible &= parent->hasOpenpilotLongitudinal;
-    }
-
-    else if (key == "Fuelprice") {
+    if (key == "AutoACC" || key == "StopmarkOn" || key == "TrafficMode") {
       setVisible &= parent->hasOpenpilotLongitudinal;
     }
 
@@ -290,32 +266,56 @@ void FrogPilotHFOPPanel::updateToggles() {
         toggles["AutoACCGreenLight"]->setVisible(autoACCEnabled);
 
       } else if (key == "Roadtype") {
-        toggles["AutoRoadtype"]->setVisible(true);
-        toggles["RoadtypeProfile"]->setVisible(true);
+        bool roadtypeEnabled = params.getBool("Roadtype");
+        toggles["AutoRoadtype"]->setVisible(roadtypeEnabled);
+        toggles["RoadtypeProfile"]->setVisible(roadtypeEnabled);
 
       } else if (key == "StopmarkOn") {
-        toggles["StopmarkDistance"]->setVisible(true);
+        bool stopmarkEnabled = params.getBool("StopmarkOn");
+        toggles["StopmarkDistance"]->setVisible(stopmarkEnabled);
 
       } else if (key == "TrafficMode") {
-        toggles["TrafficModespeed"]->setVisible(true);
+        bool trafficModeEnabled = params.getBool("TrafficMode");
+        toggles["TrafficModespeed"]->setVisible(trafficModeEnabled);
 
       } else if (key == "VagSpeed") {
-        toggles["VagSpeedFactor"]->setVisible(true);
+        bool vagSpeedEnabled = params.getBool("VagSpeed");
+        toggles["VagSpeedFactor"]->setVisible(vagSpeedEnabled);
 
       } else if (key == "Navspeed") {
-        toggles["NavReminder"]->setVisible(true);
-        toggles["speedoverreminder"]->setVisible(true);
-        toggles["speedreminderreset"]->setVisible(true);
+        bool navspeedEnabled = params.getBool("Navspeed");
+        toggles["NavReminder"]->setVisible(navspeedEnabled);
+        toggles["speedoverreminder"]->setVisible(navspeedEnabled);
+        toggles["speedreminderreset"]->setVisible(navspeedEnabled);
 
       } else if (key == "Dooropen") {
-        toggles["DriverdoorOpen"]->setVisible(true);
-        toggles["CodriverdoorOpen"]->setVisible(true);
-        toggles["LpassengerdoorOpen"]->setVisible(true);
-        toggles["RpassengerdoorOpen"]->setVisible(true);
-        toggles["LuggagedoorOpen"]->setVisible(true);
+        bool dooropenEnabled = params.getBool("Dooropen");
+        toggles["DriverdoorOpen"]->setVisible(dooropenEnabled);
+        toggles["CodriverdoorOpen"]->setVisible(dooropenEnabled);
+        toggles["LpassengerdoorOpen"]->setVisible(dooropenEnabled);
+        toggles["RpassengerdoorOpen"]->setVisible(dooropenEnabled);
+        toggles["LuggagedoorOpen"]->setVisible(dooropenEnabled);
 
       } else if (key == "Fuelprice") {
-        toggles["Fuelcosts"]->setVisible(true);
+        bool fuelpriceEnabled = params.getBool("Fuelprice");
+        toggles["Fuelcosts"]->setVisible(fuelpriceEnabled);
+
+      } else if (AutoACCKeys.contains(key)) {
+        toggles["AutoACC"]->setVisible(true);
+      } else if (RoadKeys.contains(key)) {
+        toggles["Roadtype"]->setVisible(true);
+      } else if (StopmarkKeys.contains(key)) {
+        toggles["StopmarkOn"]->setVisible(true);
+      } else if (TrafficModeKeys.contains(key)) {
+        toggles["TrafficMode"]->setVisible(true);
+      } else if (VagSpeedKeys.contains(key)) {
+        toggles["VagSpeed"]->setVisible(true);
+      } else if (NavspeedKeys.contains(key)) {
+        toggles["Navspeed"]->setVisible(true);
+      } else if (DooropenKeys.contains(key)) {
+        toggles["Dooropen"]->setVisible(true);
+      } else if (FuelpriceKeys.contains(key)) {
+        toggles["Fuelprice"]->setVisible(true);
       }
     }
   }
