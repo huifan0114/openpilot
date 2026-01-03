@@ -94,7 +94,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     {"ConditionalExperimental", tr("條件式實驗模式"), tr("<b>當達成設置條件時自動切換為\"實驗模式\"。</b> 使模型能在挑戰情境下做出更智慧的決策。"), "../../frogpilot/assets/toggle_icons/icon_conditional.png"},
     {"CESpeed", tr("低於"), tr("<b>當在無前車情況且速限低於此值時切換為\"實驗模式\"</b>，以協助 openpilot 更順暢處理低速情境。"), ""},
     {"CECurves", tr("前方偵測到彎道"), tr("<b>當偵測到彎道時切換為\"實驗模式\"</b>，讓模型為彎道設定適當速度。"), ""},
-    {"CEStopLights", tr("\"Detected\" Stop Lights/Signs"), tr("<b>Switch to \"Experimental Mode\" whenever the driving model \"detects\" a red light or stop sign.</b><br><br><i><b>Disclaimer</b>: openpilot does not explicitly detect traffic lights or stop signs. In \"Experimental Mode\", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!</i>"), ""},
+    {"CEStopLights", tr("\"檢測到停車燈/標誌"), tr("<b>每當駕駛模型“檢測到”紅燈或停車標誌時，切換到“實驗模式”。 </b><br><br><i><b>免責聲明</b>：openpilot 不會明確檢測交通燈或停車標誌。在“實驗模式”下，openpilot 根據攝像頭輸入做出端到端的駕駛決策，這意味著即使沒有明確的原因，它也可能會停止！</i>"), ""},
     {"CELead", tr("前方偵測到前車"), tr("<b>當偵測到較慢或靜止車輛時切換為\"實驗模式\"。</b> 在某些車輛上可使煞車更平順且更可靠。"), ""},
     {"CENavigation", tr("基於導航"), tr("<b>在使用 \"Navigate on openpilot\" (NOO) 且接近路線上的交叉路口或轉彎時切換為\"實驗模式\"</b>，讓模型為即將到來的動作設定適當速度。"), ""},
     {"CEModelStopTime", tr("預測停車時間"), tr("<b>當 openpilot 預測在設定時間內會停車時切換為\"實驗模式\"。</b> 此通常由模型偵測到紅燈或停車標誌觸發。<br><br><i><b>免責聲明</b>：openpilot 並不會明確偵測紅綠燈或停車標誌。在\"實驗模式\"中，openpilot 會根據相機輸入做端到端的駕駛決策，因此可能在沒有明確理由時停車。</i>"), ""},
@@ -150,7 +150,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     {"DecelerationProfile", tr("減速設定"), tr("<b>openpilot 減速的力度設定。</b> \"節能\" 偏向滑行，\"運動\" 則採用較強的煞車。"), ""},
     {"HumanAcceleration", tr("類人加速"), tr("<b>模仿人類駕駛的加速行為</b>，在低速時平順放油門，並在起步時給予額外動力。"), ""},
     {"HumanFollowing", tr("類人跟車"), tr("<b>模仿人類駕駛的跟車行為</b>，在較快車輛前方縮短距離以快速起步，並動態調整跟車距離以達到更平順與高效率的煞車。"), ""},
-    {"HumanLaneChanges", tr("Human-Like Lane Changes"), tr("<b>Lane-change behavior that mimics human drivers</b> by anticipating and tracking adjacent vehicles during lane changes."), ""},
+    {"HumanLaneChanges", tr("類人變道"), tr("<b>模仿人類駕駛的變道行為</b>，在變道過程中預測並追蹤鄰近車輛。"), ""},
     {"LeadDetectionThreshold", tr("前車偵測靈敏度"), tr("<b>openpilot 偵測車輛的靈敏度。</b> 靈敏度提高可以在較遠距離更早偵測，但可能對非車輛物體也有反應；降低則較保守並減少誤偵測。"), ""},
     {"TacoTune", tr("\"Taco Bell Run\" Turn Speed Hack"), tr("<b>The turn-speed hack from comma's 2022 \"Taco Bell Run\".</b> Designed to slow down for left and right turns."), ""},
 
@@ -192,7 +192,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
 
     {"SpeedLimitController", tr("速度限制控制器"), tr("<b>將 openpilot 的最大行駛速度限制為當前速度限制</b>，該速度限制是從下載的地圖、Mapbox、Navigate on openpilot 或受支持車輛（福特、Genesis、現代、起亞、雷克薩斯、豐田）的儀表板獲取的。"), " ../../frogpilot/assets/toggle_icons/icon_speed_limit.png"},
 
-    {"SLCFallback", tr("Fallback Speed"), tr("<b>未發現限速時“限速控制器”使用的速度。</b><br><br>-<b>設置速度</b>：使用巡航設定速度<br>-<b>實驗模式</b>：使用駕駛模型估計限制<br>-<b>先前限制</b>：繼續使用最後確認的限制"), ""},
+    {"SLCFallback", tr("備用速限"), tr("<b>未發現限速時“限速控制器”使用的速度。</b><br><br>-<b>設置速度</b>：使用巡航設定速度<br>-<b>實驗模式</b>：使用駕駛模型估計限制<br>-<b>先前限制</b>：繼續使用最後確認的限制"), ""},
 
     {"SLCOverride", tr("覆蓋速度"), tr("<b>您手動駕駛速度超過公佈的限制後，\"速度限制控制器\"使用的速度。</b><br><br>-<b>使用油門踏板設置</b>：使用踩下油門時達到的最高速度<br>-<b>最大設置速度</b>：使用巡航設置速度<br><br>當 openpilot 脫離時覆蓋清除。"), ""},
     {"SLCQOL", tr("生活質量"), tr("<b>其他“速度限制控制器”更改</b>以微調 openpilot 的駕駛方式。"), ""},

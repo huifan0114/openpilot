@@ -85,7 +85,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     {"AccelerationPath", tr("加速度路徑"), tr("<b>依據規劃的加減速為行駛路徑著色</b>。"), ""},
     {"AdjacentPath", tr("鄰道"), tr("<b>顯示左右車道的行駛路徑</b>。"), ""},
     {"BlindSpotPath", tr("盲點路徑"), tr("<b>當車輛位​​於該車道盲點時顯示紅色路徑。</b>"), ""},
-    {"Compass", tr("Compass"), tr("使用簡單的屏幕指南針<b>顯示當前行駛方向</b>。"), ""},
+    {"Compass", tr("羅盤"), tr("使用簡單的屏幕指南針<b>顯示當前行駛方向</b>。"), ""},
     {"OnroadDistanceButton", tr("駕駛個性按鈕"), tr("通過駕駛屏幕小部件<b>控制和查看當前駕駛個性</b>。"), ""},
     {"PedalsOnUI", tr("油門/制動踏板指示器"), tr("<b>屏幕上的油門和製動指示器。</b><br><br><b>動態</b>：不透明度根據 openpilot 加速或製動的程度而變化<br><b>靜態</b>：活動時滿，不活動時暗"), ""},
     {"RotatingWheel", tr("旋轉方向盤"), tr("用實體方向盤<b>旋轉駕駛屏幕輪</b>。"), ""},
