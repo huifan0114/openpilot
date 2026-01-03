@@ -288,9 +288,9 @@ class FrogPilotPlanner:
 
 
     # =========================================================
-    # 統一恢復出口（一定執行）
+    # 統一恢復出口（踩油門立即恢復）
     # =========================================================
-    if self.params_memory.get_bool("StopmarkRecovering"):
+    if (sm["carState"].aEgo > 0 and self.params_memory.get_bool("StopmarkApplied")) or self.params_memory.get_bool("StopmarkRecovering"):
         # 使用 ACC 啟動時判斷的速限
         restore_speed = self.params_memory.get_int("OriginalKeySetSpeed")
 
