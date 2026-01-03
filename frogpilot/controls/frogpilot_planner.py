@@ -174,12 +174,10 @@ class FrogPilotPlanner:
     STOPMARK_MIN_SPEED = 10.0
     STOPMARK_MIN_DISTANCE = 10.0
     STOPMARK_MAX_DISTANCE = 100.0
+    MAX_SPEED_DECREASE = 5  # 每個週期最多降低 5 km/h
 
     # 定义常量（优化：避免魔法数字）
     PROFILE_LIMITS = {1: (40, 59), 2: (60, 89), 3: (90, 119), 4: (120, float("inf"))}
-    STOPMARK_MIN_SPEED = 10.0
-    STOPMARK_MAX_DISTANCE = 100.0
-    STOPMARK_MIN_DISTANCE = 10.0
 
 
     if frogpilot_toggles.autoacc and not current_isengaged :
@@ -252,9 +250,7 @@ class FrogPilotPlanner:
         )
         target_speed_limit = max(round(target_stopmark_speed), int(STOPMARK_MIN_SPEED))
 
-        # 漸進式降速：每次最多降低 5 km/h
-        MAX_SPEED_DECREASE = 5  # 每個週期最多降低 5 km/h
-
+        # 漸進式降速：每次最多降低 MAX_SPEED_DECREASE km/h
         if currentSpeedLimit > target_speed_limit:
             newSpeedLimit = max(currentSpeedLimit - MAX_SPEED_DECREASE, target_speed_limit)
             self.params_memory.put_int("KeySetSpeed", newSpeedLimit)
