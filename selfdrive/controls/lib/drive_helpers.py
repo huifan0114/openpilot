@@ -125,7 +125,7 @@ class VCruiseHelper:
         # DetectSpeedLimit should be raw kph (no +10% applied in planner)
         raw_sl_kph = self.params_memory.get_int('DetectSpeedLimit')
         # 應用 +10% 寬容度並 clamp 到有效範圍
-        self.v_cruise_kph = int(clip(raw_sl_kph * 1.1, 40, 120))
+        self.v_cruise_kph = int(clip(raw_sl_kph , 40, 120))
 
         # 更新 KeySetSpeed 作為新的基準值
         self.params_memory.put_int('KeySetSpeed', self.v_cruise_kph)
