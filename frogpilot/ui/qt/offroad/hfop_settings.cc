@@ -19,6 +19,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
   FrogPilotListWidget *FuelpriceList = new FrogPilotListWidget(this);
   FrogPilotListWidget *TrafficModelList = new FrogPilotListWidget(this);
+  FrogPilotListWidget *StopmarkList = new FrogPilotListWidget(this);
   FrogPilotListWidget *VagSpeedList = new FrogPilotListWidget(this);
   FrogPilotListWidget *AutoACCPList = new FrogPilotListWidget(this);
   FrogPilotListWidget *RoadtypeList = new FrogPilotListWidget(this);
@@ -27,6 +28,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
 
   ScrollView *FuelpricePanel = new ScrollView(FuelpriceList, this);
+  ScrollView *StopmarkPanel = new ScrollView(StopmarkList, this);
   ScrollView *TrafficModePanel = new ScrollView(TrafficModelList, this);
   ScrollView *VagSpeedPanel = new ScrollView(VagSpeedList, this);
   ScrollView *AutoACCPanel = new ScrollView(AutoACCPList, this);
@@ -36,6 +38,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
   hfopLayout->addWidget(FuelpricePanel);
   hfopLayout->addWidget(TrafficModePanel);
+  hfopLayout->addWidget(StopmarkPanel);
   hfopLayout->addWidget(VagSpeedPanel);
   hfopLayout->addWidget(AutoACCPanel);
   hfopLayout->addWidget(RoadtypePanel);
@@ -80,8 +83,6 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
     {"Fuelprice", "  油價計算", "啟動後會計算油費.", ""},
     {"Fuelcosts", "  油價設定", "設定車輛使用油種與價格.", ""},
-
-
   };
 
   for (const auto &[param, title, desc, icon] : hfopToggles) {
@@ -108,6 +109,9 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
       std::vector<QString> profileOptions{tr("關閉"), tr("巷弄"),tr("平面"), tr("快速"), tr("高速")};
       ButtonParamControl *profileSelection = new ButtonParamControl(param, title, desc, icon, profileOptions);
       hfopcontrolsToggle = profileSelection;
+
+    } else if (param == "StopmarkDistance") {
+      hfopcontrolsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 10, 100, "公尺");
 
     } else if (param == "TrafficMode") {
       FrogPilotManageControl *TrafficModeToggle = new FrogPilotManageControl(param, title, desc, icon);
@@ -160,6 +164,9 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
       parentKeys.insert(param);
     } else if (FuelpriceKeys.contains(param)) {
       FuelpriceList->addItem(hfopcontrolsToggle);
+      parentKeys.insert(param);
+    } else if (StopmarkKeys.contains(param)) {
+      StopmarkList->addItem(hfopcontrolsToggle);
       parentKeys.insert(param);
     } else if (TrafficModeKeys.contains(param)) {
       TrafficModelList->addItem(hfopcontrolsToggle);
@@ -242,6 +249,10 @@ void FrogPilotHFOPPanel::updateToggles() {
       setVisible &= parent->hasOpenpilotLongitudinal;
     }
 
+    else if (key == "StopmarkOn") {
+      setVisible &= parent->hasOpenpilotLongitudinal;
+    }
+
     else if (key == "TrafficMode") {
       setVisible &= parent->hasOpenpilotLongitudinal;
     }
@@ -274,6 +285,9 @@ void FrogPilotHFOPPanel::updateToggles() {
       } else if (key == "Roadtype") {
         toggles["AutoRoadtype"]->setVisible(true);
         toggles["RoadtypeProfile"]->setVisible(true);
+
+      } else if (key == "StopmarkOn") {
+        toggles["StopmarkDistance"]->setVisible(true);
 
       } else if (key == "TrafficMode") {
         toggles["TrafficModespeed"]->setVisible(true);
