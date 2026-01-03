@@ -110,6 +110,13 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
       ButtonParamControl *profileSelection = new ButtonParamControl(param, title, desc, icon, profileOptions);
       hfopcontrolsToggle = profileSelection;
 
+    } else if (param == "StopmarkOn") {
+      FrogPilotManageControl *StopmarkToggle = new FrogPilotManageControl(param, title, desc, icon);
+      QObject::connect(StopmarkToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, StopmarkPanel]() {
+        hfopLayout->setCurrentWidget(StopmarkPanel);
+      });
+      hfopcontrolsToggle = StopmarkToggle;
+
     } else if (param == "StopmarkDistance") {
       hfopcontrolsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 10, 100, "公尺");
 
