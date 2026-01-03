@@ -24,6 +24,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
   FrogPilotListWidget *AutoACCPList = new FrogPilotListWidget(this);
   FrogPilotListWidget *RoadtypeList = new FrogPilotListWidget(this);
   FrogPilotListWidget *DooropenList = new FrogPilotListWidget(this);
+  FrogPilotListWidget *NavspeedList = new FrogPilotListWidget(this);
 
 
 
@@ -34,6 +35,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
   ScrollView *AutoACCPanel = new ScrollView(AutoACCPList, this);
   ScrollView *RoadtypePanel = new ScrollView(RoadtypeList, this);
   ScrollView *DooropenPanel = new ScrollView(DooropenList, this);
+  ScrollView *NavspeedPanel = new ScrollView(NavspeedList, this);
 
 
   hfopLayout->addWidget(FuelpricePanel);
@@ -43,6 +45,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
   hfopLayout->addWidget(AutoACCPanel);
   hfopLayout->addWidget(RoadtypePanel);
   hfopLayout->addWidget(DooropenPanel);
+  hfopLayout->addWidget(NavspeedPanel);
 
 
   const std::vector<std::tuple<QString, QString, QString, QString>> hfopToggles {
@@ -141,7 +144,11 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
       hfopcontrolsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 20, "公里");
 
     } else if (param == "Navspeed") {
-      hfopcontrolsToggle = new ParamControl(param, title, desc, icon);
+      FrogPilotManageControl *NavspeedToggle = new FrogPilotManageControl(param, title, desc, icon);
+      QObject::connect(NavspeedToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, NavspeedPanel]() {
+        hfopLayout->setCurrentWidget(NavspeedPanel);
+      });
+      hfopcontrolsToggle = NavspeedToggle;
 
     } else if (param == "Dooropen") {
       FrogPilotManageControl *DooropenToggle = new FrogPilotManageControl(param, title, desc, icon);
@@ -188,7 +195,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
       DooropenList->addItem(hfopcontrolsToggle);
       parentKeys.insert(param);
     } else if (NavspeedKeys.contains(param)) {
-      hfopList->addItem(hfopcontrolsToggle);
+      NavspeedList->addItem(hfopcontrolsToggle);
       parentKeys.insert(param);
     } else {
       hfopList->addItem(hfopcontrolsToggle);
