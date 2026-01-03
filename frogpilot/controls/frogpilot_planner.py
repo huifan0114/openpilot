@@ -147,23 +147,13 @@ class FrogPilotPlanner:
     else:
       self.frogpilot_weather.weather_id = 0
 
-####################################################################################
-    # 从 SpeedLimitController 获取速限和来源
-    # detect_sl_raw = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
-    # slc_source = self.frogpilot_vcruise.slc.source
-    # current_isengaged = self.params.get_bool("IsEngaged")
-
+####################### AutoACC Status #############################################################
     autoacc_caraway_status = self.params_memory.get_int("AutoACCCarAwaystatus")
     autoacc_greenlight_status = self.params_memory.get_int("AutoACCGreenLightstatus")
-
-    # detect_sl = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
     speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
-    # detect_speedlimit = self.params_memory.get_int("DetectSpeedLimit")
     stopmark_on = self.params_memory.get_bool("StopmarkOn")  # 讀取停止標記狀態
     stopDistance = self.params_memory.get_int("stopmarkDistance")
-    # roadtype = self.params.get_bool("Roadtype")
     roadtype_profile = self.params.get_int("RoadtypeProfile")
-    # navspeed = self.params.get_bool("Navspeed")
     speedoverreminder = self.params.get_bool("speedoverreminder")
     speedreminderreset = self.params.get_bool("speedreminderreset")
 
@@ -190,9 +180,6 @@ class FrogPilotPlanner:
     STOPMARK_MIN_SPEED = 10.0
     STOPMARK_MAX_DISTANCE = 100.0
     STOPMARK_MIN_DISTANCE = 10.0
-    # MAP_SPEED_THRESHOLDS = [(10, 0), (30, 1), (50, 2), (70, 3), (90, 4)]
-    # ROADNAME_MIN_APPLY_SPEED = 60.0  # 避免低速環境直接套高速預設
-    # ROADNAME_MAX_JUMP = 30           # 路名速限建議一次最多提升幅度
 
 
     if frogpilot_toggles.autoacc and not current_isengaged :
@@ -325,7 +312,7 @@ class FrogPilotPlanner:
                 if detect_sl > 0:
                     self.params_memory.put_int("DetectSpeedLimit", detect_sl)
                     self.params_memory.put_bool("SpeedLimitChanged", True)
-
+#################################################################
     if frogpilot_toggles.auto_speeddistance:
       leadtimeGapScaled = self.lead_one.dRel / max(v_ego, 1.0)
       leadtimeGapScaledInt = int(leadtimeGapScaled * 1000)
@@ -367,18 +354,17 @@ class FrogPilotPlanner:
         if detect_sl > 0:
           self.params_memory.put_int("DetectSpeedLimit", detect_sl)
           self.params_memory.put_bool("SpeedLimitChanged", True)
-    #超速偵測（僅在速限穩定時執行，避免覆蓋正常變更偵測）
+    #################################################################
+    # 超速偵測與自動調降速限
     if speedoverreminder:
       speed_over = v_ego_kph >= 40 and speedlimit >= 40 and (v_ego_kph - speedlimit) >= 1
       self.speed_over = speed_over
 
-      # 只在未處於速限變更週期時才執行重置（避免與其他邏輯衝突）
-      if speed_over and detect_speedlimit != 0 and speedreminderreset:
-          # 確保不會降低已偵測的速限值
-          reset_value = max(detect_speedlimit, 40)
-          if reset_value != detect_speedlimit:
-              self.params_memory.put_int("DetectSpeedLimit", reset_value)
-              self.params_memory.put_bool("SpeedLimitChanged", True)
+      # 當超速且啟用自動重置時，調降設定速度到當前偵測速限
+      if speed_over and speedreminderreset and detect_speedlimit > 0:
+          # 使用原始偵測速限重置（drive_helpers 會自動套用 +10%）
+          self.params_memory.put_int("DetectSpeedLimit", detect_speedlimit)
+          self.params_memory.put_bool("SpeedLimitChanged", True)
       elif v_ego_kph < 40:
           self.speed_over = False
 ####################################################################################
