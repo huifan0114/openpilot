@@ -271,7 +271,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"speedoverreminder", PERSISTENT},
     {"speedreminderreset", PERSISTENT},
     {"StopmarkApplied", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
-    {"stopmarkDistance", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
+    {"StopmarkDistance", PERSISTENT},
     {"StopmarkOn", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
     {"StopmarkRestored", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
     {"StopmarkActive", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
