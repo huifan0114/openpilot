@@ -37,8 +37,8 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
 
   hfopLayout->addWidget(FuelpricePanel);
-  hfopLayout->addWidget(TrafficModePanel);
   hfopLayout->addWidget(StopmarkPanel);
+  hfopLayout->addWidget(TrafficModePanel);
   hfopLayout->addWidget(VagSpeedPanel);
   hfopLayout->addWidget(AutoACCPanel);
   hfopLayout->addWidget(RoadtypePanel);
@@ -208,7 +208,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     });
   }
 
-  QSet<QString> forceUpdateKeys = {"AutoACC", "Roadtype", "TrafficMode", "VagSpeed", "Navspeed", "Dooropen", "Fuelprice"};
+  QSet<QString> forceUpdateKeys = {"AutoACC", "Roadtype", "StopmarkOn", "TrafficMode", "VagSpeed", "Navspeed", "Dooropen", "Fuelprice"};
   for (const QString &key : forceUpdateKeys) {
     QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, this, &FrogPilotHFOPPanel::updateToggles);
   }
