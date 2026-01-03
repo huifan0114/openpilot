@@ -56,6 +56,7 @@ class FrogPilotPlanner:
     self.detect_speed_prev = 0
     self.spee_dover = False
     self.previous_road_name = ""  # 記錄上次的路名，避免重複設定
+    self.stopmark_on_prev = False  # 追踪上一次的 StopmarkOn 狀態（防抖）
 #########################################
 
   def update(self, now, time_validated, sm, frogpilot_toggles):
@@ -167,8 +168,6 @@ class FrogPilotPlanner:
     currentSpeedLimit = self.params_memory.get_int("KeySetSpeed")
 
     navspeed = self.params.get_bool("Navspeed")
-    stopmark_on = self.params_memory.get_bool("StopmarkOn")
-    stopDistance = self.params_memory.get_int("stopmarkDistance")
 
     # ---------- Stopmark 常數 ----------
     STOPMARK_MIN_SPEED = 10.0
@@ -228,46 +227,68 @@ class FrogPilotPlanner:
             self.params_memory.put_bool("KeyChanged", True)
             self.params_memory.put_int("SpeedPrev", 0)
 
-    if stopmark_on:
-        self.params_memory.put_bool("StopmarkActive", True)
+    # =========================================================
+    # Stopmark 防抖與狀態管理
+    # =========================================================
+    stopmark_on = self.params_memory.get_bool("StopmarkOn")  # 在 Stopmark 邏輯開始前讀取
 
-        # 第一次進入 Stopmark，保存原速限
-        if not self.params_memory.get_bool("StopmarkApplied"):
-            speed_to_save = currentSpeedLimit
+    if stopmark_on != self.stopmark_on_prev:
+        # 狀態改變時才執行
+        self.stopmark_on_prev = stopmark_on
 
-            # 無導航時避免保存過高速限
-            if not navspeed or detect_sl_raw == 0:
-                speed_to_save = min(currentSpeedLimit, 80)
+        if stopmark_on:
+            self.params_memory.put_bool("StopmarkActive", True)
 
-            self.params_memory.put_int("OriginalKeySetSpeed", speed_to_save)
-            self.params_memory.put_bool("StopmarkApplied", True)
-            self.params_memory.put_bool("StopmarkRestored", False)
+            # 第一次進入 Stopmark
+            if not self.params_memory.get_bool("StopmarkApplied"):
+                speed_to_save = currentSpeedLimit
+                if not navspeed or detect_sl_raw == 0:
+                    speed_to_save = min(currentSpeedLimit, 80)
 
-        # 線性降速（只會越來越慢）
-        stopmarkspeedLimit = STOPMARK_MIN_SPEED + (
-            (stopDistance - STOPMARK_MIN_DISTANCE)
-            * (currentSpeedLimit - STOPMARK_MIN_SPEED)
-            / (STOPMARK_MAX_DISTANCE - STOPMARK_MIN_DISTANCE)
-        )
+                self.params_memory.put_int("OriginalKeySetSpeed", speed_to_save)
+                self.params_memory.put_bool("StopmarkApplied", True)
+                self.params_memory.put_bool("StopmarkRestored", False)
+    else:
+        # 狀態未改變，繼續漸進式降速
+        if stopmark_on and self.params_memory.get_bool("StopmarkApplied"):
+            stopDistance = self.params_memory.get_int("stopmarkDistance")
 
-        newSpeedLimit = round(stopmarkspeedLimit)
+            # 邊界檢查：stopDistance 必須有效
+            if stopDistance <= STOPMARK_MIN_DISTANCE:
+                target_speed_limit = STOPMARK_MIN_SPEED
+            else:
+                # 計算目標降速速限
+                original_speed = self.params_memory.get_int("OriginalKeySetSpeed")
+                if original_speed <= 0:
+                    original_speed = STOPMARK_MIN_SPEED
 
-        if currentSpeedLimit > newSpeedLimit:
-            self.params_memory.put_int("KeySetSpeed", newSpeedLimit)
-            self.params_memory.put_bool("KeyChanged", True)
-            self.params_memory.put_int("SpeedPrev", 0)
+                target_stopmark_speed = STOPMARK_MIN_SPEED + (
+                    (stopDistance - STOPMARK_MIN_DISTANCE)
+                    * (original_speed - STOPMARK_MIN_SPEED)
+                    / (STOPMARK_MAX_DISTANCE - STOPMARK_MIN_DISTANCE)
+                )
+                target_speed_limit = max(round(target_stopmark_speed), STOPMARK_MIN_SPEED)
+
+            # 🔧 改為漸進式降速（每次最多降 5 km/h）
+            MAX_SPEED_DECREASE = 5  # 每個週期最多降低 5 km/h
+
+            if currentSpeedLimit > target_speed_limit:
+                newSpeedLimit = max(currentSpeedLimit - MAX_SPEED_DECREASE, target_speed_limit)
+                self.params_memory.put_int("KeySetSpeed", newSpeedLimit)
+                self.params_memory.put_bool("KeyChanged", True)
+                self.params_memory.put_int("SpeedPrev", 0)
 
 
     # =========================================================
-    # 二、Stopmark 結束偵測（不依賴 AutoACC）
+    # Stopmark 結束偵測（狀態轉換時才觸發）
     # =========================================================
-    if not stopmark_on and self.params_memory.get_bool("StopmarkActive"):
+    if not stopmark_on and self.stopmark_on_prev and self.params_memory.get_bool("StopmarkActive"):
         self.params_memory.put_bool("StopmarkRecovering", True)
         self.params_memory.put_bool("StopmarkActive", False)
 
 
     # =========================================================
-    # 三、統一恢復出口（一定執行）
+    # 統一恢復出口（一定執行）
     # =========================================================
     if self.params_memory.get_bool("StopmarkRecovering"):
 
@@ -298,7 +319,7 @@ class FrogPilotPlanner:
 
 
     # =========================================================
-    # 四、一般導航速限更新（非 Stopmark 恢復時）
+    # 一般導航速限更新（非 Stopmark 恢復時）
     # =========================================================
     if self.params_memory.get_bool("ForceSpeedApply"):
         # 本輪只允許 Stopmark 恢復，跳過一般更新
