@@ -153,7 +153,7 @@ class FrogPilotPlanner:
     autoacc_greenlight_status = self.params_memory.get_int("AutoACCGreenLightstatus")
     speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
     stopmark_on = self.params_memory.get_bool("StopmarkOn")  # 讀取停止標記狀態
-    stopDistance = self.params_memory.get_int("stopmarkDistance")
+    stopDistance = self.params_memory.get_int("StopmarkDistance")
     roadtype_profile = self.params.get_int("RoadtypeProfile")
     speedoverreminder = self.params.get_bool("speedoverreminder")
     speedreminderreset = self.params.get_bool("speedreminderreset")
