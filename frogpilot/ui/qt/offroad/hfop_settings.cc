@@ -252,7 +252,15 @@ void FrogPilotHFOPPanel::updateToggles() {
 
     bool setVisible = parent->tuningLevel >= frogpilotToggleLevels[key].toDouble();
 
-    if (key == "AutoACC" || key == "StopmarkOn" || key == "TrafficMode") {
+    if (key == "AutoACC") {
+      setVisible &= parent->hasOpenpilotLongitudinal;
+    }
+
+    else if (key == "StopmarkOn") {
+      setVisible &= parent->hasOpenpilotLongitudinal;
+    }
+
+    else if (key == "TrafficMode") {
       setVisible &= parent->hasOpenpilotLongitudinal;
     }
 
