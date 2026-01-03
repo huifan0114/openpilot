@@ -186,7 +186,7 @@ class FrogPilotPlanner:
     STOPMARK_MAX_DISTANCE = 100.0
 
     # 定义常量（优化：避免魔法数字）
-    PROFILE_LIMITS = {1: (40, 60), 2: (60, 90), 3: (90, 120), 4: (120, float("inf"))}
+    PROFILE_LIMITS = {1: (40, 59), 2: (60, 89), 3: (90, 119), 4: (120, float("inf"))}
     STOPMARK_MIN_SPEED = 10.0
     STOPMARK_MAX_DISTANCE = 100.0
     STOPMARK_MIN_DISTANCE = 10.0
