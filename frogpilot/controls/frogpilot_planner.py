@@ -307,9 +307,8 @@ class FrogPilotPlanner:
     # 速限變更偵測（僅在未被 AutoACC 處理時執行，避免重複設置）
     if navspeed and current_isengaged and v_ego_kph > 5:
       if detect_sl != self.detect_speed_prev:
-        self.detect_speed_prev = detect_sl if detect_sl > 0 else self.detect_speed_prev
-        # 只在有有效速限時才更新，避免瞬間降速到 40
-        # 當 detect_sl = 0 時保持前值，讓 KeySetSpeed 接管
+        self.detect_speed_prev = detect_sl  # 無論如何都更新，避免重複進入
+        # 只在有有效速限時才更新 DetectSpeedLimit 和設置 flag
         if detect_sl > 0:
           self.params_memory.put_int("DetectSpeedLimit", detect_sl)
           self.params_memory.put_bool("SpeedLimitChanged", True)
