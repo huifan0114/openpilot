@@ -77,7 +77,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
     {"Fuelprice", "  油價計算", "啟動後會計算油費.", ""},
     {"Fuelcosts", "  油價設定", "設定車輛使用油種與價格.", ""},
-
+    {"StopmarkOn", "  停止標識提前降速", "提辨識出停止標識後提早降速標識後提早降速."},
 
   };
 
