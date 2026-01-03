@@ -308,9 +308,10 @@ class FrogPilotPlanner:
     if navspeed and current_isengaged and v_ego_kph > 5:
       if detect_sl != self.detect_speed_prev:
         self.detect_speed_prev = detect_sl if detect_sl > 0 else 0
-        # 只有當速限有效時才更新並設定 flag
+        # 無論是否有偵測到速限都要更新，避免舊值卡住
+        self.params_memory.put_int("DetectSpeedLimit", self.detect_speed_prev)
+        # 只有當速限有效時才設定 flag
         if detect_sl > 0:
-          self.params_memory.put_int("DetectSpeedLimit", self.detect_speed_prev)
           self.params_memory.put_bool("SpeedLimitChanged", True)
     #超速偵測（僅在速限穩定時執行，避免覆蓋正常變更偵測）
     if speedoverreminder:
