@@ -434,7 +434,7 @@ class FrogPilotPlanner:
 
     frogpilotPlan.vCruise = self.v_cruise
     #######################################################
-    frogpilotPlan.speedOver = self.speed_over
+    frogpilotPlan.speedover = self.speed_over
     ########################################################
     frogpilotPlan.weatherDaytime = self.frogpilot_weather.is_daytime
     frogpilotPlan.weatherId = self.frogpilot_weather.weather_id
