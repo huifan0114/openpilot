@@ -54,7 +54,7 @@ class FrogPilotPlanner:
     self.v_cruise = 0
 #########################################
     self.detect_speed_prev = 0
-    self.spee_dover = False
+    self.speed_over = False
     self.previous_road_name = ""  # 記錄上次的路名，避免重複設定
     self.stopmark_on_prev = False  # 追踪上一次的 StopmarkOn 狀態（防抖）
 #########################################
@@ -148,7 +148,7 @@ class FrogPilotPlanner:
     else:
       self.frogpilot_weather.weather_id = 0
 
-####################### AutoACC Status #############################################################
+##################定義參數##################################################################
     autoacc_caraway_status = self.params_memory.get_int("AutoACCCarAwaystatus")
     autoacc_greenlight_status = self.params_memory.get_int("AutoACCGreenLightstatus")
     speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
@@ -169,16 +169,12 @@ class FrogPilotPlanner:
 
     navspeed = self.params.get_bool("Navspeed")
 
-    # ---------- Stopmark 常數 ----------
-    STOPMARK_MIN_SPEED = 10.0
-    STOPMARK_MIN_DISTANCE = 10.0
-    STOPMARK_MAX_DISTANCE = 100.0
-
-    # 定义常量（优化：避免魔法数字）
+    # 定義參數（优化：避免魔法数字）
     PROFILE_LIMITS = {1: (40, 59), 2: (60, 89), 3: (90, 119), 4: (120, float("inf"))}
+    # ---------- Stopmark 參數 ----------
     STOPMARK_MIN_SPEED = 10.0
-    STOPMARK_MAX_DISTANCE = 100.0
     STOPMARK_MIN_DISTANCE = 10.0
+    STOPMARK_MAX_DISTANCE = 100.0
 
 
     if frogpilot_toggles.autoacc and not current_isengaged :
@@ -230,8 +226,6 @@ class FrogPilotPlanner:
     # =========================================================
     # Stopmark 防抖與狀態管理
     # =========================================================
-    stopmark_on = self.params_memory.get_bool("StopmarkOn")  # 在 Stopmark 邏輯開始前讀取
-
     if stopmark_on != self.stopmark_on_prev:
         # 狀態改變時才執行
         self.stopmark_on_prev = stopmark_on
@@ -251,8 +245,6 @@ class FrogPilotPlanner:
     else:
         # 狀態未改變，繼續漸進式降速
         if stopmark_on and self.params_memory.get_bool("StopmarkApplied"):
-            stopDistance = self.params_memory.get_int("StopmarkDistance")
-
             # 邊界檢查：stopDistance 必須有效
             if stopDistance <= STOPMARK_MIN_DISTANCE:
                 target_speed_limit = STOPMARK_MIN_SPEED
@@ -438,7 +430,7 @@ class FrogPilotPlanner:
 
     frogpilotPlan.vCruise = self.v_cruise
     #######################################################
-    frogpilotPlan.speedover = self.spee_dover
+    frogpilotPlan.speedOver = self.speed_over
     ########################################################
     frogpilotPlan.weatherDaytime = self.frogpilot_weather.is_daytime
     frogpilotPlan.weatherId = self.frogpilot_weather.weather_id
