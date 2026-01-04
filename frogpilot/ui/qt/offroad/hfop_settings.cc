@@ -19,7 +19,6 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
   FrogPilotListWidget *FuelpriceList = new FrogPilotListWidget(this);
   FrogPilotListWidget *TrafficModelList = new FrogPilotListWidget(this);
-  FrogPilotListWidget *StopmarkList = new FrogPilotListWidget(this);
   FrogPilotListWidget *VagSpeedList = new FrogPilotListWidget(this);
   FrogPilotListWidget *AutoACCPList = new FrogPilotListWidget(this);
   FrogPilotListWidget *RoadtypeList = new FrogPilotListWidget(this);
@@ -29,7 +28,6 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
 
   ScrollView *FuelpricePanel = new ScrollView(FuelpriceList, this);
-  ScrollView *StopmarkPanel = new ScrollView(StopmarkList, this);
   ScrollView *TrafficModePanel = new ScrollView(TrafficModelList, this);
   ScrollView *VagSpeedPanel = new ScrollView(VagSpeedList, this);
   ScrollView *AutoACCPanel = new ScrollView(AutoACCPList, this);
@@ -39,7 +37,6 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
 
   hfopLayout->addWidget(FuelpricePanel);
-  hfopLayout->addWidget(StopmarkPanel);
   hfopLayout->addWidget(TrafficModePanel);
   hfopLayout->addWidget(VagSpeedPanel);
   hfopLayout->addWidget(AutoACCPanel);
@@ -67,7 +64,6 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     {"Disablestartstop", "  取消怠速熄火", "開啟後將強制關閉怠速熄火功能.", ""},
 
     {"StopmarkOn", "  停止標識提前降速", "提辨識出停止標識後提早降速標識後提早降速.", ""},
-    {"StopmarkDistance", "  停止標識提前降速距離", "設定在距離停止標識多少公尺前開始降速.", ""},
 
     {"ChangeLaneReminder", "  變換車道語音", "開啟後在變換車道時會發出語音提醒.", ""},
     {"AutoSpeeddistance", "  車速調控跟車距離", "開啟後可依行車路線自動切換跟車距離， 1格 60公里 2格90公里 3格120公里.", ""},
@@ -112,16 +108,6 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
       std::vector<QString> profileOptions{tr("關閉"), tr("巷弄"),tr("平面"), tr("快速"), tr("高速")};
       ButtonParamControl *profileSelection = new ButtonParamControl(param, title, desc, icon, profileOptions);
       hfopcontrolsToggle = profileSelection;
-
-    } else if (param == "StopmarkOn") {
-      FrogPilotManageControl *StopmarkToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(StopmarkToggle, &FrogPilotManageControl::manageButtonClicked, [hfopLayout, StopmarkPanel]() {
-        hfopLayout->setCurrentWidget(StopmarkPanel);
-      });
-      hfopcontrolsToggle = StopmarkToggle;
-
-    } else if (param == "StopmarkDistance") {
-      hfopcontrolsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 10, 100, "公尺");
 
     } else if (param == "TrafficMode") {
       FrogPilotManageControl *TrafficModeToggle = new FrogPilotManageControl(param, title, desc, icon);
@@ -179,9 +165,6 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     } else if (FuelpriceKeys.contains(param)) {
       FuelpriceList->addItem(hfopcontrolsToggle);
       parentKeys.insert(param);
-    } else if (StopmarkKeys.contains(param)) {
-      StopmarkList->addItem(hfopcontrolsToggle);
-      parentKeys.insert(param);
     } else if (TrafficModeKeys.contains(param)) {
       TrafficModelList->addItem(hfopcontrolsToggle);
       parentKeys.insert(param);
@@ -222,7 +205,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     });
   }
 
-  QSet<QString> forceUpdateKeys = {"AutoACC", "Roadtype", "StopmarkOn", "TrafficMode", "VagSpeed", "Navspeed", "Dooropen", "Fuelprice"};
+  QSet<QString> forceUpdateKeys = {"AutoACC", "Roadtype", "TrafficMode", "VagSpeed", "Navspeed", "Dooropen", "Fuelprice"};
   for (const QString &key : forceUpdateKeys) {
     QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, this, &FrogPilotHFOPPanel::updateToggles);
   }
@@ -285,10 +268,6 @@ void FrogPilotHFOPPanel::updateToggles() {
         toggles["AutoRoadtype"]->setVisible(roadtypeEnabled);
         toggles["RoadtypeProfile"]->setVisible(roadtypeEnabled);
 
-      } else if (key == "StopmarkOn") {
-        bool stopmarkEnabled = params.getBool("StopmarkOn");
-        toggles["StopmarkDistance"]->setVisible(stopmarkEnabled);
-
       } else if (key == "TrafficMode") {
         bool trafficModeEnabled = params.getBool("TrafficMode");
         toggles["TrafficModespeed"]->setVisible(trafficModeEnabled);
@@ -319,8 +298,6 @@ void FrogPilotHFOPPanel::updateToggles() {
         toggles["AutoACC"]->setVisible(true);
       } else if (RoadKeys.contains(key)) {
         toggles["Roadtype"]->setVisible(true);
-      } else if (StopmarkKeys.contains(key)) {
-        toggles["StopmarkOn"]->setVisible(true);
       } else if (TrafficModeKeys.contains(key)) {
         toggles["TrafficMode"]->setVisible(true);
       } else if (VagSpeedKeys.contains(key)) {

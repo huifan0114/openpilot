@@ -1016,6 +1016,10 @@ void FrogPilotAnnotatedCameraWidget::paintStandstillTimer(QPainter &p) {
 void FrogPilotAnnotatedCameraWidget::paintStoppingPoint(QPainter &p, UIScene &scene, FrogPilotUIScene &frogpilot_scene, QJsonObject &frogpilot_toggles) {
   p.save();
 
+  // 计算并写入到停止点的实时距离（单位：公尺）
+  int stopDistance = static_cast<int>(std::nearbyint(frogpilot_scene.model_length));
+  params.putInt("StopmarkDistance", stopDistance);
+
   QPointF centerPoint = (scene.track_vertices.first() + scene.track_vertices.last()) / 2.0;
   QPointF adjustedPoint = centerPoint - QPointF(stopSignImg.width() / 2, stopSignImg.height());
   p.drawPixmap(adjustedPoint, stopSignImg);

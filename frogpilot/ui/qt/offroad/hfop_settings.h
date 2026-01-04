@@ -28,7 +28,6 @@ private:
 
   QSet<QString> AutoACCKeys = {"AutoACCspeed", "AutoACCCarAway", "AutoACCGreenLight"};
   QSet<QString> RoadKeys = {"AutoRoadtype", "RoadtypeProfile"};
-  QSet<QString> StopmarkKeys = {"StopmarkDistance"};
   QSet<QString> TrafficModeKeys = {"TrafficModespeed"};
   QSet<QString> VagSpeedKeys = {"VagSpeedFactor"};
   QSet<QString> NavspeedKeys = {"NavReminder", "speedoverreminder", "speedreminderreset"};
