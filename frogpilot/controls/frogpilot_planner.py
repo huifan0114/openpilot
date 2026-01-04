@@ -251,7 +251,7 @@ class FrogPilotPlanner:
     else:
         # 狀態未改變，繼續漸進式降速
         if stopmark_on and self.params_memory.get_bool("StopmarkApplied"):
-            stopDistance = self.params_memory.get_int("stopmarkDistance")
+            stopDistance = self.params_memory.get_int("StopmarkDistance")
 
             # 邊界檢查：stopDistance 必須有效
             if stopDistance <= STOPMARK_MIN_DISTANCE:
