@@ -508,46 +508,46 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("SimpleDashTheme", "SIMPLE-DASH", 0, "SIMPLE-DASH"),
 ########################################
 ## AutoACC 相關參數 ##
-  ("AutoACC", "0", 2, "0"),
-  ("AutoACCspeed", "20", 2, "20"),
-  ("AutoACCCarAway", "0", 2, "0"),
-  ("AutoACCGreenLight", "0", 2, "0"),
-  ("AutoSpeeddistance", "0", 2, "0"),
+  ("AutoACC", "0", 1, "0"),
+  ("AutoACCspeed", "20", 1, "20"),
+  ("AutoACCCarAway", "1", 1, "1"),
+  ("AutoACCGreenLight", "1", 1, "1"),
+  ("AutoSpeeddistance", "1", 1, "1"),
   ## ChangeLaneReminder 變換車道語音 ##
-  ("ChangeLaneReminder", "0", 2, "0"),
+  ("ChangeLaneReminder", "1", 1, "1"),
   ## Dooropen 車門開啟提醒 ##
-  ("CodriverdoorOpen", "0", 2, "0"),
-  ("Dooropen", "0", 2, "0"),
-  ("DriverdoorOpen", "0", 2, "0"),
-  ("LpassengerdoorOpen", "0", 2, "0"),
-  ("LuggagedoorOpen", "0", 2, "0"),
-  ("RpassengerdoorOpen", "0", 2, "0"),
+  ("CodriverdoorOpen", "1", 1, "1"),
+  ("Dooropen", "1", 1, "1"),
+  ("DriverdoorOpen", "1", 1, "1"),
+  ("LpassengerdoorOpen", "1", 1, "1"),
+  ("LuggagedoorOpen", "1", 1, "1"),
+  ("RpassengerdoorOpen", "1", 1, "1"),
   ## Disablestartstop 取消怠速熄火 ##
-  ("Disablestartstop", "0", 2, "0"),
+  ("Disablestartstop", "1", 1, "1"),
   ## Fuelprice 油價計算 ##
-  ("Fuelprice", "0", 2, "0"),
-  ("Fuelcosts", "30.5", 2, "30.5"),
+  ("Fuelprice", "1", 1, "1"),
+  ("Fuelcosts", "30.5", 1, "30.5"),
   ## HFOPinf 訊息框 ##
-  ("HFOPinf", "0", 2, "0"),
+  ("HFOPinf", "1", 1, "1"),
   ## Navspeed 圖資速限 ##
-  ("NavReminder", "0", 2, "0"),
-  ("Navspeed", "0", 2, "0"),
+  ("NavReminder", "1", 1, "1"),
+  ("Navspeed", "1", 1, "1"),
   ## Roadtype 道路種類設定 ##
-  ("Roadtype", "0", 2, "0"),
-  ("AutoRoadtype", "0", 2, "0"),
-  ("RoadtypeProfile", "0", 2, "0"),
+  ("Roadtype", "1", 1, "1"),
+  ("AutoRoadtype", "1", 1, "1"),
+  ("RoadtypeProfile", "0", 1, "0"),
   ## 超速提醒 ##
-  ("speedoverreminder", "0", 2, "0"),
-  ("speedreminderreset", "0", 2, "0"),
+  ("speedoverreminder", "1", 1, "1"),
+  ("speedreminderreset", "0", 1, "0"),
   ## StopmarkOn 停止標識提前降速 ##
-  ("StopmarkOn", "0", 2, "0"),
-  ("StopmarkDistance", "50", 2, "50"),
+  ("StopmarkOn", "1", 1, "0"),
+  ("StopmarkDistance", "50", 1, "50"),
   ## TrafficMode 塞車模式 ##
-  ("TrafficMode", "0", 2, "0"),
-  ("TrafficModespeed", "30", 2, "30"),
+  ("TrafficMode", "0", 1, "0"),
+  ("TrafficModespeed", "30", 1, "30"),
   ## VagSpeed 時速差調整 ##
-  ("VagSpeed", "0", 2, "0"),
-  ("VagSpeedFactor", "0", 2, "0"),
+  ("VagSpeed", "1", 1, "0"),
+  ("VagSpeedFactor", "13", 1, "0"),
 ########################################
 ]
 
