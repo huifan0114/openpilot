@@ -563,7 +563,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "注意!!   超速了!!!",
       "",
       AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 1.),
+      Priority.LOW, VisualAlert.none, AudibleAlert.engage, 1.),
   },
 
   EventName.doorOpen1: {

@@ -279,12 +279,18 @@ class FrogPilotPlanner:
         # 使用 ACC 啟動時判斷的速限
         restore_speed = self.params_memory.get_int("OriginalKeySetSpeed")
 
-        # 優先使用最新的導航速限
+        # 優先使用最新的導航速限（僅在速限真正變化時才通知）
         if frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation"):
-            self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
-            self.params_memory.put_bool("SpeedLimitChanged", True)
+            # 只在速限真的改變時才設置變更 flag
+            if detect_sl_raw != self.detect_speed_prev:
+                self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
+                self.params_memory.put_bool("SpeedLimitChanged", True)
+                self.detect_speed_prev = detect_sl_raw
+            else:
+                # 速限未變，靜默更新
+                self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
         elif restore_speed > 0:
-            # 恢復到 ACC 啟動時判斷的速限
+            # 恢復到 ACC 啟動時判斷的速限（不觸發變更提示）
             self.params_memory.put_int("KeySetSpeed", restore_speed)
             self.params_memory.put_bool("KeyChanged", True)
             self.params_memory.put_int("SpeedPrev", 0)
@@ -293,7 +299,8 @@ class FrogPilotPlanner:
         self.params_memory.put_bool("ForceSpeedApply", True)
 
         # 重置偵測狀態（使用當前值避免異常觸發）
-        self.detect_speed_prev = detect_sl_raw if detect_sl_raw > 0 else 0
+        if detect_sl_raw > 0 and self.detect_speed_prev != detect_sl_raw:
+            self.detect_speed_prev = detect_sl_raw
 
         # 清除 Stopmark 狀態
         self.params_memory.put_bool("StopmarkApplied", False)
