@@ -1137,7 +1137,7 @@ class FrogPilotVariables:
     toggle.original_speedLimit = params_memory.get_int("OriginalKeySetSpeed")
     # toggle.prev_increased_stopped_distance = params.get_int("IncreasedStoppedDistance")
     toggle.roadtype = params.get_bool("Roadtype")
-    toggle.roadtype_profile = params.get_int("RoadtypeProfile")
+    # toggle.roadtype_profile = params.get_int("RoadtypeProfile")
     toggle.rpassenger_dooropen = params.get_bool("RpassengerdoorOpen")
     toggle.speed_limit_changed = params_memory.get_bool('SpeedLimitChanged')
     # toggle.speedlimit = int(params_memory.get_int('DetectSpeedLimit')*1.1)

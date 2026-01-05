@@ -154,7 +154,7 @@ class FrogPilotPlanner:
     speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
     stopDistance = self.params.get_int("StopmarkDistance")
     stopmark_active = self.params_memory.get_bool("StopmarkActive")
-
+    roadtype_profile = self.params.get_int("RoadtypeProfile")
     detect_sl_raw = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
     slc_source = self.frogpilot_vcruise.slc.source
     current_isengaged = self.params.get_bool("IsEngaged")
@@ -196,8 +196,8 @@ class FrogPilotPlanner:
         else:
           current_setspeed = self.params_memory.get_int("KeySetSpeed")
           # 3) 拿不到路名（例如 GPS 不可用）或路名推斷未產生變更時，用 profile 兜底
-          if key_set_speed == 0 and frogpilot_toggles.roadtype_profile != 0:
-            profile = frogpilot_toggles.roadtype_profile
+          if key_set_speed == 0 and roadtype_profile != 0:
+            profile = roadtype_profile
             if profile in PROFILE_LIMITS:
               min_speed, max_speed = PROFILE_LIMITS[profile]
               if not (min_speed <= current_setspeed < max_speed):
