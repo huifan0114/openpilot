@@ -1110,7 +1110,7 @@ class FrogPilotVariables:
     toggle.autoacc = params.get_bool("AutoACC")
     toggle.autoacc_caraway = params.get_bool("AutoACCCarAway")
     # toggle.autoacc_caraway_status = params_memory.get_int("AutoACCCarAwaystatus")
-    # toggle.autoacc_greenlight = params.get_bool("AutoACCGreenLight")
+    toggle.autoacc_greenlight = params.get_bool("AutoACCGreenLight")
     # toggle.autoacc_greenlight_status = params_memory.get_int("AutoACCGreenLightstatus")
     toggle.autoacc_speed = params.get_int("AutoACCspeed")
     toggle.autoroadtype = params.get_bool("AutoRoadtype")
