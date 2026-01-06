@@ -552,7 +552,7 @@ void FrogPilotAnnotatedCameraWidget::paintLeadMetrics(QPainter &p, bool adjacent
   // 計算速度差並寫入 leadspeeddiffProfile
   if (!adjacent) {
     float speedDiff = (leadSpeed - speed / speedConversion) * (speedConversion == KM_TO_MILE ? 3.6f : 1.0f);
-    params_memory.put_int("leadspeeddiffProfile", (int)std::round(speedDiff));
+    params_memory.putInt("leadspeeddiffProfile", (int)std::round(speedDiff));
   }
 ///////////////////////////////////////////
 
