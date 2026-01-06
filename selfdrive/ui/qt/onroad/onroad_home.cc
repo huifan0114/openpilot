@@ -125,13 +125,13 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
     bool hide_speed = !frogpilot_toggles.value("hide_speed").toBool();
     params.putBool("HideSpeed", hide_speed);
 
-    int ScreenBrightnessOnroadpre = params.getInt("ScreenBrightnessOnroadpre");
+    int ScreenBrightnessOnroadpre = params_memory.getInt("ScreenBrightnessOnroadpre");
     if (ScreenBrightnessOnroadpre == 0) {
-      params.putInt("ScreenBrightnessOnroadpre", params.getInt("ScreenBrightnessOnroad"));
+      params_memory.putInt("ScreenBrightnessOnroadpre", params.getInt("ScreenBrightnessOnroad"));
       params.putInt("ScreenBrightnessOnroad", 0);
     } else {
       params.putInt("ScreenBrightnessOnroad", ScreenBrightnessOnroadpre);
-      params.putInt("ScreenBrightnessOnroadpre", 0);
+      params_memory.putInt("ScreenBrightnessOnroadpre", 0);
     }
     updateFrogPilotToggles();
     return;

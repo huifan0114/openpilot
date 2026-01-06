@@ -321,8 +321,6 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("MapAcceleration", "0", 1, "0"),
   ("MapboxPublicKey", "", 0, ""),
   ("MapboxSecretKey", "", 0, ""),
-  ("GoogleMapsKey", "", 0, ""),
-  ("NavigationProvider", "mapbox", 0, "mapbox"),
   ("MapDeceleration", "0", 1, "0"),
   ("MapGears", "0", 2, "0"),
   ("MapsSelected", "", 0, ""),
@@ -530,7 +528,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ## HFOPinf 訊息框 ##
   ("HFOPinf", "1", 1, "1"),
   ## Navspeed 圖資速限 ##
-  ("NavReminder", "1", 1, "1"),
+  # ("NavReminder", "1", 1, "1"),
   ("Navspeed", "1", 1, "1"),
   ## Roadtype 道路種類設定 ##
   ("Roadtype", "1", 1, "1"),
@@ -539,8 +537,8 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ## 超速提醒 ##
   ("speedoverreminder", "1", 1, "1"),
   ("speedreminderreset", "0", 1, "0"),
-  ## StopmarkOn 停止標識提前降速 ##
-  ("StopmarkOn", "1", 1, "0"),
+  ## Stopmarkslowsdown 停止標識提前降速 ##
+  ("Stopmarkslowsdown", "1", 1, "0"),
   ## TrafficMode 塞車模式 ##
   ("TrafficMode", "0", 1, "0"),
   ("TrafficModespeed", "30", 1, "30"),
@@ -1127,16 +1125,17 @@ class FrogPilotVariables:
     toggle.lpassenger_dooropen = params.get_bool("LpassengerdoorOpen")
     toggle.luggage_dooropen = params.get_bool("LuggagedoorOpen")
     toggle.navspeed = params.get_bool("Navspeed")
-    toggle.original_speedLimit = params_memory.get_int("OriginalKeySetSpeed")
+    # toggle.original_speedLimit = params_memory.get_int("OriginalKeySetSpeed")
     toggle.roadtype = params.get_bool("Roadtype")
     toggle.rpassenger_dooropen = params.get_bool("RpassengerdoorOpen")
-    toggle.speed_limit_changed = params_memory.get_bool('SpeedLimitChanged')
+    # toggle.speed_limit_changed = params_memory.get_bool('SpeedLimitChanged')
     toggle.speedoverreminder = params.get_bool("speedoverreminder")
     toggle.speedreminderreset = params.get_bool("speedreminderreset")
-    toggle.stopmark_on = params.get_bool("StopmarkOn")
+    toggle.stopmarkslowsdown = params.get_bool("Stopmarkslowsdown")
     toggle.trafficmode = params.get_bool("TrafficMode")
     toggle.trafficmode_speed = params.get_int("TrafficModespeed")
     toggle.vag_speed_factor = params.get_int("VagSpeedFactor")/2
+    toggle.vagspeed = params.get_int("VagSpeed")
 ###################################################################
 
     params_memory.put("FrogPilotToggles", json.dumps(toggle.__dict__))

@@ -74,7 +74,7 @@ def manager_init() -> None:
     ("HFOPinf", "1"),
     # ("NavReminderstatus", "0"),
     ("Navspeed", "1"),
-    ("NavReminder", "1"),
+    # ("NavReminder", "1"),
     ("Roadtype", "1"),
     ("AutoRoadtype", "1"),
     ("RoadtypeProfile", "1"),

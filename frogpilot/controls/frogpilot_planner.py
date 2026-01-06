@@ -198,12 +198,12 @@ class FrogPilotPlanner:
               key_set_speed = min(key_set_speed, detect_sl_raw)
             self.params_memory.put_int("KeySetSpeed", key_set_speed)
             self.params_memory.put_bool("KeyChanged", True)
-            self.params_memory.put_int("SpeedPrev", 0)
+            # self.params_memory.put_int("SpeedPrev", 0)
 
     # =========================================================
     # Stopmark 防抖與狀態管理
     # =========================================================
-    if frogpilot_toggles.stopmark_on:
+    if frogpilot_toggles.stopmarkslowsdown:
       stopDistance = self.params_memory.get_int("StopmarkDistance")
       stopmark_active = self.params_memory.get_bool("StopmarkActive")
       if stopmark_active:
@@ -221,7 +221,6 @@ class FrogPilotPlanner:
 
             self.params_memory.put_int("OriginalKeySetSpeed", speed_to_save)
             self.params_memory.put_bool("StopmarkApplied", True)
-            self.params_memory.put_bool("StopmarkRestored", False)
         else:
           # 狀態未改變，繼續漸進式降速（需 StopmarkActive 且已套用）
           if stopmark_active and self.params_memory.get_bool("StopmarkApplied"):
@@ -248,7 +247,7 @@ class FrogPilotPlanner:
               newSpeedLimit = max(currentSpeedLimit - MAX_SPEED_DECREASE, target_speed_limit)
               self.params_memory.put_int("KeySetSpeed", newSpeedLimit)
               self.params_memory.put_bool("KeyChanged", True)
-              self.params_memory.put_int("SpeedPrev", 0)
+              # self.params_memory.put_int("SpeedPrev", 0)
 
 
     # =========================================================
@@ -282,10 +281,7 @@ class FrogPilotPlanner:
             # 恢復到 ACC 啟動時判斷的速限（不觸發變更提示）
             self.params_memory.put_int("KeySetSpeed", restore_speed)
             self.params_memory.put_bool("KeyChanged", True)
-            self.params_memory.put_int("SpeedPrev", 0)
-
-        # 設置保護 flag（防止本輪被其他邏輯覆蓋）
-        self.params_memory.put_bool("ForceSpeedApply", True)
+            # self.params_memory.put_int("SpeedPrev", 0)
 
         # 重置偵測狀態（使用當前值避免異常觸發）
         if detect_sl_raw > 0 and self.detect_speed_prev != detect_sl_raw:
@@ -294,7 +290,6 @@ class FrogPilotPlanner:
         # 清除 Stopmark 狀態
         self.params_memory.put_bool("StopmarkApplied", False)
         self.params_memory.put_bool("StopmarkRecovering", False)
-        self.params_memory.put_bool("StopmarkRestored", True)
 
 #################################################################
     if frogpilot_toggles.auto_speeddistance:

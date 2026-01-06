@@ -30,7 +30,7 @@ private:
   QSet<QString> RoadKeys = {"AutoRoadtype", "RoadtypeProfile"};
   QSet<QString> TrafficModeKeys = {"TrafficModespeed"};
   QSet<QString> VagSpeedKeys = {"VagSpeedFactor"};
-  QSet<QString> NavspeedKeys = {"NavReminder", "speedoverreminder", "speedreminderreset"};
+  QSet<QString> NavspeedKeys = {"speedoverreminder", "speedreminderreset"};
   QSet<QString> DooropenKeys = {"DriverdoorOpen", "CodriverdoorOpen", "LpassengerdoorOpen", "RpassengerdoorOpen", "LuggagedoorOpen"};
   QSet<QString> FuelpriceKeys = {"Fuelcosts"};
 

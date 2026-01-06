@@ -160,7 +160,7 @@ class Car:
       self.events.add(EventName.pedalPressed)
       ################################################
       self.params_memory.put_bool("KeyResume", False)
-      self.params_memory.put_int('SpeedPrev',0)
+      # self.params_memory.put_int('SpeedPrev',0)
       self.params_memory.put_bool('KeyChanged', True)
       ################################################
 

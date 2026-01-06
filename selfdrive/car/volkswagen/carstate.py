@@ -66,9 +66,12 @@ class CarState(CarStateBase):
       pt_cp.vl["ESP_19"]["ESP_HR_Radgeschw_02"],
     )
 ##########儀表時速與C3同步############
-    vsf = frogpilot_toggles.vag_speed_factor
-    self.vagspeedfactor = (110 +vsf) /110
-    ret.vEgoRaw = float(np.mean([ret.wheelSpeeds.fl, ret.wheelSpeeds.fr, ret.wheelSpeeds.rl, ret.wheelSpeeds.rr])* self.vagspeedfactor)
+    if frogpilot_toggles.vagspeed:
+      vsf = frogpilot_toggles.vag_speed_factor
+      self.vagspeedfactor = (110 +vsf) /110
+      ret.vEgoRaw = float(np.mean([ret.wheelSpeeds.fl, ret.wheelSpeeds.fr, ret.wheelSpeeds.rl, ret.wheelSpeeds.rr])* self.vagspeedfactor)
+    else:
+      ret.vEgoRaw = float(np.mean([ret.wheelSpeeds.fl, ret.wheelSpeeds.fr, ret.wheelSpeeds.rl, ret.wheelSpeeds.rr]))
 ####################################
     ret.vEgo, ret.aEgo = self.update_speed_kf(ret.vEgoRaw)
     ret.standstill = ret.vEgoRaw == 0

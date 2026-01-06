@@ -63,13 +63,13 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     {"VagSpeedFactor", "  時速差調整", "請輸入OP定速為110時儀表板的速度差值.", ""},
     {"Disablestartstop", "  取消怠速熄火", "開啟後將強制關閉怠速熄火功能.", ""},
 
-    {"StopmarkOn", "  停止標識提前降速", "提辨識出停止標識後提早降速標識後提早降速.", ""},
+    {"Stopmarkslowsdown", "  停止標識提前降速", "提辨識出停止標識後提早降速標識後提早降速.", ""},
 
     {"ChangeLaneReminder", "  變換車道語音", "開啟後在變換車道時會發出語音提醒.", ""},
     {"AutoSpeeddistance", "  車速調控跟車距離", "開啟後可依行車路線自動切換跟車距離， 1格 60公里 2格90公里 3格120公里.", ""},
 
     {"Navspeed", "  圖資速限", "開啟後可依當下所在道路的圖資速限自動更新.", ""},
-    {"NavReminder", "  導航語音", "開啟後若使用道路導航時會播報轉彎語音訊息.", ""},
+    // {"NavReminder", "  導航語音", "開啟後若使用道路導航時會播報轉彎語音訊息.", ""},
     {"speedoverreminder", "  超速提醒", "開啟後若當下速度高於圖資速限會發出提醒.", ""},
     {"speedreminderreset", "  超速重設速限", "開啟後若當下速度高於圖資速限會強制重設速限.", ""},
 
@@ -246,7 +246,7 @@ void FrogPilotHFOPPanel::updateToggles() {
       setVisible &= parent->hasOpenpilotLongitudinal;
     }
 
-    else if (key == "StopmarkOn") {
+    else if (key == "Stopmarkslowsdown") {
       setVisible &= parent->hasOpenpilotLongitudinal;
     }
 
@@ -278,7 +278,7 @@ void FrogPilotHFOPPanel::updateToggles() {
 
       } else if (key == "Navspeed") {
         bool navspeedEnabled = params.getBool("Navspeed");
-        toggles["NavReminder"]->setVisible(navspeedEnabled);
+        // toggles["NavReminder"]->setVisible(navspeedEnabled);
         toggles["speedoverreminder"]->setVisible(navspeedEnabled);
         toggles["speedreminderreset"]->setVisible(navspeedEnabled);
 

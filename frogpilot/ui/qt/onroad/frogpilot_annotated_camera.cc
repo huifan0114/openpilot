@@ -247,8 +247,8 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
 /////////////////停車標記//////////////////
   if (scene.track_vertices.length() >= 1 && frogpilotPlan.getRedLight() && frogpilot_toggles.value("show_stopping_point").toBool()) {
     int roadProfile = params_memory.getInt("RoadtypeProfile");
-    const bool stopmark_on = params.getBool("StopmarkOn");
-    if (stopmark_on && roadProfile >= 1 && roadProfile <= 3) {
+    const bool stopmarkslowsdown = params.getBool("Stopmarkslowsdown");
+    if (stopmarkslowsdown && roadProfile >= 1 && roadProfile <= 3) {
       params_memory.putBool("StopmarkActive", true);
       paintStoppingPoint(p, scene, frogpilot_scene, frogpilot_toggles);
     } else {
@@ -548,6 +548,13 @@ void FrogPilotAnnotatedCameraWidget::paintLateralPaused(QPainter &p, FrogPilotUI
 void FrogPilotAnnotatedCameraWidget::paintLeadMetrics(QPainter &p, bool adjacent, QPointF *chevron, const cereal::FrogPilotPlan::Reader &frogpilotPlan, const cereal::RadarState::LeadData::Reader &lead_data) {
   float leadDistance = lead_data.getDRel() + (adjacent ? fabs(lead_data.getYRel()) : 0);
   float leadSpeed = std::max(lead_data.getVLead(), 0.0f);
+///////////////////////////////////////////
+  // 計算速度差並寫入 leadspeeddiffProfile
+  if (!adjacent) {
+    float speedDiff = (leadSpeed - speed / speedConversion) * (speedConversion == KM_TO_MILE ? 3.6f : 1.0f);
+    params_memory.put_int("leadspeeddiffProfile", (int)std::round(speedDiff));
+  }
+///////////////////////////////////////////
 
   p.setFont(InterFont(40, QFont::Normal));
   p.setPen(QPen(whiteColor()));
