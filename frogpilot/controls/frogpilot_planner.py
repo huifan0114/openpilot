@@ -151,6 +151,7 @@ class FrogPilotPlanner:
 ##################定義參數##################################################################
     current_isengaged = self.params.get_bool("IsEngaged")
     detect_sl_raw = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
+    currentSpeedLimit = self.params_memory.get_int("KeySetSpeed")
     detect_sl = detect_sl_raw
     # ---------- Roadtype Profile 速限建議參數 ----------
     PROFILE_LIMITS = {1: (40, 59), 2: (60, 89), 3: (90, 119), 4: (120, float("inf"))}
@@ -213,7 +214,7 @@ class FrogPilotPlanner:
         if stopmark_active != prev_stopmark_active:
           # 狀態改變時才執行（StopmarkActive 由 UI 設定）
           self.stopmark_active_prev = stopmark_active
-          currentSpeedLimit = self.params_memory.get_int("KeySetSpeed")
+
           # 第一次進入 Stopmark
           if not self.params_memory.get_bool("StopmarkApplied"):
             speed_to_save = currentSpeedLimit
