@@ -541,7 +541,6 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("speedreminderreset", "0", 1, "0"),
   ## StopmarkOn 停止標識提前降速 ##
   ("StopmarkOn", "1", 1, "0"),
-  ("StopmarkDistance", "50", 1, "50"),
   ## TrafficMode 塞車模式 ##
   ("TrafficMode", "0", 1, "0"),
   ("TrafficModespeed", "30", 1, "30"),
@@ -1109,9 +1108,7 @@ class FrogPilotVariables:
     toggle.auto_speeddistance = params.get_bool("AutoSpeeddistance")
     toggle.autoacc = params.get_bool("AutoACC")
     toggle.autoacc_caraway = params.get_bool("AutoACCCarAway")
-    # toggle.autoacc_caraway_status = params_memory.get_int("AutoACCCarAwaystatus")
     toggle.autoacc_greenlight = params.get_bool("AutoACCGreenLight")
-    # toggle.autoacc_greenlight_status = params_memory.get_int("AutoACCGreenLightstatus")
     toggle.autoacc_speed = params.get_int("AutoACCspeed")
     toggle.autoroadtype = params.get_bool("AutoRoadtype")
     toggle.car_model = params.get("CarModel", encoding='utf-8')
@@ -1119,7 +1116,6 @@ class FrogPilotVariables:
     toggle.codriver_dooropen = params.get_bool("CodriverdoorOpen")
     toggle.current_isengaged = params.get_bool("IsEngaged")
     toggle.current_setspeed = params_memory.get_int("KeySetSpeed")
-    # toggle.detect_speedlimit = params_memory.get_int("DetectSpeedLimit")
     toggle.disablestartstop = params.get_bool("Disablestartstop")
     toggle.dooropen = params.get_bool("Dooropen")
     toggle.dooropen_pre = params.get_bool("Dooropenpre")
@@ -1127,26 +1123,17 @@ class FrogPilotVariables:
     toggle.hfop_inf = params.get_bool("HFOPinf")
     toggle.key_changed = params_memory.get_bool('KeyChanged')
     toggle.key_cancel = params_memory.get_bool("KeyCancel")
-    # toggle.key_resume = params_memory.get_bool('KeyResume')
     toggle.key_set_speed = params_memory.get_int("KeySetSpeed")
-    # toggle.leadtime_gap_scaled_int = params_memory.get_int("leadtimeGapScaledInt")
     toggle.lpassenger_dooropen = params.get_bool("LpassengerdoorOpen")
     toggle.luggage_dooropen = params.get_bool("LuggagedoorOpen")
-    # toggle.navreminder = params.get_bool("NavReminder")
     toggle.navspeed = params.get_bool("Navspeed")
     toggle.original_speedLimit = params_memory.get_int("OriginalKeySetSpeed")
-    # toggle.prev_increased_stopped_distance = params.get_int("IncreasedStoppedDistance")
     toggle.roadtype = params.get_bool("Roadtype")
-    # toggle.roadtype_profile = params.get_int("RoadtypeProfile")
     toggle.rpassenger_dooropen = params.get_bool("RpassengerdoorOpen")
     toggle.speed_limit_changed = params_memory.get_bool('SpeedLimitChanged')
-    # toggle.speedlimit = int(params_memory.get_int('DetectSpeedLimit')*1.1)
     toggle.speedoverreminder = params.get_bool("speedoverreminder")
     toggle.speedreminderreset = params.get_bool("speedreminderreset")
-    # toggle.stopDistance = params.get_int("StopmarkDistance")
-    # toggle.stopmark_applied = params_memory.get_bool("StopmarkApplied")
     toggle.stopmark_on = params.get_bool("StopmarkOn")
-    # toggle.stopmark_restored = params_memory.get_bool("StopmarkRestored")
     toggle.trafficmode = params.get_bool("TrafficMode")
     toggle.trafficmode_speed = params.get_int("TrafficModespeed")
     toggle.vag_speed_factor = params.get_int("VagSpeedFactor")/2

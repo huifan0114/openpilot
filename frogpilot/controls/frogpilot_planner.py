@@ -149,53 +149,41 @@ class FrogPilotPlanner:
       self.frogpilot_weather.weather_id = 0
 
 ##################定義參數##################################################################
-    autoacc_caraway_status = self.params_memory.get_int("AutoACCCarAwaystatus")
-    autoacc_greenlight_status = self.params_memory.get_int("AutoACCGreenLightstatus")
-    speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
-    stopDistance = self.params.get_int("StopmarkDistance")
-    stopmark_active = self.params_memory.get_bool("StopmarkActive")
-    roadtype_profile = self.params.get_int("RoadtypeProfile")
-    detect_sl_raw = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
-    slc_source = self.frogpilot_vcruise.slc.source
     current_isengaged = self.params.get_bool("IsEngaged")
-
-    detect_sl = detect_sl_raw
-    detect_speedlimit = self.params_memory.get_int("DetectSpeedLimit")
-    currentSpeedLimit = self.params_memory.get_int("KeySetSpeed")
-
-    # 定義參數（优化：避免魔法数字）
+    # ---------- Roadtype Profile 速限建議參數 ----------
     PROFILE_LIMITS = {1: (40, 59), 2: (60, 89), 3: (90, 119), 4: (120, float("inf"))}
     # ---------- Stopmark 參數 ----------
     STOPMARK_MIN_SPEED = 10.0
     STOPMARK_MIN_DISTANCE = 10.0
     STOPMARK_MAX_DISTANCE = 100.0
-
-
+    # ------------autoacc--------------
     if frogpilot_toggles.autoacc and not current_isengaged :
+      autoacc_caraway_status = self.params_memory.get_int("AutoACCCarAwaystatus")
+      autoacc_greenlight_status = self.params_memory.get_int("AutoACCGreenLightstatus")
       auto_acc_pass = v_ego_kph > frogpilot_toggles.autoacc_speed
       if auto_acc_pass or autoacc_caraway_status == 1 or autoacc_greenlight_status == 1:
+        key_set_speed = 0
+        detect_sl_raw = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
+        detect_sl = detect_sl_raw
+        slc_source = self.frogpilot_vcruise.slc.source
+        has_map_or_nav_sl = frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation")
         self.params_memory.put_bool("KeyResume", True)
         self.params_memory.put_bool("KeyChanged", True)
         self.params_memory.put_int("AutoACCCarAwaystatus", 0)
         self.params_memory.put_int("AutoACCGreenLightstatus", 0)
         self.params_memory.put_bool("StopmarkApplied", False)
-
         # 速限變更邏輯（AutoACC 觸發時，每次都檢查）
-        # 優先序：1) Map Data / Navigation -> 2) 路名 -> 3) 手動 roadtype_profile
-        key_set_speed = 0
-        # 1) 有效的 map/nav 速限時：直接用其設定
-        has_map_or_nav_sl = frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation")
-
+        # 優先序：1) Map Data / Navigation -> 2) roadtype_profile名
         if has_map_or_nav_sl:
           # 整合變更偵測：只在速限真正變化時才設置 flag
           if detect_sl_raw != self.detect_speed_prev:
             self.detect_speed_prev = detect_sl_raw
             self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
             self.params_memory.put_bool("SpeedLimitChanged", True)
-
         else:
           current_setspeed = self.params_memory.get_int("KeySetSpeed")
-          # 3) 拿不到路名（例如 GPS 不可用）或路名推斷未產生變更時，用 profile 兜底
+          roadtype_profile = self.params_memory.get_int("RoadtypeProfile")
+          # 2) 用 profile 兜底
           if key_set_speed == 0 and roadtype_profile != 0:
             profile = roadtype_profile
             if profile in PROFILE_LIMITS:
@@ -208,7 +196,6 @@ class FrogPilotPlanner:
             # 避免拿過期的 detect_speedlimit（可能是高速留下的舊值）來放大路名建議
             if frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation"):
               key_set_speed = min(key_set_speed, detect_sl_raw)
-
             self.params_memory.put_int("KeySetSpeed", key_set_speed)
             self.params_memory.put_bool("KeyChanged", True)
             self.params_memory.put_int("SpeedPrev", 0)
@@ -217,13 +204,15 @@ class FrogPilotPlanner:
     # Stopmark 防抖與狀態管理
     # =========================================================
     if frogpilot_toggles.stopmark_on:
+      stopDistance = self.params_memory.get_int("StopmarkDistance")
+      stopmark_active = self.params_memory.get_bool("StopmarkActive")
       if stopmark_active:
         prev_stopmark_active = self.stopmark_active_prev
 
         if stopmark_active != prev_stopmark_active:
           # 狀態改變時才執行（StopmarkActive 由 UI 設定）
           self.stopmark_active_prev = stopmark_active
-
+          currentSpeedLimit = self.params_memory.get_int("KeySetSpeed")
           # 第一次進入 Stopmark
           if not self.params_memory.get_bool("StopmarkApplied"):
             speed_to_save = currentSpeedLimit
@@ -352,6 +341,8 @@ class FrogPilotPlanner:
     #################################################################
     # 超速偵測與自動調降速限
     if frogpilot_toggles.speedoverreminder:
+      detect_speedlimit = self.params_memory.get_int("DetectSpeedLimit")
+      speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
       speed_over = v_ego_kph >= 40 and speedlimit >= 40 and (v_ego_kph - speedlimit) >= 1
       self.speed_over = speed_over
 
