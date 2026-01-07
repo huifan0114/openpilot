@@ -175,31 +175,31 @@ class FrogPilotPlanner:
         self.params_memory.put_bool("StopmarkApplied", False)
         # 速限變更邏輯（AutoACC 觸發時，每次都檢查）
         # 優先序：1) Map Data / Navigation -> 2) roadtype_profile名
-        if has_map_or_nav_sl:
-          # 整合變更偵測：只在速限真正變化時才設置 flag
-          if detect_sl_raw != self.detect_speed_prev:
-            self.detect_speed_prev = detect_sl_raw
-            self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
-            self.params_memory.put_bool("SpeedLimitChanged", True)
-        else:
-          current_setspeed = self.params_memory.get_int("KeySetSpeed")
-          roadtype_profile = self.params_memory.get_int("RoadtypeProfile")
-          # 2) 用 profile 兜底
-          if key_set_speed == 0 and roadtype_profile != 0:
-            profile = roadtype_profile
-            if profile in PROFILE_LIMITS:
-              min_speed, max_speed = PROFILE_LIMITS[profile]
-              if not (min_speed <= current_setspeed < max_speed):
-                key_set_speed = min_speed
+    if has_map_or_nav_sl:
+      # 整合變更偵測：只在速限真正變化時才設置 flag
+      if detect_sl_raw != self.detect_speed_prev:
+        self.detect_speed_prev = detect_sl_raw
+        self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
+        self.params_memory.put_bool("SpeedLimitChanged", True)
+    else:
+      current_setspeed = self.params_memory.get_int("KeySetSpeed")
+      roadtype_profile = self.params_memory.get_int("RoadtypeProfile")
+      # 2) 用 profile 兜底
+      if key_set_speed == 0 and roadtype_profile != 0:
+        profile = roadtype_profile
+        if profile in PROFILE_LIMITS:
+          min_speed, max_speed = PROFILE_LIMITS[profile]
+          if not (min_speed <= current_setspeed < max_speed):
+            key_set_speed = min_speed
 
-          if key_set_speed > 0:
-            # 若有有效的即時偵測速限（navspeed 啟用且 map/nav 來源），則用其夾住路名結果
-            # 避免拿過期的 detect_speedlimit（可能是高速留下的舊值）來放大路名建議
-            if frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation"):
-              key_set_speed = min(key_set_speed, detect_sl_raw)
-            self.params_memory.put_int("KeySetSpeed", key_set_speed)
-            self.params_memory.put_bool("KeyChanged", True)
-            # self.params_memory.put_int("SpeedPrev", 0)
+      if key_set_speed > 0:
+        # 若有有效的即時偵測速限（navspeed 啟用且 map/nav 來源），則用其夾住路名結果
+        # 避免拿過期的 detect_speedlimit（可能是高速留下的舊值）來放大路名建議
+        if frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation"):
+          key_set_speed = min(key_set_speed, detect_sl_raw)
+        self.params_memory.put_int("KeySetSpeed", key_set_speed)
+        self.params_memory.put_bool("KeyChanged", True)
+        # self.params_memory.put_int("SpeedPrev", 0)
 
     # =========================================================
     # Stopmark 防抖與狀態管理
