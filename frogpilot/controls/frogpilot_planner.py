@@ -155,7 +155,6 @@ class FrogPilotPlanner:
     detect_sl = detect_sl_raw
     slc_source = self.frogpilot_vcruise.slc.source
     has_map_or_nav_sl = frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation")
-    key_set_speed = 0
     # ---------- Roadtype Profile 速限建議參數 ----------
     PROFILE_LIMITS = {1: (40, 59), 2: (60, 89), 3: (90, 119), 4: (120, float("inf"))}
     # ---------- Stopmark 參數 ----------
@@ -168,7 +167,7 @@ class FrogPilotPlanner:
       autoacc_greenlight_status = self.params_memory.get_int("AutoACCGreenLightstatus")
       auto_acc_pass = v_ego_kph > frogpilot_toggles.autoacc_speed
       if auto_acc_pass or autoacc_caraway_status == 1 or autoacc_greenlight_status == 1:
-
+        key_set_speed = 0
         self.params_memory.put_bool("KeyResume", True)
         self.params_memory.put_bool("KeyChanged", True)
         self.params_memory.put_int("AutoACCCarAwaystatus", 0)
