@@ -155,6 +155,7 @@ class FrogPilotPlanner:
     detect_sl = detect_sl_raw
     slc_source = self.frogpilot_vcruise.slc.source
     has_map_or_nav_sl = frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation")
+    key_set_speed = 0
     # ---------- Roadtype Profile 速限建議參數 ----------
     PROFILE_LIMITS = {1: (40, 59), 2: (60, 89), 3: (90, 119), 4: (120, float("inf"))}
     # ---------- Stopmark 參數 ----------
@@ -176,7 +177,6 @@ class FrogPilotPlanner:
 
     # 速限變更邏輯優先序：1) Map Data / Navigation -> 2) roadtype_profile名
     if v_ego_kph > frogpilot_toggles.autoacc_speed:
-      key_set_speed = 0
       if has_map_or_nav_sl and current_isengaged :
         # 整合變更偵測：只在速限真正變化時才設置 flag
         if detect_sl_raw != self.detect_speed_prev:
