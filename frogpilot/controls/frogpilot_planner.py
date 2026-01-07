@@ -173,8 +173,8 @@ class FrogPilotPlanner:
         self.params_memory.put_int("AutoACCCarAwaystatus", 0)
         self.params_memory.put_int("AutoACCGreenLightstatus", 0)
         self.params_memory.put_bool("StopmarkApplied", False)
-
-    # 速限變更邏輯優先序：1) Map Data / Navigation -> 2) roadtype_profile名
+        # 速限變更邏輯（AutoACC 觸發時，每次都檢查）
+        # 優先序：1) Map Data / Navigation -> 2) roadtype_profile名
     if has_map_or_nav_sl:
       # 整合變更偵測：只在速限真正變化時才設置 flag
       if detect_sl_raw != self.detect_speed_prev:
