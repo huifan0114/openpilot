@@ -183,6 +183,9 @@ class FrogPilotPlanner:
           self.detect_speed_prev = detect_sl_raw
           self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
           self.params_memory.put_bool("SpeedLimitChanged", True)
+        key_set_speed = detect_sl_raw
+        self.params_memory.put_int("KeySetSpeed", key_set_speed)
+        self.params_memory.put_bool("KeyChanged", True)
       else:
         current_setspeed = self.params_memory.get_int("KeySetSpeed")
         roadtype_profile = self.params_memory.get_int("RoadtypeProfile")
