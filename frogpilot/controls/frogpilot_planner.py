@@ -160,7 +160,7 @@ class FrogPilotPlanner:
     roadtype_profile = self.params_memory.get_int("RoadtypeProfile")
     current_setspeed = self.params_memory.get_int("KeySetSpeed")
     # ---------- Roadtype Profile 速限建議參數 ----------
-    # PROFILE_LIMITS = {1: (40, 59), 2: (60, 89), 3: (90, 119), 4: (120, float("inf"))}
+    PROFILE_LIMITS = {1: (40, 59), 2: (60, 89), 3: (90, 119), 4: (120, float("inf"))}
     # ---------- Stopmark 參數 ----------
     # STOPMARK_MIN_SPEED = 10.0
     # STOPMARK_MIN_DISTANCE = 10.0
