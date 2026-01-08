@@ -56,7 +56,6 @@ class FrogPilotPlanner:
     self.detect_speed_prev = 0
     self.speed_over = False
     self.previous_road_name = ""  # 記錄上次的路名，避免重複設定
-    self.previous_roadtype_profile = 0  # 記錄上次的道路類型檔案，檢測改變
     self.stopmark_active_prev = False  # 追踪上一次的 StopmarkActive 狀態（防抖）
 #########################################
 
@@ -271,21 +270,6 @@ class FrogPilotPlanner:
       # 強制重新計算速限（重置 detect_speed_prev 以觸發速限更新）
       # 這樣即使速限值相同，也會因為道路名稱改變而更新
       if frogpilot_toggles.navspeed and detect_sl_raw > 0:
-        self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
-        self.params_memory.put_bool("SpeedLimitChanged", True)
-
-    # =========================================================
-    # 道路類型檔案變更檢測（RoadtypeProfile 改變時也強制更新）
-    # =========================================================
-    current_roadtype_profile = self.params_memory.get_int("RoadtypeProfile")
-    if current_roadtype_profile != self.previous_roadtype_profile:
-      self.previous_roadtype_profile = current_roadtype_profile
-      # 當道路類型改變時，強制更新速限
-      if frogpilot_toggles.navspeed and detect_sl_raw > 0:
-        self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
-        self.params_memory.put_bool("SpeedLimitChanged", True)
-      elif detect_sl_raw > 0:
-        # 即使未啟用 navspeed，如果有偵測速限也應該更新
         self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
         self.params_memory.put_bool("SpeedLimitChanged", True)
 
