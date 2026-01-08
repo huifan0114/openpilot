@@ -248,7 +248,7 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
   if (scene.track_vertices.length() >= 1 && frogpilotPlan.getRedLight() && frogpilot_toggles.value("show_stopping_point").toBool()) {
     int roadProfile = params_memory.getInt("RoadtypeProfile");
     const bool stopmarkslowsdown = params.getBool("Stopmarkslowsdown");
-    if (stopmarkslowsdown && roadProfile >= 1 && roadProfile <= 3) {
+    if (stopmarkslowsdown && roadProfile == 1 && roadProfile == 2 ) {
       params_memory.putBool("StopmarkActive", true);
       paintStoppingPoint(p, scene, frogpilot_scene, frogpilot_toggles);
     } else {
@@ -809,29 +809,29 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
     // 根據道路名稱分類 + 同時設定優先序
     if (roadName.contains("高速") || roadName.contains("國道")) {
       newRoadProfile = 4; // 高速公路
-      // priority1 = "Highest";
-      // priority2 = "None";
-      // priority3 = "None";
+      priority1 = "Highest";
+      priority2 = "None";
+      priority3 = "None";
     } else if (roadName.contains("快速") || roadName.contains("省道")) {
       newRoadProfile = 3; // 快速道路
-      // priority1 = "Map Data";
-      // priority2 = "Navigation";
-      // priority3 = "Dashboard";
+      priority1 = "Map Data";
+      priority2 = "Navigation";
+      priority3 = "Highest";
     } else if (roadName.contains("交流道")) {
       newRoadProfile = 2; // 一般平面
-      // priority1 = "Map Data";
-      // priority2 = "Navigation";
-      // priority3 = "Dashboard";
+      priority1 = "Map Data";
+      priority2 = "Navigation";
+      priority3 = "Dashboard";
     } else if (roadName.contains("街") || roadName.contains("巷") || roadName.contains("弄")) {
       newRoadProfile = 1; // 街道巷弄
-      // priority1 = "Map Data";
-      // priority2 = "Navigation";
-      // priority3 = "Dashboard";
+      priority1 = "Map Data";
+      priority2 = "Navigation";
+      priority3 = "Lowest";
     } else {
       newRoadProfile = 2; // 一般平面
-      // priority1 = "Map Data";
-      // priority2 = "Navigation";
-      // priority3 = "Lowest";
+      priority1 = "Map Data";
+      priority2 = "Navigation";
+      priority3 = "Lowest";
     }
 
     // 只有當 roadProfile 真的變更時才更新
@@ -941,13 +941,13 @@ int current_y = info_panel_top;
 // 繪製有效項目
 if (frogpilotCarState.getDashboardSpeedLimit() > 0) {
   QRect dashboardRect(info_panel_left, current_y, 450, rect_height);
-  drawSource(dashboardRect, dashboardIcon, tr("儀表板"), frogpilotCarState.getDashboardSpeedLimit() * speedConversion);
+  drawSource(dashboardRect, dashboardIcon, tr("儀表"), frogpilotCarState.getDashboardSpeedLimit() * speedConversion);
   current_y += rect_height + spacing;
 }
 
 if (frogpilotPlan.getSlcMapSpeedLimit() > 0) {
   QRect mapDataRect(info_panel_left, current_y, 450, rect_height);
-  drawSource(mapDataRect, mapDataIcon, tr("地圖資料"), frogpilotPlan.getSlcMapSpeedLimit() * speedConversion);
+  drawSource(mapDataRect, mapDataIcon, tr("地圖"), frogpilotPlan.getSlcMapSpeedLimit() * speedConversion);
   current_y += rect_height + spacing;
 }
 
