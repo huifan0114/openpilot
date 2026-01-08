@@ -268,11 +268,13 @@ class FrogPilotPlanner:
     current_road_name = self.params_memory.get("RoadName", encoding="utf8")
     if current_road_name != self.previous_road_name:
       self.previous_road_name = current_road_name
-      # 強制重新計算速限（重置 detect_speed_prev 以觸發速限更新）
-      # 這樣即使速限值相同，也會因為道路名稱改變而更新
+      # 強制重新計算速限，直接更新設定速度
       if frogpilot_toggles.navspeed and detect_sl_raw > 0:
         self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
         self.params_memory.put_bool("SpeedLimitChanged", True)
+        # 直接更新 KeySetSpeed，無需等待用戶確認
+        self.params_memory.put_int("KeySetSpeed", detect_sl_raw)
+        self.params_memory.put_bool("KeyChanged", True)
 
     # =========================================================
     # 道路類型檔案變更檢測（RoadtypeProfile 改變時也強制更新）
@@ -284,10 +286,16 @@ class FrogPilotPlanner:
       if frogpilot_toggles.navspeed and detect_sl_raw > 0:
         self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
         self.params_memory.put_bool("SpeedLimitChanged", True)
+        # 直接更新 KeySetSpeed，無需等待用戶確認
+        self.params_memory.put_int("KeySetSpeed", detect_sl_raw)
+        self.params_memory.put_bool("KeyChanged", True)
       elif detect_sl_raw > 0:
         # 即使未啟用 navspeed，如果有偵測速限也應該更新
         self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
         self.params_memory.put_bool("SpeedLimitChanged", True)
+        # 直接更新 KeySetSpeed
+        self.params_memory.put_int("KeySetSpeed", detect_sl_raw)
+        self.params_memory.put_bool("KeyChanged", True)
 
     # =========================================================
     # 統一恢復出口（踩油門立即恢復）
