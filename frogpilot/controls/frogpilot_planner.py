@@ -150,10 +150,10 @@ class FrogPilotPlanner:
 
 ##################定義參數##################################################################
     current_isengaged = self.params.get_bool("IsEngaged")
-    currentSpeedLimit = self.params_memory.get_int("KeySetSpeed")
+    # currentSpeedLimit = self.params_memory.get_int("KeySetSpeed")
     detect_sl_raw = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
     detect_sl = detect_sl_raw
-    slc_source = self.frogpilot_vcruise.slc.source
+    # slc_source = self.frogpilot_vcruise.slc.source
     key_set_speed = 0
     detect_speedlimit = self.params_memory.get_int("DetectSpeedLimit")
     roadtype = self.params.get_bool("Roadtype")
@@ -171,7 +171,7 @@ class FrogPilotPlanner:
       autoacc_greenlight_status = self.params_memory.get_int("AutoACCGreenLightstatus")
       auto_acc_pass = v_ego_kph > frogpilot_toggles.autoacc_speed
       if auto_acc_pass or autoacc_caraway_status == 1 or autoacc_greenlight_status == 1:
-        has_map_or_nav_sl = frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation")
+        # has_map_or_nav_sl = frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation")
         self.params_memory.put_bool("KeyResume", True)
         self.params_memory.put_bool("KeyChanged", True)
         self.params_memory.put_int("AutoACCCarAwaystatus", 0)
