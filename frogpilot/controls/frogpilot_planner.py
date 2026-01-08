@@ -272,15 +272,9 @@ class FrogPilotPlanner:
       if frogpilot_toggles.navspeed and detect_sl_raw > 0:
         self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
         self.params_memory.put_bool("SpeedLimitChanged", True)
-        # 直接更新 KeySetSpeed，無需等待用戶確認
+        # 直接更新 KeySetSpeed 和 KeyChanged，ACC 會立即應用
         self.params_memory.put_int("KeySetSpeed", detect_sl_raw)
         self.params_memory.put_bool("KeyChanged", True)
-        # 🔥 如果 ACC 已啟動，立即應用新速限（不需踩煞車或重啟 ACC）
-        if current_isengaged:
-          # 重置速限變更計時器，強制系統重新評估
-          self.params_memory.put_int("SpeedLimitChangeTimer", 0)
-          # 設置標誌讓 ACC 立即更新目標速度
-          self.params_memory.put_bool("RoadChangeDetected", True)
 
     # =========================================================
     # 道路類型檔案變更檢測（RoadtypeProfile 改變時也強制更新）
@@ -292,24 +286,16 @@ class FrogPilotPlanner:
       if frogpilot_toggles.navspeed and detect_sl_raw > 0:
         self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
         self.params_memory.put_bool("SpeedLimitChanged", True)
-        # 直接更新 KeySetSpeed，無需等待用戶確認
+        # 直接更新 KeySetSpeed 和 KeyChanged，ACC 會立即應用
         self.params_memory.put_int("KeySetSpeed", detect_sl_raw)
         self.params_memory.put_bool("KeyChanged", True)
-        # 🔥 如果 ACC 已啟動，立即應用新速限
-        if current_isengaged:
-          self.params_memory.put_int("SpeedLimitChangeTimer", 0)
-          self.params_memory.put_bool("RoadChangeDetected", True)
       elif detect_sl_raw > 0:
         # 即使未啟用 navspeed，如果有偵測速限也應該更新
         self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
         self.params_memory.put_bool("SpeedLimitChanged", True)
-        # 直接更新 KeySetSpeed
+        # 直接更新 KeySetSpeed 和 KeyChanged
         self.params_memory.put_int("KeySetSpeed", detect_sl_raw)
         self.params_memory.put_bool("KeyChanged", True)
-        # 🔥 如果 ACC 已啟動，立即應用新速限
-        if current_isengaged:
-          self.params_memory.put_int("SpeedLimitChangeTimer", 0)
-          self.params_memory.put_bool("RoadChangeDetected", True)
 
     # =========================================================
     # 統一恢復出口（踩油門立即恢復）
