@@ -155,16 +155,12 @@ class FrogPilotPlanner:
     detect_sl = detect_sl_raw
     slc_source = self.frogpilot_vcruise.slc.source
     key_set_speed = 0
-    detect_speedlimit = self.params_memory.get_int("DetectSpeedLimit")
-    roadtype = self.params.get_bool("Roadtype")
-    roadtype_profile = self.params_memory.get_int("RoadtypeProfile")
-    current_setspeed = self.params_memory.get_int("KeySetSpeed")
     # ---------- Roadtype Profile 速限建議參數 ----------
     PROFILE_LIMITS = {1: (40, 59), 2: (60, 89), 3: (90, 119), 4: (120, float("inf"))}
     # ---------- Stopmark 參數 ----------
-    # STOPMARK_MIN_SPEED = 10.0
-    # STOPMARK_MIN_DISTANCE = 10.0
-    # STOPMARK_MAX_DISTANCE = 100.0
+    STOPMARK_MIN_SPEED = 10.0
+    STOPMARK_MIN_DISTANCE = 10.0
+    STOPMARK_MAX_DISTANCE = 100.0
     # ------------autoacc--------------
     if frogpilot_toggles.autoacc and not current_isengaged :
       autoacc_caraway_status = self.params_memory.get_int("AutoACCCarAwaystatus")
@@ -176,54 +172,34 @@ class FrogPilotPlanner:
         self.params_memory.put_bool("KeyChanged", True)
         self.params_memory.put_int("AutoACCCarAwaystatus", 0)
         self.params_memory.put_int("AutoACCGreenLightstatus", 0)
-
-        if detect_speedlimit != 0 and roadtype_profile != 0:
-          if frogpilot_toggles.navspeed  :
-              self.params_memory.put_bool("SpeedLimitChanged", True)
-        else:
-          if roadtype:
-            key_set_speed = 0
-            if roadtype_profile == 1 and (current_setspeed < 40 or current_setspeed >= 60 ):
-              key_set_speed = 40
-            elif roadtype_profile == 2 and (current_setspeed < 60 or current_setspeed >= 90 ):
-              key_set_speed = 60
-            elif roadtype_profile == 3 and (current_setspeed < 90 or current_setspeed >= 120 ):
-              key_set_speed = 90
-            elif roadtype_profile == 4 and current_setspeed < 120:
-              key_set_speed = 120
-            if key_set_speed > 0:
-              self.params_memory.put_int("KeySetSpeed", key_set_speed)
-              self.params_memory.put_bool("KeyChanged", True)
-              self.params_memory.put_int("SpeedPrev", 0)
-
-        # self.params_memory.put_bool("StopmarkApplied", False)
+        self.params_memory.put_bool("StopmarkApplied", False)
         # 速限變更邏輯（AutoACC 觸發時，每次都檢查）
         # 優先序：1) Map Data / Navigation -> 2) roadtype_profile名
-        # if has_map_or_nav_sl:
-        #   # 整合變更偵測：只在速限真正變化時才設置 flag
-        #   if detect_sl_raw != self.detect_speed_prev:
-        #     self.detect_speed_prev = detect_sl_raw
-        #     self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
-        #     self.params_memory.put_bool("SpeedLimitChanged", True)
-        # else:
-        #   current_setspeed = self.params_memory.get_int("KeySetSpeed")
-        #   roadtype_profile = self.params_memory.get_int("RoadtypeProfile")
-        #   # 2) 用 profile 兜底
-        #   if key_set_speed == 0 and roadtype_profile != 0:
-        #     profile = roadtype_profile
-        #     if profile in PROFILE_LIMITS:
-        #       min_speed, max_speed = PROFILE_LIMITS[profile]
-        #       if not (min_speed <= current_setspeed < max_speed):
-        #         key_set_speed = min_speed
+        if has_map_or_nav_sl:
+          # 整合變更偵測：只在速限真正變化時才設置 flag
+          if detect_sl_raw != self.detect_speed_prev:
+            self.detect_speed_prev = detect_sl_raw
+            self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
+            self.params_memory.put_bool("SpeedLimitChanged", True)
+        else:
+          current_setspeed = self.params_memory.get_int("KeySetSpeed")
+          roadtype_profile = self.params_memory.get_int("RoadtypeProfile")
+          # 2) 用 profile 兜底
+          if key_set_speed == 0 and roadtype_profile != 0:
+            profile = roadtype_profile
+            if profile in PROFILE_LIMITS:
+              min_speed, max_speed = PROFILE_LIMITS[profile]
+              if not (min_speed <= current_setspeed < max_speed):
+                key_set_speed = min_speed
 
-        #   if key_set_speed > 0:
-        #     # 若有有效的即時偵測速限（navspeed 啟用且 map/nav 來源），則用其夾住路名結果
-        #     # 避免拿過期的 detect_speedlimit（可能是高速留下的舊值）來放大路名建議
-        #     if frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation"):
-        #       key_set_speed = min(key_set_speed, detect_sl_raw)
-        #     self.params_memory.put_int("KeySetSpeed", key_set_speed)
-        #     self.params_memory.put_bool("KeyChanged", True)
-        #     # self.params_memory.put_int("SpeedPrev", 0)
+          if key_set_speed > 0:
+            # 若有有效的即時偵測速限（navspeed 啟用且 map/nav 來源），則用其夾住路名結果
+            # 避免拿過期的 detect_speedlimit（可能是高速留下的舊值）來放大路名建議
+            if frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation"):
+              key_set_speed = min(key_set_speed, detect_sl_raw)
+            self.params_memory.put_int("KeySetSpeed", key_set_speed)
+            self.params_memory.put_bool("KeyChanged", True)
+            # self.params_memory.put_int("SpeedPrev", 0)
 
     # # =========================================================
     # # Stopmark 防抖與狀態管理
@@ -288,16 +264,16 @@ class FrogPilotPlanner:
     # =========================================================
     # 道路名稱變更檢測（當道路改變時，即時更新速限）
     # =========================================================
-    # current_road_name = self.params_memory.get("RoadName", encoding="utf8")
-    # if current_road_name != self.previous_road_name:
-    #   self.previous_road_name = current_road_name
-    #   # 強制重新計算速限（重置 detect_speed_prev 以觸發速限更新）
-    #   # 這樣即使速限值相同，也會因為道路名稱改變而更新
-    #   if frogpilot_toggles.navspeed and detect_sl_raw > 0:
-    #     self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
-    #     self.params_memory.put_bool("SpeedLimitChanged", True)
-    #     self.params_memory.put_int("KeySetSpeed", detect_sl_raw)
-    #     self.params_memory.put_bool("KeyChanged", True)
+    current_road_name = self.params_memory.get("RoadName", encoding="utf8")
+    if current_road_name != self.previous_road_name:
+      self.previous_road_name = current_road_name
+      # 強制重新計算速限（重置 detect_speed_prev 以觸發速限更新）
+      # 這樣即使速限值相同，也會因為道路名稱改變而更新
+      if frogpilot_toggles.navspeed and detect_sl_raw > 0:
+        self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
+        self.params_memory.put_bool("SpeedLimitChanged", True)
+        self.params_memory.put_int("KeySetSpeed", detect_sl_raw)
+        self.params_memory.put_bool("KeyChanged", True)
 
     # # =========================================================
     # # 統一恢復出口（踩油門立即恢復）
@@ -364,25 +340,14 @@ class FrogPilotPlanner:
       if stopping_distance != prev_increased_stopped_distance:
         self.params.put_int("IncreasedStoppedDistance", stopping_distance)
     #################################################################
-    # # 速限變更偵測（僅在未被 AutoACC 處理時執行，避免重複設置）
-    # if frogpilot_toggles.navspeed and v_ego_kph > 5:
-    #   if detect_sl != self.detect_speed_prev:
-    #     self.detect_speed_prev = detect_sl  # 無論如何都更新，避免重複進入
-    #     # 只在有有效速限時才更新 DetectSpeedLimit 和設置 flag
-    #     if detect_sl > 0:
-    #       self.params_memory.put_int("DetectSpeedLimit", detect_sl)
-    #       self.params_memory.put_bool("SpeedLimitChanged", True)
-    if frogpilot_toggles.navspeed :
-      if detect_sl != self.detect_speed_prev and v_ego_kph > 5:
+    # 速限變更偵測（僅在未被 AutoACC 處理時執行，避免重複設置）
+    if frogpilot_toggles.navspeed and current_isengaged and v_ego_kph > 5:
+      if detect_sl != self.detect_speed_prev:
+        self.detect_speed_prev = detect_sl  # 無論如何都更新，避免重複進入
+        # 只在有有效速限時才更新 DetectSpeedLimit 和設置 flag
         if detect_sl > 0:
           self.params_memory.put_int("DetectSpeedLimit", detect_sl)
           self.params_memory.put_bool("SpeedLimitChanged", True)
-          self.detect_speed_prev = detect_sl
-        else:
-          self.detect_speed_prev = 0
-          self.params_memory.put_int("DetectSpeedLimit", 0 )
-      else:
-        self.params_memory.put_bool("SpeedLimitChanged", False)
     #################################################################
     # 超速偵測與自動調降速限
     if frogpilot_toggles.speedoverreminder:
