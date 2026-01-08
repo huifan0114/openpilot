@@ -213,7 +213,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     {"Offset7", tr("速度偏移 (75–99 英里/小時)"), tr("<b>在 75 到 99 英里/小時之間偏移張貼的速度限制多少</b>。"), ""},
     {"SLCVisuals", tr("視覺設置"), tr("<b>視覺\"速度限制控制器\"更改</b>以微調駕駛屏幕的外觀。"), ""},
     {"ShowSLCOffset", tr("顯示速度限制偏移量"), tr("<b>在駕駛屏幕上顯示與發布限制的當前偏移量</b>。"), ""},
-    {"SpeedLimitSources", tr("顯示限速源"), tr("<b>在駕駛屏幕上顯示限速源及其當前值</b>。"), ""}
+    {"SpeedLimitSources", tr("顯示限速來源"), tr("<b>在駕駛屏幕上顯示限速源及其當前值</b>。"), ""}
   };
 
   for (const auto &[param, title, desc, icon] : longitudinalToggles) {
