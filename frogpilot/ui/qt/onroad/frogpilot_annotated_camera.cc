@@ -809,29 +809,29 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
     // 根據道路名稱分類 + 同時設定優先序
     if (roadName.contains("高速") || roadName.contains("國道")) {
       newRoadProfile = 4; // 高速公路
-      priority1 = "Highest";
-      priority2 = "None";
-      priority3 = "None";
+      // priority1 = "Highest";
+      // priority2 = "None";
+      // priority3 = "None";
     } else if (roadName.contains("快速") || roadName.contains("省道")) {
       newRoadProfile = 3; // 快速道路
-      priority1 = "Map Data";
-      priority2 = "Navigation";
-      priority3 = "Dashboard";
+      // priority1 = "Map Data";
+      // priority2 = "Navigation";
+      // priority3 = "Dashboard";
     } else if (roadName.contains("交流道")) {
       newRoadProfile = 2; // 一般平面
-      priority1 = "Map Data";
-      priority2 = "Navigation";
-      priority3 = "Dashboard";
+      // priority1 = "Map Data";
+      // priority2 = "Navigation";
+      // priority3 = "Dashboard";
     } else if (roadName.contains("街") || roadName.contains("巷") || roadName.contains("弄")) {
       newRoadProfile = 1; // 街道巷弄
-      priority1 = "Map Data";
-      priority2 = "Navigation";
-      priority3 = "Dashboard";
+      // priority1 = "Map Data";
+      // priority2 = "Navigation";
+      // priority3 = "Dashboard";
     } else {
       newRoadProfile = 2; // 一般平面
-      priority1 = "Map Data";
-      priority2 = "Navigation";
-      priority3 = "Lowest";
+      // priority1 = "Map Data";
+      // priority2 = "Navigation";
+      // priority3 = "Lowest";
     }
 
     // 只有當 roadProfile 真的變更時才更新
