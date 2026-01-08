@@ -262,6 +262,18 @@ class FrogPilotPlanner:
 
 
     # =========================================================
+    # 道路名稱變更檢測（當道路改變時，即時更新速限）
+    # =========================================================
+    current_road_name = self.params_memory.get("RoadName", encoding="utf8")
+    if current_road_name != self.previous_road_name:
+      self.previous_road_name = current_road_name
+      # 強制重新計算速限（重置 detect_speed_prev 以觸發速限更新）
+      # 這樣即使速限值相同，也會因為道路名稱改變而更新
+      if frogpilot_toggles.navspeed and detect_sl_raw > 0:
+        self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
+        self.params_memory.put_bool("SpeedLimitChanged", True)
+
+    # =========================================================
     # 統一恢復出口（踩油門立即恢復）
     # =========================================================
     if (sm["carState"].aEgo > 0 and self.params_memory.get_bool("StopmarkApplied")) or self.params_memory.get_bool("StopmarkRecovering"):
