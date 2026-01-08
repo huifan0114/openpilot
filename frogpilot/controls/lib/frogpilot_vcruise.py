@@ -18,6 +18,9 @@ class FrogPilotVCruise:
     self.override_force_stop = False
 
     self.override_force_stop_timer = 0
+    
+    # 追踪用户手动调整速度的状态
+    self.user_speed_override_timer = 0  # 用户调整速度的持续时间
 
   def update(self, gps_position, now, time_validated, v_cruise, v_ego, sm, frogpilot_toggles):
     force_stop = self.frogpilot_planner.cem.stop_light_detected and sm["controlsState"].enabled and frogpilot_toggles.force_stops
@@ -89,8 +92,41 @@ class FrogPilotVCruise:
 
       targets = [self.csc_target, v_cruise]
       if frogpilot_toggles.speed_limit_controller:
-        targets.append(max(self.slc.overridden_speed, self.slc_target + self.slc_offset) - v_ego_diff)
+        # 允許用戶通過 ACC 按鈕手動調整速度，即使有速限設定
+        # 檢查是否有來自地圖的有效限速
+        has_map_speed_limit = self.slc.source in ("Map Data", "Navigation", "Mapbox") and self.slc.target > 0
+        
+        # 追踪用户是否有意调整速度
+        # v_cruise_cluster 是用戶通過 ACC 設置的目標速度
+        # v_cruise 是系統當前的巡航速度
+        user_adjusting_speed = abs(v_cruise_diff) > 0.1
+        
+        if user_adjusting_speed:
+          # 用户在调整速度，重置计时器
+          self.user_speed_override_timer = 0
+        else:
+          # 用户没有调整，计时器递增
+          # 5秒后重新应用地图限速
+          self.user_speed_override_timer += DT_MDL
+        
+        # 如果有限速、用户在调整、且还在"覆盖"时间内，允许用户调整
+        # 或者如果当前速度仍高于地图限速，继续允许
+        allow_user_override = (
+          has_map_speed_limit and user_adjusting_speed and self.user_speed_override_timer < 5.0
+        ) or (
+          has_map_speed_limit and v_cruise_cluster > self.slc.target + self.slc.offset
+        )
+        
+        if allow_user_override:
+          # 允許用戶的 ACC 設置，不被限速約束
+          targets.append(v_cruise_cluster - v_ego_diff)
+        else:
+          # 用戶沒有調整，或者調整超過5秒，回歸限速
+          slc_target_value = max(self.slc.overridden_speed, self.slc_target + self.slc_offset)
+          targets.append(slc_target_value - v_ego_diff)
 
       v_cruise = min([target if target >= CRUISING_SPEED else v_cruise for target in targets])
+
+    return v_cruise
 
     return v_cruise
