@@ -202,16 +202,7 @@ class SpeedLimitController:
     future = self.executor.submit(make_request)
     future.add_done_callback(complete_request)
 
-  def handle_limit_change(self, desired_source, desired_target, sm, force_apply=False):
-    # 當因為道路信息改變而觸發時，直接應用（force_apply=True）
-    if force_apply:
-      self.overridden_speed = 0
-      self.source = desired_source
-      self.target = desired_target
-      self.speed_limit_changed_timer = 0
-      self.unconfirmed_speed_limit = 0
-      return
-
+  def handle_limit_change(self, desired_source, desired_target, sm):
     self.speed_limit_changed_timer += DT_MDL
 
     speed_limit_accepted = (sm["frogpilotCarState"].accelPressed and sm["carControl"].longActive) or params_memory.get_bool("SpeedLimitAccepted")
@@ -336,8 +327,8 @@ class SpeedLimitController:
     if abs(desired_target - self.previous_target) >= 1:
       self.handle_limit_change(desired_source, desired_target, sm)
     elif (road_name_changed or roadtype_profile_changed) and desired_target > 0 and desired_target != self.target:
-      # 當道路名稱或類型改變且速限有效時，直接應用新速限（無需用戶確認）
-      self.handle_limit_change(desired_source, desired_target, sm, force_apply=True)
+      # 當道路名稱或類型改變且速限有效時，強制更新速限
+      self.handle_limit_change(desired_source, desired_target, sm)
     elif desired_source != self.source and abs(desired_target - self.target) < 1:
       self.source = desired_source
     else:
