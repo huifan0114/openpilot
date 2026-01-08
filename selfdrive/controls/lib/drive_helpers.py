@@ -113,8 +113,8 @@ class VCruiseHelper:
     if button_type is None:
  ###################################################################################################
       # 只有在 ACC 啟動時才處理速限變更（避免顯示舊值）
-      if not enabled:
-        return
+      # if not enabled:
+      #   return
 
       key_changed = self.params_memory.get_bool('KeyChanged')
       speed_limit_changed = self.params_memory.get_bool('SpeedLimitChanged')
