@@ -1119,7 +1119,7 @@ class FrogPilotVariables:
     toggle.dooropen_pre = params.get_bool("Dooropenpre")
     toggle.driver_dooropen = params.get_bool("DriverdoorOpen")
     toggle.hfop_inf = params.get_bool("HFOPinf")
-    toggle.key_changed = params_memory.get_bool('KeyChanged')
+    # toggle.key_changed = params_memory.get_bool('KeyChanged')
     toggle.key_cancel = params_memory.get_bool("KeyCancel")
     toggle.key_set_speed = params_memory.get_int("KeySetSpeed")
     toggle.lpassenger_dooropen = params.get_bool("LpassengerdoorOpen")
