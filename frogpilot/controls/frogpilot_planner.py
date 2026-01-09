@@ -197,8 +197,8 @@ class FrogPilotPlanner:
           if key_set_speed > 0:
             # 若有有效的即時偵測速限（navspeed 啟用且 map/nav 來源），則用其夾住路名結果
             # 避免拿過期的 detect_speedlimit（可能是高速留下的舊值）來放大路名建議
-            if frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation"):
-              key_set_speed = min(key_set_speed, detect_sl_raw)
+            # if frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation"):
+            #   key_set_speed = min(key_set_speed, detect_sl_raw)
             self.params_memory.put_int("KeySetSpeed", key_set_speed)
             self.params_memory.put_bool("KeyChanged", True)
 
