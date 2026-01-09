@@ -22,7 +22,6 @@ from openpilot.frogpilot.controls.lib.frogpilot_events import FrogPilotEvents
 from openpilot.frogpilot.controls.lib.frogpilot_following import FrogPilotFollowing
 from openpilot.frogpilot.controls.lib.frogpilot_vcruise import FrogPilotVCruise
 from openpilot.frogpilot.controls.lib.weather_checker import WeatherChecker
-from openpilot.frogpilot.controls.lib.speed_limit_controller import SpeedLimitController
 
 class FrogPilotPlanner:
   def __init__(self, error_log, ThemeManager):
@@ -154,7 +153,7 @@ class FrogPilotPlanner:
     current_isengaged = self.params.get_bool("IsEngaged")
 
     # detect_sl_raw = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
-    detect_sl = SpeedLimitController.desired_speed_limit * 3.6
+    detect_sl = int(self.frogpilot_vcruise.slc.target * 3.6) if self.frogpilot_vcruise.slc.target > 0 else 0
     speedlimit = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
     detect_speedlimit = self.params_memory.get_int("DetectSpeedLimit")
     slc_source = self.frogpilot_vcruise.slc.source
