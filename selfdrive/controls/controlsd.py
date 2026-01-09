@@ -71,8 +71,8 @@ class Controls:
     self.params = Params()
     self.params_memory = Params("/dev/shm/params")
 ###################################################
-    params_memory.put_bool("KeyResume", False)
-    params_memory.put_bool("KeyCancel", False)
+    self.params_memory.put_bool("KeyResume", False)
+    self.params_memory.put_bool("KeyCancel", False)
 ###################################################
 
     if CI is None:
@@ -405,16 +405,16 @@ class Controls:
         if self.params.get_int("LongitudinalPersonality") != 0 :
           self.params.put_int("LongitudinalPersonality", 0)
           self.params.put_int("IncreasedStoppedDistance", 1)
-          params_memory.put_bool("FrogPilotTogglesUpdated", True)
+          self.params_memory.put_bool("FrogPilotTogglesUpdated", True)
       elif v_ego_kph > 60 and v_ego_kph < 90:
         if self.params.get_int("LongitudinalPersonality") != 1 :
           self.params.put_int("LongitudinalPersonality",1)
-          params_memory.put_bool("FrogPilotTogglesUpdated", True)
+          self.params_memory.put_bool("FrogPilotTogglesUpdated", True)
       elif v_ego_kph > 90 and v_ego_kph < 120:
         if self.params.get_int("LongitudinalPersonality") != 1 :
           self.params.put_int("LongitudinalPersonality",1)
           self.params.put_int("IncreasedStoppedDistance", 2)
-          params_memory.put_bool("FrogPilotTogglesUpdated", True)
+          self.params_memory.put_bool("FrogPilotTogglesUpdated", True)
 
     ##################NAV語音#####################################################
     # if self.frogpilot_toggles.navreminder:
