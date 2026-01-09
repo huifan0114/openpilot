@@ -22,7 +22,7 @@ from openpilot.frogpilot.controls.lib.frogpilot_events import FrogPilotEvents
 from openpilot.frogpilot.controls.lib.frogpilot_following import FrogPilotFollowing
 from openpilot.frogpilot.controls.lib.frogpilot_vcruise import FrogPilotVCruise
 from openpilot.frogpilot.controls.lib.weather_checker import WeatherChecker
-from openpilot.frogpilot.controls.lib.speed_limit_controller import SpeedLimitController
+from openpilot.selfdrive.frogpilot.controls.lib.speed_limit_controller import SpeedLimitController
 
 class FrogPilotPlanner:
   def __init__(self, error_log, ThemeManager):
