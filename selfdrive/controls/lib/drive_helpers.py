@@ -162,6 +162,11 @@ class VCruiseHelper:
 ########################################################################################
       return
 
+    # 按鈕處理優先：如果有按鈕操作，忽略速限變更標誌
+    if self.params_memory.get_bool('KeyChanged') or self.params_memory.get_bool('SpeedLimitChanged'):
+      self.params_memory.put_bool('KeyChanged', False)
+      self.params_memory.put_bool('SpeedLimitChanged', False)
+
     # Don't adjust speed when pressing to confirm/deny speed limits
     if speed_limit_changed:
       return
@@ -170,14 +175,11 @@ class VCruiseHelper:
     cruise_standstill = self.button_change_states[button_type]["standstill"] or CS.cruiseState.standstill
 ###################################################################################################
     if (button_type == ButtonType.accelCruise or self.params_memory.get_bool('KeyResume')) and cruise_standstill:
-      self.params_memory.put_bool('KeyChanged', False)
 ###################################################################################################
       return
 
     # Don't adjust speed if we've enabled since the button was depressed (some ports enable on rising edge)
     if not self.button_change_states[button_type]["enabled"]:
-###################################################################################################
-      self.params_memory.put_bool('KeyChanged', False)
 ###################################################################################################
       return
 
@@ -200,7 +202,6 @@ class VCruiseHelper:
     self.v_cruise_kph = clip(round(self.v_cruise_kph, 1), V_CRUISE_MIN, V_CRUISE_MAX)
 ###################################################################################################
     self.params_memory.put_int('KeySetSpeed', self.v_cruise_kph)
-    self.params_memory.put_bool('KeyChanged', False)
     if self.params_memory.get_bool('KeyResume'):
       self.params_memory.put_bool('KeyResume', False)
 ###################################################################################################

@@ -56,6 +56,7 @@ class FrogPilotPlanner:
     self.detect_speed_prev = 0
     self.speed_over = False
     self.previous_road_name = ""  # 記錄上次的路名，避免重複設定
+    self.previous_roadtype_profile = 0  # 記錄上次的道路類型檔案，避免重複設定
     self.stopmark_active_prev = False  # 追踪上一次的 StopmarkActive 狀態（防抖）
     self.stopmark_active_timer = 0.0  # Stopmark 激活狀態持續時間計時器
 #########################################
@@ -161,7 +162,7 @@ class FrogPilotPlanner:
     # ---------- Stopmark 參數 ----------
     STOPMARK_MIN_SPEED = 10.0
     STOPMARK_MIN_DISTANCE = 10.0
-    STOPMARK_MAX_DISTANCE = 500.0
+    STOPMARK_MAX_DISTANCE = 200.0
     # ------------autoacc--------------
     if frogpilot_toggles.autoacc and not current_isengaged :
       autoacc_caraway_status = self.params_memory.get_int("AutoACCCarAwaystatus")
@@ -205,13 +206,20 @@ class FrogPilotPlanner:
             self.params_memory.put_bool("KeyChanged", True)
 
     # =========================================================
-    # 道路名稱變更檢測（當道路改變時，即時更新速限）
+    # 道路名稱與道路類型檔案變更檢測（當道路改變時，即時更新速限）
     # =========================================================
     current_road_name = self.params_memory.get("RoadName", encoding="utf8")
-    if current_road_name != self.previous_road_name:
+    current_roadtype_profile = self.params_memory.get_int("RoadtypeProfile")
+
+    # 檢測道路名稱或道路類型檔案是否改變
+    road_changed = (current_road_name != self.previous_road_name) or (current_roadtype_profile != self.previous_roadtype_profile)
+
+    if road_changed:
       self.previous_road_name = current_road_name
+      self.previous_roadtype_profile = current_roadtype_profile
+
       # 強制重新計算速限（重置 detect_speed_prev 以觸發速限更新）
-      # 這樣即使速限值相同，也會因為道路名稱改變而更新
+      # 這樣即使速限值相同，也會因為道路名稱或道路類型改變而更新
       if frogpilot_toggles.navspeed and detect_sl_raw > 0:
         self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
         self.params_memory.put_bool("SpeedLimitChanged", True)
@@ -328,8 +336,6 @@ class FrogPilotPlanner:
         else:
           self.detect_speed_prev = 0
           self.params_memory.put_int("DetectSpeedLimit", 0 )
-      else:
-        self.params_memory.put_bool("SpeedLimitChanged", False)
 
 #################################################################
     if frogpilot_toggles.auto_speeddistance:
