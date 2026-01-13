@@ -42,10 +42,7 @@ const CanMsg VOLKSWAGEN_MQB_STOCK_TX_MSGS[] = {{MSG_HCA_01, 0, 8}, {MSG_GRA_ACC_
                                                {MSG_LDW_02, 0, 8}, {MSG_LH_EPS_03, 2, 8}, {MSG_BCM_01, 1, 8}};
 //////////////////////////////
 const CanMsg VOLKSWAGEN_MQB_LONG_TX_MSGS[] = {{MSG_HCA_01, 0, 8}, {MSG_LDW_02, 0, 8}, {MSG_LH_EPS_03, 2, 8},
-                                              {MSG_ACC_02, 0, 8}, {MSG_ACC_06, 0, 8}, {MSG_ACC_07, 0, 8}, {MSG_BCM_01, 1, 8}};
-//////////////////////////////
-
-
+                                              {MSG_ACC_02, 0, 8}, {MSG_ACC_06, 0, 8}, {MSG_ACC_07, 0, 8}};
 
 RxCheck volkswagen_mqb_rx_checks[] = {
   {.msg = {{MSG_ESP_19, 0, 8, .check_checksum = false, .max_counter = 0U, .frequency = 100U}, { 0 }, { 0 }}},
