@@ -34,9 +34,6 @@ class SpeedLimitController:
     self.previous_source = "None"
     self.source = "None"
 
-    self.no_speed_limit_timer = 0  # 計時所有來源都沒速限的時間
-    self.previous_road_name = ""  # 追踪上一次的路名，檢測道路變更
-
     self.mapbox_requests = json.loads(params.get("MapBoxRequests") or "{}")
     self.mapbox_requests.setdefault("total_requests", 0)
     self.mapbox_requests.setdefault("max_requests", FREE_MAPBOX_REQUESTS - (28 * 100))
@@ -244,12 +241,6 @@ class SpeedLimitController:
   def update_limits(self, dashboard_speed_limit, gps_position, navigation_speed_limit, now, time_validated, v_cruise, v_ego, sm):
     self.update_map_speed_limit(gps_position, v_ego)
 
-    # 檢測道路名稱變更，強制更新速限
-    current_road_name = params_memory.get("RoadName", encoding="utf8")
-    road_name_changed = current_road_name != self.previous_road_name
-    if road_name_changed:
-      self.previous_road_name = current_road_name
-
     limits = {
       "Dashboard": dashboard_speed_limit,
       "Map Data": self.map_speed_limit,
@@ -283,18 +274,6 @@ class SpeedLimitController:
       desired_source = "None"
       desired_target = 0
 
-    # 檢測所有來源是否都沒有速限（包括原始 3 個來源）
-    all_sources_unavailable = dashboard_speed_limit < 1 and self.map_speed_limit < 1 and navigation_speed_limit < 1
-
-    if all_sources_unavailable:
-      self.no_speed_limit_timer += DT_MDL
-      # 如果所有來源都沒速限超過 10 秒，清除舊的 previous_target，避免一直卡在舊速限
-      if self.no_speed_limit_timer > 10:
-        self.previous_target = 0
-        self.previous_source = "None"
-    else:
-      self.no_speed_limit_timer = 0
-
     if desired_target == 0 or self.target == 0:
       if self.mapbox_requests["total_requests"] < self.mapbox_requests["max_requests"] and self.frogpilot_toggles.slc_mapbox_filler:
         self.get_mapbox_speed_limit(gps_position, now, time_validated, v_ego, sm)
@@ -318,9 +297,6 @@ class SpeedLimitController:
       self.segment_distance = 0
 
     if abs(desired_target - self.previous_target) >= 1:
-      self.handle_limit_change(desired_source, desired_target, sm)
-    elif road_name_changed and desired_target > 0 and desired_target != self.target:
-      # 當道路名稱改變且速限有效時，強制更新速限
       self.handle_limit_change(desired_source, desired_target, sm)
     elif desired_source != self.source and abs(desired_target - self.target) < 1:
       self.source = desired_source
