@@ -30,8 +30,10 @@ private:
   QLabel *engagementValue;
   QLabel *titleLabel;
   QLabel *trackedTimeValue;
+/////////////////////////////////////////////////////
   QLabel *fuelConsumptionValue;
   QLabel *avgFuelEconomyValue;
+/////////////////////////////////////////////////////
 
   QMap<QString, QLabel*> randomEventLabels;
 

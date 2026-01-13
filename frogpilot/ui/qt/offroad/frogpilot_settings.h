@@ -92,7 +92,9 @@ private:
   FrogPilotButtonsControl *themePanelButtons;
   FrogPilotButtonsControl *togglePreset;
   FrogPilotButtonsControl *vehiclePanelButtons;
+/////////////////////////////////////////////////////
   FrogPilotButtonsControl *HFOPPanelButtons;
+/////////////////////////////////////////////////////
 
   Params params;
   Params params_memory{"/dev/shm/params"};

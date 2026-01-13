@@ -266,10 +266,12 @@ class Soundd:
       AudibleAlert.warningSoft: self.frogpilot_toggles.warningSoft_volume / 100.0,
       AudibleAlert.warningImmediate: self.frogpilot_toggles.warningImmediate_volume / 100.0,
 
+###########################################
       AudibleAlert.carawayed: self.frogpilot_toggles.carawayed_volume / 100.0,
       AudibleAlert.greenlightsound: self.frogpilot_toggles.green_light_volume / 100.0,
       AudibleAlert.lanechangeblockedsound: self.frogpilot_toggles.lanechangeblockedsound_volume / 100.0,
       AudibleAlert.lanechangesound: self.frogpilot_toggles.lanechangesound_volume / 100.0,
+###########################################
 
       FrogPilotAudibleAlert.goat: self.frogpilot_toggles.prompt_volume / 100.0,
       FrogPilotAudibleAlert.startup: self.frogpilot_toggles.engage_volume / 100.0

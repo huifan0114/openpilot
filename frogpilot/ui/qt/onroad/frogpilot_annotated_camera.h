@@ -21,8 +21,10 @@ public:
   void paintPathEdges(QPainter &p, const cereal::NavInstruction::Reader &navInstruction, const UIScene &scene, const FrogPilotUIScene &frogpilot_scene, SubMaster &sm);
   void paintRainbowPath(QPainter &p, QLinearGradient &bg, float lin_grad_point, SubMaster &sm);
   void updateState(const FrogPilotUIState &fs, const QJsonObject &frogpilot_toggles);
+/////////////////////////////////////////////////////
   QString translateNavigationText(const cereal::NavInstruction::Reader &nav_instruction, bool is_metric);
   void paintVehicleInfoPanel(QPainter &p, const cereal::CarState::Reader &carState, const QJsonObject &frogpilot_toggles);
+/////////////////////////////////////////////////////
 
   bool bigMapOpen;
   bool hideBottomIcons;

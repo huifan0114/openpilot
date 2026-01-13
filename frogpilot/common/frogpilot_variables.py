@@ -379,10 +379,6 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("ReduceLateralAccelerationRainStorm", "0", 2, "0"),
   ("ReduceLateralAccelerationSnow", "0", 2, "0"),
   ("RefuseVolume", "101", 2, "101"),
-  ("CarawayedVolume", "101", 1, "101"),
-  ("GreenLightVolume", "101", 1, "101"),
-  ("LanechangeblockedsoundVolume", "101", 1, "101"),
-  ("LanechangesoundVolume", "101", 1, "101"),
   ("RelaxedFollow", "1.75", 2, "1.75"),
   ("RelaxedJerkAcceleration", "100", 3, "100"),
   ("RelaxedJerkDanger", "100", 3, "100"),
@@ -545,6 +541,10 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ## VagSpeed 時速差調整 ##
   ("VagSpeed", "1", 1, "0"),
   ("VagSpeedFactor", "13", 1, "0"),
+  ("CarawayedVolume", "101", 1, "101"),
+  ("GreenLightVolume", "101", 1, "101"),
+  ("LanechangeblockedsoundVolume", "101", 1, "101"),
+  ("LanechangesoundVolume", "101", 1, "101"),
 ########################################
 ]
 
@@ -731,10 +731,6 @@ class FrogPilotVariables:
     toggle.prompt_volume = params.get_int("PromptVolume") if toggle.alert_volume_controller and tuning_level >= level["PromptVolume"] else default.get_int("PromptVolume")
     toggle.promptDistracted_volume = params.get_int("PromptDistractedVolume") if toggle.alert_volume_controller and tuning_level >= level["PromptDistractedVolume"] else default.get_int("PromptDistractedVolume")
     toggle.refuse_volume = params.get_int("RefuseVolume") if toggle.alert_volume_controller and tuning_level >= level["RefuseVolume"] else default.get_int("RefuseVolume")
-    toggle.carawayed_volume = params.get_int("CarawayedVolume") if toggle.alert_volume_controller and tuning_level >= level["CarawayedVolume"] else default.get_int("CarawayedVolume")
-    toggle.green_light_volume = params.get_int("GreenLightVolume") if toggle.alert_volume_controller and tuning_level >= level["GreenLightVolume"] else default.get_int("GreenLightVolume")
-    toggle.lanechangeblockedsound_volume = params.get_int("LanechangeblockedsoundVolume") if toggle.alert_volume_controller and tuning_level >= level["LanechangeblockedsoundVolume"] else default.get_int("LanechangeblockedsoundVolume")
-    toggle.lanechangesound_volume = params.get_int("LanechangesoundVolume") if toggle.alert_volume_controller and tuning_level >= level["LanechangesoundVolume"] else default.get_int("LanechangesoundVolume")
     toggle.warningSoft_volume = params.get_int("WarningSoftVolume") if toggle.alert_volume_controller and tuning_level >= level["WarningSoftVolume"] else default.get_int("WarningSoftVolume")
     toggle.warningImmediate_volume = max(params.get_int("WarningImmediateVolume"), 25) if toggle.alert_volume_controller and tuning_level >= level["WarningImmediateVolume"] else default.get_int("WarningImmediateVolume")
 
@@ -1086,8 +1082,6 @@ class FrogPilotVariables:
 
     toggle.speed_limit_filler = params.get_bool("SpeedLimitFiller") if tuning_level >= level["SpeedLimitFiller"] else default.get_bool("SpeedLimitFiller")
 
-    toggle.simple_dash_server = params.get_bool("SimpleDashServer")  # 無 tuning_level 限制
-
     toggle.startup_alert_top = params.get("StartupMessageTop", encoding="utf-8") if tuning_level >= level["StartupMessageTop"] else default.get("StartupMessageTop", encoding="utf-8")
     toggle.startup_alert_bottom = params.get("StartupMessageBottom", encoding="utf-8") if tuning_level >= level["StartupMessageBottom"] else default.get("StartupMessageBottom", encoding="utf-8")
 
@@ -1136,6 +1130,12 @@ class FrogPilotVariables:
     toggle.trafficmode_speed = params.get_int("TrafficModespeed")
     toggle.vag_speed_factor = params.get_int("VagSpeedFactor")/2
     toggle.vagspeed = params.get_int("VagSpeed")
+    toggle.carawayed_volume = params.get_int("CarawayedVolume") if toggle.alert_volume_controller and tuning_level >= level["CarawayedVolume"] else default.get_int("CarawayedVolume")
+    toggle.green_light_volume = params.get_int("GreenLightVolume") if toggle.alert_volume_controller and tuning_level >= level["GreenLightVolume"] else default.get_int("GreenLightVolume")
+    toggle.lanechangeblockedsound_volume = params.get_int("LanechangeblockedsoundVolume") if toggle.alert_volume_controller and tuning_level >= level["LanechangeblockedsoundVolume"] else default.get_int("LanechangeblockedsoundVolume")
+    toggle.lanechangesound_volume = params.get_int("LanechangesoundVolume") if toggle.alert_volume_controller and tuning_level >= level["LanechangesoundVolume"] else default.get_int("LanechangesoundVolume")
+
+    toggle.simple_dash_server = params.get_bool("SimpleDashServer")  # 無 tuning_level 限制
 ###################################################################
 
     params_memory.put("FrogPilotToggles", json.dumps(toggle.__dict__))

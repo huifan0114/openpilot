@@ -1,10 +1,14 @@
 #include <QMovie>
+/////////////////////////////////////////////////////
 #include <fstream>
 #include <sstream>
 #include <map>
+/////////////////////////////////////////////////////
 
 #include "frogpilot/ui/qt/onroad/frogpilot_annotated_camera.h"
+/////////////////////////////////////////////////////
 #include "selfdrive/ui/qt/maps/map_helpers.h"
+/////////////////////////////////////////////////////
 
 FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(QWidget *parent) : QWidget(parent) {
   animationTimer = new QTimer(this);
@@ -271,10 +275,12 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
     paintWeather(p, frogpilotPlan, frogpilot_scene);
   }
 
+/////////////////////////////////////////////////////
   // 車輛資訊面板 (HFOP Info Panel)
   if (!frogpilot_scene.map_open && !hideBottomIcons && frogpilot_toggles.value("hfop_inf").toBool()) {
     paintVehicleInfoPanel(p, carState, frogpilot_toggles);
   }
+/////////////////////////////////////////////////////
 }
 
 void FrogPilotAnnotatedCameraWidget::paintAdjacentPaths(QPainter &p, const cereal::CarState::Reader &carState, const FrogPilotUIScene &frogpilot_scene, const QJsonObject &frogpilot_toggles) {
@@ -785,18 +791,21 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
   QFont font = InterFont(70, QFont::Normal);
   int textWidth = QFontMetrics(font).horizontalAdvance(roadName);
 
+/////////////////////////////////////////////////////
   QRect roadNameRect((width() - textWidth * 1.25) / 2, rect().bottom() - 100 + 1, textWidth * 1.25, 70);
-
+/////////////////////////////////////////////////////
   // 背景框（可選）
   // p.setBrush(blackColor(166));
   // p.setOpacity(1.0);
   // p.setPen(QPen(blackColor(), 10));
   // p.drawRoundedRect(roadNameRect, 24, 24);
+/////////////////////////////////////////////////////
 
   p.setFont(font);
   p.setPen(QPen(whiteColor(), 6));
   p.drawText(roadNameRect, Qt::AlignCenter, roadName);
 
+/////////////////////////////////////////////////////
   // 自動道路類型識別 + 速限優先序設定
   bool autoRoadtype = params.getBool("AutoRoadtype");
   if (autoRoadtype) {
@@ -845,7 +854,7 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
       params.putBool("FrogPilotTogglesUpdated", true);
     }
   }
-
+/////////////////////////////////////////////////////
   p.restore();
 }
 
@@ -1022,10 +1031,11 @@ void FrogPilotAnnotatedCameraWidget::paintStandstillTimer(QPainter &p) {
 
 void FrogPilotAnnotatedCameraWidget::paintStoppingPoint(QPainter &p, UIScene &scene, FrogPilotUIScene &frogpilot_scene, QJsonObject &frogpilot_toggles) {
   p.save();
-
+/////////////////////////////////////////////////////
   // 计算并写入到停止点的实时距离（单位：公尺）
   int stopDistance = static_cast<int>(std::nearbyint(frogpilot_scene.model_length));
   params_memory.putInt("StopmarkDistance", stopDistance);
+/////////////////////////////////////////////////////
 
   QPointF centerPoint = (scene.track_vertices.first() + scene.track_vertices.last()) / 2.0;
   QPointF adjustedPoint = centerPoint - QPointF(stopSignImg.width() / 2, stopSignImg.height());
@@ -1125,6 +1135,7 @@ void FrogPilotAnnotatedCameraWidget::paintWeather(QPainter &p, const cereal::Fro
   p.restore();
 }
 
+/////////////////////////////////////////////////////
 QString FrogPilotAnnotatedCameraWidget::translateNavigationText(const cereal::NavInstruction::Reader &nav_instruction, bool is_metric) {
   QString primary_str = QString::fromStdString(nav_instruction.getManeuverPrimaryText());
   QString secondary_str = QString::fromStdString(nav_instruction.getManeuverSecondaryText());
@@ -1362,5 +1373,5 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
 
   p.restore();
 }
-
+/////////////////////////////////////////////////////
 

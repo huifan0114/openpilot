@@ -50,10 +50,12 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
     {"RefuseVolume", tr("拒絕啟動音量"), tr("<b>設定 openpilot 拒絕啟動時的提示音量。</b><br><br>例如：『剎車保持啟用』、『車門未關閉』、『安全帶未扣上』。"), ""},
     {"WarningSoftVolume", tr("軟性警告音量"), tr("<b>設定針對潛在風險之較柔和警告音量。</b><br><br>例如：『剎車！有碰撞風險』、『方向暫時不可用』。"), ""},
     {"WarningImmediateVolume", tr("緊急警告音量"), tr("<b>設定最需立即注意之最大音量警告。</b><br><br>例如：『立即解除 — 駕駛分心』、『立即解除 — 駕駛無反應』。"), ""},
+/////////////////////////////////////////////////////
     {"CarawayedVolume", tr("車輛遠離提示音量"), tr("<b>設定當前車離開時播放的提示音量。</b>"), ""},
     {"GreenLightVolume", tr("綠燈提示音量"), tr("<b>設定綠燈提示的音量。</b>"), ""},
     {"LanechangeblockedsoundVolume", tr("被阻擋變換車道音量"), tr("<b>設定在變換車道被阻擋時的提示音量。</b>"), ""},
     {"LanechangesoundVolume", tr("變換車道音量"), tr("<b>設定變換車道時的提示音量。</b>"), ""},
+/////////////////////////////////////////////////////
 
     {"CustomAlerts", tr("FrogPilot 提示"), tr("<b>選用的 FrogPilot 提示</b>，可更明顯地標示行車事件。"), "../../frogpilot/assets/toggle_icons/icon_green_light.png"},
     {"GoatScream", tr("山羊尖叫"), tr("<b>當方向控制器達到極限時播放著名的「山羊尖叫」。</b> 基於『轉向超出限制』事件。"), ""},

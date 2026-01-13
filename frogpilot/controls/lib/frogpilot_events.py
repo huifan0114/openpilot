@@ -212,11 +212,13 @@ class FrogPilotEvents:
 
       self.always_on_lateral_enabled_previously = sm["frogpilotCarState"].alwaysOnLateralEnabled
 
+##################################################################
     slc = self.frogpilot_planner.frogpilot_vcruise.slc
     if slc.speed_limit_changed_timer == DT_MDL and frogpilot_toggles.speed_limit_changed_alert:
       # Only alert when the *applied* speed limit decreases (target drops)
       if slc.target > 0 and slc.previous_target > 0 and slc.target < slc.previous_target:
         self.events.add(FrogPilotEventName.speedLimitChanged)
+##################################################################
 
     self.startup_seen |= sm["frogpilotControlsState"].alertText1 == frogpilot_toggles.startup_alert_top and sm["frogpilotControlsState"].alertText2 == frogpilot_toggles.startup_alert_bottom
 

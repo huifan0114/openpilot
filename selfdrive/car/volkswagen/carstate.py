@@ -7,7 +7,6 @@ from openpilot.selfdrive.car.volkswagen.values import DBC, CANBUS, NetworkLocati
                                             CarControllerParams, VolkswagenFlags
 
 
-
 class CarState(CarStateBase):
   def __init__(self, CP, FPCP):
     super().__init__(CP, FPCP)

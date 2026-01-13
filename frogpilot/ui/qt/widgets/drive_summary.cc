@@ -49,6 +49,7 @@ FrogPilotDriveSummary::FrogPilotDriveSummary(QWidget *parent, bool randomEvents)
     listLayout->addWidget(createStatBox(tr("駕駛時間"), &trackedTimeValue, this));
     listLayout->addWidget(createStatBox(tr("駕駛過程處於“實驗模式”"), &experimentalModeTimeValue, this));
 
+/////////////////////////////////////////////////////
     // 油耗和油資左右並排顯示
     QWidget *fuelContainer = new QWidget(this);
     QHBoxLayout *fuelLayout = new QHBoxLayout(fuelContainer);
@@ -57,6 +58,7 @@ FrogPilotDriveSummary::FrogPilotDriveSummary(QWidget *parent, bool randomEvents)
     fuelLayout->addWidget(createStatBox(tr("油耗"), &fuelConsumptionValue, this));
     fuelLayout->addWidget(createStatBox(tr("油資"), &avgFuelEconomyValue, this));
     listLayout->addWidget(fuelContainer);
+/////////////////////////////////////////////////////
   }
 
   if (displayRandomEvents) {
@@ -190,6 +192,7 @@ void FrogPilotDriveSummary::showEvent(QShowEvent *event) {
     frogPilotMetersValue->setText(formatDistance(diffDouble("FrogPilotMeters")));
     trackedTimeValue->setText(formatTime(trackedTime));
 
+/////////////////////////////////////////////////////
     // 油耗油資計算（比照 drive_stats.cc 的方式）
     int fuelConsumptionNow = params.getInt("Fuelconsumptionnow");
     int fuelConsumptionPre = params.getInt("Fuelconsumptionpre");
@@ -210,6 +213,7 @@ void FrogPilotDriveSummary::showEvent(QShowEvent *event) {
     } else {
       avgFuelEconomyValue->setText("-");
     }
+/////////////////////////////////////////////////////
   }
 }
 
@@ -220,6 +224,7 @@ void FrogPilotDriveSummary::hideEvent(QHideEvent *event) {
 QWidget *FrogPilotDriveSummary::createStatBox(const QString &title, QLabel **valueLabel, QWidget *parent) {
   QWidget *box = new QWidget(parent);
 
+/////////////////////////////////////////////////////
   QHBoxLayout *layout = new QHBoxLayout(box);
   layout->setAlignment(Qt::AlignLeft);
   layout->setContentsMargins(10, 10, 10, 10);
@@ -243,6 +248,7 @@ QWidget *FrogPilotDriveSummary::createStatBox(const QString &title, QLabel **val
       color: #FFFFFF;
       font-size: 75px;
       font-weight: normal;
+/////////////////////////////////////////////////////
     }
   )");
 

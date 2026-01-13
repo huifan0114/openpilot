@@ -191,9 +191,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     {"SetWeatherKey", tr("設置您自己的密鑰"), tr("<b>設置您自己的\"OpenWeatherMap\"密鑰以提高天氣更新率。</b><br><br><i>個人密鑰每天可免費調用 1​​,000 次，每分鐘更新一次。默認密鑰是共享的，每 15 分鐘更新一次。</i>"), ""},
 
     {"SpeedLimitController", tr("速度限制控制器"), tr("<b>將 openpilot 的最大行駛速度限制為當前速度限制</b>，該速度限制是從下載的地圖、Mapbox、Navigate on openpilot 或受支持車輛（福特、Genesis、現代、起亞、雷克薩斯、豐田）的儀表板獲取的。"), " ../../frogpilot/assets/toggle_icons/icon_speed_limit.png"},
-
     {"SLCFallback", tr("備用速限"), tr("<b>未發現限速時“限速控制器”使用的速度。</b><br><br>-<b>設置速度</b>：使用巡航設定速度<br>-<b>實驗模式</b>：使用駕駛模型估計限制<br>-<b>先前限制</b>：繼續使用最後確認的限制"), ""},
-
     {"SLCOverride", tr("覆蓋速度"), tr("<b>您手動駕駛速度超過公佈的限制後，\"速度限制控制器\"使用的速度。</b><br><br>-<b>使用油門踏板設置</b>：使用踩下油門時達到的最高速度<br>-<b>最大設置速度</b>：使用巡航設置速度<br><br>當 openpilot 脫離時覆蓋清除。"), ""},
     {"SLCQOL", tr("生活質量"), tr("<b>其他“速度限制控制器”更改</b>以微調 openpilot 的駕駛方式。"), ""},
     {"SLCConfirmation", tr("確認新的速度限制"), tr("<b>更改為新的速度限制之前先詢問。</b>要接受，請點擊屏幕上閃爍的小部件或按巡航增加按鈕。要拒絕，請按巡航減少按鈕或忽略提示 30 秒。"), ""},

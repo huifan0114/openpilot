@@ -53,7 +53,9 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
     if (id == 0) {
       params_memory.putBool("ForceOffroad", true);
       params_memory.putBool("ForceOnroad", false);
+/////////////////////////////////////////////////////
       forceStartedButton->setCheckedButton(0);
+/////////////////////////////////////////////////////
 
       updateFrogPilotToggles();
     } else if (id == 1) {
@@ -62,18 +64,22 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
 
       params_memory.putBool("ForceOffroad", false);
       params_memory.putBool("ForceOnroad", true);
+/////////////////////////////////////////////////////
       forceStartedButton->setCheckedButton(1);
+/////////////////////////////////////////////////////
 
       updateFrogPilotToggles();
     } else if (id == 2) {
       params_memory.putBool("ForceOffroad", false);
       params_memory.putBool("ForceOnroad", false);
+/////////////////////////////////////////////////////
       forceStartedButton->setCheckedButton(2);
+/////////////////////////////////////////////////////
 
       updateFrogPilotToggles();
     }
   });
-
+/////////////////////////////////////////////////////
   // 從記憶體讀取當前狀態並設置按鈕
   int currentButton = 2; // 默認關閉
   if (params_memory.getBool("ForceOffroad")) {
@@ -82,7 +88,7 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
     currentButton = 1; // 上路
   }
   forceStartedButton->setCheckedButton(currentButton);
-
+/////////////////////////////////////////////////////
   if (forceOpenDescriptions) {
     forceStartedButton->showDescription();
   }

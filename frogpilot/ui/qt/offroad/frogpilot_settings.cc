@@ -83,7 +83,9 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
 /////////////////////////////////////////////////////
 
   std::vector<std::vector<std::tuple<QString, QWidget*>>> panelButtons = {
+/////////////////////////////////////////////////////
     {{tr("H F O P"), frogpilotHFOPPanel}},
+/////////////////////////////////////////////////////
     {{tr("管理"), frogpilotSoundsPanel}},
     {{tr("行駛模型"), frogpilotModelPanel}, {tr("油門 / 煞車"), frogpilotLongitudinalPanel}, {tr("轉向"), frogpilotLateralPanel}},
     {{tr("地圖數據"), frogpilotMapsPanel}, {tr("導航"), frogpilotNavigationPanel}},
@@ -93,7 +95,9 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
   };
 
   std::vector<std::tuple<QString, QString, QString>> panelInfo = {
+/////////////////////////////////////////////////////
     {tr("HFOP 的功能"), tr("管理 HFOP 相關設定."), "../../frogpilot/assets/toggle_icons/icon_system.png"},
+/////////////////////////////////////////////////////
     {tr("提醒和聲音"), tr("<b>調整提醒音量並啟用自訂通知。</b>"), "../../frogpilot/assets/toggle_icons/icon_sound.png"},
     {tr("駕駛控制"), tr("<b>微調 FrogPilot 自訂加速、制動和轉向控制。</b>"), "../../frogpilot/assets/toggle_icons/icon_steering.png"},
     {tr("導航"), tr("<b>下載 \"速度限制控制器\" 的地圖數據並設定 \"在 openpilot 上導航\" (NOO)。</b>"), "../../frogpilot/assets/toggle_icons/icon_map.png"},
@@ -124,7 +128,9 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
     }
 
     FrogPilotButtonsControl *panelButton = new FrogPilotButtonsControl(title, description, icon, labels);
+/////////////////////////////////////////////////////
     if (title == tr("HFOP 的功能")) HFOPPanelButtons = panelButton;
+/////////////////////////////////////////////////////
     if (title == tr("提醒和聲音")) soundPanelButtons = panelButton;
     if (title == tr("駕駛控制")) drivingPanelButtons = panelButton;
     if (title == tr("導航")) navigationPanelButtons = panelButton;
@@ -255,7 +261,9 @@ void FrogPilotSettingsWindow::showEvent(QShowEvent *event) {
     systemPanelButtons->showDescription();
     themePanelButtons->showDescription();
     vehiclePanelButtons->showDescription();
+/////////////////////////////////////////////////////
     HFOPPanelButtons->showDescription();
+/////////////////////////////////////////////////////
 
     if (!alertShown) {
       ConfirmationDialog::alert(tr("所有切換說明目前已展開。您可以隨時點選切換的名稱以展開或關閉其說明！"), this);
@@ -278,7 +286,9 @@ void FrogPilotSettingsWindow::closePanel() {
     systemPanelButtons->showDescription();
     themePanelButtons->showDescription();
     vehiclePanelButtons->showDescription();
+/////////////////////////////////////////////////////
     HFOPPanelButtons->showDescription();
+/////////////////////////////////////////////////////
   }
 
   mainLayout->setCurrentWidget(frogpilotPanel);

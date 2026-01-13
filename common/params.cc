@@ -275,6 +275,13 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"TrafficModespeed", PERSISTENT},
     {"VagSpeed", PERSISTENT},
     {"VagSpeedFactor", PERSISTENT},
+    {"CarawayedVolume", PERSISTENT},
+    {"GreenLightVolume", PERSISTENT},
+    {"LanechangeblockedsoundVolume", PERSISTENT},
+    {"LanechangesoundVolume", PERSISTENT},
+
+    {"SimpleDashServer", PERSISTENT},
+    {"SimpleDashTheme", PERSISTENT},
 /////////////////////////////////////////////
 
     // FrogPilot parameters
@@ -532,10 +539,6 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"ReduceLateralAccelerationRainStorm", PERSISTENT},
     {"ReduceLateralAccelerationSnow", PERSISTENT},
     {"RefuseVolume", PERSISTENT},
-    {"CarawayedVolume", PERSISTENT},
-    {"GreenLightVolume", PERSISTENT},
-    {"LanechangeblockedsoundVolume", PERSISTENT},
-    {"LanechangesoundVolume", PERSISTENT},
     {"RelaxedFollow", PERSISTENT},
     {"RelaxedJerkAcceleration", PERSISTENT},
     {"RelaxedJerkDanger", PERSISTENT},
@@ -575,8 +578,6 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"Sidebar", PERSISTENT},
     {"SignalMetrics", PERSISTENT},
     {"SignalToDownload", CLEAR_ON_MANAGER_START},
-    {"SimpleDashServer", PERSISTENT},
-    {"SimpleDashTheme", PERSISTENT},
     {"SLCConfirmation", PERSISTENT},
     {"SLCConfirmationHigher", PERSISTENT},
     {"SLCConfirmationLower", PERSISTENT},

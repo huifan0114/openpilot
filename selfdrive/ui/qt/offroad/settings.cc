@@ -204,6 +204,7 @@ void TogglesPanel::updateToggles() {
 }
 
 DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
+//////////////////////////////
   // power buttons
   QHBoxLayout *power_layout = new QHBoxLayout();
   power_layout->setSpacing(30);

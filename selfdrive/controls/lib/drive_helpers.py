@@ -13,11 +13,13 @@ from openpilot.common.params import Params
 # WARNING: this value was determined based on the model's training distribution,
 #          model predictions above this speed can be unpredictable
 # V_CRUISE's are in kph
+################################################
 V_CRUISE_MIN = 10
 V_CRUISE_MAX = 200
 V_CRUISE_UNSET = 50
 V_CRUISE_INITIAL = 50
 V_CRUISE_INITIAL_EXPERIMENTAL_MODE = 60
+################################################
 IMPERIAL_INCREMENT = round(CV.MPH_TO_KPH, 1)  # round here to avoid rounding errors incrementing set speed
 
 MIN_SPEED = 1.0
@@ -162,10 +164,12 @@ class VCruiseHelper:
 ########################################################################################
       return
 
+################################################
     # 按鈕處理優先：如果有按鈕操作，忽略速限變更標誌
     if self.params_memory.get_bool('KeyChanged') or self.params_memory.get_bool('SpeedLimitChanged'):
       self.params_memory.put_bool('KeyChanged', False)
       self.params_memory.put_bool('SpeedLimitChanged', False)
+################################################
 
     # Don't adjust speed when pressing to confirm/deny speed limits
     if speed_limit_changed:
@@ -180,7 +184,6 @@ class VCruiseHelper:
 
     # Don't adjust speed if we've enabled since the button was depressed (some ports enable on rising edge)
     if not self.button_change_states[button_type]["enabled"]:
-###################################################################################################
       return
 
     v_cruise_delta_interval = frogpilot_toggles.cruise_increase_long if long_press else frogpilot_toggles.cruise_increase
