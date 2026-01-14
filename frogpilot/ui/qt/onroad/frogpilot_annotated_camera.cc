@@ -253,7 +253,7 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
     paintStoppingPoint(p, scene, frogpilot_scene, frogpilot_toggles);
     int roadProfile = params_memory.getInt("RoadtypeProfile");
     const bool stopmarkslowsdown = params.getBool("Stopmarkslowsdown");
-    if (stopmarkslowsdown && roadProfile == 1 && roadProfile == 2 ) {
+    if (stopmarkslowsdown && (roadProfile == 1 || roadProfile == 2) ) {
       params_memory.putBool("StopmarkActive", true);
     } else {
       params_memory.putBool("StopmarkActive", false);
@@ -838,7 +838,7 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
       newRoadProfile = 2; // 一般平面
       priority1 = "Map Data";
       priority2 = "Navigation";
-      priority3 = "Lowest";
+      priority3 = "Dashboard";
     }
 
     // 只有當 roadProfile 真的變更時才更新
