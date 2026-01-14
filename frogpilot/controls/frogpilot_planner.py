@@ -188,7 +188,7 @@ class FrogPilotPlanner:
             self.params_memory.put_bool("KeyChanged", True)
         else:
           current_setspeed = self.params_memory.get_int("KeySetSpeed")
-          roadtype_profile = self.params_memory.get_int("RoadtypeProfile")
+          roadtype_profile = self.params.get_int("RoadtypeProfile")
           key_set_speed = 0
           # 2) 用 profile 兜底
           if key_set_speed == 0 and roadtype_profile != 0:
@@ -210,7 +210,7 @@ class FrogPilotPlanner:
     # 道路名稱與道路類型檔案變更檢測（當道路改變時，即時更新速限）
     # =========================================================
     current_road_name = self.params_memory.get("RoadName", encoding="utf8")
-    current_roadtype_profile = self.params_memory.get_int("RoadtypeProfile")
+    current_roadtype_profile = self.params.get_int("RoadtypeProfile")
 
     # 檢測道路名稱或道路類型檔案是否改變
     road_changed = (current_road_name != self.previous_road_name) or (current_roadtype_profile != self.previous_roadtype_profile)
@@ -281,12 +281,12 @@ class FrogPilotPlanner:
             # 🔧 改為漸進式降速（每次最多降 8 km/h，加快反應）
             MAX_SPEED_DECREASE = 8  # 每個週期最多降低 8 km/h
 
-            if currentSpeedLimit > target_speed_limit and (now - self.stopmark_last_update_time) >= STOPMARK_UPDATE_INTERVAL:
+            if currentSpeedLimit > target_speed_limit and (now.timestamp() - self.stopmark_last_update_time) >= STOPMARK_UPDATE_INTERVAL:
               newSpeedLimit = max(currentSpeedLimit - MAX_SPEED_DECREASE, target_speed_limit)
               if newSpeedLimit != currentSpeedLimit:
                 self.params_memory.put_int("KeySetSpeed", newSpeedLimit)
                 self.params_memory.put_bool("KeyChanged", True)
-                self.stopmark_last_update_time = now
+                self.stopmark_last_update_time = now.timestamp()
 
     # =========================================================
     # Stopmark 結束偵測（狀態轉換時才觸發）
