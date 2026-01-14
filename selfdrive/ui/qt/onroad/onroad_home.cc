@@ -1,13 +1,13 @@
 #include "selfdrive/ui/qt/onroad/onroad_home.h"
 
-/////
+////////////////////////////////////////////
 #include <QApplication>
-/////
+////////////////////////////////////////////
 #include <QPainter>
 #include <QStackedLayout>
-/////
+////////////////////////////////////////////
 #include "frogpilot/ui/qt/widgets/frogpilot_controls.h"
-/////
+////////////////////////////////////////////
 #ifdef ENABLE_MAPS
 #include "selfdrive/ui/qt/maps/map_helpers.h"
 #include "selfdrive/ui/qt/maps/map_panel.h"
@@ -99,7 +99,7 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   FrogPilotUIState &fs = *frogpilotUIState();
   QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
   SubMaster &fpsm = *(fs.sm);
-/////
+////////////////////////////////////////////
   Params params;  // 創建持久化參數對象
   QPoint pos = e->pos();
 
@@ -169,7 +169,7 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
       params.putInt("RoadtypeProfile", nextProfile);
     }
     updateFrogPilotToggles();
-/////
+////////////////////////////////////////////
     return;
   }
 
