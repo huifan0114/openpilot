@@ -251,7 +251,7 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
 /////////////////停車標記//////////////////
   if (scene.track_vertices.length() >= 1 && frogpilotPlan.getRedLight() && frogpilot_toggles.value("show_stopping_point").toBool()) {
     paintStoppingPoint(p, scene, frogpilot_scene, frogpilot_toggles);
-    int roadProfile = params_memory.getInt("RoadtypeProfile");
+    int roadProfile = params.getInt("RoadtypeProfile");
     const bool stopmarkslowsdown = params.getBool("Stopmarkslowsdown");
     if (stopmarkslowsdown && (roadProfile == 1 || roadProfile == 2) ) {
       params_memory.putBool("StopmarkActive", true);
@@ -807,7 +807,7 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
   // 自動道路類型識別 + 速限優先序設定
   bool autoRoadtype = params.getBool("AutoRoadtype");
   if (autoRoadtype) {
-    int previousRoadProfile = params_memory.getInt("RoadtypeProfile");
+    int previousRoadProfile = params.getInt("RoadtypeProfile");
     int newRoadProfile = 2; // 默認：一般平面
     QString priority1 = "Map Data";
     QString priority2 = "Navigation";
@@ -843,7 +843,7 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
 
     // 只有當 roadProfile 真的變更時才更新
     if (newRoadProfile != previousRoadProfile) {
-      params_memory.putInt("RoadtypeProfile", newRoadProfile);
+      params.putInt("RoadtypeProfile", newRoadProfile);
       // 同時更新速限優先序
       params.put("SLCPriority1", priority1.toStdString());
       params.put("SLCPriority2", priority2.toStdString());
@@ -1244,7 +1244,7 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   p.drawRoundedRect(info_rect.adjusted(9, 9, -9, -9), 16, 16);
 
   // 道路類型
-  int roadProfile = params_memory.getInt("RoadtypeProfile");
+  int roadProfile = params.getInt("RoadtypeProfile");
   std::map<int, QString> roadProfileMap = {
     {0, "未選道路"},
     {1, "街道巷弄"},
