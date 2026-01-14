@@ -226,7 +226,6 @@ QWidget *FrogPilotDriveSummary::createStatBox(const QString &title, QLabel **val
 
 /////////////////////////////////////////////////////
   QHBoxLayout *layout = new QHBoxLayout(box);
-  layout->setAlignment(Qt::AlignLeft);
   layout->setContentsMargins(10, 10, 10, 10);
   layout->setSpacing(20);
 
@@ -248,9 +247,9 @@ QWidget *FrogPilotDriveSummary::createStatBox(const QString &title, QLabel **val
       color: #FFFFFF;
       font-size: 75px;
       font-weight: normal;
-/////////////////////////////////////////////////////
     }
   )");
+/////////////////////////////////////////////////////
 
   *valueLabel = value;
 
