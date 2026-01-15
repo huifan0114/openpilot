@@ -845,9 +845,9 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
     if (newRoadProfile != previousRoadProfile) {
       params.putInt("RoadtypeProfile", newRoadProfile);
       // 同時更新速限優先序
-      params.putBool("SLCPriority1", priority1.toStdString());
-      params.putBool("SLCPriority2", priority2.toStdString());
-      params.putBool("SLCPriority3", priority3.toStdString());
+      params.put("SLCPriority1", priority1.toStdString());
+      params.put("SLCPriority2", priority2.toStdString());
+      params.put("SLCPriority3", priority3.toStdString());
       // 觸發 FrogPilot toggles 更新
       params.putBool("FrogPilotTogglesUpdated", true);
     }
