@@ -849,7 +849,7 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
       params.put("SLCPriority2", priority2.toStdString());
       params.put("SLCPriority3", priority3.toStdString());
       // 觸發 FrogPilot toggles 更新
-      params.putBool("FrogPilotTogglesUpdated", true);
+      params_memory.putBool("FrogPilotTogglesUpdated", true);
     }
   }
 /////////////////////////////////////////////////////
