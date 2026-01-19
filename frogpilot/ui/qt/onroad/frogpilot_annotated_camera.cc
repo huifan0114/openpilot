@@ -249,15 +249,26 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
     paintStandstillTimer(p);
   }
 /////////////////停車標記//////////////////
+  // 停車點顯示（僅 UI，與降速功能解耦）
   if (scene.track_vertices.length() >= 1 && frogpilotPlan.getRedLight() && frogpilot_toggles.value("show_stopping_point").toBool()) {
     paintStoppingPoint(p, scene, frogpilot_scene, frogpilot_toggles);
+  }
+
+  // 停車降速邏輯（獨立於 UI 顯示）
+  if (scene.track_vertices.length() >= 1 && frogpilotPlan.getRedLight()) {
     int roadProfile = params.getInt("RoadtypeProfile");
     const bool stopmarkslowsdown = params.getBool("Stopmarkslowsdown");
-    if (stopmarkslowsdown && (roadProfile == 1 || roadProfile == 2) ) {
+    const bool is_high_speed_profile = roadProfile == 3 || roadProfile == 4;
+
+    // 僅在開啟 stopmarkslowsdown 且非高速/快速道路時啟用
+    if (stopmarkslowsdown && !is_high_speed_profile) {
       params_memory.putBool("StopmarkActive", true);
     } else {
       params_memory.putBool("StopmarkActive", false);
     }
+  } else {
+    // 紅燈消失時明確清除狀態
+    params_memory.putBool("StopmarkActive", false);
   }
 ////////////////////////////////////////
   if (!bigMapOpen && (carState.getLeftBlinker() || carState.getRightBlinker()) && signalStyle != "None") {

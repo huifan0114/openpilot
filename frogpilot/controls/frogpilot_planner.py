@@ -288,15 +288,13 @@ class FrogPilotPlanner:
                 self.params_memory.put_bool("KeyChanged", True)
                 self.stopmark_last_update_time = now.timestamp()
 
-    # =========================================================
-    # Stopmark 結束偵測（狀態轉換時才觸發）
-    # =========================================================
-    prev_stopmark_active = self.stopmark_active_prev
-    if prev_stopmark_active and not stopmark_active:
-      self.params_memory.put_bool("StopmarkRecovering", True)
-      self.params_memory.put_bool("StopmarkActive", False)
-      self.stopmark_active_prev = stopmark_active
-      self.stopmark_active_timer = 0.0  # 重置計時器
+      # 結束偵測（狀態轉換時觸發恢復流程）
+      prev_stopmark_active = self.stopmark_active_prev
+      if prev_stopmark_active and not stopmark_active:
+        self.params_memory.put_bool("StopmarkRecovering", True)
+        self.params_memory.put_bool("StopmarkActive", False)
+        self.stopmark_active_prev = stopmark_active
+        self.stopmark_active_timer = 0.0  # 重置計時器
 
     # =========================================================
     # 統一恢復出口（踩油門立即恢復）
