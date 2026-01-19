@@ -25,6 +25,9 @@ class SpeedLimitController:
     self.map_speed_limit = 0
     self.mapbox_limit = 0
     self.next_speed_limit = 0
+#################################
+    self.next_speed_limit_distance = 0
+#################################
     self.overridden_speed = 0
     self.segment_distance = 0
     self.speed_limit_changed_timer = 0
@@ -242,7 +245,9 @@ class SpeedLimitController:
     self.update_map_speed_limit(gps_position, v_ego)
 
     limits = {
-      "Dashboard": dashboard_speed_limit,
+#################################
+      "Dashboard": self.map_speed_limit,  # Dashboard 沒訊號,直接用 Map Data
+#################################
       "Map Data": self.map_speed_limit,
       "Navigation": navigation_speed_limit
     }
@@ -321,6 +326,9 @@ class SpeedLimitController:
       next_longitude = next_map_speed_limit.get("longitude")
 
       distance_to_upcoming = calculate_distance_to_point(current_latitude * CV.DEG_TO_RAD, current_longitude * CV.DEG_TO_RAD, next_latitude * CV.DEG_TO_RAD, next_longitude * CV.DEG_TO_RAD)
+#################################
+      self.next_speed_limit_distance = distance_to_upcoming
+#################################
 
       if self.map_speed_limit < self.next_speed_limit:
         max_lookahead = self.frogpilot_toggles.map_speed_lookahead_higher * v_ego
@@ -331,6 +339,10 @@ class SpeedLimitController:
 
       if distance_to_upcoming < max_lookahead:
         self.map_speed_limit = self.next_speed_limit
+#################################
+    else:
+      self.next_speed_limit_distance = 0
+#################################
 
   def update_override(self, v_cruise, v_cruise_diff, v_ego, v_ego_diff, sm):
     self.override_slc = self.overridden_speed > self.target + self.offset > 0

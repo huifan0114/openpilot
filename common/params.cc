@@ -280,8 +280,12 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"LanechangeblockedsoundVolume", PERSISTENT},
     {"LanechangesoundVolume", PERSISTENT},
 
+    {"LateralAccelerationAdjustment", PERSISTENT},
     {"SimpleDashServer", PERSISTENT},
     {"SimpleDashTheme", PERSISTENT},
+    {"NavBridgeEnabled", PERSISTENT},
+    {"NavBridgeHost", PERSISTENT},
+    // {"TogglesUpdated", PERSISTENT},
 /////////////////////////////////////////////
 
     // FrogPilot parameters

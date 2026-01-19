@@ -111,7 +111,7 @@ DEVELOPER_SIDEBAR_METRICS = {
 
 EXCLUDED_KEYS = {
   "AvailableModels", "AvailableModelNames", "CalibratedLateralAcceleration", "CalibrationProgress", "CarParamsPersistent",
-  "CurvatureData", "ExperimentalLongitudinalEnabled", "KonikMinutes", "MapBoxRequests", "ModelDrivesAndScores", "ModelVersions",
+  "CurvatureData", "ExperimentalLongitudinalEnabled", "KonikMinutes", "LateralAccelerationAdjustment", "MapBoxRequests", "ModelDrivesAndScores", "ModelVersions",
   "openpilotMinutes", "OverpassRequests", "SpeedLimits", "SpeedLimitsFiltered", "UpdaterAvailableBranches"
 }
 
@@ -498,8 +498,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("WeatherToken", "", 2, ""),
   ("WheelIcon", "frog", 0, "stock"),
   ("WheelSpeed", "0", 2, "0"),
-  ("SimpleDashServer", "1", 0, "1"),
-  ("SimpleDashTheme", "SIMPLE-DASH", 0, "SIMPLE-DASH"),
+
 ########################################
 ## AutoACC 相關參數 ##
   ("AutoACC", "0", 1, "0"),
@@ -545,6 +544,10 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("GreenLightVolume", "101", 1, "101"),
   ("LanechangeblockedsoundVolume", "101", 1, "101"),
   ("LanechangesoundVolume", "101", 1, "101"),
+
+  ("LateralAccelerationAdjustment", "0", 2, "0"),
+  ("SimpleDashServer", "1", 0, "1"),
+  ("SimpleDashTheme", "SIMPLE-DASH", 0, "SIMPLE-DASH"),
 ########################################
 ]
 
