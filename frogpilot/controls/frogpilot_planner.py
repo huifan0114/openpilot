@@ -163,7 +163,7 @@ class FrogPilotPlanner:
     # ---------- Stopmark 參數 ----------
     STOPMARK_MIN_SPEED = 10.0
     STOPMARK_MIN_DISTANCE = 10.0
-    STOPMARK_MAX_DISTANCE = 200.0
+    STOPMARK_MAX_DISTANCE = 150.0
     # ------------autoacc--------------
     if frogpilot_toggles.autoacc and not current_isengaged :
       autoacc_caraway_status = self.params_memory.get_int("AutoACCCarAwaystatus")
@@ -229,7 +229,7 @@ class FrogPilotPlanner:
           self.params_memory.put_int("KeySetSpeed", detect_sl_raw)
           self.params_memory.put_bool("KeyChanged", True)
     # =========================================================
-    # Stopmark 防抖與狀態管理（需穩定維持 2 秒以上才觸發）
+    # Stopmark 防抖與狀態管理（需穩定維持 1 秒以上才觸發）
     # =========================================================
     STOPMARK_STABLE_TIME = 1.0  # 需要穩定維持 1 秒才觸發（降低體感延遲）
     STOPMARK_UPDATE_INTERVAL = 0.2  # 最小更新間隔（秒），降低高頻寫入導致的 UI 重繪
@@ -278,8 +278,8 @@ class FrogPilotPlanner:
               )
               target_speed_limit = max(round(target_stopmark_speed), STOPMARK_MIN_SPEED)
 
-            # 🔧 改為漸進式降速（每次最多降 8 km/h，加快反應）
-            MAX_SPEED_DECREASE = 8  # 每個週期最多降低 8 km/h
+            # 🔧 改為漸進式降速（每次最多降 2 km/h，加快反應）
+            MAX_SPEED_DECREASE = 2  # 每個週期最多降低 2 km/h
 
             if currentSpeedLimit > target_speed_limit and (now.timestamp() - self.stopmark_last_update_time) >= STOPMARK_UPDATE_INTERVAL:
               newSpeedLimit = max(currentSpeedLimit - MAX_SPEED_DECREASE, target_speed_limit)
