@@ -287,8 +287,6 @@ void FrogPilotNavigationPanel::createKeyControl(ButtonControl *&control, const Q
 }
 
 void FrogPilotNavigationPanel::updateButtons() {
-  FrogPilotUIState &fs = *frogpilotUIState();
-
   amapKeyControl1->setText(params.get("AMapKey1").empty() ? tr("添加") : tr("移除"));
   amapKeyControl2->setText(params.get("AMapKey2").empty() ? tr("添加") : tr("移除"));
 
