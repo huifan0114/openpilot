@@ -2,7 +2,7 @@
 import json
 import math
 
-from cereal import log
+from cereal import car,log
 import cereal.messaging as messaging
 
 #########################################
@@ -35,6 +35,9 @@ class FrogPilotPlanner:
     self.frogpilot_following = FrogPilotFollowing(self)
     self.frogpilot_vcruise = FrogPilotVCruise(self)
     self.frogpilot_weather = WeatherChecker()
+
+    with car.CarParams.from_bytes(params.get("CarParams", block=True)) as msg:
+      self.CP = msg
 
     self.tracking_lead_filter = FirstOrderFilter(0, 0.5, DT_MDL)
 
