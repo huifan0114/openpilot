@@ -136,22 +136,25 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
 
 //////////////////////////////////////////////
   // NavBridge 設定區塊
-  navBridgeToggle = new ButtonControl("NavBridgeEnabled", tr("NavBridge (Google Maps)"),
-    tr("<b>Enable NavBridge to receive navigation data from Google Maps</b> via the NavBridge Android app. "
-       "This allows conditional experimental mode to activate based on upcoming turns and intersections."), "", this);
+  navBridgeToggle = new FrogPilotButtonsControl("NavBridgeEnabled", tr("NavBridge (Google Maps)"),
+    tr("<b>啟用 NavBridge，從 Google Maps 接收導航資料</b>（需安裝 NavBridge Android 應用程式）。"
+       "這能讓即將到來的轉向與路口觸發條件式實驗模式。"), "", this);
   settingsList->addItem(navBridgeToggle);
 
-  navBridgeHostControl = new ButtonControl(tr("NavBridge Host IP"), "", tr("<b>Set the IP address of the NavBridge Android device.</b> Default is \"localhost\" for same device."));
-  QObject::connect(navBridgeHostControl, &ButtonControl::clicked, [this]() {
+  navBridgeHostControl = new FrogPilotButtonsControl(
+    tr("NavBridge 主機 IP"), "",
+    tr("<b>設定 NavBridge Android 裝置的 IP。</b>同一台裝置時預設為 \"localhost\"。"));
+  updateNavBridgeHostLabel();  // 立刻反映目前儲存的 IP
+  QObject::connect(navBridgeHostControl, &FrogPilotButtonsControl::clicked, [this]() {
     QString currentHost = QString::fromStdString(params.get("NavBridgeHost"));
-    if (currentHost.isEmpty()) {
-      currentHost = "localhost";
-    }
-    QString newHost = InputDialog::getText(tr("Enter NavBridge IP"), this, tr("Current: %1").arg(currentHost), false, 1, currentHost).trimmed();
-    if (!newHost.isEmpty()) {
-      params.put("NavBridgeHost", newHost.toStdString());
-      updateNavBridgeHostLabel();
-    }
+    if (currentHost.isEmpty()) currentHost = "localhost";
+
+    QString newHost = InputDialog::getText(tr("輸入 NavBridge IP"), this,
+                                           tr("目前: %1").arg(currentHost), false, 1, currentHost).trimmed();
+    if (newHost.isEmpty()) return;
+
+    params.put("NavBridgeHost", newHost.toStdString());
+    updateNavBridgeHostLabel();
   });
   settingsList->addItem(navBridgeHostControl);
 ////////////////////////
