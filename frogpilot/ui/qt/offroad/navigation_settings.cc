@@ -295,8 +295,8 @@ void FrogPilotNavigationPanel::updateButtons() {
   mapboxPublicKeySet = QString::fromStdString(params.get("MapboxPublicKey")).startsWith("pk");
   mapboxSecretKeySet = QString::fromStdString(params.get("MapboxSecretKey")).startsWith("sk");
 
-  publicMapboxKeyControl->setText(0, mapboxPublicKeySet ? tr("移除") : tr("添加"));
-  secretMapboxKeyControl->setText(0, mapboxSecretKeySet ? tr("移除") : tr("添加"));
+  publicMapboxKeyControl->setText(mapboxPublicKeySet ? tr("移除") : tr("添加"));
+  secretMapboxKeyControl->setText(mapboxSecretKeySet ? tr("移除") : tr("添加"));
 }
 
 void FrogPilotNavigationPanel::updateState(const UIState &s, const FrogPilotUIState &fs) {
