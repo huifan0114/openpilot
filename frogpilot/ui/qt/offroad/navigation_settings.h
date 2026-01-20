@@ -35,7 +35,7 @@ private:
   ButtonControl *amapKeyControl1;
   ButtonControl *amapKeyControl2;
   ////////////////////////////////////////////
-  ButtonControl *navBridgeHostControl;
+  FrogPilotButtonsControl *navBridgeHostControl;
   FrogPilotButtonsControl *navBridgeToggle;
   ////////////////////////////////////////////
   FrogPilotButtonsControl *publicMapboxKeyControl;
