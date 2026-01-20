@@ -136,7 +136,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
 
 //////////////////////////////////////////////
   // NavBridge 設定區塊
-  navBridgeToggle = new ParamControl("NavBridgeEnabled", tr("NavBridge (Google Maps)"),
+  navBridgeToggle = new ButtonControl("NavBridgeEnabled", tr("NavBridge (Google Maps)"),
     tr("<b>Enable NavBridge to receive navigation data from Google Maps</b> via the NavBridge Android app. "
        "This allows conditional experimental mode to activate based on upcoming turns and intersections."), "", this);
   settingsList->addItem(navBridgeToggle);
