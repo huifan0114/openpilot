@@ -34,13 +34,12 @@ private:
 
   ButtonControl *amapKeyControl1;
   ButtonControl *amapKeyControl2;
-  ////////////////////////////////////////////
-  FrogPilotButtonsControl *navBridgeHostControl;
-  FrogPilotButtonsControl *navBridgeToggle;
-  ////////////////////////////////////////////
-  FrogPilotButtonsControl *publicMapboxKeyControl;
-  FrogPilotButtonsControl *secretMapboxKeyControl;
+  ButtonControl *navBridgeHostControl;
+  ButtonControl *publicMapboxKeyControl;
+  ButtonControl *secretMapboxKeyControl;
   ButtonControl *setupButton;
+
+  ParamControl *navBridgeToggle;
 
   FrogPilotButtonControl *updateSpeedLimitsToggle;
 
