@@ -279,7 +279,7 @@ class FrogPilotPlanner:
               target_speed_limit = max(round(target_stopmark_speed), STOPMARK_MIN_SPEED)
 
             # 🔧 改為漸進式降速（每次最多降 2 km/h，加快反應）
-            MAX_SPEED_DECREASE = 5  # 每個週期最多降低 2 km/h
+            MAX_SPEED_DECREASE = 10  # 每個週期最多降低 2 km/h
 
             if currentSpeedLimit > target_speed_limit and (now.timestamp() - self.stopmark_last_update_time) >= STOPMARK_UPDATE_INTERVAL:
               newSpeedLimit = max(currentSpeedLimit - MAX_SPEED_DECREASE, target_speed_limit)
