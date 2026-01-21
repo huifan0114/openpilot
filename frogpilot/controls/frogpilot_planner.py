@@ -475,7 +475,6 @@ class FrogPilotPlanner:
 
     frogpilotPlan.accelerationJerk = A_CHANGE_COST * self.frogpilot_following.acceleration_jerk
     frogpilotPlan.accelerationJerkStock = A_CHANGE_COST * self.frogpilot_following.base_acceleration_jerk
-    frogpilotPlan.dangerFactor = self.frogpilot_following.danger_factor
     frogpilotPlan.dangerJerk = DANGER_ZONE_COST * self.frogpilot_following.danger_jerk
     frogpilotPlan.speedJerk = J_EGO_COST * self.frogpilot_following.speed_jerk
     frogpilotPlan.speedJerkStock = J_EGO_COST * self.frogpilot_following.base_speed_jerk
