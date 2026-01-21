@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
 
-from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import COMFORT_BRAKE, LEAD_DANGER_FACTOR, STOP_DISTANCE, desired_follow_distance, get_jerk_factor, get_T_FOLLOW
+from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import COMFORT_BRAKE, LEAD_DANGER_FACTOR, STOP_DISTANCE, desired_follow_distance, get_jerk_factor, get_T_FOLLOW, get_dynamic_T_FOLLOW_stock_style
 
 from openpilot.frogpilot.common.frogpilot_variables import CITY_SPEED_LIMIT, CRUISING_SPEED, MAX_T_FOLLOW
 
