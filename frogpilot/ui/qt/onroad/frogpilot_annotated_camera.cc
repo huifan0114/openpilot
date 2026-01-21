@@ -254,21 +254,41 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
     paintStoppingPoint(p, scene, frogpilot_scene, frogpilot_toggles);
   }
 
-  // 停車降速邏輯（獨立於 UI 顯示）
-  if (scene.track_vertices.length() >= 1 && frogpilotPlan.getRedLight()) {
-    int roadProfile = params.getInt("RoadtypeProfile");
-    const bool stopmarkslowsdown = params.getBool("Stopmarkslowsdown");
-    const bool is_high_speed_profile = roadProfile == 3 || roadProfile == 4;
+  // 停車降速邏輯（防抖機制：穩定 0.5 秒才觸發）
+  const bool redLightDetected = scene.track_vertices.length() >= 1 && frogpilotPlan.getRedLight();
+  const int DEBOUNCE_TIME_MS = 500;  // 防抖時間：500ms
 
-    // 僅在開啟 stopmarkslowsdown 且非高速/快速道路時啟用
-    if (stopmarkslowsdown && !is_high_speed_profile) {
-      params_memory.putBool("StopmarkActive", true);
-    } else {
-      params_memory.putBool("StopmarkActive", false);
+  if (redLightDetected) {
+    // 紅燈偵測到：啟動或繼續計時
+    if (!redLightDetectedTimer.isValid()) {
+      redLightDetectedTimer.start();
+    }
+    redLightDisappearedTimer.invalidate();  // 清除消失計時器
+
+    // 穩定偵測超過防抖時間才啟用
+    if (redLightDetectedTimer.elapsed() >= DEBOUNCE_TIME_MS) {
+      int roadProfile = params.getInt("RoadtypeProfile");
+      const bool stopmarkslowsdown = params.getBool("Stopmarkslowsdown");
+      const bool is_high_speed_profile = roadProfile == 3 || roadProfile == 4;
+
+      // 僅在開啟 stopmarkslowsdown 且非高速/快速道路時啟用
+      if (stopmarkslowsdown && !is_high_speed_profile) {
+        params_memory.putBool("StopmarkActive", true);
+      } else {
+        params_memory.putBool("StopmarkActive", false);
+      }
     }
   } else {
-    // 紅燈消失時明確清除狀態
-    params_memory.putBool("StopmarkActive", false);
+    // 紅燈消失：啟動消失計時器
+    if (!redLightDisappearedTimer.isValid()) {
+      redLightDisappearedTimer.start();
+    }
+    redLightDetectedTimer.invalidate();  // 清除偵測計時器
+
+    // 穩定消失超過防抖時間才清除狀態
+    if (redLightDisappearedTimer.elapsed() >= DEBOUNCE_TIME_MS) {
+      params_memory.putBool("StopmarkActive", false);
+    }
   }
 ////////////////////////////////////////
   if (!bigMapOpen && (carState.getLeftBlinker() || carState.getRightBlinker()) && signalStyle != "None") {
@@ -824,6 +844,10 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
     QString priority2 = "Navigation";
     QString priority3 = "Lowest";
 
+    // 讀取右邊路徑寬度（單位：公尺）- 需要傳入 frogpilotPlan 參數
+    // 暫時從 params_memory 讀取，需確保 Python 端有寫入
+    float laneWidthRight = params_memory.getFloat("LaneWidthRight");
+
     // 根據道路名稱分類 + 同時設定優先序
     if (roadName.contains("高速") || roadName.contains("國道")) {
       newRoadProfile = 4; // 高速公路
@@ -840,7 +864,8 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
       priority1 = "Map Data";
       priority2 = "Navigation";
       priority3 = "Dashboard";
-    } else if (roadName.contains("街") || roadName.contains("巷") || roadName.contains("弄")) {
+    } else if (roadName.contains("街") || roadName.contains("巷") || roadName.contains("弄") || laneWidthRight < 1.0f) {
+      // 加入路徑寬度判斷：右邊路徑寬度小於 1 公尺時也判定為街道巷弄
       newRoadProfile = 1; // 街道巷弄
       priority1 = "Map Data";
       priority2 = "Navigation";

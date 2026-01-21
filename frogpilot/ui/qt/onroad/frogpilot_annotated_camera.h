@@ -103,6 +103,10 @@ private:
   QElapsedTimer glowTimer;
   QElapsedTimer pendingLimitTimer;
   QElapsedTimer standstillTimer;
+  //////////////////////////
+  QElapsedTimer redLightDetectedTimer;  // Stopmark 紅燈偵測防抖計時器
+  QElapsedTimer redLightDisappearedTimer;  // Stopmark 紅燈消失防抖計時器
+  //////////////////////////
 
   QPixmap brakePedalImg;
   QPixmap curveSpeedIcon;

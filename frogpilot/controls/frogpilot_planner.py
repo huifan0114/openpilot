@@ -122,9 +122,16 @@ class FrogPilotPlanner:
     if check_lane_width and v_ego >= frogpilot_toggles.minimum_lane_change_speed:
       self.lane_width_left = calculate_lane_width(sm["modelV2"].laneLines[0], sm["modelV2"].laneLines[1], sm["modelV2"].roadEdges[0])
       self.lane_width_right = calculate_lane_width(sm["modelV2"].laneLines[3], sm["modelV2"].laneLines[2], sm["modelV2"].roadEdges[1])
+      ###################################
+      # 寫入右邊路徑寬度到 params_memory 供 C++ 端使用
+      self.params_memory.put_float("LaneWidthRight", self.lane_width_right)
+      ###################################
     else:
       self.lane_width_left = 0
       self.lane_width_right = 0
+      ###################################
+      self.params_memory.put_float("LaneWidthRight", 0.0)
+      ###################################
 
     self.lateral_acceleration = v_ego**2 * sm["controlsState"].curvature
 
@@ -184,8 +191,8 @@ class FrogPilotPlanner:
             self.detect_speed_prev = detect_sl_raw
             self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
             self.params_memory.put_bool("SpeedLimitChanged", True)
-            self.params_memory.put_int("KeySetSpeed", detect_sl_raw)
-            self.params_memory.put_bool("KeyChanged", True)
+            # self.params_memory.put_int("KeySetSpeed", detect_sl_raw)
+            # self.params_memory.put_bool("KeyChanged", True)
         else:
           current_setspeed = self.params_memory.get_int("KeySetSpeed")
           roadtype_profile = self.params.get_int("RoadtypeProfile")
@@ -229,9 +236,9 @@ class FrogPilotPlanner:
           self.params_memory.put_int("KeySetSpeed", detect_sl_raw)
           self.params_memory.put_bool("KeyChanged", True)
     # =========================================================
-    # Stopmark 防抖與狀態管理（需穩定維持 1 秒以上才觸發）
+    # Stopmark 防抖與狀態管理（需穩定維持 2 秒以上才觸發）
     # =========================================================
-    STOPMARK_STABLE_TIME = 2.0  # 需要穩定維持 1 秒才觸發（降低體感延遲）
+    STOPMARK_STABLE_TIME = 2.0  # 需要穩定維持 2 秒才觸發（降低體感延遲）
     STOPMARK_UPDATE_INTERVAL = 0.2  # 最小更新間隔（秒），降低高頻寫入導致的 UI 重繪
 
     if frogpilot_toggles.stopmarkslowsdown:
@@ -278,8 +285,8 @@ class FrogPilotPlanner:
               )
               target_speed_limit = max(round(target_stopmark_speed), STOPMARK_MIN_SPEED)
 
-            # 🔧 改為漸進式降速（每次最多降 2 km/h，加快反應）
-            MAX_SPEED_DECREASE = 10  # 每個週期最多降低 2 km/h
+            # 🔧 改為漸進式降速（每次最多降 10 km/h，加快反應）
+            MAX_SPEED_DECREASE = 10  # 每個週期最多降低 10 km/h
 
             if currentSpeedLimit > target_speed_limit and (now.timestamp() - self.stopmark_last_update_time) >= STOPMARK_UPDATE_INTERVAL:
               newSpeedLimit = max(currentSpeedLimit - MAX_SPEED_DECREASE, target_speed_limit)
@@ -300,38 +307,37 @@ class FrogPilotPlanner:
     # 統一恢復出口（踩油門立即恢復）
     # =========================================================
     if (sm["carState"].aEgo > 0 and self.params_memory.get_bool("StopmarkApplied")) or self.params_memory.get_bool("StopmarkRecovering"):
-        # 使用 ACC 啟動時判斷的速限
         restore_speed = self.params_memory.get_int("OriginalKeySetSpeed")
+        final_speed = restore_speed  # 預設使用保存的速限
 
-        # 優先使用最新的導航速限（僅在速限真正變化時才通知）
+        # 優先使用最新的導航速限（避免使用過時的保存值）
         if frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation"):
-            # 只在速限真的改變時才設置變更 flag
+            final_speed = detect_sl_raw
+            # 同步更新 DetectSpeedLimit
+            self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
+            # 只在速限真正改變時才設置變更 flag
             if detect_sl_raw != self.detect_speed_prev:
-                self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
                 self.params_memory.put_bool("SpeedLimitChanged", True)
-                self.detect_speed_prev = detect_sl_raw
-            else:
-                # 速限未變，靜默更新
-                self.params_memory.put_int("DetectSpeedLimit", detect_sl_raw)
-        elif restore_speed > 0:
-            # 恢復到 ACC 啟動時判斷的速限（不觸發變更提示）
-            current_setspeed_val = self.params_memory.get_int("KeySetSpeed")
-            if restore_speed != current_setspeed_val:
-              self.params_memory.put_int("KeySetSpeed", restore_speed)
-              self.params_memory.put_bool("KeyChanged", True)
-            # self.params_memory.put_int("SpeedPrev", 0)
 
-        # 重置偵測狀態（使用當前值避免異常觸發）
-        if detect_sl_raw > 0 and self.detect_speed_prev != detect_sl_raw:
-            self.detect_speed_prev = detect_sl_raw
+        # 統一設定恢復速限（避免重複設定）
+        current_setspeed_val = self.params_memory.get_int("KeySetSpeed")
+        if final_speed > 0 and final_speed != current_setspeed_val:
+            self.params_memory.put_int("KeySetSpeed", final_speed)
+            self.params_memory.put_bool("KeyChanged", True)
+
+        # 同步更新追蹤變數，避免後續邏輯重複觸發
+        self.detect_speed_prev = final_speed
 
         # 清除 Stopmark 狀態
         self.params_memory.put_bool("StopmarkApplied", False)
         self.params_memory.put_bool("StopmarkRecovering", False)
     #################################################################
-    # 速限變更偵測（僅在未被 AutoACC 處理時執行，避免重複設置）
+    # 速限變更偵測（僅在未被 Stopmark 恢復處理時執行，避免重複設置）
     if frogpilot_toggles.navspeed and v_ego_kph > 5:
-      if detect_sl != self.detect_speed_prev:
+      # 排除剛從 Stopmark 恢復的情況（避免重複設定）
+      is_recovering = self.params_memory.get_bool("StopmarkApplied") or self.params_memory.get_bool("StopmarkRecovering")
+
+      if not is_recovering and detect_sl != self.detect_speed_prev:
         self.detect_speed_prev = detect_sl  # 無論如何都更新，避免重複進入
         # 只在有有效速限時才更新 DetectSpeedLimit 和設置 flag
         if detect_sl > 0:
