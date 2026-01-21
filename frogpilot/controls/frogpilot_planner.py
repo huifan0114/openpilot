@@ -231,7 +231,7 @@ class FrogPilotPlanner:
     # =========================================================
     # Stopmark 防抖與狀態管理（需穩定維持 1 秒以上才觸發）
     # =========================================================
-    STOPMARK_STABLE_TIME = 1.0  # 需要穩定維持 1 秒才觸發（降低體感延遲）
+    STOPMARK_STABLE_TIME = 2.0  # 需要穩定維持 1 秒才觸發（降低體感延遲）
     STOPMARK_UPDATE_INTERVAL = 0.2  # 最小更新間隔（秒），降低高頻寫入導致的 UI 重繪
 
     if frogpilot_toggles.stopmarkslowsdown:
