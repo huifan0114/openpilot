@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+7#!/usr/bin/env python3
 import json
 import math
 
@@ -286,7 +286,7 @@ class FrogPilotPlanner:
               target_speed_limit = max(round(target_stopmark_speed), STOPMARK_MIN_SPEED)
 
             # 🔧 改為漸進式降速（每次最多降 10 km/h，加快反應）
-            MAX_SPEED_DECREASE = 10  # 每個週期最多降低 10 km/h
+            MAX_SPEED_DECREASE = 5  # 每個週期最多降低 5 km/h
 
             if currentSpeedLimit > target_speed_limit and (now.timestamp() - self.stopmark_last_update_time) >= STOPMARK_UPDATE_INTERVAL:
               newSpeedLimit = max(currentSpeedLimit - MAX_SPEED_DECREASE, target_speed_limit)
