@@ -168,9 +168,9 @@ class FrogPilotPlanner:
     # ---------- Roadtype Profile 速限建議參數 ----------
     PROFILE_LIMITS = {1: (40, 59), 2: (60, 89), 3: (90, 119), 4: (120, float("inf"))}
     # ---------- Stopmark 參數 ----------
-    STOPMARK_MIN_SPEED = 10.0
+    STOPMARK_MIN_SPEED = 20.0
     STOPMARK_MIN_DISTANCE = 10.0
-    STOPMARK_MAX_DISTANCE = 150.0
+    STOPMARK_MAX_DISTANCE = 300.0
     # ------------autoacc--------------
     if frogpilot_toggles.autoacc and not current_isengaged :
       autoacc_caraway_status = self.params_memory.get_int("AutoACCCarAwaystatus")
