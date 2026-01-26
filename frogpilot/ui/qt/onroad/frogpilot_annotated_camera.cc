@@ -864,7 +864,7 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
       priority1 = "Map Data";
       priority2 = "Navigation";
       priority3 = "Dashboard";
-    } else if (roadName.contains("街") || roadName.contains("巷") || roadName.contains("弄") || laneWidthRight < 1.0f) {
+    } else if (roadName.contains("街") || roadName.contains("巷") || roadName.contains("弄") || laneWidthRight < 0.5f) {
       // 加入路徑寬度判斷：右邊路徑寬度小於 1 公尺時也判定為街道巷弄
       newRoadProfile = 1; // 街道巷弄
       priority1 = "Map Data";
@@ -1283,7 +1283,7 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   int roadProfile = params.getInt("RoadtypeProfile");
   std::map<int, QString> roadProfileMap = {
     {0, "未選道路"},
-    {1, "街道巷弄"},
+    {1, "慢街巷弄"},
     {2, "一般平面"},
     {3, "快速道路"},
     {4, "高速公路"},
