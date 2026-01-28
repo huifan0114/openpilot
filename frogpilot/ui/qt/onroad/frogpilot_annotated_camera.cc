@@ -254,9 +254,9 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
     paintStoppingPoint(p, scene, frogpilot_scene, frogpilot_toggles);
   }
 
-  // 停車降速邏輯（防抖機制：穩定 0.25 秒才觸發）
+  // 停車降速邏輯（防抖機制：快速反應 + 距離過濾）
   const bool redLightDetected = scene.track_vertices.length() >= 1 && frogpilotPlan.getRedLight();
-  const int DEBOUNCE_TIME_MS = 250;  // 防抖時間：500ms
+  const int DEBOUNCE_TIME_MS = 150;  // 🔧 優化：從250ms減到150ms，加快初始反應
 
   if (redLightDetected) {
     // 紅燈偵測到：啟動或繼續計時
@@ -271,8 +271,12 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
       const bool stopmarkslowsdown = params.getBool("Stopmarkslowsdown");
       const bool is_high_speed_profile = roadProfile == 3 || roadProfile == 4;
 
+      // 🔧 優化：增加距離過濾，避免過遠誤觸發（>350m 不啟動）
+      int stopDistance = params_memory.getInt("StopmarkDistance");
+      const bool distance_valid = stopDistance > 0 && stopDistance <= 350;
+
       // 僅在開啟 stopmarkslowsdown 且非高速/快速道路時啟用
-      if (stopmarkslowsdown && !is_high_speed_profile) {
+      if (stopmarkslowsdown && !is_high_speed_profile && distance_valid) {
         params_memory.putBool("StopmarkActive", true);
       } else {
         params_memory.putBool("StopmarkActive", false);
