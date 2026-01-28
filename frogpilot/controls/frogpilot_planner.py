@@ -214,9 +214,8 @@ class FrogPilotPlanner:
         self.params_memory.put_bool("StopmarkApplied", False)
 
         # 🔧 優化：使用統一函數處理速限更新
-        speed_updated = False
         if has_map_or_nav_sl:
-          speed_updated = update_speed_limit(detect_sl_raw)
+          update_speed_limit(detect_sl_raw, force_update=True)
         else:
           # 使用 profile 兜底
           current_setspeed = self.params_memory.get_int("KeySetSpeed")
@@ -232,10 +231,11 @@ class FrogPilotPlanner:
             # 避免拿過期的 detect_speedlimit 來放大路名建議
             if has_map_or_nav_sl:
               key_set_speed = min(key_set_speed, detect_sl_raw)
-            speed_updated = update_speed_limit(key_set_speed)
+            update_speed_limit(key_set_speed, force_update=True)
 
     # =========================================================
     # 道路名稱與道路類型檔案變更檢測（當道路改變時，即時更新速限）
+    # 🔧 優化：即使ACC啟動也能自動更新速限，但要避免與Stopmark衝突
     # =========================================================
     current_road_name = self.params_memory.get("RoadName", encoding="utf8")
     current_roadtype_profile = self.params.get_int("RoadtypeProfile")
@@ -244,12 +244,26 @@ class FrogPilotPlanner:
     road_changed = (current_road_name != self.previous_road_name) or (current_roadtype_profile != self.previous_roadtype_profile)
 
     if road_changed:
-      self.previous_road_name = current_road_name
-      self.previous_roadtype_profile = current_roadtype_profile
+      # 🔧 優化：檢查 Stopmark 狀態，避免與紅燈減速衝突
+      is_stopmark_active = self.params_memory.get_bool("StopmarkApplied") or self.params_memory.get_bool("StopmarkRecovering")
 
-      # 道路變更時，若有有效導航速限則優先使用
-      if frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation"):
-        update_speed_limit(detect_sl_raw, force_update=True)
+      # 只有在 Stopmark 未激活時才更新歷史紀錄和速限
+      if not is_stopmark_active:
+        self.previous_road_name = current_road_name
+        self.previous_roadtype_profile = current_roadtype_profile
+        # 道路變更時的速限更新邏輯（優先順序：導航速限 > Profile速限）
+        # 第一優先：有效導航速限則優先使用
+        if frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation"):
+          update_speed_limit(detect_sl_raw, force_update=True)
+        else:
+          # 第二優先：根據 RoadtypeProfile 設定速限（即使ACC啟動也執行）
+          if current_roadtype_profile != 0 and current_roadtype_profile in PROFILE_LIMITS:
+            min_speed, max_speed = PROFILE_LIMITS[current_roadtype_profile]
+            current_setspeed = self.params_memory.get_int("KeySetSpeed")
+
+            # 若當前速限不在該Profile的範圍內，則更新為該Profile的最小速限
+            if not (min_speed <= current_setspeed < max_speed):
+              update_speed_limit(min_speed, force_update=True)
     # =========================================================
     # Stopmark 防抖與狀態管理（快速反應+平滑執行）
     # =========================================================
@@ -344,9 +358,16 @@ class FrogPilotPlanner:
         # 🔧 優化：優先使用最新的導航速限
         if frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation"):
             final_speed = detect_sl_raw
+        # 備選方案：若保存的速限無效，使用當前 Profile 速限
+        elif final_speed <= 0:
+          current_roadtype_profile = self.params.get_int("RoadtypeProfile")
+          if current_roadtype_profile != 0 and current_roadtype_profile in PROFILE_LIMITS:
+            min_speed, max_speed = PROFILE_LIMITS[current_roadtype_profile]
+            final_speed = min_speed
 
         # 使用統一更新函數
-        update_speed_limit(final_speed)
+        if final_speed > 0:
+          update_speed_limit(final_speed, force_update=True)
 
         # 清除 Stopmark 狀態
         self.params_memory.put_bool("StopmarkApplied", False)
@@ -410,7 +431,7 @@ class FrogPilotPlanner:
 
       # 🔧 優化：當超速且啟用自動重置時，使用統一函數更新
       if speed_over and frogpilot_toggles.speedreminderreset and detect_speedlimit > 0:
-          update_speed_limit(detect_speedlimit)
+          update_speed_limit(detect_speedlimit, force_update=True)
       elif v_ego_kph < 40:
           self.speed_over = False
 ####################################################################################
