@@ -254,9 +254,9 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
     paintStoppingPoint(p, scene, frogpilot_scene, frogpilot_toggles);
   }
 
-  // 停車降速邏輯（防抖機制：穩定 0.5 秒才觸發）
+  // 停車降速邏輯（防抖機制：穩定 0.25 秒才觸發）
   const bool redLightDetected = scene.track_vertices.length() >= 1 && frogpilotPlan.getRedLight();
-  const int DEBOUNCE_TIME_MS = 500;  // 防抖時間：500ms
+  const int DEBOUNCE_TIME_MS = 250;  // 防抖時間：500ms
 
   if (redLightDetected) {
     // 紅燈偵測到：啟動或繼續計時
