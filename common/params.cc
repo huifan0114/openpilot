@@ -286,6 +286,8 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"SimpleDashTheme", PERSISTENT},
     {"NavBridgeEnabled", PERSISTENT},
     {"NavBridgeHost", PERSISTENT},
+
+
     // {"TogglesUpdated", PERSISTENT},
 /////////////////////////////////////////////
 
@@ -392,6 +394,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"DownloadableWheels", PERSISTENT},
     {"DownloadAllModels", CLEAR_ON_MANAGER_START},
     {"DriverCamera", PERSISTENT},
+    {"DrivingStyleLearned", PERSISTENT},
     {"DynamicPathWidth", PERSISTENT},
     {"DynamicPedalsOnUI", PERSISTENT},
     {"EngageVolume", PERSISTENT},
