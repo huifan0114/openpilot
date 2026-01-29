@@ -332,7 +332,7 @@ class FrogPilotPlanner:
     # =========================================================
     # Stopmark 防抖與狀態管理（快速反應+平滑執行）
     # =========================================================
-    STOPMARK_STABLE_TIME = 0.5  # 🔧 優化：從2秒減到0.5秒（10個循環），加快反應速度
+    STOPMARK_STABLE_TIME = 0.2  # 🔧 優化：從2秒減到0.5秒（10個循環），加快反應速度
     STOPMARK_UPDATE_INTERVAL = 0.1  # 🔧 優化：從0.2秒減到0.1秒（2個循環），讓減速更平滑
 
     if frogpilot_toggles.stopmarkslowsdown:
