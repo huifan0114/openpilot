@@ -234,6 +234,12 @@ struct FrogPilotPlan @0xa1680744031fdb2d {
   weatherId @37 :Int16;
   #########################
   speedover @38:Bool;
+  slcNextSpeedLimitDistance @39 :Float32;
+  mapdSpeedLimit @40 :Float32;
+  roadName @41 :Text;
+  vscSpeed @42 :Float32;
+  vscActive @43 :Bool;
+  progressiveSpeed @44 :Float32;
   #############################
 }
 

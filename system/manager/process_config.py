@@ -107,7 +107,9 @@ procs = [
 ############################################################################################
   PythonProcess("qcomgpsd", "system.qcomgpsd.qcomgpsd", qcomgps, enabled=TICI),
   #PythonProcess("ugpsd", "system.ugpsd", only_onroad, enabled=TICI),
-  PythonProcess("navd", "selfdrive.navd.navd", only_onroad),  # 停用，使用 navbridged 取代
+##################################
+  #PythonProcess("navd", "selfdrive.navd.navd", only_onroad),  # 停用，使用 navbridged 取代
+##################################
   PythonProcess("pandad", "selfdrive.pandad.pandad", always_run),
   PythonProcess("paramsd", "selfdrive.locationd.paramsd", only_onroad),
   PythonProcess("lagd", "selfdrive.locationd.lagd", only_onroad),

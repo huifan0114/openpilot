@@ -16,21 +16,59 @@ class ConditionalExperimentalMode:
     self.experimental_mode = False
     self.stop_light_detected = False
 
+#################################
+    # 前車解除計時器（避免短暫誤判，如橫向車輛經過）
+    self.lead_release_timer = 0
+#################################
+
   def update(self, v_ego, sm, frogpilot_toggles):
     if frogpilot_toggles.experimental_mode_via_press:
       self.status_value = params_memory.get_int("CEStatus")
     else:
       self.status_value = 0
 
-    if self.status_value not in (1, 2) and not sm["carState"].standstill:
+#################################
+    if self.status_value not in {1, 2} and not sm["carState"].standstill:
+      # === 正常行駛 ===
+#################################
       self.update_conditions(v_ego, sm, frogpilot_toggles)
 
       self.experimental_mode = self.check_conditions(v_ego, sm, frogpilot_toggles)
-
+#################################
+      # 重置計時器
+      self.lead_release_timer = 0
+#################################
       params_memory.put_int("CEStatus", self.status_value if self.experimental_mode else 0)
     else:
-      self.experimental_mode = self.status_value == 2 or sm["carState"].standstill and self.experimental_mode and self.frogpilot_planner.model_stopped
-      self.stop_light_detected &= self.status_value not in (1, 2)
+#################################
+      # === 停車/蠕行/手動模式 ===
+      traffic_light_mode = self.status_value in {11, 12}
+
+      # 檢查是否有近距離前車（< 7m）
+      has_close_lead = self.frogpilot_planner.tracking_lead and self.frogpilot_planner.lead_one.dRel < 7.0
+
+      # 如果是紅綠燈模式，用計時器判斷是否解除
+      if traffic_light_mode:
+        if has_close_lead:
+          # 有前車：累計計時
+          self.lead_release_timer += DT_MDL
+          if self.lead_release_timer >= 0.5:
+            # 持續 0.5 秒：確認是真正的前車，解除 experimental_mode
+            self.experimental_mode = False
+          else:
+            # 還在計時：保持 experimental_mode
+            self.experimental_mode = True
+        else:
+          # 沒有前車：重置計時器，保持 experimental_mode
+          self.lead_release_timer = 0
+          self.experimental_mode = True
+      else:
+        # 非紅綠燈模式：原邏輯
+        self.lead_release_timer = 0
+        self.experimental_mode = self.status_value == 2 or sm["carState"].standstill and self.experimental_mode and self.frogpilot_planner.model_stopped
+#################################
+
+      self.stop_light_detected &= self.status_value not in {1, 2}
       self.stop_light_filter.x = 0
 
   def check_conditions(self, v_ego, sm, frogpilot_toggles):
@@ -94,6 +132,10 @@ class ConditionalExperimentalMode:
       model_stopping = self.frogpilot_planner.model_length < v_ego * model_time
 
       self.stop_light_filter.update(self.frogpilot_planner.model_stopped or model_stopping)
+#################################
+      # 修正：移除 "and not tracking_lead" 條件
+      # 原因：紅綠燈前通常有前車，此條件會阻止 Experimental Mode 啟動
+#################################
       self.stop_light_detected = self.stop_light_filter.x >= THRESHOLD and not self.frogpilot_planner.tracking_lead
     else:
       self.stop_light_filter.x = 0

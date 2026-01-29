@@ -39,100 +39,30 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
 
   createKeyControl(amapKeyControl1, tr("Amap 金鑰 #1"), "AMapKey1", "", 39, settingsList);
   createKeyControl(amapKeyControl2, tr("Amap 金鑰 #2"), "AMapKey2", "", 39, settingsList);
+#################################
+  createKeyControl(publicMapboxKeyControl, tr("Public Mapbox Key"), "MapboxPublicKey", "pk.", 80, settingsList);
+  createKeyControl(secretMapboxKeyControl, tr("Secret Mapbox Key"), "MapboxSecretKey", "sk.", 80, settingsList);
 
-  publicMapboxKeyControl = new FrogPilotButtonsControl(tr("公共 Mapbox 密鑰"), tr("<b>管理您的 Mapbox 公共密鑰.</b>"), "", {tr("增加"), tr("測試")});
-  QObject::connect(publicMapboxKeyControl, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
-    if (id == 0) {
-      if (mapboxPublicKeySet) {
-        if (FrogPilotConfirmationDialog::yesorno(tr("刪除您的 Mapbox 公共密鑰?"), this)) {
-          params.remove("MapboxPublicKey");
-          params_cache.remove("MapboxPublicKey");
+  // NavBridge 設定區塊
+  navBridgeToggle = new ParamControl("NavBridgeEnabled", tr("NavBridge (Google Maps)"),
+    tr("<b>Enable NavBridge to receive navigation data from Google Maps</b> via the NavBridge Android app. "
+       "This allows conditional experimental mode to activate based on upcoming turns and intersections."), "", this);
+  settingsList->addItem(navBridgeToggle);
 
-          updateButtons();
-        }
-      } else {
-        int minKeyLength = 80;
-        QString key = InputDialog::getText(tr("輸入您的 Mapbox 公共密鑰"), this, "", false, minKeyLength).trimmed();
-        if (!key.isEmpty()) {
-          if (!key.startsWith("pk.")) {
-            key = "pk." + key;
-          }
-          params.put("MapboxPublicKey", key.toStdString());
-          updateButtons();
-        }
-      }
-    } else {
-      publicMapboxKeyControl->setValue(tr("測試中..."));
-
-      QString key = QString::fromStdString(params.get("MapboxPublicKey"));
-      QString url = QString("https://api.mapbox.com/geocoding/v5/mapbox.places/mapbox.json?access_token=%1").arg(key);
-
-      QNetworkRequest request(url);
-      QNetworkReply *reply = networkManager->get(request);
-      connect(reply, &QNetworkReply::finished, [=]() {
-        publicMapboxKeyControl->setValue("");
-
-        QString message;
-        if (reply->error() == QNetworkReply::NoError) {
-          message = tr("密鑰有效!");
-        } else if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 401) {
-          message = tr("密鑰無效!");
-        } else {
-          message = tr("發生錯誤: %1").arg(reply->errorString());
-        }
-        ConfirmationDialog::alert(message, this);
-        reply->deleteLater();
-      });
+  navBridgeHostControl = new ButtonControl(tr("NavBridge Host IP"), "", tr("<b>Set the IP address of the NavBridge Android device.</b> Default is \"localhost\" for same device."));
+  QObject::connect(navBridgeHostControl, &ButtonControl::clicked, [this]() {
+    QString currentHost = QString::fromStdString(params.get("NavBridgeHost"));
+    if (currentHost.isEmpty()) {
+      currentHost = "localhost";
+    }
+    QString newHost = InputDialog::getText(tr("Enter NavBridge IP"), this, tr("Current: %1").arg(currentHost), false, 1, currentHost).trimmed();
+    if (!newHost.isEmpty()) {
+      params.put("NavBridgeHost", newHost.toStdString());
+      updateNavBridgeHostLabel();
     }
   });
-  settingsList->addItem(publicMapboxKeyControl);
-
-  secretMapboxKeyControl = new FrogPilotButtonsControl(tr("秘密地圖箱鑰匙"), tr("<b>管理您的 Mapbox 秘密密鑰。</b>"), "", {tr("添加"), tr("測試")});
-  QObject::connect(secretMapboxKeyControl, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
-    if (id == 0) {
-      if (mapboxSecretKeySet) {
-        if (FrogPilotConfirmationDialog::yesorno(tr("刪除您的 Mapbox 秘密密鑰？"), this)) {
-          params.remove("MapboxSecretKey");
-          params_cache.remove("MapboxSecretKey");
-
-          updateButtons();
-        }
-      } else {
-        int minKeyLength = 80;
-        QString key = InputDialog::getText(tr("輸入您的 Mapbox 秘密密鑰"), this, "", false, minKeyLength).trimmed();
-        if (!key.isEmpty()) {
-          if (!key.startsWith("sk.")) {
-            key = "sk." + key;
-          }
-          params.put("MapboxSecretKey", key.toStdString());
-          updateButtons();
-        }
-      }
-    } else {
-      secretMapboxKeyControl->setValue(tr("測試中..."));
-
-      QString key = QString::fromStdString(params.get("MapboxSecretKey"));
-      QString url = QString("https://api.mapbox.com/directions/v5/mapbox/driving/-73.989,40.733;-74,40.733?access_token=%1").arg(key);
-
-      QNetworkRequest request(url);
-      QNetworkReply *reply = networkManager->get(request);
-      connect(reply, &QNetworkReply::finished, [=]() {
-        secretMapboxKeyControl->setValue("");
-
-        QString message;
-        if (reply->error() == QNetworkReply::NoError) {
-          message = tr("密鑰有效!");
-        } else if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 401) {
-          message = tr("密鑰無效!");
-        } else {
-          message = tr("發生錯誤: %1").arg(reply->errorString());
-        }
-        ConfirmationDialog::alert(message, this);
-        reply->deleteLater();
-      });
-    }
-  });
-  settingsList->addItem(secretMapboxKeyControl);
+  settingsList->addItem(navBridgeHostControl);
+////////////////////////
 
   setupButton = new ButtonControl(tr("Mapbox 設定說明"), tr("檢視"), tr("<b>設定 Mapbox（用於「無儀表導航」）的操作說明</b>。"), this);
   QObject::connect(setupButton, &ButtonControl::clicked, [this]() {
@@ -237,11 +167,23 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
       secretMapboxKeyControl->showDescription();
       setupButton->showDescription();
       updateSpeedLimitsToggle->showDescription();
+      //////////////////////////////////////////
+      navBridgeToggle->showDescription();
+      navBridgeHostControl->showDescription();
+      //////////////////////////////////////////
     }
   });
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotNavigationPanel::updateState);
 }
-
+//////////////////////////////////////////
+void FrogPilotNavigationPanel::updateNavBridgeHostLabel() {
+  QString host = QString::fromStdString(params.get("NavBridgeHost"));
+  if (host.isEmpty()) {
+    host = "localhost";
+  }
+  navBridgeHostControl->setText(host);
+}
+//////////////////////////////////////////
 void FrogPilotNavigationPanel::showEvent(QShowEvent *event) {
   if (forceOpenDescriptions) {
     amapKeyControl1->showDescription();
@@ -251,7 +193,15 @@ void FrogPilotNavigationPanel::showEvent(QShowEvent *event) {
     secretMapboxKeyControl->showDescription();
     setupButton->showDescription();
     updateSpeedLimitsToggle->showDescription();
+    //////////////////////////////////////////
+    navBridgeToggle->showDescription();
+    navBridgeHostControl->showDescription();
+    //////////////////////////////////////////
   }
+//////////////////////////////////////////
+  // 更新 NavBridge Host 顯示
+  updateNavBridgeHostLabel();
+//////////////////////////////////////////
 
   FrogPilotUIState &fs = *frogpilotUIState();
   UIState &s = *uiState();
@@ -272,9 +222,9 @@ void FrogPilotNavigationPanel::showEvent(QShowEvent *event) {
 
   amapKeyControl1->setVisible(selectedSearchInput == 1);
   amapKeyControl2->setVisible(selectedSearchInput == 1);
-  publicMapboxKeyControl->setVisible(selectedSearchInput == 0);
-  secretMapboxKeyControl->setVisible(selectedSearchInput == 0);
-  setupButton->setVisible(selectedSearchInput == 0);
+  //publicMapboxKeyControl->setVisible(selectedSearchInput == 0);
+  //secretMapboxKeyControl->setVisible(selectedSearchInput == 0);
+  //setupButton->setVisible(selectedSearchInput == 0);
 
   updateSpeedLimitsToggle->setVisibleButton(0, updatingLimits);
   updateSpeedLimitsToggle->setVisibleButton(1, !updatingLimits);
@@ -306,6 +256,10 @@ void FrogPilotNavigationPanel::mousePressEvent(QMouseEvent *event) {
       secretMapboxKeyControl->showDescription();
       setupButton->showDescription();
       updateSpeedLimitsToggle->showDescription();
+      ////////////////////////////
+      navBridgeToggle->showDescription();
+      navBridgeHostControl->showDescription();
+      ////////////////////////////
     }
   }
 }
@@ -337,18 +291,17 @@ void FrogPilotNavigationPanel::createKeyControl(ButtonControl *&control, const Q
 }
 
 void FrogPilotNavigationPanel::updateButtons() {
-  FrogPilotUIState &fs = *frogpilotUIState();
+  //FrogPilotUIState &fs = *frogpilotUIState();
 
   amapKeyControl1->setText(params.get("AMapKey1").empty() ? tr("添加") : tr("移除"));
   amapKeyControl2->setText(params.get("AMapKey2").empty() ? tr("添加") : tr("移除"));
 
   mapboxPublicKeySet = QString::fromStdString(params.get("MapboxPublicKey")).startsWith("pk");
   mapboxSecretKeySet = QString::fromStdString(params.get("MapboxSecretKey")).startsWith("sk");
-
-  publicMapboxKeyControl->setText(0, mapboxPublicKeySet ? tr("移除") : tr("添加"));
-  publicMapboxKeyControl->setVisibleButton(1, mapboxPublicKeySet && fs.frogpilot_scene.online);
-  secretMapboxKeyControl->setText(0, mapboxSecretKeySet ? tr("移除") : tr("添加"));
-  secretMapboxKeyControl->setVisibleButton(1, mapboxSecretKeySet && fs.frogpilot_scene.online);
+//////////////////////////////////////////
+  publicMapboxKeyControl->setText(mapboxPublicKeySet ? tr("移除") : tr("添加"));
+  secretMapboxKeyControl->setText(mapboxSecretKeySet ? tr("移除") : tr("添加"));
+//////////////////////////////////////////
 }
 
 void FrogPilotNavigationPanel::updateState(const UIState &s, const FrogPilotUIState &fs) {

@@ -2,7 +2,9 @@
 import json
 import math
 
-from cereal import log
+#################################
+from cereal import car,log
+#################################
 import cereal.messaging as messaging
 
 #########################################
@@ -36,6 +38,11 @@ class FrogPilotPlanner:
     self.frogpilot_vcruise = FrogPilotVCruise(self)
     self.frogpilot_weather = WeatherChecker()
 
+#################################
+    with car.CarParams.from_bytes(params.get("CarParams", block=True)) as msg:
+      self.CP = msg
+#################################
+
     self.tracking_lead_filter = FirstOrderFilter(0, 0.5, DT_MDL)
 
     self.driving_in_curve = False
@@ -60,6 +67,11 @@ class FrogPilotPlanner:
     self.stopmark_active_prev = False  # 追踪上一次的 StopmarkActive 狀態（防抖）
     self.stopmark_active_timer = 0.0  # Stopmark 激活狀態持續時間計時器
     self.stopmark_last_update_time = 0.0  # Stopmark 降速參數寫入節流時間戳
+    # CSC 動態控制相關變數
+    self.steer_usage = 0.0
+    self.undershooting = False
+    self.turning = False
+    self.steer_saturated = False
 #########################################
 
   def update(self, now, time_validated, sm, frogpilot_toggles):
@@ -118,6 +130,32 @@ class FrogPilotPlanner:
 
       params_memory.remove("LastGPSPosition")
 
+#########################################
+    self.lateral_acceleration = v_ego**2 * (sm["carState"].steeringAngleDeg - sm["liveParameters"].angleOffsetDeg) * CV.DEG_TO_RAD / (self.CP.steerRatio * self.CP.wheelbase)
+
+    # CSC 動態控制 - 計算 steer 使用率和物理極限檢測
+    # actuators.steer 範圍: -1.0 到 1.0
+    self.steer_usage = abs(sm["carControl"].actuators.steer)
+
+    # 期望橫向加速度 (從模型期望的轉向角度計算)
+    desired_steer = sm["carControl"].actuatorsOutput.steer if hasattr(sm["carControl"], 'actuatorsOutput') else sm["carControl"].actuators.steer
+    desired_lat_acc = abs(v_ego**2 * desired_steer * self.CP.steerRatio * CV.DEG_TO_RAD / self.CP.wheelbase) if v_ego > 1 else 0
+
+    # 實際橫向加速度
+    actual_lat_acc = abs(self.lateral_acceleration)
+
+    # 三個條件檢測 (與 steerSaturated event 相同邏輯)
+    # 1. saturated: 方向盤輸出達到 90%
+    saturated = self.steer_usage >= 0.9
+    # 2. undershooting: 實際轉向不足 (期望/實際 > 1.2)
+    self.undershooting = (actual_lat_acc > 0.5 and desired_lat_acc / actual_lat_acc > 1.2) if actual_lat_acc > 0.1 else False
+    # 3. turning: 正在轉彎 (期望橫向加速度 > 1.0 m/s²)
+    self.turning = desired_lat_acc > 1.0
+
+    # 物理極限判定 = 三個條件同時滿足
+    self.steer_saturated = saturated and self.undershooting and self.turning
+#########################################
+
     check_lane_width = frogpilot_toggles.adjacent_paths or frogpilot_toggles.adjacent_path_metrics or frogpilot_toggles.blind_spot_path or frogpilot_toggles.lane_detection
     if check_lane_width and v_ego >= frogpilot_toggles.minimum_lane_change_speed:
       self.lane_width_left = calculate_lane_width(sm["modelV2"].laneLines[0], sm["modelV2"].laneLines[1], sm["modelV2"].roadEdges[0])
@@ -150,6 +188,33 @@ class FrogPilotPlanner:
 
     if not sm["carState"].standstill:
       self.tracking_lead = self.update_lead_status()
+
+#########################################
+    # 使用 calibrated lateral_acceleration 來偵測彎道 (與 CSC 目標計算一致)
+    lat_acc = self.frogpilot_vcruise.csc.lateral_acceleration
+    csc_trigger_speed = (lat_acc / abs(self.road_curvature))**0.5 if abs(self.road_curvature) > 0.0001 else 999
+
+    # FIX: 提前觸發 CSC，避免等到超速才開始減速
+    # 原本邏輯：v_ego > csc_trigger_speed 才觸發（太晚了！）
+    # 新邏輯：
+    #   1. 速度預警：當車速接近目標速度時提前觸發
+    #   2. 時間預警：當彎道很近時（< 3 秒）且車速接近目標，提前觸發
+    SPEED_BUFFER = 3 * CV.KPH_TO_MS  # 3 km/h 的速度預警緩衝
+    TIME_BUFFER = 3.0  # 3 秒的時間預警
+
+    # 條件 1: 車速接近或超過目標速度
+    speed_trigger = v_ego > (csc_trigger_speed - SPEED_BUFFER)
+    # 條件 2: 彎道很近且車速達到目標的 90%
+    time_trigger = self.time_to_curve < TIME_BUFFER and v_ego > csc_trigger_speed * 0.9
+
+    early_trigger = speed_trigger or time_trigger
+    # 方向燈抑制：只有在 40 km/h 以上打方向燈時才停用 CSC（低速彎道仍需減速）
+    blinker_suppress = (sm["carState"].leftBlinker or sm["carState"].rightBlinker) and v_ego > 40 * CV.KPH_TO_MS
+    self.road_curvature_detected = early_trigger and v_ego > CRUISING_SPEED and not blinker_suppress
+
+    #if not sm["carState"].standstill:
+    self.tracking_lead = self.update_lead_status()
+#########################################
 
     self.v_cruise = self.frogpilot_vcruise.update(gps_position, now, time_validated, v_cruise, v_ego, sm, frogpilot_toggles)
 
@@ -437,7 +502,10 @@ class FrogPilotPlanner:
 ####################################################################################
   def update_lead_status(self):
     following_lead = self.lead_one.status
-    following_lead &= self.lead_one.dRel < self.model_length + STOP_DISTANCE
+#########################################
+    #following_lead &= self.lead_one.dRel < self.model_length + 2
+    #following_lead &= self.lead_one.dRel < self.model_length + STOP_DISTANCE
+#########################################
 
     self.tracking_lead_filter.update(following_lead)
     return self.tracking_lead_filter.x >= THRESHOLD
@@ -449,7 +517,7 @@ class FrogPilotPlanner:
 
     frogpilotPlan.accelerationJerk = A_CHANGE_COST * self.frogpilot_following.acceleration_jerk
     frogpilotPlan.accelerationJerkStock = A_CHANGE_COST * self.frogpilot_following.base_acceleration_jerk
-    frogpilotPlan.dangerFactor = self.frogpilot_following.danger_factor
+    #frogpilotPlan.dangerFactor = self.frogpilot_following.danger_factor
     frogpilotPlan.dangerJerk = DANGER_ZONE_COST * self.frogpilot_following.danger_jerk
     frogpilotPlan.speedJerk = J_EGO_COST * self.frogpilot_following.speed_jerk
     frogpilotPlan.speedJerkStock = J_EGO_COST * self.frogpilot_following.base_speed_jerk
@@ -458,7 +526,11 @@ class FrogPilotPlanner:
     frogpilotPlan.cscControllingSpeed = self.frogpilot_vcruise.csc_controlling_speed
     frogpilotPlan.cscSpeed = self.frogpilot_vcruise.csc_target
     frogpilotPlan.cscTraining = self.frogpilot_vcruise.csc.enable_training
-
+#########################################
+    frogpilotPlan.vscSpeed = self.frogpilot_vcruise.vsc_target
+    frogpilotPlan.vscActive = self.frogpilot_vcruise.vsc_active
+    frogpilotPlan.progressiveSpeed = self.frogpilot_vcruise.progressive_target
+#########################################
     frogpilotPlan.desiredFollowDistance = self.frogpilot_following.desired_follow_distance
 
     frogpilotPlan.experimentalMode = self.cem.experimental_mode or self.frogpilot_vcruise.slc.experimental_mode
@@ -487,6 +559,10 @@ class FrogPilotPlanner:
     frogpilotPlan.slcMapSpeedLimit = self.frogpilot_vcruise.slc.map_speed_limit
     frogpilotPlan.slcMapboxSpeedLimit = self.frogpilot_vcruise.slc.mapbox_limit
     frogpilotPlan.slcNextSpeedLimit = self.frogpilot_vcruise.slc.next_speed_limit
+#########################################
+    frogpilotPlan.slcNextSpeedLimitDistance = self.frogpilot_vcruise.slc.next_speed_limit_distance
+    frogpilotPlan.mapdSpeedLimit = params_memory.get_float("MapSpeedLimit")
+#########################################
     frogpilotPlan.slcOverriddenSpeed = self.frogpilot_vcruise.slc.overridden_speed
     frogpilotPlan.slcSpeedLimit = self.frogpilot_vcruise.slc_target
     frogpilotPlan.slcSpeedLimitOffset = self.frogpilot_vcruise.slc_offset
@@ -503,6 +579,8 @@ class FrogPilotPlanner:
     frogpilotPlan.vCruise = self.v_cruise
     #######################################################
     frogpilotPlan.speedover = self.speed_over
+    road_name = params_memory.get("RoadName", encoding="utf-8")
+    frogpilotPlan.roadName = road_name if road_name else ""
     ########################################################
     frogpilotPlan.weatherDaytime = self.frogpilot_weather.is_daytime
     frogpilotPlan.weatherId = self.frogpilot_weather.weather_id

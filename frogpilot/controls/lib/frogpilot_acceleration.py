@@ -38,6 +38,9 @@ class FrogPilotAcceleration:
   def update(self, v_ego, sm, frogpilot_toggles):
     eco_gear = sm["frogpilotCarState"].ecoGear
     sport_gear = sm["frogpilotCarState"].sportGear
+#################################
+    self.max_accel = get_max_accel_eco(v_ego)
+#################################
 
     if sm["frogpilotCarState"].trafficModeEnabled:
       self.max_accel = get_max_accel(v_ego)

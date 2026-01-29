@@ -20,6 +20,9 @@ private:
   void createKeyControl(ButtonControl *&control, const QString &label, const std::string &paramKey, const QString &prefix, const int &minLength, FrogPilotListWidget *list);
   void mousePressEvent(QMouseEvent *event);
   void updateButtons();
+  ////////////////////////////////////////////
+  void updateNavBridgeHostLabel();
+  ////////////////////////////////////////////
   void updateState(const UIState &s, const FrogPilotUIState &fs);
   void updateStep();
 
@@ -31,10 +34,15 @@ private:
 
   ButtonControl *amapKeyControl1;
   ButtonControl *amapKeyControl2;
-  FrogPilotButtonsControl *publicMapboxKeyControl;
-  FrogPilotButtonsControl *secretMapboxKeyControl;
+//////////////////////////////////////////
+  ButtonControl *navBridgeHostControl;
+  ButtonControl *publicMapboxKeyControl;
+  ButtonControl *secretMapboxKeyControl;
+//////////////////////////////////////////
   ButtonControl *setupButton;
-
+//////////////////////////////////////////
+  ParamControl *navBridgeToggle;
+//////////////////////////////////////////
   FrogPilotButtonControl *updateSpeedLimitsToggle;
 
   FrogPilotButtonsControl *searchInput;
