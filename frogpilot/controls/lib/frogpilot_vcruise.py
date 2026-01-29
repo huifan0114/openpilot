@@ -296,14 +296,14 @@ class FrogPilotVCruise:
           self.vsc_aRel_history.append(aRel)
         self.vsc_last_vRel = vRel
 
-        # 取得平滑值_original  # 使用原始定速
-          self.vsc_active = False
-          v_cruise_vsc = v_cruise_original
+        # 取得平滑值
+        dRel_smooth, vRel_smooth = self.get_vsc_smoothed()
+
         if dRel_smooth is None:
           # 數據不足，不觸發 VSC
-          self.vsc_target = v_cruise
+          self.vsc_target = v_cruise_original  # 使用原始定速
           self.vsc_active = False
-          v_cruise_vsc = v_cruise
+          v_cruise_vsc = v_cruise_original
         else:
           # 計算跟車距離底線: dRel = (0.576 × v_kph + 2.96) × 0.8
           follow_dist = min((0.576 * v_ego_kph + 2.96) * 0.8, 60.0)
