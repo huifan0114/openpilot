@@ -176,6 +176,11 @@ class FrogPilotVCruise:
 #################################
 
   def update(self, gps_position, now, time_validated, v_cruise, v_ego, sm, frogpilot_toggles):
+#################################
+    # 保存原始 v_cruise，避免各控制器之間的交叉污染
+    v_cruise_original = v_cruise
+#################################
+
     force_stop = self.frogpilot_planner.cem.stop_light_detected and sm["controlsState"].enabled and frogpilot_toggles.force_stops
     force_stop &= self.frogpilot_planner.model_stopped
     force_stop &= self.override_force_stop_timer <= 0
@@ -205,14 +210,14 @@ class FrogPilotVCruise:
 
       self.csc_controlling_speed = True
 
-      self.csc_target = min(self.csc.target, v_cruise)  # 不得超過定速上限
+      self.csc_target = min(self.csc.target, v_cruise_original)  # 使用原始定速
     else:
       # 只有當有活躍的 session 時才調用 end_curve_session（避免無效調用）
       if self.csc.curve_session_active:
         self.csc.end_curve_session()
       self.csc_controlling_speed = False
       self.csc.target_set = False
-      self.csc_target = v_cruise  # v_cruise 來自 controlsState.vCruise * KPH_TO_MS，已是 Python float
+      self.csc_target = v_cruise_original  # 使用原始定速
 
     # ========== Human Following (有 toggle 控制) ==========
     if self.frogpilot_planner.lead_one.vLead < v_ego > CRUISING_SPEED and sm["controlsState"].enabled and self.frogpilot_planner.tracking_lead and frogpilot_toggles.human_following:
@@ -220,9 +225,9 @@ class FrogPilotVCruise:
         decel_rate = (v_ego - self.frogpilot_planner.lead_one.vLead)**2 / self.frogpilot_planner.lead_one.dRel
         self.braking_target = max(v_ego - (decel_rate * DT_MDL), self.frogpilot_planner.lead_one.vLead + CRUISING_SPEED)
       else:
-        self.braking_target = v_cruise
+        self.braking_target = v_cruise_original  # 使用原始定速
     else:
-      self.braking_target = v_cruise
+      self.braking_target = v_cruise_original  # 使用原始定速
 #################################
     # Pfeiferj's Speed Limit Controller
     self.slc.frogpilot_toggles = frogpilot_toggles
@@ -242,11 +247,15 @@ class FrogPilotVCruise:
       self.slc_offset = 0
       self.slc_target = 0
 
+    # ========== Force Stop (紅燈停車) ==========
     if force_stop_enabled and not self.override_force_stop:
       self.forcing_stop |= not sm["carState"].standstill
-
       self.tracked_model_length = max(self.tracked_model_length - (v_ego * DT_MDL), 0)
-      v_cruise = min((self.tracked_model_length // PLANNER_TIME), v_cruise)
+      v_cruise_force_stop = min((self.tracked_model_length // PLANNER_TIME), v_cruise_original)
+    else:
+      self.forcing_stop = False
+      self.tracked_model_length = self.frogpilot_planner.model_length
+      v_cruise_force_stop = v_cruise_original
 
 #################################
     # ========== VSC (Vision Safety Controller) - 整合版 ==========
@@ -255,6 +264,7 @@ class FrogPilotVCruise:
     # 2. 取所有指標的最高威脅等級
     # 3. 固定百分比減速（可預測）
     # 4. VSC 規範：dist_ratio < 1.0 必須動作
+    # 5. 使用原始 v_cruise，避免被 Force Stop 污染
 
     if sm["controlsState"].enabled:
       lead = sm["radarState"].leadOne
@@ -268,8 +278,8 @@ class FrogPilotVCruise:
         self.vsc_approaching_frames = 0
         self.vsc_active = False
         self.vsc_smoothed_target = None
-        self.vsc_target = v_cruise
-        v_cruise_vsc = v_cruise
+        self.vsc_target = v_cruise_original  # 使用原始定速
+        v_cruise_vsc = v_cruise_original
       else:
         dRel = lead.dRel
         vRel = lead.vRel
@@ -286,9 +296,9 @@ class FrogPilotVCruise:
           self.vsc_aRel_history.append(aRel)
         self.vsc_last_vRel = vRel
 
-        # 取得平滑值
-        dRel_smooth, vRel_smooth = self.get_vsc_smoothed()
-
+        # 取得平滑值_original  # 使用原始定速
+          self.vsc_active = False
+          v_cruise_vsc = v_cruise_original
         if dRel_smooth is None:
           # 數據不足，不觸發 VSC
           self.vsc_target = v_cruise
@@ -343,12 +353,12 @@ class FrogPilotVCruise:
 
           else:
             # 正常：立即解除，交給 MPC
-            calculated_target = v_cruise
+            calculated_target = v_cruise_original  # 使用原始定速
             self.vsc_active = False
 
           # === 目標平滑過渡（只平滑減速，解除時立即恢復） ===
           if self.vsc_smoothed_target is None:
-            self.vsc_smoothed_target = v_cruise
+            self.vsc_smoothed_target = v_cruise_original
 
           if self.vsc_active:
             # VSC 啟動中：平滑過渡到目標（過濾視覺跳動）
@@ -366,14 +376,14 @@ class FrogPilotVCruise:
               )
             self.vsc_target = float(self.vsc_smoothed_target)
           else:
-            # VSC 解除：立即恢復 v_cruise（不延遲！）
-            self.vsc_smoothed_target = v_cruise
-            self.vsc_target = v_cruise
+            # VSC 解除：立即恢復原始定速（不延遲！）
+            self.vsc_smoothed_target = v_cruise_original
+            self.vsc_target = v_cruise_original
 
           v_cruise_vsc = self.vsc_target
     else:
-      v_cruise_vsc = v_cruise
-      self.vsc_target = v_cruise
+      v_cruise_vsc = v_cruise_original
+      self.vsc_target = v_cruise_original
       self.vsc_active = False
       self.vsc_smoothed_target = None
 
@@ -382,8 +392,8 @@ class FrogPilotVCruise:
     APPROACH_THRESHOLD = (4 if v_ego < 40 * CV.KPH_TO_MS else 5) * CV.KPH_TO_MS
     MIN_STEP_TRIGGER = 10 * CV.KPH_TO_MS
 
-    # Progressive 基於原始 v_cruise，與 VSC 獨立運作
-    v_cruise_final = v_cruise
+    # Progressive 基於原始 v_cruise，與其他控制器獨立運作
+    v_cruise_final = v_cruise_original
 
     # 計算下一個對齊到 10 的倍數的目標速度
     v_ego_kph = v_ego * CV.MS_TO_KPH
@@ -423,8 +433,12 @@ class FrogPilotVCruise:
       v_cruise_prog = self.progressive_target
 
     # ========== 最終計算 ==========
-    # 三個控制器獨立運作，取最小值
-    v_cruise = min(self.csc_target, v_cruise_prog, v_cruise_vsc)
+    # 四個控制器獨立運作，取最小值（誰要求最慢，就用誰的）
+    # 1. CSC: 彎道限速
+    # 2. Progressive: 分段加速
+    # 3. VSC: 前車安全距離
+    # 4. Force Stop: 紅燈強制停車
+    v_cruise = min(self.csc_target, v_cruise_prog, v_cruise_vsc, v_cruise_force_stop)
 #################################
 
     return v_cruise
