@@ -51,6 +51,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     {"AutoACCspeed", "  自動啟動ACC時速設定", "設定自動啟動ACC的時速條件設定.", ""},
     {"AutoACCCarAway", "  前車遠離啟動", "啟用後當前方車輛遠離會自動啟動ACC.", ""},
     {"AutoACCGreenLight", "  綠燈啟動", "啟用後當偵測到綠燈時會自動啟動ACC.", ""},
+    {"AggressiveAccelerationLearning", "  駕駛風格學習", "啟用後系統會自動學習您的駕駛加速習慣，並動態調整加速參數使其更符合您的風格.", ""},
 
     {"Roadtype", "  道路種類設定", "開啟後可依道路種類在特定條件下預設時速", ""},
     {"AutoRoadtype", "  自動道路種類設定", "開啟後可自動依道路種類在特定條件下預設時速", ""},

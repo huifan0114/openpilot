@@ -215,6 +215,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"Version", PERSISTENT},
 
 /////////////////////////////////////////////
+    // HFOP parameters
     {"AutoACC", PERSISTENT},
     {"AutoACCCarAway", PERSISTENT},
     {"AutoACCCarAwaystatus", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
@@ -281,14 +282,14 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"LanechangesoundVolume", PERSISTENT},
     {"LaneWidthRight", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
 
+    {"AggressiveAccelerationLearning", PERSISTENT},
+    {"DrivingStyleLearned", PERSISTENT},
     {"LateralAccelerationAdjustment", PERSISTENT},
     {"SimpleDashServer", PERSISTENT},
     {"SimpleDashTheme", PERSISTENT},
     {"NavBridgeEnabled", PERSISTENT},
     {"NavBridgeHost", PERSISTENT},
 
-
-    // {"TogglesUpdated", PERSISTENT},
 /////////////////////////////////////////////
 
     // FrogPilot parameters
@@ -394,7 +395,6 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"DownloadableWheels", PERSISTENT},
     {"DownloadAllModels", CLEAR_ON_MANAGER_START},
     {"DriverCamera", PERSISTENT},
-    {"DrivingStyleLearned", PERSISTENT},
     {"DynamicPathWidth", PERSISTENT},
     {"DynamicPedalsOnUI", PERSISTENT},
     {"EngageVolume", PERSISTENT},

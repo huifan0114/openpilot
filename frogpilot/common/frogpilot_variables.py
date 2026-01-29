@@ -548,6 +548,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("LateralAccelerationAdjustment", "0", 2, "0"),
   ("SimpleDashServer", "1", 0, "1"),
   ("SimpleDashTheme", "SIMPLE-DASH", 0, "SIMPLE-DASH"),
+  ("AggressiveAccelerationLearning", "1", 2, "0"),
 ########################################
 ]
 
@@ -1100,6 +1101,7 @@ class FrogPilotVariables:
 
     toggle.volt_sng = toggle.car_model == "CHEVROLET_VOLT" and (params.get_bool("VoltSNG") if tuning_level >= level["VoltSNG"] else default.get_bool("VoltSNG"))
 ###################################################################
+    toggle.aggressive_acceleration_learning = params.get_bool("AggressiveAccelerationLearning")
     toggle.auto_speeddistance = params.get_bool("AutoSpeeddistance")
     toggle.autoacc = params.get_bool("AutoACC")
     toggle.autoacc_caraway = params.get_bool("AutoACCCarAway")
