@@ -39,7 +39,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
 
   createKeyControl(amapKeyControl1, tr("Amap 金鑰 #1"), "AMapKey1", "", 39, settingsList);
   createKeyControl(amapKeyControl2, tr("Amap 金鑰 #2"), "AMapKey2", "", 39, settingsList);
-#################################
+////////////////////////
   createKeyControl(publicMapboxKeyControl, tr("Public Mapbox Key"), "MapboxPublicKey", "pk.", 80, settingsList);
   createKeyControl(secretMapboxKeyControl, tr("Secret Mapbox Key"), "MapboxSecretKey", "sk.", 80, settingsList);
 
