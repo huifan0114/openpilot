@@ -21,10 +21,26 @@ class FrogPilotVCruise:
     self.slc = SpeedLimitController()
 
 #################################
+    # CSC (Curve Speed Controller) state
+    self.csc_controlling_speed = False
+    self.csc_target = 0
+
+    # SLC (Speed Limit Controller) state  
+    self.slc_offset = 0
+    self.slc_target = 0
+
     # Progressive speed controller
     self.progressive_target = 0
+    
+    # Force stop
     self.force_stop_timer = 0
     self.tracked_model_length = 0
+    
+    # Human Following
+    self.braking_target = 0
+
+    # VSC (Vision Safety Controller) target
+    self.vsc_target = 0
 #################################
 
     self.forcing_stop = False
