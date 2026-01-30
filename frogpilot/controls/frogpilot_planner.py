@@ -162,13 +162,13 @@ class FrogPilotPlanner:
       self.lane_width_right = calculate_lane_width(sm["modelV2"].laneLines[3], sm["modelV2"].laneLines[2], sm["modelV2"].roadEdges[1])
       ###################################
       # 寫入右邊路徑寬度到 params_memory 供 C++ 端使用
-      self.params_memory.put_float("LaneWidthRight", self.lane_width_right)
+      # self.params_memory.put_float("LaneWidthRight", self.lane_width_right)
       ###################################
     else:
       self.lane_width_left = 0
       self.lane_width_right = 0
       ###################################
-      self.params_memory.put_float("LaneWidthRight", 0.0)
+      # self.params_memory.put_float("LaneWidthRight", 0.0)
       ###################################
 
     self.lateral_acceleration = v_ego**2 * sm["controlsState"].curvature

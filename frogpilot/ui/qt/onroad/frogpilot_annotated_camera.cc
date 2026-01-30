@@ -850,7 +850,7 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
 
     // 讀取右邊路徑寬度（單位：公尺）- 需要傳入 frogpilotPlan 參數
     // 暫時從 params_memory 讀取，需確保 Python 端有寫入
-    float laneWidthRight = params_memory.getFloat("LaneWidthRight");
+    // float laneWidthRight = params_memory.getFloat("LaneWidthRight");
 
     // 根據道路名稱分類 + 同時設定優先序
     if (roadName.contains("高速") || roadName.contains("國道")) {
@@ -868,7 +868,8 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
       priority1 = "Map Data";
       priority2 = "Navigation";
       priority3 = "Dashboard";
-    } else if (roadName.contains("街") || roadName.contains("巷") || roadName.contains("弄") || laneWidthRight < 0.5f) {
+    } else if (roadName.contains("街") || roadName.contains("巷") || roadName.contains("弄") || ) {
+    // } else if (roadName.contains("街") || roadName.contains("巷") || roadName.contains("弄") || laneWidthRight < 0.5f) {
       // 加入路徑寬度判斷：右邊路徑寬度小於 1 公尺時也判定為街道巷弄
       newRoadProfile = 1; // 街道巷弄
       priority1 = "Map Data";
