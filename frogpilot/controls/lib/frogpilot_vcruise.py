@@ -388,7 +388,7 @@ class FrogPilotVCruise:
       self.vsc_smoothed_target = None
 
     # ========== Progressive Speed ==========
-    STEP_SIZE = (10 if v_ego < 60 * CV.KPH_TO_MS else 20) * CV.KPH_TO_MS
+    STEP_SIZE = (20 if v_ego < 60 * CV.KPH_TO_MS else 30) * CV.KPH_TO_MS
     APPROACH_THRESHOLD = (4 if v_ego < 40 * CV.KPH_TO_MS else 5) * CV.KPH_TO_MS
     MIN_STEP_TRIGGER = 10 * CV.KPH_TO_MS
 
