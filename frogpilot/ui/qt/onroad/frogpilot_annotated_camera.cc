@@ -1288,7 +1288,7 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   int roadProfile = params.getInt("RoadtypeProfile");
   std::map<int, QString> roadProfileMap = {
     {0, "未選道路"},
-    {1, "慢街巷弄"},
+    {1, "街道巷弄"},
     {2, "一般平面"},
     {3, "快速道路"},
     {4, "高速公路"},
