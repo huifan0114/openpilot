@@ -235,7 +235,7 @@ class FrogPilotPlanner:
     # ---------- Stopmark 參數 ----------
     STOPMARK_MIN_SPEED = 10.0
     STOPMARK_MIN_DISTANCE = 50.0  # 🔧 優化：從 10m 擴大到 50m，給予更大的有效減速範圍
-    STOPMARK_MAX_DISTANCE = 500.0  # 🔧 優化：從 300m 擴大到 500m，提前更早開始減速
+    STOPMARK_MAX_DISTANCE = 600.0  # 🔧 優化：從 300m 擴大到 500m，提前更早開始減速
 
     # =========================================================
     # 統一速限更新函數（避免重複代碼和邏輯混亂）
@@ -348,58 +348,54 @@ class FrogPilotPlanner:
 
       # 只有當 StopmarkActive 穩定維持超過閾值時才執行邏輯
       if self.stopmark_active_timer >= STOPMARK_STABLE_TIME:
-        prev_stopmark_active = self.stopmark_active_prev
-        if stopmark_active != prev_stopmark_active:
-          self.stopmark_active_prev = stopmark_active
+        # 第一次進入 Stopmark（初始化原始速限）
+        if stopmark_active and not self.params_memory.get_bool("StopmarkApplied"):
+          speed_to_save = currentSpeedLimit
+          if not frogpilot_toggles.navspeed or detect_sl_raw == 0:
+            speed_to_save = min(currentSpeedLimit, 60)
 
-          # 第一次進入 Stopmark（穩定後）
-          if not self.params_memory.get_bool("StopmarkApplied"):
-            speed_to_save = currentSpeedLimit
-            if not frogpilot_toggles.navspeed or detect_sl_raw == 0:
-              speed_to_save = min(currentSpeedLimit, 60)
+          self.params_memory.put_int("OriginalKeySetSpeed", speed_to_save)
+          self.params_memory.put_bool("StopmarkApplied", True)
+          self.stopmark_active_prev = True
 
-            self.params_memory.put_int("OriginalKeySetSpeed", speed_to_save)
-            self.params_memory.put_bool("StopmarkApplied", True)
-        else:
-          # 狀態未改變，繼續漸進式降速（需 StopmarkActive 且已套用）
-          if stopmark_active and self.params_memory.get_bool("StopmarkApplied"):
-            # 邊界檢查：stopDistance 必須有效
-            if stopDistance <= STOPMARK_MIN_DISTANCE:
-              target_speed_limit = STOPMARK_MIN_SPEED
-            else:
-              # 計算目標降速速限
-              original_speed = self.params_memory.get_int("OriginalKeySetSpeed")
-              if original_speed <= 0:
-                original_speed = STOPMARK_MIN_SPEED
+        # 持續執行降速邏輯（只要 stopmark_active 為 True 且已套用）
+        if stopmark_active and self.params_memory.get_bool("StopmarkApplied"):
+          # 邊界檢查：stopDistance 必須有效
+          if stopDistance <= STOPMARK_MIN_DISTANCE:
+            target_speed_limit = STOPMARK_MIN_SPEED
+          else:
+            # 計算目標降速速限
+            original_speed = self.params_memory.get_int("OriginalKeySetSpeed")
+            if original_speed <= 0:
+              original_speed = STOPMARK_MIN_SPEED
 
-# 🔧 優化：非線性減速曲線（平方根函數）
-              # 遠距離（靠近 500m）：減速緩和，保持舒適性
-              # 近距離（靠近 50m）：積極減速，確保安全停車
-              # 使用平方根讓曲線更符合人類駕駛習慣
-              effective_distance_range = STOPMARK_MAX_DISTANCE - STOPMARK_MIN_DISTANCE
-              distance_ratio = max(0, min(1, (stopDistance - STOPMARK_MIN_DISTANCE) / effective_distance_range))
+            # 🔧 優化：非線性減速曲線（平方根函數）
+            # 遠距離（靠近 600m）：減速緩和，保持舒適性
+            # 近距離（靠近 50m）：積極減速，確保安全停車
+            # 使用平方根讓曲線更符合人類駕駛習慣
+            effective_distance_range = STOPMARK_MAX_DISTANCE - STOPMARK_MIN_DISTANCE
+            distance_ratio = max(0, min(1, (stopDistance - STOPMARK_MIN_DISTANCE) / effective_distance_range))
 
-              # 平方根曲線：讓遠距離下降幅度小，近距離下降幅度大
-              smooth_ratio = math.sqrt(distance_ratio)
-              speed_reduction_range = original_speed - STOPMARK_MIN_SPEED
-              target_stopmark_speed = STOPMARK_MIN_SPEED + smooth_ratio * speed_reduction_range
+            # 平方根曲線：讓遠距離下降幅度小，近距離下降幅度大
+            smooth_ratio = math.sqrt(distance_ratio)
+            speed_reduction_range = original_speed - STOPMARK_MIN_SPEED
+            target_stopmark_speed = STOPMARK_MIN_SPEED + smooth_ratio * speed_reduction_range
 
-              target_speed_limit = max(round(target_stopmark_speed), STOPMARK_MIN_SPEED)
+            target_speed_limit = max(round(target_stopmark_speed), STOPMARK_MIN_SPEED)
 
-            # 🔧 改為直接更新到目標速限（無固定降速限制，平滑由曲線決定）
-            if currentSpeedLimit > target_speed_limit and (now.timestamp() - self.stopmark_last_update_time) >= STOPMARK_UPDATE_INTERVAL:
-              newSpeedLimit = target_speed_limit  # 直接更新，無逐步限制
-              if newSpeedLimit != currentSpeedLimit:
-                self.params_memory.put_int("KeySetSpeed", newSpeedLimit)
-                self.params_memory.put_bool("KeyChanged", True)
-                self.stopmark_last_update_time = now.timestamp()
+          # 🔧 改為直接更新到目標速限（無固定降速限制，平滑由曲線決定）
+          if currentSpeedLimit > target_speed_limit and (now.timestamp() - self.stopmark_last_update_time) >= STOPMARK_UPDATE_INTERVAL:
+            newSpeedLimit = target_speed_limit  # 直接更新，無逐步限制
+            if newSpeedLimit != currentSpeedLimit:
+              self.params_memory.put_int("KeySetSpeed", newSpeedLimit)
+              self.params_memory.put_bool("KeyChanged", True)
+              self.stopmark_last_update_time = now.timestamp()
 
       # 結束偵測（狀態轉換時觸發恢復流程）
-      prev_stopmark_active = self.stopmark_active_prev
-      if prev_stopmark_active and not stopmark_active:
+      if self.stopmark_active_prev and not stopmark_active:
         self.params_memory.put_bool("StopmarkRecovering", True)
         self.params_memory.put_bool("StopmarkActive", False)
-        self.stopmark_active_prev = stopmark_active
+        self.stopmark_active_prev = False
         self.stopmark_active_timer = 0.0  # 重置計時器
 
     # =========================================================
