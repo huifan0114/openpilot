@@ -234,8 +234,8 @@ class FrogPilotPlanner:
     PROFILE_LIMITS = {1: (40, 59), 2: (60, 89), 3: (90, 119), 4: (120, float("inf"))}
     # ---------- Stopmark 參數 ----------
     STOPMARK_MIN_SPEED = 10.0
-    STOPMARK_MIN_DISTANCE = 10.0
-    STOPMARK_MAX_DISTANCE = 300.0
+    STOPMARK_MIN_DISTANCE = 50.0  # 🔧 優化：從 10m 擴大到 50m，給予更大的有效減速範圍
+    STOPMARK_MAX_DISTANCE = 500.0  # 🔧 優化：從 300m 擴大到 500m，提前更早開始減速
 
     # =========================================================
     # 統一速限更新函數（避免重複代碼和邏輯混亂）
@@ -372,34 +372,23 @@ class FrogPilotPlanner:
               if original_speed <= 0:
                 original_speed = STOPMARK_MIN_SPEED
 
-              # 🔧 優化：使用分段式非線性減速曲線
-              # 遠距離（>150m）：輕微減速，保持舒適性
-              # 中距離（50-150m）：平方根曲線減速，過渡平滑
-              # 近距離（<50m）：更積極減速，確保安全停車
-              if stopDistance > 150:
-                # 遠距離：保持較高速度（僅降 20%）
-                distance_ratio = (stopDistance - 150) / (STOPMARK_MAX_DISTANCE - 150)
-                target_stopmark_speed = original_speed * (0.8 + 0.2 * distance_ratio)
-              elif stopDistance > 50:
-                # 中距離：平方根曲線（更符合人類駕駛習慣）
-                distance_ratio = (stopDistance - 50) / (150 - 50)
-                smooth_ratio = math.sqrt(distance_ratio)  # 平方根讓減速更平滑
-                target_stopmark_speed = STOPMARK_MIN_SPEED * 2 + smooth_ratio * (original_speed * 0.8 - STOPMARK_MIN_SPEED * 2)
-              else:
-                # 近距離：基於物理公式的安全減速
-                # 使用舒適減速度 (-2.5 m/s²) 計算可達速度
-                COMFORTABLE_DECEL = 2.5  # m/s² (舒適減速度)
-                safe_speed_ms = math.sqrt(max(0, 2 * COMFORTABLE_DECEL * max(stopDistance - STOPMARK_MIN_DISTANCE, 0)))
-                safe_speed_kph = safe_speed_ms * 3.6
-                target_stopmark_speed = max(safe_speed_kph, STOPMARK_MIN_SPEED)
+# 🔧 優化：非線性減速曲線（平方根函數）
+              # 遠距離（靠近 500m）：減速緩和，保持舒適性
+              # 近距離（靠近 50m）：積極減速，確保安全停車
+              # 使用平方根讓曲線更符合人類駕駛習慣
+              effective_distance_range = STOPMARK_MAX_DISTANCE - STOPMARK_MIN_DISTANCE
+              distance_ratio = max(0, min(1, (stopDistance - STOPMARK_MIN_DISTANCE) / effective_distance_range))
+
+              # 平方根曲線：讓遠距離下降幅度小，近距離下降幅度大
+              smooth_ratio = math.sqrt(distance_ratio)
+              speed_reduction_range = original_speed - STOPMARK_MIN_SPEED
+              target_stopmark_speed = STOPMARK_MIN_SPEED + smooth_ratio * speed_reduction_range
 
               target_speed_limit = max(round(target_stopmark_speed), STOPMARK_MIN_SPEED)
 
-            # 🔧 改為漸進式降速（每次最多降 10 km/h，加快反應）
-            MAX_SPEED_DECREASE = 5  # 每個週期最多降低 5 km/h
-
+            # 🔧 改為直接更新到目標速限（無固定降速限制，平滑由曲線決定）
             if currentSpeedLimit > target_speed_limit and (now.timestamp() - self.stopmark_last_update_time) >= STOPMARK_UPDATE_INTERVAL:
-              newSpeedLimit = max(currentSpeedLimit - MAX_SPEED_DECREASE, target_speed_limit)
+              newSpeedLimit = target_speed_limit  # 直接更新，無逐步限制
               if newSpeedLimit != currentSpeedLimit:
                 self.params_memory.put_int("KeySetSpeed", newSpeedLimit)
                 self.params_memory.put_bool("KeyChanged", True)
