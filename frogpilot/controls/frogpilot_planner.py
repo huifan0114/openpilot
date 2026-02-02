@@ -233,7 +233,7 @@ class FrogPilotPlanner:
     # ---------- Roadtype Profile 速限建議參數 ----------
     PROFILE_LIMITS = {1: (40, 59), 2: (60, 89), 3: (90, 119), 4: (120, float("inf"))}
     # ---------- Stopmark 參數 ----------
-    STOPMARK_MIN_SPEED = detect_sl×0.5
+    STOPMARK_MIN_SPEED = detect_sl*0.5
     STOPMARK_MIN_DISTANCE = 50.0  # 🔧 優化：從 10m 擴大到 50m，給予更大的有效減速範圍
     STOPMARK_MAX_DISTANCE = 600.0  # 🔧 優化：從 300m 擴大到 500m，提前更早開始減速
 
