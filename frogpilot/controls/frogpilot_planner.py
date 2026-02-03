@@ -232,10 +232,8 @@ class FrogPilotPlanner:
 
     # ---------- Roadtype Profile 速限建議參數 ----------
     PROFILE_LIMITS = {1: (40, 59), 2: (60, 89), 3: (90, 119), 4: (120, float("inf"))}
-    # ---------- Stopmark 參數 ----------
-    STOPMARK_MIN_SPEED = detect_sl*0.5
-    STOPMARK_MIN_DISTANCE = 50.0  # 🔧 優化：從 10m 擴大到 50m，給予更大的有效減速範圍
-    STOPMARK_MAX_DISTANCE = 600.0  # 🔧 優化：從 300m 擴大到 500m，提前更早開始減速
+
+
 
     # =========================================================
     # 統一速限更新函數（避免重複代碼和邏輯混亂）
@@ -329,6 +327,23 @@ class FrogPilotPlanner:
             # 若當前速限不在該Profile的範圍內，則更新為該Profile的最小速限
             if not (min_speed <= current_setspeed < max_speed):
               update_speed_limit(min_speed, force_update=True)
+
+    # ---------- Stopmark 參數 ----------
+    # 以 KeySetSpeed 與 slc.target(換算 km/h) 取較小者為基準，取其 50%
+    # 若兩者皆無有效值，基準為 30 km/h
+    key_set_speed_kph = int(self.params_memory.get_int("KeySetSpeed") or 0)
+
+    slc_target_kph = 0
+    if self.frogpilot_vcruise.slc.target > 0:
+      slc_target_kph = int(round(self.frogpilot_vcruise.slc.target * 3.6))
+
+    candidates = [s for s in (key_set_speed_kph, slc_target_kph) if s > 0]
+    base_speed_kph = min(candidates) if candidates else 30
+
+    STOPMARK_MIN_SPEED = max(30, int(round(base_speed_kph * 0.5)))
+
+    STOPMARK_MIN_DISTANCE = 50.0  # 🔧 優化：從 10m 擴大到 50m，給予更大的有效減速範圍
+    STOPMARK_MAX_DISTANCE = 600.0  # 🔧 優化：從 300m 擴大到 500m，提前更早開始減速
     # =========================================================
     # Stopmark 防抖與狀態管理（快速反應+平滑執行）
     # =========================================================
