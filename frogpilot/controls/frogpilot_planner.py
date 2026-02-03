@@ -330,12 +330,16 @@ class FrogPilotPlanner:
 
     # ---------- Stopmark 參數 ----------
     # 以 KeySetSpeed 與 slc.target(換算 km/h) 取較小者為基準，取其 50%
+    # 優先順序：slcOverriddenSpeed > slcSpeedLimit > slc.target
     # 若兩者皆無有效值，基準為 30 km/h
     key_set_speed_kph = int(self.params_memory.get_int("KeySetSpeed") or 0)
 
+    # 比照 UI 層的優先順序邏輯
     slc_target_kph = 0
-    if self.frogpilot_vcruise.slc.target > 0:
-      slc_target_kph = int(round(self.frogpilot_vcruise.slc.target * 3.6))
+    if self.frogpilot_vcruise.slc.overridden_speed != 0:
+      slc_target_kph = int(self.frogpilot_vcruise.slc.overridden_speed * 3.6)
+    else:
+      slc_target_kph = detect_sl_raw
 
     candidates = [s for s in (key_set_speed_kph, slc_target_kph) if s > 0]
     base_speed_kph = min(candidates) if candidates else 30
