@@ -73,6 +73,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
     // {"NavReminder", "  導航語音", "開啟後若使用道路導航時會播報轉彎語音訊息.", ""},
     {"speedoverreminder", "  超速提醒", "開啟後若當下速度高於圖資速限會發出提醒.", ""},
     {"speedreminderreset", "  超速重設速限", "開啟後若當下速度高於圖資速限會強制重設速限.", ""},
+    {"ButtonPressProtectTime", "  按鈕操作保護期", "設定用戶按方向盤按鈕調整速限後的保護時間，防止自動系統立即覆蓋用戶的手動調整。", ""},
 
     {"Dooropen", "  車門開啟", "開啟後在引擎啟動狀態下駕駛車門開啟或後車箱未關閉時會發出提醒.", ""},
     {"DriverdoorOpen", "  駕駛車門", "開啟後在引擎啟動狀態下駕駛車門開啟時會發出提醒.", ""},
@@ -136,6 +137,9 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
         hfopLayout->setCurrentWidget(NavspeedPanel);
       });
       hfopcontrolsToggle = NavspeedToggle;
+
+    } else if (param == "ButtonPressProtectTime") {
+      hfopcontrolsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 30, 300, "秒", std::map<int, QString>(), 5);
 
     } else if (param == "Dooropen") {
       FrogPilotManageControl *DooropenToggle = new FrogPilotManageControl(param, title, desc, icon);
@@ -282,6 +286,7 @@ void FrogPilotHFOPPanel::updateToggles() {
         // toggles["NavReminder"]->setVisible(navspeedEnabled);
         toggles["speedoverreminder"]->setVisible(navspeedEnabled);
         toggles["speedreminderreset"]->setVisible(navspeedEnabled);
+        toggles["ButtonPressProtectTime"]->setVisible(navspeedEnabled);
 
       } else if (key == "Dooropen") {
         bool dooropenEnabled = params.getBool("Dooropen");
