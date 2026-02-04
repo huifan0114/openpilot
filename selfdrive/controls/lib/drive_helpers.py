@@ -48,8 +48,8 @@ CRUISE_INTERVAL_SIGN = {
   ButtonType.decelCruise: -1,
 }
 
-# 用戶按鈕操作保護期（秒）- 預設值，會從參數中讀取
-BUTTON_PRESS_PROTECT_TIME = 30.0
+# 用戶按鈕操作保護期（分鐘）- 預設值，會從參數中讀取
+BUTTON_PRESS_PROTECT_TIME = 0.5
 
 class VCruiseHelper:
   def __init__(self, CP):
@@ -232,10 +232,11 @@ class VCruiseHelper:
 
   def is_button_protected(self):
     """檢查是否在用戶按鈕操作的保護期內（此期間自動速限不應覆蓋用戶設定）"""
-    # 從參數中動態讀取保護時間設定（單位：秒），預設 5 秒
-    protect_time = self.params_memory.get_int("ButtonPressProtectTime") or BUTTON_PRESS_PROTECT_TIME
+    # 從參數中動態讀取保護時間設定（單位：分鐘），預設 0.5 分鐘（30秒）
+    protect_time_min = self.params_memory.get_int("ButtonPressProtectTime") or BUTTON_PRESS_PROTECT_TIME
+    protect_time_sec = protect_time_min * 60  # 轉換為秒
     elapsed = time.time() - self.last_button_press_time
-    return elapsed < protect_time
+    return elapsed < protect_time_sec
 
 
 def apply_deadzone(error, deadzone):
