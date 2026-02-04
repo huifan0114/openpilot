@@ -278,7 +278,8 @@ class FrogPilotPlanner:
 
         # 🔧 優化：使用統一函數處理速限更新
         if has_map_or_nav_sl:
-          update_speed_limit(detect_sl_raw, force_update=True)
+           adjusted_sl = int(round(detect_sl_raw * 1.1))  # 導航/地圖速限自動 +10%
+           update_speed_limit(adjusted_sl, force_update=True)
         else:
           # 使用 profile 兜底
           current_setspeed = self.params_memory.get_int("KeySetSpeed")
@@ -293,7 +294,8 @@ class FrogPilotPlanner:
           if key_set_speed > 0:
             # 避免拿過期的 detect_speedlimit 來放大路名建議
             if has_map_or_nav_sl:
-              key_set_speed = min(key_set_speed, detect_sl_raw)
+               adjusted_sl = int(round(detect_sl_raw * 1.1))
+               key_set_speed = min(key_set_speed, adjusted_sl)
             update_speed_limit(key_set_speed, force_update=True)
 
     # =========================================================
@@ -317,7 +319,8 @@ class FrogPilotPlanner:
         # 道路變更時的速限更新邏輯（優先順序：導航速限 > Profile速限）
         # 第一優先：有效導航速限則優先使用
         if frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation"):
-          update_speed_limit(detect_sl_raw, force_update=True)
+           adjusted_sl = int(round(detect_sl_raw * 1.1))
+           update_speed_limit(adjusted_sl, force_update=True)
         else:
           # 第二優先：根據 RoadtypeProfile 設定速限（即使ACC啟動也執行）
           if current_roadtype_profile != 0 and current_roadtype_profile in PROFILE_LIMITS:
@@ -426,7 +429,7 @@ class FrogPilotPlanner:
 
         # 🔧 優化：優先使用最新的導航速限
         if frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation"):
-            final_speed = detect_sl_raw
+             final_speed = int(round(detect_sl_raw * 1.1))
         # 備選方案：若保存的速限無效，使用當前 Profile 速限
         elif final_speed <= 0:
           current_roadtype_profile = self.params.get_int("RoadtypeProfile")
@@ -450,7 +453,8 @@ class FrogPilotPlanner:
       if not is_stopmark_active:
         # 只在速限真正改變時才更新
         if detect_sl > 0 and detect_sl != self.detect_speed_prev:
-          update_speed_limit(detect_sl)
+           adjusted_sl = int(round(detect_sl * 1.1))
+           update_speed_limit(adjusted_sl)
         elif detect_sl == 0 and self.detect_speed_prev != 0:
           # 速限消失時重置
           self.detect_speed_prev = 0

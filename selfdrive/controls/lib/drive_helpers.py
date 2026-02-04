@@ -126,42 +126,14 @@ class VCruiseHelper:
       if key_changed:
         self.v_cruise_kph = self.params_memory.get_int('KeySetSpeed')
       elif speed_limit_changed:
-        # DetectSpeedLimit should be raw kph (no +10% applied in planner)
-        raw_sl_kph = self.params_memory.get_int('DetectSpeedLimit')
-
-        # 若收到的值看起來已經含 +10%，將其還原為原始速限，避免累積放大
-        if raw_sl_kph > 0 and self.last_raw_speed_limit > 0:
-          if abs(raw_sl_kph - int(self.last_raw_speed_limit * 1.1)) <= 1:
-            raw_sl_kph = self.last_raw_speed_limit
-
-        # 應用 +10% 寬容度並 clamp 到有效範圍
-        self.v_cruise_kph = int(clip(raw_sl_kph * 1.1, 40, 120))
-
-        # 更新 KeySetSpeed 作為新的基準值
-        self.params_memory.put_int('KeySetSpeed', self.v_cruise_kph)
-
-        # 記錄本次使用的原始速限
-        if raw_sl_kph > 0:
-          self.last_raw_speed_limit = raw_sl_kph
+        # 由 planner 決定是否套用 +10%，此處直接採用 KeySetSpeed
+        self.v_cruise_kph = self.params_memory.get_int('KeySetSpeed')
 
       # 同時清除兩個標誌，防止下次誤觸發（即使只有其中一個被處理）
       if key_changed or speed_limit_changed:
         self.params_memory.put_bool('KeyChanged', False)
         self.params_memory.put_bool('SpeedLimitChanged', False)
-
-      # if self.params_memory.get_bool('KeyChanged'):
-      #   self.v_cruise_kph = self.params_memory.get_int('KeySetSpeed')
-      #   self.params_memory.put_bool('KeyChanged', False)
-      # elif self.params_memory.get_bool('SpeedLimitChanged'):
-      #   self.v_cruise_kph = int(self.params_memory.get_int('DetectSpeedLimit')*1.1)
-      #   if self.v_cruise_kph > 120:
-      #     self.v_cruise_kph= 120
-      #   elif  self.v_cruise_kph < 40:
-      #     self.v_cruise_kph= 40
-      #   self.params_memory.put_int('KeySetSpeed', self.v_cruise_kph)
-      #   self.params_memory.put_bool('SpeedLimitChanged', False)
-      #   self.params_memory.put_bool('KeyChanged', False)
-########################################################################################
+###################################################################################################
       return
 
 ################################################
