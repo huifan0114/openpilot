@@ -427,7 +427,13 @@ class FrogPilotPlanner:
 
           # 🔧 改為直接更新到目標速限（無固定降速限制，平滑由曲線決定）
           if currentSpeedLimit > target_speed_limit and (now.timestamp() - self.stopmark_last_update_time) >= STOPMARK_UPDATE_INTERVAL:
-            newSpeedLimit = target_speed_limit  # 直接更新，無逐步限制
+             # 平滑限制：每秒最多降 5 km/h，避免急煞
+             MAX_STOPMARK_DROP_PER_SEC = 5  # km/h per second
+             dt = (now.timestamp() - self.stopmark_last_update_time) if self.stopmark_last_update_time > 0 else STOPMARK_UPDATE_INTERVAL
+             dt = max(0.05, min(1.0, dt))  # 夾在 50ms~1s，避免異常大步長
+             max_drop = int(round(MAX_STOPMARK_DROP_PER_SEC * dt))
+             allowed_min = max(0, currentSpeedLimit - max_drop)
+             newSpeedLimit = max(target_speed_limit, allowed_min)
             if newSpeedLimit != currentSpeedLimit:
               self.params_memory.put_int("KeySetSpeed", newSpeedLimit)
               self.params_memory.put_bool("KeyChanged", True)
