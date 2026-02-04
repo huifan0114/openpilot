@@ -231,9 +231,7 @@ class FrogPilotPlanner:
     slc_source = self.frogpilot_vcruise.slc.source
 
     # ---------- Roadtype Profile 速限建議參數 ----------
-    PROFILE_LIMITS = {1: (40, 59), 2: (60, 89), 3: (90, 119), 4: (120, float("inf"))}
-
-
+    PROFILE_LIMITS = {1: (30, 45), 2: (50, 77), 3: (80, 99), 4: (120, float("inf"))}
 
     # =========================================================
     # 統一速限更新函數（避免重複代碼和邏輯混亂）
@@ -271,7 +269,6 @@ class FrogPilotPlanner:
       if auto_acc_pass or autoacc_caraway_status == 1 or autoacc_greenlight_status == 1:
         has_map_or_nav_sl = frogpilot_toggles.navspeed and detect_sl_raw > 0 and slc_source in ("Map Data", "Navigation")
         self.params_memory.put_bool("KeyResume", True)
-        self.params_memory.put_bool("KeyChanged", True)
         self.params_memory.put_int("AutoACCCarAwaystatus", 0)
         self.params_memory.put_int("AutoACCGreenLightstatus", 0)
         self.params_memory.put_bool("StopmarkApplied", False)
@@ -329,7 +326,30 @@ class FrogPilotPlanner:
 
             # 若當前速限不在該Profile的範圍內，則更新為該Profile的最小速限
             if not (min_speed <= current_setspeed < max_speed):
-              update_speed_limit(min_speed, force_update=True)
+              final_speed = min_speed
+              # 平滑過渡：高速降級/速限降低時限制每秒最多降 10 km/h，避免急煞
+              try:
+                prev_profile = self.previous_roadtype_profile
+              except AttributeError:
+                prev_profile = self.params.get_int("RoadtypeProfile")
+              curr_profile = self.params.get_int("RoadtypeProfile")
+
+              now_ts = now if isinstance(now, (int, float)) else time.time()
+              if not hasattr(self, "last_speed_update_ts"):
+                self.last_speed_update_ts = now_ts
+              dt = max(0.05, min(1.0, now_ts - self.last_speed_update_ts))
+
+              is_highway_downgrade = (prev_profile == 4 and curr_profile in (2, 3))
+              target_lower_than_current = (final_speed < current_setspeed)
+              if is_highway_downgrade or target_lower_than_current:
+                max_drop_per_sec = 5
+                max_drop = int(round(max_drop_per_sec * dt))
+                allowed_min = max(0, current_setspeed - max_drop)
+                if final_speed < allowed_min:
+                  final_speed = allowed_min
+
+              self.last_speed_update_ts = now_ts
+              update_speed_limit(final_speed, force_update=True)
 
     # ---------- Stopmark 參數 ----------
     # 以 KeySetSpeed 與 slc.target(換算 km/h) 取較小者為基準，取其 50%
@@ -439,7 +459,10 @@ class FrogPilotPlanner:
 
         # 使用統一更新函數
         if final_speed > 0:
-          update_speed_limit(final_speed, force_update=True)
+          # Stopmark 恢復只允許提高速限，不降低
+          current_setspeed = self.params_memory.get_int("KeySetSpeed")
+          if final_speed > current_setspeed:
+            update_speed_limit(final_speed, force_update=True)
 
         # 清除 Stopmark 狀態
         self.params_memory.put_bool("StopmarkApplied", False)
