@@ -1,6 +1,7 @@
 7#!/usr/bin/env python3
 import json
 import math
+import time
 
 #################################
 from cereal import car,log
@@ -308,9 +309,11 @@ class FrogPilotPlanner:
     if road_changed:
       # 🔧 優化：檢查 Stopmark 狀態，避免與紅燈減速衝突
       is_stopmark_active = self.params_memory.get_bool("StopmarkApplied") or self.params_memory.get_bool("StopmarkRecovering")
+      # 🔧 優化：檢查用戶按鈕保護狀態，避免覆蓋用戶手動調整
+      is_button_protected = hasattr(self, 'frogpilot_vcruise') and self.frogpilot_vcruise.is_button_protected()
 
-      # 只有在 Stopmark 未激活時才更新歷史紀錄和速限
-      if not is_stopmark_active:
+      # 只有在 Stopmark 未激活且無按鈕保護時才更新歷史紀錄和速限
+      if not is_stopmark_active and not is_button_protected:
         self.previous_road_name = current_road_name
         self.previous_roadtype_profile = current_roadtype_profile
         # 道路變更時的速限更新邏輯（優先順序：導航速限 > Profile速限）
@@ -434,10 +437,10 @@ class FrogPilotPlanner:
              max_drop = int(round(MAX_STOPMARK_DROP_PER_SEC * dt))
              allowed_min = max(0, currentSpeedLimit - max_drop)
              newSpeedLimit = max(target_speed_limit, allowed_min)
-            if newSpeedLimit != currentSpeedLimit:
-              self.params_memory.put_int("KeySetSpeed", newSpeedLimit)
-              self.params_memory.put_bool("KeyChanged", True)
-              self.stopmark_last_update_time = now.timestamp()
+             if newSpeedLimit != currentSpeedLimit:
+               self.params_memory.put_int("KeySetSpeed", newSpeedLimit)
+               self.params_memory.put_bool("KeyChanged", True)
+               self.stopmark_last_update_time = now.timestamp()
 
       # 結束偵測（狀態轉換時觸發恢復流程）
       if self.stopmark_active_prev and not stopmark_active:
@@ -478,8 +481,10 @@ class FrogPilotPlanner:
     if frogpilot_toggles.navspeed and v_ego_kph > 5:
       # 排除 Stopmark 相關狀態（避免衝突）
       is_stopmark_active = self.params_memory.get_bool("StopmarkApplied") or self.params_memory.get_bool("StopmarkRecovering")
+      # 🔧 優化：檢查用戶按鈕保護狀態，避免覆蓋用戶手動調整
+      is_button_protected = hasattr(self, 'frogpilot_vcruise') and self.frogpilot_vcruise.is_button_protected()
 
-      if not is_stopmark_active:
+      if not is_stopmark_active and not is_button_protected:
         # 只在速限真正改變時才更新
         if detect_sl > 0 and detect_sl != self.detect_speed_prev:
            adjusted_sl = int(round(detect_sl * 1.1))
