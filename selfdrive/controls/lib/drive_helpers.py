@@ -1,6 +1,6 @@
 import math
 import numpy as np
-import time
+# import time
 
 from cereal import car, log
 from openpilot.common.conversions import Conversions as CV
@@ -49,7 +49,7 @@ CRUISE_INTERVAL_SIGN = {
 }
 
 # 用戶按鈕操作保護期（分鐘）- 預設值，會從參數中讀取
-BUTTON_PRESS_PROTECT_TIME = 0.5
+# BUTTON_PRESS_PROTECT_TIME = 0.5
 
 class VCruiseHelper:
   def __init__(self, CP):
@@ -63,9 +63,9 @@ class VCruiseHelper:
 ############################################
     self.params_memory = Params("/dev/shm/params")
     # 記錄最後一次的原始速限，避免重複對已加成的值再套 +10%
-    self.last_raw_speed_limit = 0
+    # self.last_raw_speed_limit = 0
     # 記錄用戶最後一次按鈕操作的時間（用於保護自動更新的干擾）
-    self.last_button_press_time = 0
+    # self.last_button_press_time = 0
 ############################################
 
   @property
@@ -198,8 +198,8 @@ class VCruiseHelper:
         self.button_timers[b.type.raw] = 1 if b.pressed else 0
         self.button_change_states[b.type.raw] = {"standstill": CS.cruiseState.standstill, "enabled": enabled}
         # 記錄按鈕按下時間（用於保護自動更新的干擾）
-        if b.pressed:
-          self.last_button_press_time = time.time()
+        # if b.pressed:
+        #   self.last_button_press_time = time.time()
 
   def initialize_v_cruise(self, CS, experimental_mode: bool, desired_speed_limit, frogpilot_toggles) -> None:
     # initializing is handled by the PCM
@@ -230,13 +230,13 @@ class VCruiseHelper:
     self.params_memory.put_bool('KeyChanged', False)
 ###################################################################################################
 
-  def is_button_protected(self):
-    """檢查是否在用戶按鈕操作的保護期內（此期間自動速限不應覆蓋用戶設定）"""
-    # 從參數中動態讀取保護時間設定（單位：分鐘），預設 0.5 分鐘（30秒）
-    protect_time_min = self.params_memory.get_int("ButtonPressProtectTime") or BUTTON_PRESS_PROTECT_TIME
-    protect_time_sec = protect_time_min * 60  # 轉換為秒
-    elapsed = time.time() - self.last_button_press_time
-    return elapsed < protect_time_sec
+  # def is_button_protected(self):
+  #   """檢查是否在用戶按鈕操作的保護期內（此期間自動速限不應覆蓋用戶設定）"""
+  #   # 從參數中動態讀取保護時間設定（單位：分鐘），預設 0.5 分鐘（30秒）
+  #   protect_time_min = self.params_memory.get_int("ButtonPressProtectTime") or BUTTON_PRESS_PROTECT_TIME
+  #   protect_time_sec = protect_time_min * 60  # 轉換為秒
+  #   elapsed = time.time() - self.last_button_press_time
+  #   return elapsed < protect_time_sec
 
 
 def apply_deadzone(error, deadzone):

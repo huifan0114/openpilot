@@ -27,7 +27,7 @@ class FrogPilotVCruise:
 #################################
     # 記錄用戶最後一次按鈕操作的時間（用於保護自動更新的干擾）
     self.last_button_press_time = 0
-    
+
     # CSC (Curve Speed Controller) state
     self.csc_controlling_speed = False
     self.csc_target = 0
