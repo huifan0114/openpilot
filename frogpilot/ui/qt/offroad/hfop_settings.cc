@@ -139,7 +139,7 @@ FrogPilotHFOPPanel::FrogPilotHFOPPanel(FrogPilotSettingsWindow *parent) : FrogPi
       hfopcontrolsToggle = NavspeedToggle;
 
     } else if (param == "ButtonPressProtectTime") {
-      hfopcontrolsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 5, "分鐘");
+      hfopcontrolsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 5.0, "分鐘", std::map<float, QString>(),0.5);
 
     } else if (param == "Dooropen") {
       FrogPilotManageControl *DooropenToggle = new FrogPilotManageControl(param, title, desc, icon);
