@@ -2,6 +2,7 @@
 #################################
 import math
 import numpy as np
+import time
 from collections import deque
 #################################
 
@@ -13,6 +14,9 @@ from openpilot.frogpilot.common.frogpilot_variables import CRUISING_SPEED, PLANN
 from openpilot.frogpilot.controls.lib.curve_speed_controller import CurveSpeedController
 from openpilot.frogpilot.controls.lib.speed_limit_controller import SpeedLimitController
 
+# 用戶按鈕操作保護期（分鐘）- 預設值
+BUTTON_PRESS_PROTECT_TIME = 0.5
+
 class FrogPilotVCruise:
   def __init__(self, FrogPilotPlanner):
     self.frogpilot_planner = FrogPilotPlanner
@@ -21,6 +25,9 @@ class FrogPilotVCruise:
     self.slc = SpeedLimitController()
 
 #################################
+    # 記錄用戶最後一次按鈕操作的時間（用於保護自動更新的干擾）
+    self.last_button_press_time = 0
+    
     # CSC (Curve Speed Controller) state
     self.csc_controlling_speed = False
     self.csc_target = 0
@@ -174,6 +181,15 @@ class FrogPilotVCruise:
 
     return level, reasons
 #################################
+
+  def is_button_protected(self):
+    """檢查是否在用戶按鈕操作的保護期內（此期間自動速限不應覆蓋用戶設定）"""
+    # 從參數中動態讀取保護時間設定（單位：分鐘），預設 0.5 分鐘（30秒）
+    params_memory = self.frogpilot_planner.params_memory
+    protect_time_min = params_memory.get_int("ButtonPressProtectTime") or BUTTON_PRESS_PROTECT_TIME
+    protect_time_sec = protect_time_min * 60  # 轉換為秒
+    elapsed = time.time() - self.last_button_press_time
+    return elapsed < protect_time_sec
 
   def update(self, gps_position, now, time_validated, v_cruise, v_ego, sm, frogpilot_toggles):
 #################################
