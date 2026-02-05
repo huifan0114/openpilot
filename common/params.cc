@@ -290,6 +290,8 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"NavBridgeEnabled", PERSISTENT},
     {"NavBridgeHost", PERSISTENT},
 
+    {"ButtonPressProtectTime", PERSISTENT},
+
 /////////////////////////////////////////////
 
     // FrogPilot parameters
