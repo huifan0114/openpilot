@@ -182,6 +182,25 @@ class FrogPilotVCruise:
     return level, reasons
 #################################
 
+  def check_user_intervention(self, sm):
+    """檢查用戶是否有介入控速操作"""
+    from cereal import car
+    ButtonType = car.CarState.ButtonEvent.Type
+    
+    # 檢查用戶是否按下加速/減速按鈕
+    for button_event in sm["carState"].buttonEvents:
+      if button_event.type in (ButtonType.accelCruise, ButtonType.decelCruise, ButtonType.setCruise):
+        if button_event.pressed:
+          self.last_button_press_time = time.time()
+          return True
+    
+    # 檢查用戶是否踩油門（強烈介入信號）
+    if sm["carState"].gasPressed:
+      self.last_button_press_time = time.time()
+      return True
+    
+    return False
+
   def is_button_protected(self):
     """檢查是否在用戶按鈕操作的保護期內（此期間自動速限不應覆蓋用戶設定）"""
     # 從參數中動態讀取保護時間設定（單位：分鐘），預設 0.5 分鐘（30秒）
@@ -193,6 +212,9 @@ class FrogPilotVCruise:
 
   def update(self, gps_position, now, time_validated, v_cruise, v_ego, sm, frogpilot_toggles):
 #################################
+    # 檢查用戶是否有介入控速操作
+    self.check_user_intervention(sm)
+    
     # 保存原始 v_cruise，避免各控制器之間的交叉污染
     v_cruise_original = v_cruise
 #################################
