@@ -237,10 +237,19 @@ class FrogPilotPlanner:
     # =========================================================
     # 統一速限更新函數（避免重複代碼和邏輯混亂）
     # =========================================================
+    SPEED_LIMIT_MIN_KPH = 40
+    SPEED_LIMIT_MAX_KPH = 120
+
+    def clamp_speed_limit_kph(speed_kph):
+      speed_kph = int(round(speed_kph))
+      return max(SPEED_LIMIT_MIN_KPH, min(SPEED_LIMIT_MAX_KPH, speed_kph))
+
     def update_speed_limit(new_speed_limit, force_update=False):
       """統一的速限更新函數，處理所有速限變更邏輯"""
       if new_speed_limit <= 0:
         return False
+
+      new_speed_limit = clamp_speed_limit_kph(new_speed_limit)
 
       current_setspeed = self.params_memory.get_int("KeySetSpeed")
       current_detect_speed = self.params_memory.get_int("DetectSpeedLimit")
@@ -448,9 +457,11 @@ class FrogPilotPlanner:
              allowed_min = max(0, currentSpeedLimit - max_drop)
              newSpeedLimit = max(target_speed_limit, allowed_min)
              if newSpeedLimit != currentSpeedLimit:
-               self.params_memory.put_int("KeySetSpeed", newSpeedLimit)
-               self.params_memory.put_bool("KeyChanged", True)
-               self.stopmark_last_update_time = now.timestamp()
+               new_speed_limit = clamp_speed_limit_kph(newSpeedLimit)
+               if new_speed_limit != currentSpeedLimit:
+                 self.params_memory.put_int("KeySetSpeed", new_speed_limit)
+                 self.params_memory.put_bool("KeyChanged", True)
+                 self.stopmark_last_update_time = now.timestamp()
 
       # 結束偵測（狀態轉換時觸發恢復流程）
       if self.stopmark_active_prev and not stopmark_active:
