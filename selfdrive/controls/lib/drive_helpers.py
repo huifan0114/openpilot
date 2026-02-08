@@ -15,7 +15,7 @@ from openpilot.common.params import Params
 #          model predictions above this speed can be unpredictable
 # V_CRUISE's are in kph
 ################################################
-V_CRUISE_MIN = 10
+V_CRUISE_MIN = 30
 V_CRUISE_MAX = 200
 V_CRUISE_UNSET = 50
 V_CRUISE_INITIAL = 50
@@ -181,7 +181,7 @@ class VCruiseHelper:
 
     self.v_cruise_kph = clip(round(self.v_cruise_kph, 1), V_CRUISE_MIN, V_CRUISE_MAX)
   ###################################################################################################
-    key_set_speed_kph = int(round(clip(self.v_cruise_kph, 40, 120)))
+    key_set_speed_kph = int(round(clip(self.v_cruise_kph, 30, 120)))
     self.params_memory.put_int('KeySetSpeed', key_set_speed_kph)
     if self.params_memory.get_bool('KeyResume'):
       self.params_memory.put_bool('KeyResume', False)
@@ -227,7 +227,7 @@ class VCruiseHelper:
 
     self.v_cruise_cluster_kph = self.v_cruise_kph
   ###################################################################################################
-    key_set_speed_kph = int(round(clip(self.v_cruise_kph, 40, 120)))
+    key_set_speed_kph = int(round(clip(self.v_cruise_kph, 30, 120)))
     self.params_memory.put_int('KeySetSpeed', key_set_speed_kph)
     self.params_memory.put_bool('KeyChanged', False)
 ###################################################################################################
