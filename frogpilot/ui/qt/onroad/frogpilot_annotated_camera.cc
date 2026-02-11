@@ -256,6 +256,13 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
 
   // 停車降速邏輯（防抖機制：快速反應 + 距離過濾）
   const bool redLightDetected = scene.track_vertices.length() >= 1 && frogpilotPlan.getRedLight();
+  // Always keep StopmarkDistance updated when a stop point exists (independent of UI toggle).
+  if (redLightDetected) {
+    int stopDistance = static_cast<int>(std::nearbyint(frogpilot_scene.model_length));
+    params_memory.putInt("StopmarkDistance", stopDistance);
+  } else {
+    params_memory.putInt("StopmarkDistance", 0);
+  }
   const int DEBOUNCE_TIME_MS = 150;  // 🔧 優化：從250ms減到150ms，加快初始反應
 
   if (redLightDetected) {
@@ -271,9 +278,9 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
       const bool stopmarkslowsdown = params.getBool("Stopmarkslowsdown");
       const bool is_high_speed_profile = roadProfile == 3 || roadProfile == 4;
 
-      // 🔧 優化：增加距離過濾，避免過遠誤觸發（>350m 不啟動）
+      // 🔧 優化：增加距離過濾，避免過遠誤觸發（>600m 不啟動）
       int stopDistance = params_memory.getInt("StopmarkDistance");
-      const bool distance_valid = stopDistance > 0 && stopDistance <= 350;
+      const bool distance_valid = stopDistance > 0 && stopDistance <= 600;
 
       // 僅在開啟 stopmarkslowsdown 且非高速/快速道路時啟用
       if (stopmarkslowsdown && !is_high_speed_profile && distance_valid) {
@@ -1010,6 +1017,27 @@ if (frogpilotPlan.getSlcNextSpeedLimit() > 0) {
   drawSource(nextLimitRect, nextMapsIcon, tr("下一段"), frogpilotPlan.getSlcNextSpeedLimit() * speedConversion);
   current_y += rect_height + spacing;
 }
+
+  // Controller status (VSC/CSC) for quick diagnostics
+  const QString vscStatus = frogpilotPlan.getVscActive() ? tr("視覺安全(VSC): 開") : tr("視覺安全(VSC): 關");
+  const QString cscStatus = frogpilotPlan.getCscControllingSpeed() ? tr("彎道控速(CSC): 開") : tr("彎道控速(CSC): 關");
+  QRect vscRect(info_panel_left, current_y, 450, rect_height);
+  p.setBrush(blackColor(166));
+  p.setFont(InterFont(35, QFont::Normal));
+  p.setPen(QPen(blackColor(), 10));
+  p.drawRoundedRect(vscRect, 24, 24);
+  p.setPen(QPen(whiteColor(), 6));
+  p.drawText(vscRect.adjusted(20, 0, 0, 0), Qt::AlignVCenter | Qt::AlignLeft, vscStatus);
+  current_y += rect_height + spacing;
+
+  QRect cscRect(info_panel_left, current_y, 450, rect_height);
+  p.setBrush(blackColor(166));
+  p.setFont(InterFont(35, QFont::Normal));
+  p.setPen(QPen(blackColor(), 10));
+  p.drawRoundedRect(cscRect, 24, 24);
+  p.setPen(QPen(whiteColor(), 6));
+  p.drawText(cscRect.adjusted(20, 0, 0, 0), Qt::AlignVCenter | Qt::AlignLeft, cscStatus);
+  current_y += rect_height + spacing;
 /////////////////////////////////////////////////////////////////////
   p.restore();
 }
@@ -1070,11 +1098,6 @@ void FrogPilotAnnotatedCameraWidget::paintStandstillTimer(QPainter &p) {
 
 void FrogPilotAnnotatedCameraWidget::paintStoppingPoint(QPainter &p, UIScene &scene, FrogPilotUIScene &frogpilot_scene, QJsonObject &frogpilot_toggles) {
   p.save();
-/////////////////////////////////////////////////////
-  // 计算并写入到停止点的实时距离（单位：公尺）
-  int stopDistance = static_cast<int>(std::nearbyint(frogpilot_scene.model_length));
-  params_memory.putInt("StopmarkDistance", stopDistance);
-/////////////////////////////////////////////////////
 
   QPointF centerPoint = (scene.track_vertices.first() + scene.track_vertices.last()) / 2.0;
   QPointF adjustedPoint = centerPoint - QPointF(stopSignImg.width() / 2, stopSignImg.height());
