@@ -378,6 +378,8 @@ class FrogPilotPlanner:
     # 優先順序：slcOverriddenSpeed > slcSpeedLimit > slc.target
     # 若兩者皆無有效值，基準為 30 km/h
     key_set_speed_kph = int(self.params_memory.get_int("KeySetSpeed") or 0)
+    if key_set_speed_kph <= 0:
+      key_set_speed_kph = int(round(sm["controlsState"].vCruise))
 
     # 比照 UI 層的優先順序邏輯
     slc_target_kph = 0
@@ -403,6 +405,8 @@ class FrogPilotPlanner:
       stopDistance = self.params_memory.get_int("StopmarkDistance")
       stopmark_active = self.params_memory.get_bool("StopmarkActive")
       currentSpeedLimit = self.params_memory.get_int("KeySetSpeed")
+      if currentSpeedLimit <= 0:
+        currentSpeedLimit = int(round(sm["controlsState"].vCruise))
 
       # 穩定性計時器更新
       if stopmark_active:
@@ -415,6 +419,8 @@ class FrogPilotPlanner:
         # 第一次進入 Stopmark（初始化原始速限）
         if stopmark_active and not self.params_memory.get_bool("StopmarkApplied"):
           speed_to_save = currentSpeedLimit
+          if speed_to_save <= 0:
+            speed_to_save = int(round(sm["controlsState"].vCruise))
           if not frogpilot_toggles.navspeed or detect_sl_raw == 0:
             speed_to_save = min(currentSpeedLimit, 60)
 

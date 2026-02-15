@@ -308,12 +308,16 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
     const bool stopmarkApplied = params_memory.getBool("StopmarkApplied");
     const bool stopmarkRecovering = params_memory.getBool("StopmarkRecovering");
     const int stopmarkDistance = params_memory.getInt("StopmarkDistance");
+    const int keySetSpeed = params_memory.getInt("KeySetSpeed");
+    const int vCruiseKph = static_cast<int>(std::nearbyint(frogpilotPlan.getVCruise() * 3.6f));
 
-    QString stopmarkText = QString("Stopmark %1 | Dist %2m | Applied %3 | Recover %4")
+    QString stopmarkText = QString("Stopmark %1 | Dist %2m | Applied %3 | Recover %4 | Key %5 | vCruise %6")
       .arg(stopmarkActive ? "ON" : "OFF")
       .arg(stopmarkDistance)
       .arg(stopmarkApplied ? "ON" : "OFF")
-      .arg(stopmarkRecovering ? "ON" : "OFF");
+      .arg(stopmarkRecovering ? "ON" : "OFF")
+      .arg(keySetSpeed)
+      .arg(vCruiseKph);
 
     QFont font = InterFont(36, QFont::Normal);
     QFontMetrics fm(font);
