@@ -301,6 +301,39 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
       params_memory.putBool("StopmarkActive", false);
     }
   }
+
+  // Stopmark debug overlay (enabled by stopping point metrics toggle)
+  if (frogpilot_toggles.value("show_stopping_point_metrics").toBool() && params.getBool("Stopmarkslowsdown")) {
+    const bool stopmarkActive = params_memory.getBool("StopmarkActive");
+    const bool stopmarkApplied = params_memory.getBool("StopmarkApplied");
+    const bool stopmarkRecovering = params_memory.getBool("StopmarkRecovering");
+    const int stopmarkDistance = params_memory.getInt("StopmarkDistance");
+
+    QString stopmarkText = QString("Stopmark %1 | Dist %2m | Applied %3 | Recover %4")
+      .arg(stopmarkActive ? "ON" : "OFF")
+      .arg(stopmarkDistance)
+      .arg(stopmarkApplied ? "ON" : "OFF")
+      .arg(stopmarkRecovering ? "ON" : "OFF");
+
+    QFont font = InterFont(36, QFont::Normal);
+    QFontMetrics fm(font);
+    const int padding = 14;
+    const int textWidth = fm.horizontalAdvance(stopmarkText);
+    const int textHeight = fm.height();
+
+    int debugX = UI_BORDER_SIZE;
+    int debugY = UI_BORDER_SIZE + 200;
+    QRect debugRect(debugX, debugY, textWidth + padding * 2, textHeight + padding * 2);
+
+    p.save();
+    p.setBrush(blackColor(166));
+    p.setPen(Qt::NoPen);
+    p.drawRoundedRect(debugRect, 16, 16);
+    p.setPen(QPen(whiteColor()));
+    p.setFont(font);
+    p.drawText(debugRect.adjusted(padding, padding, -padding, -padding), Qt::AlignLeft | Qt::AlignVCenter, stopmarkText);
+    p.restore();
+  }
 ////////////////////////////////////////
   if (!bigMapOpen && (carState.getLeftBlinker() || carState.getRightBlinker()) && signalStyle != "None") {
     if (!animationTimer->isActive()) {
@@ -1018,26 +1051,6 @@ if (frogpilotPlan.getSlcNextSpeedLimit() > 0) {
   current_y += rect_height + spacing;
 }
 
-  // Controller status (VSC/CSC) for quick diagnostics
-  const QString vscStatus = frogpilotPlan.getVscActive() ? tr("視覺安全(VSC): 開") : tr("視覺安全(VSC): 關");
-  const QString cscStatus = frogpilotPlan.getCscControllingSpeed() ? tr("彎道控速(CSC): 開") : tr("彎道控速(CSC): 關");
-  QRect vscRect(info_panel_left, current_y, 450, rect_height);
-  p.setBrush(blackColor(166));
-  p.setFont(InterFont(35, QFont::Normal));
-  p.setPen(QPen(blackColor(), 10));
-  p.drawRoundedRect(vscRect, 24, 24);
-  p.setPen(QPen(whiteColor(), 6));
-  p.drawText(vscRect.adjusted(20, 0, 0, 0), Qt::AlignVCenter | Qt::AlignLeft, vscStatus);
-  current_y += rect_height + spacing;
-
-  QRect cscRect(info_panel_left, current_y, 450, rect_height);
-  p.setBrush(blackColor(166));
-  p.setFont(InterFont(35, QFont::Normal));
-  p.setPen(QPen(blackColor(), 10));
-  p.drawRoundedRect(cscRect, 24, 24);
-  p.setPen(QPen(whiteColor(), 6));
-  p.drawText(cscRect.adjusted(20, 0, 0, 0), Qt::AlignVCenter | Qt::AlignLeft, cscStatus);
-  current_y += rect_height + spacing;
 /////////////////////////////////////////////////////////////////////
   p.restore();
 }
