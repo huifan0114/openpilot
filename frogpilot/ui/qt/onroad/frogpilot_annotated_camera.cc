@@ -302,6 +302,48 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
     }
   }
 
+  // Stopmark debug overlay (enabled by stopping point metrics toggle)
+  if (frogpilot_toggles.value("show_stopping_point_metrics").toBool() && params.getBool("Stopmarkslowsdown")) {
+    const bool stopmarkActive = params_memory.getBool("StopmarkActive");
+    const bool stopmarkApplied = params_memory.getBool("StopmarkApplied");
+    const bool stopmarkRecovering = params_memory.getBool("StopmarkRecovering");
+    const int stopmarkDistance = params_memory.getInt("StopmarkDistance");
+    const int keySetSpeed = params_memory.getInt("KeySetSpeed");
+    const int vCruiseKph = static_cast<int>(std::nearbyint(frogpilotPlan.getVCruise() * 3.6f));
+
+    QString line1 = QString("SM %1 D%2 A%3 R%4")
+      .arg(stopmarkActive ? "ON" : "OFF")
+      .arg(stopmarkDistance)
+      .arg(stopmarkApplied ? "1" : "0")
+      .arg(stopmarkRecovering ? "1" : "0");
+    QString line2 = QString("Key %1 vC %2")
+      .arg(keySetSpeed)
+      .arg(vCruiseKph);
+
+    QFont font = InterFont(32, QFont::Normal);
+    QFontMetrics fm(font);
+    const int padding = 12;
+    const int lineHeight = fm.height();
+    const int textWidth = std::max(fm.horizontalAdvance(line1), fm.horizontalAdvance(line2));
+    const int textHeight = lineHeight * 2 + 6;
+
+    int debugX = UI_BORDER_SIZE;
+    int debugY = UI_BORDER_SIZE + 200;
+    QRect debugRect(debugX, debugY, textWidth + padding * 2, textHeight + padding * 2);
+
+    p.save();
+    p.setBrush(blackColor(166));
+    p.setPen(Qt::NoPen);
+    p.drawRoundedRect(debugRect, 16, 16);
+    p.setPen(QPen(whiteColor()));
+    p.setFont(font);
+    QRect line1Rect = debugRect.adjusted(padding, padding, -padding, -padding);
+    QRect line2Rect = line1Rect.translated(0, lineHeight + 6);
+    p.drawText(line1Rect, Qt::AlignLeft | Qt::AlignTop, line1);
+    p.drawText(line2Rect, Qt::AlignLeft | Qt::AlignTop, line2);
+    p.restore();
+  }
+
 
 ////////////////////////////////////////
   if (!bigMapOpen && (carState.getLeftBlinker() || carState.getRightBlinker()) && signalStyle != "None") {
@@ -1019,42 +1061,6 @@ if (frogpilotPlan.getSlcNextSpeedLimit() > 0) {
   drawSource(nextLimitRect, nextMapsIcon, tr("下一段"), frogpilotPlan.getSlcNextSpeedLimit() * speedConversion);
   current_y += rect_height + spacing;
 }
-// Stopmark debug overlay (enabled by stopping point metrics toggle)
-  if (frogpilot_toggles.value("show_stopping_point_metrics").toBool() && params.getBool("Stopmarkslowsdown")) {
-    const bool stopmarkActive = params_memory.getBool("StopmarkActive");
-    const bool stopmarkApplied = params_memory.getBool("StopmarkApplied");
-    const bool stopmarkRecovering = params_memory.getBool("StopmarkRecovering");
-    const int stopmarkDistance = params_memory.getInt("StopmarkDistance");
-    const int keySetSpeed = params_memory.getInt("KeySetSpeed");
-    const int vCruiseKph = static_cast<int>(std::nearbyint(frogpilotPlan.getVCruise() * 3.6f));
-
-    QString stopmarkText = QString("Stopmark %1 | Dist %2m | Applied %3 | Recover %4 | Key %5 | vCruise %6")
-      .arg(stopmarkActive ? "ON" : "OFF")
-      .arg(stopmarkDistance)
-      .arg(stopmarkApplied ? "ON" : "OFF")
-      .arg(stopmarkRecovering ? "ON" : "OFF")
-      .arg(keySetSpeed)
-      .arg(vCruiseKph);
-
-    QFont font = InterFont(36, QFont::Normal);
-    QFontMetrics fm(font);
-    const int padding = 14;
-    const int textWidth = fm.horizontalAdvance(stopmarkText);
-    const int textHeight = fm.height();
-
-    int debugX = UI_BORDER_SIZE;
-    int debugY = UI_BORDER_SIZE + 200;
-    QRect debugRect(debugX, debugY, textWidth + padding * 2, textHeight + padding * 2);
-
-    p.save();
-    p.setBrush(blackColor(166));
-    p.setPen(Qt::NoPen);
-    p.drawRoundedRect(debugRect, 16, 16);
-    p.setPen(QPen(whiteColor()));
-    p.setFont(font);
-    p.drawText(debugRect.adjusted(padding, padding, -padding, -padding), Qt::AlignLeft | Qt::AlignVCenter, stopmarkText);
-    p.restore();
-  }
 /////////////////////////////////////////////////////////////////////
   p.restore();
 }
