@@ -454,7 +454,7 @@ class FrogPilotPlanner:
             target_speed_limit = max(round(target_stopmark_speed), STOPMARK_MIN_SPEED)
 
           # 🔧 改為直接更新到目標速限（無固定降速限制，平滑由曲線決定）
-           if currentSpeedLimit > target_speed_limit and (now.timestamp() - self.stopmark_last_update_time) >= STOPMARK_UPDATE_INTERVAL:
+          if currentSpeedLimit > target_speed_limit and (now.timestamp() - self.stopmark_last_update_time) >= STOPMARK_UPDATE_INTERVAL:
              self.params_memory.put_int("StopmarkTargetSpeed", int(round(target_speed_limit)))
              # 平滑限制：每秒最多降 5 km/h，避免急煞
              MAX_STOPMARK_DROP_PER_SEC = 5  # km/h per second
