@@ -13,6 +13,8 @@
 FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(QWidget *parent) : QWidget(parent) {
   animationTimer = new QTimer(this);
 
+  speedLimitSourcesBottomY = 20;
+
   brakePedalImg = loadPixmap("../../frogpilot/assets/other_images/brake_pedal.png", {btn_size, btn_size});
   curveSpeedIcon = loadPixmap("../../frogpilot/assets/other_images/curve_speed.png", {btn_size, btn_size});
   dashboardIcon = loadPixmap("../../frogpilot/assets/other_images/dashboard_icon.png", {btn_size / 2, btn_size / 2});
@@ -310,15 +312,17 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
     const int stopmarkDistance = params_memory.getInt("StopmarkDistance");
     const int keySetSpeed = params_memory.getInt("KeySetSpeed");
     const int vCruiseKph = static_cast<int>(std::nearbyint(frogpilotPlan.getVCruise() * 3.6f));
+    const int targetSpeed = params_memory.getInt("StopmarkTargetSpeed");
 
     QString line1 = QString("SM %1 D%2 A%3 R%4")
       .arg(stopmarkActive ? "ON" : "OFF")
       .arg(stopmarkDistance)
       .arg(stopmarkApplied ? "1" : "0")
       .arg(stopmarkRecovering ? "1" : "0");
-    QString line2 = QString("Key %1 vC %2")
+    QString line2 = QString("Key %1 vC %2 Tg %3")
       .arg(keySetSpeed)
-      .arg(vCruiseKph);
+      .arg(vCruiseKph)
+      .arg(targetSpeed);
 
     QFont font = InterFont(32, QFont::Normal);
     QFontMetrics fm(font);
@@ -327,8 +331,8 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
     const int textWidth = std::max(fm.horizontalAdvance(line1), fm.horizontalAdvance(line2));
     const int textHeight = lineHeight * 2 + 6;
 
-    int debugX = UI_BORDER_SIZE;
-    int debugY = UI_BORDER_SIZE + 200;
+    int debugX = speedLimitRect.right() + 20;
+    int debugY = speedLimitSourcesBottomY + 10;
     QRect debugRect(debugX, debugY, textWidth + padding * 2, textHeight + padding * 2);
 
     p.save();

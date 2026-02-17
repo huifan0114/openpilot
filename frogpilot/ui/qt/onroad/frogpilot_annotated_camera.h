@@ -38,6 +38,7 @@ public:
   int frogHopCount;
   int signMargin;
   int standstillDuration;
+  int speedLimitSourcesBottomY;
 
   float distanceConversion;
   float setSpeed;
