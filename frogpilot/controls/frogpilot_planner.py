@@ -40,7 +40,7 @@ class FrogPilotPlanner:
     self.frogpilot_weather = WeatherChecker()
 
 #################################
-    with car.CarParams.from_bytes(params.get("CarParams", block=True)) as msg:
+    with car.CarParams.from_bytes(self.params.get("CarParams", block=True)) as msg:
       self.CP = msg
 #################################
 
@@ -125,11 +125,11 @@ class FrogPilotPlanner:
         "bearing": math.degrees(sm["liveLocationKalman"].calibratedOrientationNED.value[2])
       }
 
-      params_memory.put("LastGPSPosition", json.dumps(gps_position))
+      self.params_memory.put("LastGPSPosition", json.dumps(gps_position))
     else:
       gps_position = None
 
-      params_memory.remove("LastGPSPosition")
+      self.params_memory.remove("LastGPSPosition")
 
 #########################################
     self.lateral_acceleration = v_ego**2 * (sm["carState"].steeringAngleDeg - sm["liveParameters"].angleOffsetDeg) * CV.DEG_TO_RAD / (self.CP.steerRatio * self.CP.wheelbase)
@@ -634,7 +634,7 @@ class FrogPilotPlanner:
     frogpilotPlan.slcNextSpeedLimit = self.frogpilot_vcruise.slc.next_speed_limit
 #########################################
     frogpilotPlan.slcNextSpeedLimitDistance = self.frogpilot_vcruise.slc.next_speed_limit_distance
-    frogpilotPlan.mapdSpeedLimit = params_memory.get_float("MapSpeedLimit")
+    frogpilotPlan.mapdSpeedLimit = self.params_memory.get_float("MapSpeedLimit")
 #########################################
     frogpilotPlan.slcOverriddenSpeed = self.frogpilot_vcruise.slc.overridden_speed
     frogpilotPlan.slcSpeedLimit = self.frogpilot_vcruise.slc_target
@@ -643,7 +643,7 @@ class FrogPilotPlanner:
     frogpilotPlan.speedLimitChanged = self.frogpilot_vcruise.slc.speed_limit_changed_timer > DT_MDL
     frogpilotPlan.unconfirmedSlcSpeedLimit = self.frogpilot_vcruise.slc.unconfirmed_speed_limit
 
-    frogpilotPlan.themeUpdated = theme_updated or params_memory.get_bool("UseActiveTheme")
+    frogpilotPlan.themeUpdated = theme_updated or self.params_memory.get_bool("UseActiveTheme")
 
     frogpilotPlan.togglesUpdated = toggles_updated
 
@@ -652,7 +652,7 @@ class FrogPilotPlanner:
     frogpilotPlan.vCruise = self.v_cruise
     #######################################################
     frogpilotPlan.speedover = self.speed_over
-    road_name = params_memory.get("RoadName", encoding="utf-8")
+    road_name = self.params_memory.get("RoadName", encoding="utf-8")
     frogpilotPlan.roadName = road_name if road_name else ""
     ########################################################
     frogpilotPlan.weatherDaytime = self.frogpilot_weather.is_daytime
