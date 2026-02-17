@@ -454,12 +454,13 @@ class FrogPilotPlanner:
             target_speed_limit = max(round(target_stopmark_speed), STOPMARK_MIN_SPEED)
 
           # 🔧 改為直接更新到目標速限（無固定降速限制，平滑由曲線決定）
-          if currentSpeedLimit > target_speed_limit and (now.timestamp() - self.stopmark_last_update_time) >= STOPMARK_UPDATE_INTERVAL:
+           if currentSpeedLimit > target_speed_limit and (now.timestamp() - self.stopmark_last_update_time) >= STOPMARK_UPDATE_INTERVAL:
+             self.params_memory.put_int("StopmarkTargetSpeed", int(round(target_speed_limit)))
              # 平滑限制：每秒最多降 5 km/h，避免急煞
              MAX_STOPMARK_DROP_PER_SEC = 5  # km/h per second
              dt = (now.timestamp() - self.stopmark_last_update_time) if self.stopmark_last_update_time > 0 else STOPMARK_UPDATE_INTERVAL
              dt = max(0.05, min(1.0, dt))  # 夾在 50ms~1s，避免異常大步長
-             max_drop = int(round(MAX_STOPMARK_DROP_PER_SEC * dt))
+             max_drop = max(1, int(round(MAX_STOPMARK_DROP_PER_SEC * dt)))
              allowed_min = max(0, currentSpeedLimit - max_drop)
              newSpeedLimit = max(target_speed_limit, allowed_min)
              if newSpeedLimit != currentSpeedLimit:
@@ -471,6 +472,7 @@ class FrogPilotPlanner:
 
       # 結束偵測（狀態轉換時觸發恢復流程）
       if self.stopmark_active_prev and not stopmark_active:
+        self.params_memory.put_int("StopmarkTargetSpeed", 0)
         self.params_memory.put_bool("StopmarkRecovering", True)
         self.params_memory.put_bool("StopmarkActive", False)
         self.stopmark_active_prev = False
