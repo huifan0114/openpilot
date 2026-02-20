@@ -237,7 +237,7 @@ class FrogPilotPlanner:
     # =========================================================
     # 統一速限更新函數（避免重複代碼和邏輯混亂）
     # =========================================================
-    SPEED_LIMIT_MIN_KPH = 30
+    SPEED_LIMIT_MIN_KPH = 10
     SPEED_LIMIT_MAX_KPH = 120
 
     def clamp_speed_limit_kph(speed_kph):
