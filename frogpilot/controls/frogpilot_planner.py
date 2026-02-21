@@ -533,15 +533,11 @@ class FrogPilotPlanner:
         if detect_sl > 0 and detect_sl != self.detect_speed_prev:
           adjusted_sl = int(round(detect_sl * 1.1))
           adjusted_sl = clamp_offline_or_road_limit(adjusted_sl, source=slc_source)
-          if update_speed_limit(adjusted_sl):
-            self.manual_override_count = 0
-            self.manual_override_last_ts = 0.0
+          update_speed_limit(adjusted_sl)
         elif detect_sl == 0 and self.detect_speed_prev != 0:
           # 速限消失時重置
           self.detect_speed_prev = 0
           self.params_memory.put_int("DetectSpeedLimit", 0)
-          self.manual_override_count = 0
-          self.manual_override_last_ts = 0.0
 
     # Manual override: if driver accelerates twice, adopt current speed as speed limit
     MANUAL_OVERRIDE_WINDOW_SEC = 10.0
