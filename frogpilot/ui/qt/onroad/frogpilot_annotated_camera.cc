@@ -1,6 +1,7 @@
 #include <QMovie>
 /////////////////////////////////////////////////////
 #include <array>
+#include <cmath>
 #include <fstream>
 #include <sstream>
 #include <map>
@@ -1498,29 +1499,37 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
 
   // 油價計算（如果啟用）
   if (fuelpriceEnabled) {
+    static float last_fuel_total = -1.0f;
     int fuelCosts = params.getInt("Fuelcosts") / 10;
     int fuelCostsNow = params.getInt("Fuelcostsnow");
     int fuelCostsPre = params.getInt("Fuelcostspre");
-
-    if (fuelCostsNow != 0 && fuelCostsPre == 0) {
-      fuelCostsPre = fuelCostsPre + fuelCostsNow / 100;
-      params.putInt("Fuelcostsnow", 0);
-    }
-
     float fuelTotal = carState.getFueltotal();
-    if (fuelTotal > 0) {
-      params.putInt("Fuelcostsnow", fuelCostsPre + (std::round(fuelTotal * 10) / 10 * fuelCosts) * 100);
-    }
+    const bool fuel_total_changed = std::fabs(fuelTotal - last_fuel_total) >= 0.5f;
+    const bool pending_updates = fuelCostsNow != 0 || params.getInt("Fuelconsumptionnow") != 0;
+    const bool should_update_fuel_params = fuel_total_changed || pending_updates;
 
-    int fuelConsumptionNow = params.getInt("Fuelconsumptionnow");
-    int fuelConsumptionPre = params.getInt("Fuelconsumptionpre");
-    if (fuelConsumptionNow != 0 && fuelConsumptionPre == 0) {
-      fuelConsumptionPre = fuelConsumptionPre + fuelConsumptionNow / 100;
-      params.putInt("Fuelconsumptionnow", 0);
-    }
+    if (should_update_fuel_params) {
+      last_fuel_total = fuelTotal;
 
-    if (fuelTotal > 0) {
-      params.putInt("Fuelconsumptionnow", fuelConsumptionPre + (std::round(fuelTotal * 100) / 100) * 100);
+      if (fuelCostsNow != 0 && fuelCostsPre == 0) {
+        fuelCostsPre = fuelCostsPre + fuelCostsNow / 100;
+        params.putInt("Fuelcostsnow", 0);
+      }
+
+      if (fuelTotal > 0) {
+        params.putInt("Fuelcostsnow", fuelCostsPre + (std::round(fuelTotal * 10) / 10 * fuelCosts) * 100);
+      }
+
+      int fuelConsumptionNow = params.getInt("Fuelconsumptionnow");
+      int fuelConsumptionPre = params.getInt("Fuelconsumptionpre");
+      if (fuelConsumptionNow != 0 && fuelConsumptionPre == 0) {
+        fuelConsumptionPre = fuelConsumptionPre + fuelConsumptionNow / 100;
+        params.putInt("Fuelconsumptionnow", 0);
+      }
+
+      if (fuelTotal > 0) {
+        params.putInt("Fuelconsumptionnow", fuelConsumptionPre + (std::round(fuelTotal * 100) / 100) * 100);
+      }
     }
 
     p.setPen(QPen(blackColor(), 6));
