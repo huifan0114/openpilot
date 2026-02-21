@@ -1374,11 +1374,19 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   const int desired_panel_top = rect().bottom() - (panel_height + 60) + panel_offset_y;
   const int top_panel_bottom = std::max({setSpeedRect.bottom(), speedLimitRect.bottom(), newSpeedLimitRect.bottom()});
   const int top_panel_clearance = top_panel_bottom + 20;
-  const int panel_top = std::max(desired_panel_top, top_panel_clearance);
+  const int panel_bottom_limit = rect().bottom() - 20;
+  int panel_top = std::max(desired_panel_top, top_panel_clearance);
+  if (panel_top + panel_height > panel_bottom_limit) {
+    panel_top = panel_bottom_limit - panel_height;
+  }
+  panel_top = std::max(panel_top, 20);
   QRect info_rect(rect().left() + 20, panel_top, 220, panel_height);
   const QRect top_hud_rect = setSpeedRect.united(speedLimitRect).united(newSpeedLimitRect);
   if (top_hud_rect.isValid() && info_rect.intersects(top_hud_rect.adjusted(-6, -6, 6, 6))) {
     info_rect.moveTop(top_hud_rect.bottom() + 20);
+  }
+  if (info_rect.bottom() > rect().bottom() - 20) {
+    info_rect.moveBottom(rect().bottom() - 20);
   }
   p.setPen(Qt::NoPen);
   if (leadspeed_diffProfile < -20) {
