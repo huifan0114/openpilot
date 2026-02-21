@@ -84,6 +84,7 @@ private:
   void paintStoppingPoint(QPainter &p, UIScene &scene, FrogPilotUIScene &frogpilot_scene, QJsonObject &frogpilot_toggles);
   void paintTurnSignals(QPainter &p, const cereal::CarState::Reader &carState);
   void paintWeather(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan, FrogPilotUIScene &frogpilot_scene);
+  void paintLearningPanel(QPainter &p, int panel_bottom, int panel_left);
   void updateSignals();
 
   int animationFrameIndex;

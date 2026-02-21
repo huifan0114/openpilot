@@ -365,8 +365,14 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
 
 /////////////////////////////////////////////////////
   // 車輛資訊面板 (HFOP Info Panel)
-  if (!frogpilot_scene.map_open && !hideBottomIcons && frogpilot_toggles.value("hfop_inf").toBool()) {
-    paintVehicleInfoPanel(p, carState, frogpilot_toggles);
+  if (!frogpilot_scene.map_open && !hideBottomIcons) {
+    if (frogpilot_toggles.value("hfop_inf").toBool()) {
+      paintVehicleInfoPanel(p, carState, frogpilot_toggles);
+    } else {
+      const int panel_offset_y = 40;
+      const int panel_bottom = rect().bottom() - 60 + panel_offset_y;
+      paintLearningPanel(p, panel_bottom, rect().left() + 20);
+    }
   }
 /////////////////////////////////////////////////////
 }
@@ -1319,7 +1325,7 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   int leadspeed_diffProfile = params_memory.getInt("leadspeeddiffProfile");
   const bool fuelpriceEnabled = params.getBool("Fuelprice");
   const int panel_height = fuelpriceEnabled ? 560 : 500;
-  const int panel_offset_y = 40;
+  const int panel_offset_y = 60;
   const int panel_top = rect().bottom() - (panel_height + 60) + panel_offset_y;
   const QRect info_rect(rect().left() + 20, panel_top, 220, panel_height);
   p.setPen(Qt::NoPen);
@@ -1351,7 +1357,7 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
     {4, "高速公路"},
   };
   QString roadProfileText = roadProfileMap[roadProfile];
-  p.setFont(InterFont(40, QFont::Normal));
+  p.setFont(InterFont(45, QFont::Normal));
   p.setPen(QPen(blackColor(), 6));
   p.drawText(info_rect.adjusted(20, 10, 0, 0), Qt::AlignTop | Qt::AlignLeft, roadProfileText);
 
@@ -1476,8 +1482,12 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
     p.setFont(InterFont(40, QFont::Normal));
     p.drawText(info_rect.adjusted(20, fuel_y2, 0, 0), Qt::AlignTop | Qt::AlignLeft, "已用  " + fuelTotalStr);
   }
+  paintLearningPanel(p, info_rect.bottom(), info_rect.right() + 20);
 
-  // 學習資訊
+  p.restore();
+}
+
+void FrogPilotAnnotatedCameraWidget::paintLearningPanel(QPainter &p, int panel_bottom, int panel_left) {
   static QString cached_style_stats_json;
   static QJsonObject cached_style_stats;
 
@@ -1520,8 +1530,8 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
     style_fm.horizontalAdvance(style_line3)
   });
   const int style_panel_width = style_text_width + (style_padding_x * 2) + 10;
-  const int style_panel_top = info_rect.bottom() - style_panel_height;
-  const QRect style_rect(info_rect.right() + 20, style_panel_top, style_panel_width, style_panel_height);
+  const int style_panel_top = panel_bottom - style_panel_height;
+  const QRect style_rect(panel_left, style_panel_top, style_panel_width, style_panel_height);
   p.setBrush(whiteColor());
   p.setPen(Qt::NoPen);
   p.drawRoundedRect(style_rect, 24, 24);
@@ -1535,8 +1545,6 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   p.drawText(style_rect.adjusted(style_padding_x, style_text_y - style_rect.top(), 0, 0), Qt::AlignTop | Qt::AlignLeft, style_line2);
   style_text_y += style_line_height + style_line_gap;
   p.drawText(style_rect.adjusted(style_padding_x, style_text_y - style_rect.top(), 0, 0), Qt::AlignTop | Qt::AlignLeft, style_line3);
-
-  p.restore();
 }
 /////////////////////////////////////////////////////
 
