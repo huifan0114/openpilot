@@ -12,6 +12,10 @@
 #include "selfdrive/ui/qt/maps/map_helpers.h"
 /////////////////////////////////////////////////////
 
+namespace {
+constexpr float kFuelUpdateThreshold = 0.5f;
+}  // namespace
+
 FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(QWidget *parent) : QWidget(parent) {
   animationTimer = new QTimer(this);
 
@@ -1499,53 +1503,58 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
 
   // 油價計算（如果啟用）
   if (fuelpriceEnabled) {
-    static float last_fuel_total = -1.0f;
-    int fuelCosts = params.getInt("Fuelcosts") / 10;
-    int fuelCostsNow = params.getInt("Fuelcostsnow");
-    int fuelCostsPre = params.getInt("Fuelcostspre");
-    float fuelTotal = carState.getFueltotal();
-    const bool fuel_total_changed = std::fabs(fuelTotal - last_fuel_total) >= 0.5f;
-    const bool pending_updates = fuelCostsNow != 0 || params.getInt("Fuelconsumptionnow") != 0;
-    const bool should_update_fuel_params = fuel_total_changed || pending_updates;
-
-    if (should_update_fuel_params) {
-      last_fuel_total = fuelTotal;
-
-      if (fuelCostsNow != 0 && fuelCostsPre == 0) {
-        fuelCostsPre = fuelCostsPre + fuelCostsNow / 100;
-        params.putInt("Fuelcostsnow", 0);
-      }
-
-      if (fuelTotal > 0) {
-        params.putInt("Fuelcostsnow", fuelCostsPre + (std::round(fuelTotal * 10) / 10 * fuelCosts) * 100);
-      }
-
-      int fuelConsumptionNow = params.getInt("Fuelconsumptionnow");
-      int fuelConsumptionPre = params.getInt("Fuelconsumptionpre");
-      if (fuelConsumptionNow != 0 && fuelConsumptionPre == 0) {
-        fuelConsumptionPre = fuelConsumptionPre + fuelConsumptionNow / 100;
-        params.putInt("Fuelconsumptionnow", 0);
-      }
-
-      if (fuelTotal > 0) {
-        params.putInt("Fuelconsumptionnow", fuelConsumptionPre + (std::round(fuelTotal * 100) / 100) * 100);
-      }
-    }
-
+    const FuelDisplayData fuel_data = updateFuelStats(carState);
     p.setPen(QPen(blackColor(), 6));
     p.setFont(body_font);
-    QString tankUsedText = "油資  " + QString::number(std::round(fuelTotal * 10) / 10 * fuelCosts);
-    p.drawText(info_rect.adjusted(left_padding, fuel_y1, 0, 0), Qt::AlignTop | Qt::AlignLeft, tankUsedText);
-
-    QString fuelTotalStr = (fuelTotal > 0) ? QString::number(std::round(fuelTotal * 100) / 100) : "–";
-    p.setFont(body_font);
-    p.drawText(info_rect.adjusted(left_padding, fuel_y2, 0, 0), Qt::AlignTop | Qt::AlignLeft, "已用  " + fuelTotalStr);
+    p.drawText(info_rect.adjusted(left_padding, fuel_y1, 0, 0), Qt::AlignTop | Qt::AlignLeft, fuel_data.tankUsedText);
+    p.drawText(info_rect.adjusted(left_padding, fuel_y2, 0, 0), Qt::AlignTop | Qt::AlignLeft, fuel_data.fuelTotalText);
   }
   if (frogpilot_toggles.value("driving_learning_panel").toBool()) {
     paintLearningPanel(p, info_rect.bottom(), info_rect.right() + 20);
   }
 
   p.restore();
+}
+
+FrogPilotAnnotatedCameraWidget::FuelDisplayData FrogPilotAnnotatedCameraWidget::updateFuelStats(const cereal::CarState::Reader &carState) {
+  static float last_fuel_total = -1.0f;
+
+  int fuelCosts = params.getInt("Fuelcosts") / 10;
+  int fuelCostsNow = params.getInt("Fuelcostsnow");
+  int fuelCostsPre = params.getInt("Fuelcostspre");
+  float fuelTotal = carState.getFueltotal();
+  const bool fuel_total_changed = std::fabs(fuelTotal - last_fuel_total) >= kFuelUpdateThreshold;
+  const bool pending_updates = fuelCostsNow != 0 || params.getInt("Fuelconsumptionnow") != 0;
+
+  if (fuel_total_changed || pending_updates) {
+    last_fuel_total = fuelTotal;
+
+    if (fuelCostsNow != 0 && fuelCostsPre == 0) {
+      fuelCostsPre = fuelCostsPre + fuelCostsNow / 100;
+      params.putInt("Fuelcostsnow", 0);
+    }
+
+    if (fuelTotal > 0) {
+      params.putInt("Fuelcostsnow", fuelCostsPre + (std::round(fuelTotal * 10) / 10 * fuelCosts) * 100);
+    }
+
+    int fuelConsumptionNow = params.getInt("Fuelconsumptionnow");
+    int fuelConsumptionPre = params.getInt("Fuelconsumptionpre");
+    if (fuelConsumptionNow != 0 && fuelConsumptionPre == 0) {
+      fuelConsumptionPre = fuelConsumptionPre + fuelConsumptionNow / 100;
+      params.putInt("Fuelconsumptionnow", 0);
+    }
+
+    if (fuelTotal > 0) {
+      params.putInt("Fuelconsumptionnow", fuelConsumptionPre + (std::round(fuelTotal * 100) / 100) * 100);
+    }
+  }
+
+  FuelDisplayData data;
+  data.tankUsedText = "油資  " + QString::number(std::round(fuelTotal * 10) / 10 * fuelCosts);
+  QString fuelTotalStr = (fuelTotal > 0) ? QString::number(std::round(fuelTotal * 100) / 100) : "–";
+  data.fuelTotalText = "已用  " + fuelTotalStr;
+  return data;
 }
 
 void FrogPilotAnnotatedCameraWidget::paintLearningPanel(QPainter &p, int panel_bottom, int panel_left) {

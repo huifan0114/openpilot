@@ -69,6 +69,13 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
+  struct FuelDisplayData {
+    QString tankUsedText;
+    QString fuelTotalText;
+  };
+
+  FuelDisplayData updateFuelStats(const cereal::CarState::Reader &carState);
+
   void paintCEMStatus(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan, FrogPilotUIScene &frogpilot_scene, SubMaster &sm);
   void paintCompass(QPainter &p, QJsonObject &frogpilot_toggles);
   void paintCurveSpeedControl(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan);
