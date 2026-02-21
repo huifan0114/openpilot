@@ -15,7 +15,7 @@ from openpilot.common.params import Params
 #          model predictions above this speed can be unpredictable
 # V_CRUISE's are in kph
 ################################################
-V_CRUISE_MIN = 30
+V_CRUISE_MIN = 10
 V_CRUISE_MAX = 200
 V_CRUISE_UNSET = 50
 V_CRUISE_INITIAL = 50
