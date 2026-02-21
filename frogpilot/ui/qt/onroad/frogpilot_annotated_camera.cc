@@ -1,5 +1,6 @@
 #include <QMovie>
 /////////////////////////////////////////////////////
+#include <array>
 #include <fstream>
 #include <sstream>
 #include <map>
@@ -1388,38 +1389,41 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
 
   // 道路類型
   int roadProfile = params.getInt("RoadtypeProfile");
-  std::map<int, QString> roadProfileMap = {
-    {0, "未選道路"},
-    {1, "街道巷弄"},
-    {2, "一般平面"},
-    {3, "快速道路"},
-    {4, "高速公路"},
+  static const std::array<QString, 5> roadProfileNames = {
+    "未選道路",
+    "街道巷弄",
+    "一般平面",
+    "快速道路",
+    "高速公路",
   };
-  QString roadProfileText = roadProfileMap[roadProfile];
+  const int roadProfileIndex = (roadProfile >= 0 && roadProfile < static_cast<int>(roadProfileNames.size())) ? roadProfile : 0;
+  QString roadProfileText = roadProfileNames[roadProfileIndex];
   p.setFont(title_font);
   p.setPen(QPen(blackColor(), 6));
   p.drawText(info_rect.adjusted(left_padding, road_y, 0, 0), Qt::AlignTop | Qt::AlignLeft, roadProfileText);
 
   // 駕駛模式
   int accProfile = params_memory.getInt("AccelerationProfile");
-  std::map<int, QString> accelerationProfileMap = {
-    {0, "標準"},
-    {1, "節能"},
-    {2, "運動"},
-    {3, "超跑"},
+  static const std::array<QString, 4> accelerationProfileNames = {
+    "標準",
+    "節能",
+    "運動",
+    "超跑",
   };
-  QString accProfileText = "駕駛  " + accelerationProfileMap[accProfile];
+  const int accProfileIndex = (accProfile >= 0 && accProfile < static_cast<int>(accelerationProfileNames.size())) ? accProfile : 0;
+  QString accProfileText = "駕駛  " + accelerationProfileNames[accProfileIndex];
   p.setFont(body_font);
   p.drawText(info_rect.adjusted(left_padding, acc_y, 0, 0), Qt::AlignTop | Qt::AlignLeft, accProfileText);
 
   // 車距設定
-  std::map<int, QString> personalityProfileMap = {
-    {0, "接近"},
-    {1, "普通"},
-    {2, "遠離"},
-  };
   int personalityProfile = params.getInt("LongitudinalPersonality");
-  QString profileText = "車距  " + personalityProfileMap[personalityProfile];
+  static const std::array<QString, 3> personalityProfileNames = {
+    "接近",
+    "普通",
+    "遠離",
+  };
+  const int personalityProfileIndex = (personalityProfile >= 0 && personalityProfile < static_cast<int>(personalityProfileNames.size())) ? personalityProfile : 1;
+  QString profileText = "車距  " + personalityProfileNames[personalityProfileIndex];
   p.setFont(body_font);
   p.drawText(info_rect.adjusted(left_padding, profile_y, 0, 0), Qt::AlignTop | Qt::AlignLeft, profileText);
 
@@ -1455,9 +1459,23 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   p.drawText(info_rect.adjusted(left_padding, oil_temp_y, 0, 0), Qt::AlignTop | Qt::AlignLeft, "油溫  " + oilTempStr);
 
   // 電壓顯示
-  std::stringstream buffer;
-  buffer << std::ifstream("/sys/class/hwmon/hwmon1/in1_input").rdbuf();
-  float voltage = (float)std::atoi(buffer.str().c_str()) / 1000.0f;
+  static QElapsedTimer voltage_timer;
+  static float cached_voltage = 0.0f;
+  if (!voltage_timer.isValid()) {
+    voltage_timer.start();
+  }
+  if (voltage_timer.elapsed() >= 1000) {
+    voltage_timer.restart();
+    std::ifstream voltage_file("/sys/class/hwmon/hwmon1/in1_input");
+    if (voltage_file) {
+      std::stringstream buffer;
+      buffer << voltage_file.rdbuf();
+      cached_voltage = static_cast<float>(std::atoi(buffer.str().c_str())) / 1000.0f;
+    } else {
+      cached_voltage = 0.0f;
+    }
+  }
+  float voltage = cached_voltage;
   p.setPen(QPen(blackColor(), 6));
   p.setFont(body_font);
   QString batteryVolStr = (voltage > 1) ? QString::number(voltage, 'f', 1) : "–";
@@ -1465,9 +1483,9 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
 
   // AutoACC 狀態
   bool autoAcc = params.getBool("AutoACC");
-  std::map<int, QString> autoAccProfileMap = {
-    {0, "手動"},
-    {1, "自動"},
+  static const std::array<QString, 2> autoAccProfileNames = {
+    "手動",
+    "自動",
   };
   p.setFont(body_font);
   if (autoAcc) {
@@ -1475,7 +1493,7 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   } else {
     p.setPen(QPen(blackColor(), 6));
   }
-  QString autoAccProfileText = autoAccProfileMap[autoAcc ? 1 : 0] + " ACC";
+  QString autoAccProfileText = autoAccProfileNames[autoAcc ? 1 : 0] + " ACC";
   p.drawText(info_rect.adjusted(left_padding, autoacc_y, 0, 0), Qt::AlignTop | Qt::AlignLeft, autoAccProfileText);
 
   // 油價計算（如果啟用）
