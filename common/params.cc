@@ -281,6 +281,8 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"GreenLightVolume", PERSISTENT},
     {"LanechangeblockedsoundVolume", PERSISTENT},
     {"LanechangesoundVolume", PERSISTENT},
+    {"DrivingStyleStats", PERSISTENT},
+
     // {"LaneWidthRight", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
 
     {"AggressiveAccelerationLearning", PERSISTENT},
