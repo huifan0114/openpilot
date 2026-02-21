@@ -5,7 +5,7 @@ import numpy as np
 from openpilot.common.params import Params
 from openpilot.selfdrive.controls.lib.longitudinal_planner import ACCEL_MIN, get_max_accel
 
-from openpilot.frogpilot.common.frogpilot_variables import CITY_SPEED_LIMIT
+from openpilot.frogpilot.common.frogpilot_variables import CITY_SPEED_LIMIT, params_memory
 
 A_CRUISE_MIN_ECO =   ACCEL_MIN / 2
 A_CRUISE_MIN_SPORT = ACCEL_MIN * 2
@@ -39,7 +39,7 @@ class DrivingStyleLearner:
     self.accel_samples = []
     self.gas_samples = []
     self.sample_count = 0
-    self.max_samples = 500  # 收集500個樣本後開始學習
+    self.max_samples = 100  # 收集100個樣本後開始學習
 
     # 駕駛風格係數 (0.8 = 溫和, 1.0 = 標準, 1.5 = 積極, 2.0 = 激進)
     self.style_factor = 1.0
@@ -47,6 +47,7 @@ class DrivingStyleLearner:
 
     # 載入已學習的數據
     self._load_learned_style()
+    self._publish_style_stats()
 
   def _load_learned_style(self):
     """從持久化存儲載入已學習的駕駛風格"""
@@ -59,6 +60,18 @@ class DrivingStyleLearner:
         self.sample_count = learned.get("sample_count", 0)
     except:
       pass
+
+  def _publish_style_stats(self, avg_accel=0.0, avg_gas=0.0, p90_accel=0.0, delta=0.0):
+    stats = {
+      "style_factor": float(self.style_factor),
+      "delta": float(delta),
+      "learned": bool(self.learned),
+      "sample_count": int(self.sample_count),
+      "avg_accel": float(avg_accel),
+      "avg_gas": float(avg_gas),
+      "p90_accel": float(p90_accel),
+    }
+    params_memory.put("DrivingStyleStats", json.dumps(stats))
 
   def _save_learned_style(self):
     """保存學習的駕駛風格到持久化存儲"""
@@ -82,13 +95,13 @@ class DrivingStyleLearner:
         self.accel_samples.pop(0)
         self.gas_samples.pop(0)
 
-      # 每收集100個樣本後重新計算
-      if self.sample_count % 100 == 0:
+      # 每收集30個樣本後重新計算
+      if self.sample_count % 30 == 0:
         self._calculate_style()
 
   def _calculate_style(self):
     """計算駕駛風格係數"""
-    if len(self.accel_samples) < 50:  # 至少需要50個樣本
+    if len(self.accel_samples) < 30:  # 至少需要30個樣本
       return
 
     accel_array = np.array(self.accel_samples)
@@ -96,7 +109,7 @@ class DrivingStyleLearner:
 
     # 計算統計指標
     avg_accel = np.mean(accel_array)
-    max_accel = np.percentile(accel_array, 90)  # 90百分位數
+    p90_accel = np.percentile(accel_array, 90)  # 90百分位數
     avg_gas = np.mean(gas_array)
 
     # 根據統計指標計算風格係數
@@ -104,17 +117,20 @@ class DrivingStyleLearner:
     accel_factor = np.clip(0.5 + avg_accel * 0.4, 0.8, 1.5)
 
     # 最大加速度: 1.0-3.0 m/s² -> 0.8-1.4
-    max_factor = np.clip(0.5 + max_accel * 0.3, 0.8, 1.5)
+    max_factor = np.clip(0.5 + p90_accel * 0.3, 0.8, 1.5)
 
     # 油門使用: 0.3-0.8 -> 0.9-1.4
     gas_factor = np.clip(0.6 + avg_gas * 1.0, 0.8, 1.5)
 
     # 綜合計算 (加權平均)
+    previous_factor = self.style_factor
     self.style_factor = (accel_factor * 0.4 + max_factor * 0.3 + gas_factor * 0.3)
     self.style_factor = np.clip(self.style_factor, 0.8, 2.0)
+    delta = self.style_factor - previous_factor
 
     self.learned = True
     self._save_learned_style()
+    self._publish_style_stats(avg_accel=avg_accel, avg_gas=avg_gas, p90_accel=p90_accel, delta=delta)
 
   def get_adjusted_accel_vals(self, base_vals):
     """根據學習的駕駛風格調整加速參數"""
@@ -133,6 +149,7 @@ class DrivingStyleLearner:
     self.style_factor = 1.0
     self.learned = False
     self.params.remove("DrivingStyleLearned")
+    self._publish_style_stats()
 
 class FrogPilotAcceleration:
   def __init__(self, FrogPilotPlanner):
