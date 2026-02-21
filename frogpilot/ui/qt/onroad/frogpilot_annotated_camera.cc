@@ -1351,7 +1351,7 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
     {4, "高速公路"},
   };
   QString roadProfileText = roadProfileMap[roadProfile];
-  p.setFont(InterFont(45, QFont::Normal));
+  p.setFont(InterFont(40, QFont::Normal));
   p.setPen(QPen(blackColor(), 6));
   p.drawText(info_rect.adjusted(20, 10, 0, 0), Qt::AlignTop | Qt::AlignLeft, roadProfileText);
 
@@ -1380,6 +1380,7 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
 
   //速差顯示
   QString vr_text = "速差  " + QString::number(leadspeed_diffProfile);
+  p.setFont(InterFont(40, QFont::Normal));
   p.drawText(info_rect.adjusted(20, 155, 0, 0), Qt::AlignTop | Qt::AlignLeft, vr_text);
 
   const int fuel_y1 = 200;
@@ -1389,6 +1390,94 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   const int voltage_y = fuelpriceEnabled ? 385 : 300;
   const int autoacc_y = fuelpriceEnabled ? 430 : 350;
 
+  // 油量顯示
+  float tankVolume = carState.getTankvol();
+  QString tankVolStr = QString::number(tankVolume);
+  if (tankVolume > 30) {
+    p.setPen(QPen(blackColor(), 6));
+  } else if (tankVolume > 10 && tankVolume <= 30) {
+    p.setPen(QPen(QColor(128, 0, 128), 6));
+  } else if (tankVolume <= 10) {
+    p.setPen(QPen(QColor(255, 0, 0), 6));
+  }
+  p.setFont(InterFont(40, QFont::Normal));
+  p.drawText(info_rect.adjusted(20, oil_y, 0, 0), Qt::AlignTop | Qt::AlignLeft, "油量  " + tankVolStr);
+
+  // 油溫顯示
+  float oilTemp = carState.getOiltemperature();
+  QString oilTempStr = QString::number(oilTemp);
+  if (oilTemp < 90) {
+    p.setPen(QPen(blackColor(), 6));
+  } else if (oilTemp > 90 && oilTemp <= 110) {
+    p.setPen(QPen(QColor(128, 0, 128), 6));
+  } else if (oilTemp > 110) {
+    p.setPen(QPen(QColor(255, 0, 0), 6));
+  }
+  p.setFont(InterFont(40, QFont::Normal));
+  p.drawText(info_rect.adjusted(20, oil_temp_y, 0, 0), Qt::AlignTop | Qt::AlignLeft, "油溫  " + oilTempStr);
+
+  // 電壓顯示
+  std::stringstream buffer;
+  buffer << std::ifstream("/sys/class/hwmon/hwmon1/in1_input").rdbuf();
+  float voltage = (float)std::atoi(buffer.str().c_str()) / 1000.0f;
+  p.setPen(QPen(blackColor(), 6));
+  p.setFont(InterFont(40, QFont::Normal));
+  QString batteryVolStr = (voltage > 1) ? QString::number(voltage, 'f', 1) : "–";
+  p.drawText(info_rect.adjusted(20, voltage_y, 0, 0), Qt::AlignTop | Qt::AlignLeft, "電壓  " + batteryVolStr);
+
+  // AutoACC 狀態
+  bool autoAcc = params.getBool("AutoACC");
+  std::map<int, QString> autoAccProfileMap = {
+    {0, "手動"},
+    {1, "自動"},
+  };
+  p.setFont(InterFont(40, QFont::Normal));
+  if (autoAcc) {
+    p.setPen(QPen(redColor(), 6));
+  } else {
+    p.setPen(QPen(blackColor(), 6));
+  }
+  QString autoAccProfileText = autoAccProfileMap[autoAcc ? 1 : 0] + " ACC";
+  p.drawText(info_rect.adjusted(20, autoacc_y, 0, 0), Qt::AlignTop | Qt::AlignLeft, autoAccProfileText);
+
+  // 油價計算（如果啟用）
+  if (fuelpriceEnabled) {
+    int fuelCosts = params.getInt("Fuelcosts") / 10;
+    int fuelCostsNow = params.getInt("Fuelcostsnow");
+    int fuelCostsPre = params.getInt("Fuelcostspre");
+
+    if (fuelCostsNow != 0 && fuelCostsPre == 0) {
+      fuelCostsPre = fuelCostsPre + fuelCostsNow / 100;
+      params.putInt("Fuelcostsnow", 0);
+    }
+
+    float fuelTotal = carState.getFueltotal();
+    if (fuelTotal > 0) {
+      params.putInt("Fuelcostsnow", fuelCostsPre + (std::round(fuelTotal * 10) / 10 * fuelCosts) * 100);
+    }
+
+    int fuelConsumptionNow = params.getInt("Fuelconsumptionnow");
+    int fuelConsumptionPre = params.getInt("Fuelconsumptionpre");
+    if (fuelConsumptionNow != 0 && fuelConsumptionPre == 0) {
+      fuelConsumptionPre = fuelConsumptionPre + fuelConsumptionNow / 100;
+      params.putInt("Fuelconsumptionnow", 0);
+    }
+
+    if (fuelTotal > 0) {
+      params.putInt("Fuelconsumptionnow", fuelConsumptionPre + (std::round(fuelTotal * 100) / 100) * 100);
+    }
+
+    p.setPen(QPen(blackColor(), 6));
+    p.setFont(InterFont(40, QFont::Normal));
+    QString tankUsedText = "油資  " + QString::number(std::round(fuelTotal * 10) / 10 * fuelCosts);
+    p.drawText(info_rect.adjusted(20, fuel_y1, 0, 0), Qt::AlignTop | Qt::AlignLeft, tankUsedText);
+
+    QString fuelTotalStr = (fuelTotal > 0) ? QString::number(std::round(fuelTotal * 100) / 100) : "–";
+    p.setFont(InterFont(40, QFont::Normal));
+    p.drawText(info_rect.adjusted(20, fuel_y2, 0, 0), Qt::AlignTop | Qt::AlignLeft, "已用  " + fuelTotalStr);
+  }
+
+  // 學習資訊
   static QString cached_style_stats_json;
   static QJsonObject cached_style_stats;
 
@@ -1446,90 +1535,6 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   p.drawText(style_rect.adjusted(style_padding_x, style_text_y - style_rect.top(), 0, 0), Qt::AlignTop | Qt::AlignLeft, style_line2);
   style_text_y += style_line_height + style_line_gap;
   p.drawText(style_rect.adjusted(style_padding_x, style_text_y - style_rect.top(), 0, 0), Qt::AlignTop | Qt::AlignLeft, style_line3);
-
-
-  // 油量顯示
-  float tankVolume = carState.getTankvol();
-  QString tankVolStr = QString::number(tankVolume);
-  if (tankVolume > 30) {
-    p.setPen(QPen(blackColor(), 6));
-  } else if (tankVolume > 10 && tankVolume <= 30) {
-    p.setPen(QPen(QColor(128, 0, 128), 6));
-  } else if (tankVolume <= 10) {
-    p.setPen(QPen(QColor(255, 0, 0), 6));
-  }
-  p.drawText(info_rect.adjusted(20, oil_y, 0, 0), Qt::AlignTop | Qt::AlignLeft, "油量  " + tankVolStr);
-
-  // 油溫顯示
-  float oilTemp = carState.getOiltemperature();
-  QString oilTempStr = QString::number(oilTemp);
-  if (oilTemp < 90) {
-    p.setPen(QPen(blackColor(), 6));
-  } else if (oilTemp > 90 && oilTemp <= 110) {
-    p.setPen(QPen(QColor(128, 0, 128), 6));
-  } else if (oilTemp > 110) {
-    p.setPen(QPen(QColor(255, 0, 0), 6));
-  }
-  p.drawText(info_rect.adjusted(20, oil_temp_y, 0, 0), Qt::AlignTop | Qt::AlignLeft, "油溫  " + oilTempStr);
-
-  // 電壓顯示
-  std::stringstream buffer;
-  buffer << std::ifstream("/sys/class/hwmon/hwmon1/in1_input").rdbuf();
-  float voltage = (float)std::atoi(buffer.str().c_str()) / 1000.0f;
-  p.setPen(QPen(blackColor(), 6));
-  p.setFont(InterFont(40, QFont::Normal));
-  QString batteryVolStr = (voltage > 1) ? QString::number(voltage, 'f', 1) : "–";
-  p.drawText(info_rect.adjusted(20, voltage_y, 0, 0), Qt::AlignTop | Qt::AlignLeft, "電壓  " + batteryVolStr);
-
-  // AutoACC 狀態
-  bool autoAcc = params.getBool("AutoACC");
-  std::map<int, QString> autoAccProfileMap = {
-    {0, "手動"},
-    {1, "自動"},
-  };
-  p.setFont(InterFont(40, QFont::Normal));
-  if (autoAcc) {
-    p.setPen(QPen(redColor(), 6));
-  } else {
-    p.setPen(QPen(blackColor(), 6));
-  }
-  QString autoAccProfileText = autoAccProfileMap[autoAcc ? 1 : 0] + " ACC";
-  p.drawText(info_rect.adjusted(20, autoacc_y, 0, 0), Qt::AlignTop | Qt::AlignLeft, autoAccProfileText);
-
-  // 油價計算（如果啟用）
-  if (fuelpriceEnabled) {
-    int fuelCosts = params.getInt("Fuelcosts") / 10;
-    int fuelCostsNow = params.getInt("Fuelcostsnow");
-    int fuelCostsPre = params.getInt("Fuelcostspre");
-
-    if (fuelCostsNow != 0 && fuelCostsPre == 0) {
-      fuelCostsPre = fuelCostsPre + fuelCostsNow / 100;
-      params.putInt("Fuelcostsnow", 0);
-    }
-
-    float fuelTotal = carState.getFueltotal();
-    if (fuelTotal > 0) {
-      params.putInt("Fuelcostsnow", fuelCostsPre + (std::round(fuelTotal * 10) / 10 * fuelCosts) * 100);
-    }
-
-    int fuelConsumptionNow = params.getInt("Fuelconsumptionnow");
-    int fuelConsumptionPre = params.getInt("Fuelconsumptionpre");
-    if (fuelConsumptionNow != 0 && fuelConsumptionPre == 0) {
-      fuelConsumptionPre = fuelConsumptionPre + fuelConsumptionNow / 100;
-      params.putInt("Fuelconsumptionnow", 0);
-    }
-
-    if (fuelTotal > 0) {
-      params.putInt("Fuelconsumptionnow", fuelConsumptionPre + (std::round(fuelTotal * 100) / 100) * 100);
-    }
-
-    p.setPen(QPen(blackColor(), 6));
-    QString tankUsedText = "油資  " + QString::number(std::round(fuelTotal * 10) / 10 * fuelCosts);
-    p.drawText(info_rect.adjusted(20, fuel_y1, 0, 0), Qt::AlignTop | Qt::AlignLeft, tankUsedText);
-
-    QString fuelTotalStr = (fuelTotal > 0) ? QString::number(std::round(fuelTotal * 100) / 100) : "–";
-    p.drawText(info_rect.adjusted(20, fuel_y2, 0, 0), Qt::AlignTop | Qt::AlignLeft, "已用  " + fuelTotalStr);
-  }
 
   p.restore();
 }
