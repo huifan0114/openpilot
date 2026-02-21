@@ -12,8 +12,8 @@ A_CRUISE_MIN_SPORT = ACCEL_MIN * 2
 
                   # MPH = [0.0,  11,  22,  34,  45,  56,  89]
 A_CRUISE_MAX_BP_CUSTOM =  [0.0,  5., 10., 15., 20., 25., 40.]
-A_CRUISE_MAX_VALS_ECO =   [2.5, 2.0, 1.5, 1.2, 0.9, 0.6, 0.4]
-A_CRUISE_MAX_VALS_SPORT = [3.5, 3.0, 2.5, 2.0, 1.5, 1.2, 0.9]
+A_CRUISE_MAX_VALS_ECO =   [2.7, 2.2, 1.7, 1.35, 1.05, 0.75, 0.4]
+A_CRUISE_MAX_VALS_SPORT = [3.8, 3.3, 2.8, 2.25, 1.75, 1.35, 0.9]
 
 def get_max_accel_eco(v_ego):
   return float(np.interp(v_ego, A_CRUISE_MAX_BP_CUSTOM, A_CRUISE_MAX_VALS_ECO))
@@ -165,7 +165,7 @@ class FrogPilotAcceleration:
     eco_gear = sm["frogpilotCarState"].ecoGear
     sport_gear = sm["frogpilotCarState"].sportGear
 
-    # 收集駕駛風格數據 (手動駕駛或ACC啟動時踩油門都收集)
+    # 流程1: 若啟用學習，收集駕駛風格數據 (手動駕駛或ACC啟動時踩油門都收集)
     car_state = sm["carState"]
     if frogpilot_toggles.aggressive_acceleration_learning:
       a_ego = car_state.aEgo
@@ -175,13 +175,16 @@ class FrogPilotAcceleration:
       if gas_pressed:
         self.style_learner.update(v_ego, a_ego, gas_pressed, gas_value)
 
-    # 獲取學習調整後的加速參數
-    learned_eco_vals = self.style_learner.get_adjusted_accel_vals(A_CRUISE_MAX_VALS_ECO)
-    learned_sport_vals = self.style_learner.get_adjusted_accel_vals(A_CRUISE_MAX_VALS_SPORT)
+    # 流程2: 依學習開關，決定用學習後參數或原始參數
+    if frogpilot_toggles.aggressive_acceleration_learning:
+      learned_eco_vals = self.style_learner.get_adjusted_accel_vals(A_CRUISE_MAX_VALS_ECO)
+      learned_sport_vals = self.style_learner.get_adjusted_accel_vals(A_CRUISE_MAX_VALS_SPORT)
+    else:
+      learned_eco_vals = A_CRUISE_MAX_VALS_ECO
+      learned_sport_vals = A_CRUISE_MAX_VALS_SPORT
 
-#################################
+    # 流程3: 依模式/檔位/設定決定 max_accel 基準值
     self.max_accel = float(np.interp(v_ego, A_CRUISE_MAX_BP_CUSTOM, learned_eco_vals))
-#################################
 
     if sm["frogpilotCarState"].trafficModeEnabled:
       self.max_accel = get_max_accel(v_ego)
@@ -203,13 +206,16 @@ class FrogPilotAcceleration:
       else:
         self.max_accel = get_max_accel(v_ego)
 
+    # 流程4: 依人類加速限制做額外降檔
     if frogpilot_toggles.human_acceleration:
       self.max_accel = min(get_max_accel_low_speeds(self.max_accel, self.frogpilot_planner.v_cruise), self.max_accel)
       self.max_accel = min(get_max_accel_ramp_off(self.max_accel, self.frogpilot_planner.v_cruise, v_ego), self.max_accel)
 
+    # 流程5: 天候影響降低 max_accel
     if self.frogpilot_planner.frogpilot_weather.weather_id != 0:
       self.max_accel -= self.max_accel * self.frogpilot_planner.frogpilot_weather.reduce_acceleration
 
+    # 流程6: 依跟車/滑行/檔位/設定決定 min_accel
     if self.frogpilot_planner.tracking_lead:
       self.min_accel = ACCEL_MIN
     elif sm["frogpilotCarState"].forceCoast:
