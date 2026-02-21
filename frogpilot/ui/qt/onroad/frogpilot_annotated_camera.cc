@@ -1418,19 +1418,34 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   QString p90_text = has_style_stats ? QString::number(p90_accel, 'f', 2) : "–";
   QString style_line3 = QString("加 %1  油 %2  P90 %3").arg(accel_text, gas_text, p90_text);
 
-  const int style_panel_width = 260;
-  const int style_panel_height = 170;
-  const QRect style_rect(info_rect.right() + 20, panel_top, style_panel_width, style_panel_height);
+  QFont style_font = InterFont(34, QFont::Normal);
+  QFontMetrics style_fm(style_font);
+  const int style_padding_x = 20;
+  const int style_padding_y = 15;
+  const int style_line_gap = 10;
+  const int style_line_height = style_fm.height();
+  const int style_panel_height = style_padding_y * 2 + (style_line_height * 3) + (style_line_gap * 2);
+  const int style_text_width = std::max({
+    style_fm.horizontalAdvance(style_line1),
+    style_fm.horizontalAdvance(style_line2),
+    style_fm.horizontalAdvance(style_line3)
+  });
+  const int style_panel_width = style_text_width + (style_padding_x * 2) + 10;
+  const int style_panel_top = info_rect.bottom() - style_panel_height;
+  const QRect style_rect(info_rect.right() + 20, style_panel_top, style_panel_width, style_panel_height);
   p.setBrush(whiteColor());
   p.setPen(Qt::NoPen);
   p.drawRoundedRect(style_rect, 24, 24);
   p.setPen(QPen(blackColor(), 6));
   p.drawRoundedRect(style_rect.adjusted(9, 9, -9, -9), 16, 16);
 
-  p.setFont(InterFont(34, QFont::Normal));
-  p.drawText(style_rect.adjusted(20, 15, 0, 0), Qt::AlignTop | Qt::AlignLeft, style_line1);
-  p.drawText(style_rect.adjusted(20, 60, 0, 0), Qt::AlignTop | Qt::AlignLeft, style_line2);
-  p.drawText(style_rect.adjusted(20, 105, 0, 0), Qt::AlignTop | Qt::AlignLeft, style_line3);
+  p.setFont(style_font);
+  int style_text_y = style_rect.top() + style_padding_y;
+  p.drawText(style_rect.adjusted(style_padding_x, style_text_y - style_rect.top(), 0, 0), Qt::AlignTop | Qt::AlignLeft, style_line1);
+  style_text_y += style_line_height + style_line_gap;
+  p.drawText(style_rect.adjusted(style_padding_x, style_text_y - style_rect.top(), 0, 0), Qt::AlignTop | Qt::AlignLeft, style_line2);
+  style_text_y += style_line_height + style_line_gap;
+  p.drawText(style_rect.adjusted(style_padding_x, style_text_y - style_rect.top(), 0, 0), Qt::AlignTop | Qt::AlignLeft, style_line3);
 
 
   // 油量顯示
