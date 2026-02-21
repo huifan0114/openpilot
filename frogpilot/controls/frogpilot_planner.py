@@ -66,6 +66,9 @@ class FrogPilotPlanner:
     self.previous_road_name = ""  # 記錄上次的路名，避免重複設定
     self.previous_roadtype_profile = 0  # 記錄上次的道路類型檔案，避免重複設定
     self.profile_target_speed = 0  # Profile 速限目標（用於逐步降速）
+    self.manual_override_count = 0
+    self.manual_override_last_ts = 0.0
+    self.gas_pressed_prev = False
     self.stopmark_active_prev = False  # 追踪上一次的 StopmarkActive 狀態（防抖）
     self.stopmark_active_timer = 0.0  # Stopmark 激活狀態持續時間計時器
     self.stopmark_last_update_time = 0.0  # Stopmark 降速參數寫入節流時間戳
@@ -351,6 +354,10 @@ class FrogPilotPlanner:
               final_speed = clamp_offline_or_road_limit(min_speed, is_road_profile=True)
               self.profile_target_speed = final_speed
 
+            # Reset manual override when road/profile changes
+            self.manual_override_count = 0
+            self.manual_override_last_ts = 0.0
+
     # Profile 速限逐步降速（避免一次降太多）
     if self.profile_target_speed > 0:
       is_stopmark_active = self.params_memory.get_bool("StopmarkApplied") or self.params_memory.get_bool("StopmarkRecovering")
@@ -526,11 +533,47 @@ class FrogPilotPlanner:
         if detect_sl > 0 and detect_sl != self.detect_speed_prev:
           adjusted_sl = int(round(detect_sl * 1.1))
           adjusted_sl = clamp_offline_or_road_limit(adjusted_sl, source=slc_source)
-          update_speed_limit(adjusted_sl)
+          if update_speed_limit(adjusted_sl):
+            self.manual_override_count = 0
+            self.manual_override_last_ts = 0.0
         elif detect_sl == 0 and self.detect_speed_prev != 0:
           # 速限消失時重置
           self.detect_speed_prev = 0
           self.params_memory.put_int("DetectSpeedLimit", 0)
+          self.manual_override_count = 0
+          self.manual_override_last_ts = 0.0
+
+    # Manual override: if driver accelerates twice, adopt current speed as speed limit
+    MANUAL_OVERRIDE_WINDOW_SEC = 10.0
+    MANUAL_OVERRIDE_REQUIRED_COUNT = 2
+    MANUAL_OVERRIDE_SPEED_THRESHOLD = 1
+
+    gas_pressed = bool(sm["carState"].gasPressed)
+    gas_rising = gas_pressed and not self.gas_pressed_prev
+    self.gas_pressed_prev = gas_pressed
+
+    if gas_rising:
+      now_ts = now if isinstance(now, (int, float)) else time.time()
+      if now_ts - self.manual_override_last_ts > MANUAL_OVERRIDE_WINDOW_SEC:
+        self.manual_override_count = 0
+      self.manual_override_last_ts = now_ts
+
+      is_stopmark_active = self.params_memory.get_bool("StopmarkApplied") or self.params_memory.get_bool("StopmarkRecovering")
+      if not is_stopmark_active:
+        current_setspeed = self.params_memory.get_int("KeySetSpeed")
+        if current_setspeed <= 0:
+          current_setspeed = int(round(sm["controlsState"].vCruise))
+
+        if v_ego_kph > current_setspeed + MANUAL_OVERRIDE_SPEED_THRESHOLD:
+          self.manual_override_count += 1
+
+        if self.manual_override_count >= MANUAL_OVERRIDE_REQUIRED_COUNT:
+          new_speed = int(round(v_ego_kph * 1.1))
+          if update_speed_limit(new_speed, force_update=True):
+            if hasattr(self, "frogpilot_vcruise"):
+              self.frogpilot_vcruise.last_button_press_time = now_ts
+          self.manual_override_count = 0
+          self.manual_override_last_ts = 0.0
 
 #################################################################
     if frogpilot_toggles.auto_speeddistance:
