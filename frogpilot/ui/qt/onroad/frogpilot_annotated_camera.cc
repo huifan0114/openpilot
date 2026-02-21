@@ -1319,7 +1319,8 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   int leadspeed_diffProfile = params_memory.getInt("leadspeeddiffProfile");
   const bool fuelpriceEnabled = params.getBool("Fuelprice");
   const int panel_height = fuelpriceEnabled ? 560 : 500;
-  const int panel_top = rect().bottom() - (panel_height + 60);
+  const int panel_offset_y = 40;
+  const int panel_top = rect().bottom() - (panel_height + 60) + panel_offset_y;
   const QRect info_rect(rect().left() + 20, panel_top, 220, panel_height);
   p.setPen(Qt::NoPen);
   if (leadspeed_diffProfile < -20) {
@@ -1388,9 +1389,17 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   const int voltage_y = fuelpriceEnabled ? 385 : 300;
   const int autoacc_y = fuelpriceEnabled ? 430 : 350;
 
+  static QString cached_style_stats_json;
+  static QJsonObject cached_style_stats;
+
   QString style_stats_json = QString::fromStdString(params_memory.get("DrivingStyleStats"));
-  QJsonObject style_stats = QJsonDocument::fromJson(style_stats_json.toUtf8()).object();
-  const bool has_style_stats = !style_stats_json.isEmpty();
+  if (!style_stats_json.isEmpty() && style_stats_json != cached_style_stats_json) {
+    cached_style_stats_json = style_stats_json;
+    cached_style_stats = QJsonDocument::fromJson(style_stats_json.toUtf8()).object();
+  }
+
+  QJsonObject style_stats = cached_style_stats;
+  const bool has_style_stats = !cached_style_stats_json.isEmpty();
 
   double style_factor = style_stats.value("style_factor").toDouble(1.0);
   double style_delta = style_stats.value("delta").toDouble(0.0);
