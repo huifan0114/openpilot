@@ -1493,11 +1493,24 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
 void FrogPilotAnnotatedCameraWidget::paintLearningPanel(QPainter &p, int panel_bottom, int panel_left) {
   static QString cached_style_stats_json;
   static QJsonObject cached_style_stats;
+  static QElapsedTimer stats_timer;
 
-  QString style_stats_json = QString::fromStdString(params_memory.get("DrivingStyleStats"));
-  if (!style_stats_json.isEmpty() && style_stats_json != cached_style_stats_json) {
-    cached_style_stats_json = style_stats_json;
-    cached_style_stats = QJsonDocument::fromJson(style_stats_json.toUtf8()).object();
+  if (!stats_timer.isValid()) {
+    stats_timer.start();
+  }
+
+  if (stats_timer.elapsed() >= 500) {
+    stats_timer.restart();
+
+    QString style_stats_json = QString::fromStdString(params_memory.get("DrivingStyleStats"));
+    if (!style_stats_json.isEmpty() && style_stats_json != cached_style_stats_json) {
+      QJsonParseError parse_error;
+      QJsonDocument doc = QJsonDocument::fromJson(style_stats_json.toUtf8(), &parse_error);
+      if (parse_error.error == QJsonParseError::NoError && doc.isObject()) {
+        cached_style_stats_json = style_stats_json;
+        cached_style_stats = doc.object();
+      }
+    }
   }
 
   QJsonObject style_stats = cached_style_stats;
