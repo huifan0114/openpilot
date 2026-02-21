@@ -1066,6 +1066,9 @@ if (frogpilotPlan.getSlcNextSpeedLimit() > 0) {
   current_y += rect_height + spacing;
 }
 /////////////////////////////////////////////////////////////////////
+  // 動態更新速限來源的底部位置
+  speedLimitSourcesBottomY = current_y;
+
   p.restore();
 }
 
@@ -1314,7 +1317,10 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
 
   // 繪製資訊面板背景
   int leadspeed_diffProfile = params_memory.getInt("leadspeeddiffProfile");
-  const QRect info_rect(rect().left() + 20, rect().bottom() - 560, 220, 500);
+  const bool fuelpriceEnabled = params.getBool("Fuelprice");
+  const int panel_height = fuelpriceEnabled ? 560 : 500;
+  const int panel_top = rect().bottom() - (panel_height + 60);
+  const QRect info_rect(rect().left() + 20, panel_top, 220, panel_height);
   p.setPen(Qt::NoPen);
   if (leadspeed_diffProfile < -20) {
     p.setBrush(Qt::red);
@@ -1375,6 +1381,43 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   QString vr_text = "速差  " + QString::number(leadspeed_diffProfile);
   p.drawText(info_rect.adjusted(20, 155, 0, 0), Qt::AlignTop | Qt::AlignLeft, vr_text);
 
+  const int style_y1 = fuelpriceEnabled ? 160 : 190;
+  const int style_y2 = fuelpriceEnabled ? 195 : 225;
+  const int style_y3 = fuelpriceEnabled ? 230 : 260;
+  const int fuel_y1 = fuelpriceEnabled ? 265 : 200;
+  const int fuel_y2 = fuelpriceEnabled ? 300 : 245;
+  const int oil_y = fuelpriceEnabled ? 335 : 290;
+  const int oil_temp_y = fuelpriceEnabled ? 380 : 340;
+  const int voltage_y = fuelpriceEnabled ? 425 : 385;
+  const int autoacc_y = fuelpriceEnabled ? 470 : 430;
+
+  QString style_stats_json = QString::fromStdString(params_memory.get("DrivingStyleStats"));
+  QJsonObject style_stats = QJsonDocument::fromJson(style_stats_json.toUtf8()).object();
+  const bool has_style_stats = !style_stats_json.isEmpty();
+
+  double style_factor = style_stats.value("style_factor").toDouble(1.0);
+  double style_delta = style_stats.value("delta").toDouble(0.0);
+  bool style_learned = style_stats.value("learned").toBool(false);
+  int style_samples = style_stats.value("sample_count").toInt(0);
+  double avg_accel = style_stats.value("avg_accel").toDouble(0.0);
+  double avg_gas = style_stats.value("avg_gas").toDouble(0.0);
+  double p90_accel = style_stats.value("p90_accel").toDouble(0.0);
+
+  QString factor_text = has_style_stats ? QString::number(style_factor, 'f', 2) : "–";
+  QString delta_text = has_style_stats ? QString("%1%2").arg(style_delta >= 0 ? "+" : "").arg(QString::number(style_delta, 'f', 2)) : "–";
+  QString style_line1 = QString("學習  %1 (%2)").arg(factor_text, delta_text);
+  QString style_line2 = QString("樣本  %1  %2").arg(style_samples).arg(style_learned ? "已學" : "學習中");
+  QString accel_text = has_style_stats ? QString::number(avg_accel, 'f', 2) : "–";
+  QString gas_text = has_style_stats ? QString::number(avg_gas, 'f', 2) : "–";
+  QString p90_text = has_style_stats ? QString::number(p90_accel, 'f', 2) : "–";
+  QString style_line3 = QString("加 %1  油 %2  P90 %3").arg(accel_text, gas_text, p90_text);
+
+  p.setFont(InterFont(34, QFont::Normal));
+  p.setPen(QPen(blackColor(), 6));
+  p.drawText(info_rect.adjusted(20, style_y1, 0, 0), Qt::AlignTop | Qt::AlignLeft, style_line1);
+  p.drawText(info_rect.adjusted(20, style_y2, 0, 0), Qt::AlignTop | Qt::AlignLeft, style_line2);
+  p.drawText(info_rect.adjusted(20, style_y3, 0, 0), Qt::AlignTop | Qt::AlignLeft, style_line3);
+
 
   // 油量顯示
   float tankVolume = carState.getTankvol();
@@ -1386,7 +1429,7 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   } else if (tankVolume <= 10) {
     p.setPen(QPen(QColor(255, 0, 0), 6));
   }
-  p.drawText(info_rect.adjusted(20, 290, 0, 0), Qt::AlignTop | Qt::AlignLeft, "油量  " + tankVolStr);
+  p.drawText(info_rect.adjusted(20, oil_y, 0, 0), Qt::AlignTop | Qt::AlignLeft, "油量  " + tankVolStr);
 
   // 油溫顯示
   float oilTemp = carState.getOiltemperature();
@@ -1398,7 +1441,7 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   } else if (oilTemp > 110) {
     p.setPen(QPen(QColor(255, 0, 0), 6));
   }
-  p.drawText(info_rect.adjusted(20, 340, 0, 0), Qt::AlignTop | Qt::AlignLeft, "油溫  " + oilTempStr);
+  p.drawText(info_rect.adjusted(20, oil_temp_y, 0, 0), Qt::AlignTop | Qt::AlignLeft, "油溫  " + oilTempStr);
 
   // 電壓顯示
   std::stringstream buffer;
@@ -1407,7 +1450,7 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   p.setPen(QPen(blackColor(), 6));
   p.setFont(InterFont(40, QFont::Normal));
   QString batteryVolStr = (voltage > 1) ? QString::number(voltage, 'f', 1) : "–";
-  p.drawText(info_rect.adjusted(20, 385, 0, 0), Qt::AlignTop | Qt::AlignLeft, "電壓  " + batteryVolStr);
+  p.drawText(info_rect.adjusted(20, voltage_y, 0, 0), Qt::AlignTop | Qt::AlignLeft, "電壓  " + batteryVolStr);
 
   // AutoACC 狀態
   bool autoAcc = params.getBool("AutoACC");
@@ -1422,10 +1465,9 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
     p.setPen(QPen(blackColor(), 6));
   }
   QString autoAccProfileText = autoAccProfileMap[autoAcc ? 1 : 0] + " ACC";
-  p.drawText(info_rect.adjusted(20, 430, 0, 0), Qt::AlignTop | Qt::AlignLeft, autoAccProfileText);
+  p.drawText(info_rect.adjusted(20, autoacc_y, 0, 0), Qt::AlignTop | Qt::AlignLeft, autoAccProfileText);
 
   // 油價計算（如果啟用）
-  bool fuelpriceEnabled = params.getBool("Fuelprice");
   if (fuelpriceEnabled) {
     int fuelCosts = params.getInt("Fuelcosts") / 10;
     int fuelCostsNow = params.getInt("Fuelcostsnow");
@@ -1454,10 +1496,10 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
 
     p.setPen(QPen(blackColor(), 6));
     QString tankUsedText = "油資  " + QString::number(std::round(fuelTotal * 10) / 10 * fuelCosts);
-    p.drawText(info_rect.adjusted(20, 200, 0, 0), Qt::AlignTop | Qt::AlignLeft, tankUsedText);
+    p.drawText(info_rect.adjusted(20, fuel_y1, 0, 0), Qt::AlignTop | Qt::AlignLeft, tankUsedText);
 
     QString fuelTotalStr = (fuelTotal > 0) ? QString::number(std::round(fuelTotal * 100) / 100) : "–";
-    p.drawText(info_rect.adjusted(20, 245, 0, 0), Qt::AlignTop | Qt::AlignLeft, "已用  " + fuelTotalStr);
+    p.drawText(info_rect.adjusted(20, fuel_y2, 0, 0), Qt::AlignTop | Qt::AlignLeft, "已用  " + fuelTotalStr);
   }
 
   p.restore();
