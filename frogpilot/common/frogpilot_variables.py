@@ -522,6 +522,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("Fuelcosts", "30.5", 1, "30.5"),
   ## HFOPinf 訊息框 ##
   ("HFOPinf", "1", 1, "1"),
+  ("DrivingLearningPanel", "1", 1, "1"),
   ## Navspeed 圖資速限 ##
   # ("NavReminder", "1", 1, "1"),
   ("Navspeed", "1", 1, "1"),
@@ -1118,6 +1119,7 @@ class FrogPilotVariables:
     toggle.dooropen_pre = params.get_bool("Dooropenpre")
     toggle.driver_dooropen = params.get_bool("DriverdoorOpen")
     toggle.hfop_inf = params.get_bool("HFOPinf")
+    toggle.driving_learning_panel = params.get_bool("DrivingLearningPanel")
     # toggle.key_changed = params_memory.get_bool('KeyChanged')
     toggle.key_cancel = params_memory.get_bool("KeyCancel")
     toggle.key_set_speed = params_memory.get_int("KeySetSpeed")

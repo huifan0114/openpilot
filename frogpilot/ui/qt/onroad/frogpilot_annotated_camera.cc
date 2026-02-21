@@ -366,9 +366,10 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
 /////////////////////////////////////////////////////
   // 車輛資訊面板 (HFOP Info Panel)
   if (!frogpilot_scene.map_open && !hideBottomIcons) {
+    const bool show_learning_panel = frogpilot_toggles.value("driving_learning_panel").toBool();
     if (frogpilot_toggles.value("hfop_inf").toBool()) {
       paintVehicleInfoPanel(p, carState, frogpilot_toggles);
-    } else {
+    } else if (show_learning_panel) {
       const int panel_offset_y = 40;
       const int panel_bottom = rect().bottom() - 60 + panel_offset_y;
       paintLearningPanel(p, panel_bottom, rect().left() + 20);
@@ -1482,7 +1483,9 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
     p.setFont(InterFont(40, QFont::Normal));
     p.drawText(info_rect.adjusted(20, fuel_y2, 0, 0), Qt::AlignTop | Qt::AlignLeft, "已用  " + fuelTotalStr);
   }
-  paintLearningPanel(p, info_rect.bottom(), info_rect.right() + 20);
+  if (frogpilot_toggles.value("driving_learning_panel").toBool()) {
+    paintLearningPanel(p, info_rect.bottom(), info_rect.right() + 20);
+  }
 
   p.restore();
 }

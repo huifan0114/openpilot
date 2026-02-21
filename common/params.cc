@@ -240,6 +240,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"Fuelcostsweek", PERSISTENT},
     {"Fuelprice", PERSISTENT},
     {"HFOPinf", PERSISTENT},
+    {"DrivingLearningPanel", PERSISTENT},
     {"KeyCancel", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
     {"KeyChanged", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
     {"KeyResume", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
