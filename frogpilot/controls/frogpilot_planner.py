@@ -65,6 +65,7 @@ class FrogPilotPlanner:
     self.speed_over = False
     self.previous_road_name = ""  # 記錄上次的路名，避免重複設定
     self.previous_roadtype_profile = 0  # 記錄上次的道路類型檔案，避免重複設定
+    self.profile_target_speed = 0  # Profile 速限目標（用於逐步降速）
     self.stopmark_active_prev = False  # 追踪上一次的 StopmarkActive 狀態（防抖）
     self.stopmark_active_timer = 0.0  # Stopmark 激活狀態持續時間計時器
     self.stopmark_last_update_time = 0.0  # Stopmark 降速參數寫入節流時間戳
@@ -347,31 +348,37 @@ class FrogPilotPlanner:
 
             # 若當前速限不在該Profile的範圍內，則更新為該Profile的最小速限
             if not (min_speed <= current_setspeed < max_speed):
-              final_speed = min_speed
-              # 平滑過渡：高速降級/速限降低時限制每秒最多降 10 km/h，避免急煞
-              try:
-                prev_profile = self.previous_roadtype_profile
-              except AttributeError:
-                prev_profile = self.params.get_int("RoadtypeProfile")
-              curr_profile = self.params.get_int("RoadtypeProfile")
+              final_speed = clamp_offline_or_road_limit(min_speed, is_road_profile=True)
+              self.profile_target_speed = final_speed
 
-              now_ts = now if isinstance(now, (int, float)) else time.time()
-              if not hasattr(self, "last_speed_update_ts"):
-                self.last_speed_update_ts = now_ts
-              dt = max(0.05, min(1.0, now_ts - self.last_speed_update_ts))
+    # Profile 速限逐步降速（避免一次降太多）
+    if self.profile_target_speed > 0:
+      is_stopmark_active = self.params_memory.get_bool("StopmarkApplied") or self.params_memory.get_bool("StopmarkRecovering")
+      is_button_protected = hasattr(self, 'frogpilot_vcruise') and self.frogpilot_vcruise.is_button_protected()
+      if not is_stopmark_active and not is_button_protected:
+        current_setspeed = self.params_memory.get_int("KeySetSpeed")
+        if current_setspeed <= 0:
+          current_setspeed = int(round(sm["controlsState"].vCruise))
 
-              is_highway_downgrade = (prev_profile == 4 and curr_profile in (2, 3))
-              target_lower_than_current = (final_speed < current_setspeed)
-              if is_highway_downgrade or target_lower_than_current:
-                max_drop_per_sec = 5
-                max_drop = int(round(max_drop_per_sec * dt))
-                allowed_min = max(0, current_setspeed - max_drop)
-                if final_speed < allowed_min:
-                  final_speed = allowed_min
+        target_speed = self.profile_target_speed
+        if current_setspeed <= target_speed:
+          self.profile_target_speed = 0
+        else:
+          now_ts = now if isinstance(now, (int, float)) else time.time()
+          if not hasattr(self, "last_speed_update_ts"):
+            self.last_speed_update_ts = now_ts
+          dt = max(0.05, min(1.0, now_ts - self.last_speed_update_ts))
 
-              self.last_speed_update_ts = now_ts
-              final_speed = clamp_offline_or_road_limit(final_speed, is_road_profile=True)
-              update_speed_limit(final_speed, force_update=True)
+          max_drop_per_sec = 5
+          max_drop = int(round(max_drop_per_sec * dt))
+          allowed_min = max(0, current_setspeed - max_drop)
+          new_speed = max(target_speed, allowed_min)
+
+          self.last_speed_update_ts = now_ts
+          if new_speed != current_setspeed:
+            update_speed_limit(new_speed, force_update=True)
+          if new_speed <= target_speed:
+            self.profile_target_speed = 0
 
     # ---------- Stopmark 參數 ----------
     # 以 KeySetSpeed 與 slc.target(換算 km/h) 取較小者為基準，取其 50%
@@ -391,7 +398,7 @@ class FrogPilotPlanner:
     candidates = [s for s in (key_set_speed_kph, slc_target_kph) if s > 0]
     base_speed_kph = min(candidates) if candidates else 30
 
-    STOPMARK_MIN_SPEED = max(30, int(round(base_speed_kph * 0.5)))
+    STOPMARK_MIN_SPEED = max(10, int(round(base_speed_kph * 0.5)))
 
     STOPMARK_MIN_DISTANCE = 50.0  # 🔧 優化：從 10m 擴大到 50m，給予更大的有效減速範圍
     STOPMARK_MAX_DISTANCE = 600.0  # 🔧 優化：從 300m 擴大到 500m，提前更早開始減速
