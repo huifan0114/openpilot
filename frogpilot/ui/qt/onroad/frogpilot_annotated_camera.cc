@@ -14,6 +14,7 @@
 
 namespace {
 constexpr float kFuelUpdateThreshold = 0.5f;
+constexpr int kCscDynamicMinSpacing = 10;
 }  // namespace
 
 FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(QWidget *parent) : QWidget(parent) {
@@ -191,6 +192,56 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
   const cereal::FrogPilotNavigation::Reader &frogpilotNavigation = fpsm["frogpilotNavigation"].getFrogpilotNavigation();
   const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
   const cereal::ModelDataV2::Reader &model = sm["modelV2"].getModelV2();
+
+  cscDynamicTopY = -1;
+  const bool showSpeedLimitSources = !bigMapOpen && (mutcdSpeedLimit || viennaSpeedLimit) && frogpilot_toggles.value("speed_limit_sources").toBool();
+  if (showSpeedLimitSources) {
+    int sourceCount = 0;
+    sourceCount += frogpilotCarState.getDashboardSpeedLimit() > 0 ? 1 : 0;
+    sourceCount += frogpilotPlan.getSlcMapSpeedLimit() > 0 ? 1 : 0;
+    sourceCount += frogpilotNavigation.getNavigationSpeedLimit() > 0 ? 1 : 0;
+    sourceCount += frogpilotPlan.getSlcNextSpeedLimit() > 0 ? 1 : 0;
+
+    if (sourceCount > 0) {
+      const int rectHeight = 60;
+      const int spacing = UI_BORDER_SIZE / 2;
+      const int infoPanelTop = 20;
+      speedLimitSourcesBottomY = infoPanelTop + sourceCount * (rectHeight + spacing);
+      cscDynamicTopY = speedLimitSourcesBottomY + kCscDynamicMinSpacing;
+    }
+  }
+
+  if (frogpilot_toggles.value("show_stopping_point_metrics").toBool() && params.getBool("Stopmarkslowsdown")) {
+    const bool stopmarkActive = params_memory.getBool("StopmarkActive");
+    const bool stopmarkApplied = params_memory.getBool("StopmarkApplied");
+    const bool stopmarkRecovering = params_memory.getBool("StopmarkRecovering");
+    const int stopmarkDistance = params_memory.getInt("StopmarkDistance");
+    const int keySetSpeed = params_memory.getInt("KeySetSpeed");
+    const int vCruiseKph = static_cast<int>(std::nearbyint(frogpilotPlan.getVCruise() * 3.6f));
+    const int targetSpeed = params_memory.getInt("StopmarkTargetSpeed");
+
+    QString line1 = QString("SM %1 D%2 A%3 R%4")
+      .arg(stopmarkActive ? "ON" : "OFF")
+      .arg(stopmarkDistance)
+      .arg(stopmarkApplied ? "1" : "0")
+      .arg(stopmarkRecovering ? "1" : "0");
+    QString line2 = QString("Key %1 vC %2 Tg %3")
+      .arg(keySetSpeed)
+      .arg(vCruiseKph)
+      .arg(targetSpeed);
+
+    QFont font = InterFont(32, QFont::Normal);
+    QFontMetrics fm(font);
+    const int padding = 12;
+    const int lineHeight = fm.height();
+    const int textWidth = std::max(fm.horizontalAdvance(line1), fm.horizontalAdvance(line2));
+    const int textHeight = lineHeight * 2 + 6;
+
+    int debugX = speedLimitRect.right() + 20;
+    int debugY = speedLimitSourcesBottomY + 10;
+    QRect debugRect(debugX, debugY, textWidth + padding * 2, textHeight + padding * 2);
+    cscDynamicTopY = std::max(cscDynamicTopY, debugRect.bottom() + kCscDynamicMinSpacing);
+  }
 
   if (!hideBottomIcons && frogpilot_toggles.value("cem_status").toBool()) {
     paintCEMStatus(p, frogpilotPlan, frogpilot_scene, sm);
@@ -600,7 +651,8 @@ void FrogPilotAnnotatedCameraWidget::paintCompass(QPainter &p, QJsonObject &frog
 void FrogPilotAnnotatedCameraWidget::paintCurveSpeedControl(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan) {
   p.save();
 
-  QRect curveSpeedRect(QPoint(setSpeedRect.right() + UI_BORDER_SIZE, setSpeedRect.top()), QSize(defaultSize.width() * 1.25, defaultSize.width() * 1.25));
+  const int curveTop = std::max(setSpeedRect.top(), cscDynamicTopY);
+  QRect curveSpeedRect(QPoint(setSpeedRect.right() + UI_BORDER_SIZE, curveTop), QSize(defaultSize.width() * 1.25, defaultSize.width() * 1.25));
 
   QPixmap curveSpeedImage = frogpilotPlan.getRoadCurvature() < 0 ? curveSpeedIcon : curveSpeedIcon.transformed(QTransform().scale(-1, 1));
   QSize curveSpeedSize = curveSpeedImage.size();
@@ -1328,6 +1380,8 @@ QString FrogPilotAnnotatedCameraWidget::translateNavigationText(const cereal::Na
 void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const cereal::CarState::Reader &carState, const QJsonObject &frogpilot_toggles) {
   p.save();
 
+  const int panel_gap = 30;
+
   // 繪製資訊面板背景
   int leadspeed_diffProfile = params_memory.getInt("leadspeeddiffProfile");
   const bool fuelpriceEnabled = params.getBool("Fuelprice");
@@ -1373,7 +1427,7 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   const int panel_height = y_cursor + panel_bottom_padding;
   const int desired_panel_top = rect().bottom() - (panel_height + 60) + panel_offset_y;
   const int top_panel_bottom = std::max({setSpeedRect.bottom(), speedLimitRect.bottom(), newSpeedLimitRect.bottom()});
-  const int top_panel_clearance = top_panel_bottom + 20;
+  const int top_panel_clearance = top_panel_bottom + panel_gap;
   const int panel_bottom_limit = rect().bottom() - 20;
   int panel_top = std::max(desired_panel_top, top_panel_clearance);
   if (panel_top + panel_height > panel_bottom_limit) {
@@ -1383,7 +1437,7 @@ void FrogPilotAnnotatedCameraWidget::paintVehicleInfoPanel(QPainter &p, const ce
   QRect info_rect(rect().left() + 20, panel_top, 220, panel_height);
   const QRect top_hud_rect = setSpeedRect.united(speedLimitRect).united(newSpeedLimitRect);
   if (top_hud_rect.isValid() && info_rect.intersects(top_hud_rect.adjusted(-6, -6, 6, 6))) {
-    info_rect.moveTop(top_hud_rect.bottom() + 20);
+    info_rect.moveTop(top_hud_rect.bottom() + panel_gap);
   }
   if (info_rect.bottom() > rect().bottom() - 20) {
     info_rect.moveBottom(rect().bottom() - 20);

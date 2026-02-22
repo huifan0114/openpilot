@@ -39,6 +39,7 @@ public:
   int signMargin;
   int standstillDuration;
   int speedLimitSourcesBottomY;
+  int cscDynamicTopY;
 
   float distanceConversion;
   float setSpeed;
