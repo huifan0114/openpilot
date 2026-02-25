@@ -74,6 +74,7 @@ class FrogPilotPlanner:
     self.stopmark_active_prev = False  # 追踪上一次的 StopmarkActive 狀態（防抖）
     self.stopmark_active_timer = 0.0  # Stopmark 激活狀態持續時間計時器
     self.stopmark_last_update_time = 0.0  # Stopmark 降速參數寫入節流時間戳
+    self.stopmark_drop_carry_kph = 0.0  # Stopmark 小數降速累積量，避免每次至少降 1 km/h 造成急煞
     # CSC 動態控制相關變數
     self.steer_usage = 0.0
     self.undershooting = False
@@ -429,6 +430,8 @@ class FrogPilotPlanner:
         self.stopmark_active_timer += DT_MDL  # 累加時間
       else:
         self.stopmark_active_timer = 0.0  # 重置計時器
+        self.stopmark_drop_carry_kph = 0.0
+        self.stopmark_last_update_time = 0.0
 
       # 只有當 StopmarkActive 穩定維持超過閾值時才執行邏輯
       if self.stopmark_active_timer >= STOPMARK_STABLE_TIME:
@@ -462,29 +465,37 @@ class FrogPilotPlanner:
             effective_distance_range = STOPMARK_MAX_DISTANCE - STOPMARK_MIN_DISTANCE
             distance_ratio = max(0, min(1, (stopDistance - STOPMARK_MIN_DISTANCE) / effective_distance_range))
 
-            # 平方根曲線：讓遠距離下降幅度小，近距離下降幅度大
-            smooth_ratio = math.sqrt(distance_ratio)
+            # 更柔和曲線：使用 distance_ratio^0.35，讓中遠距離維持較高速限，減少體感急降
+            # (0 < ratio < 1 時，0.35 次方會比 sqrt 更大，代表同距離下目標速限更高)
+            smooth_ratio = math.pow(distance_ratio, 0.35)
             speed_reduction_range = original_speed - STOPMARK_MIN_SPEED
             target_stopmark_speed = STOPMARK_MIN_SPEED + smooth_ratio * speed_reduction_range
 
             target_speed_limit = max(round(target_stopmark_speed), STOPMARK_MIN_SPEED)
 
-          # 🔧 改為直接更新到目標速限（無固定降速限制，平滑由曲線決定）
-          if currentSpeedLimit > target_speed_limit and (now.timestamp() - self.stopmark_last_update_time) >= STOPMARK_UPDATE_INTERVAL:
+          # 🔧 平滑降速：使用小數降速累積，確保平均降速上限準確，不會每次至少降 1 km/h
+          now_ts = now.timestamp() if hasattr(now, "timestamp") else (now if isinstance(now, (int, float)) else time.time())
+          if currentSpeedLimit > target_speed_limit and (now_ts - self.stopmark_last_update_time) >= STOPMARK_UPDATE_INTERVAL:
              self.params_memory.put_int("StopmarkTargetSpeed", int(round(target_speed_limit)))
-             # 平滑限制：每秒最多降 5 km/h，避免急煞
-             MAX_STOPMARK_DROP_PER_SEC = 5  # km/h per second
-             dt = (now.timestamp() - self.stopmark_last_update_time) if self.stopmark_last_update_time > 0 else STOPMARK_UPDATE_INTERVAL
+             MAX_STOPMARK_DROP_PER_SEC = 3.0  # km/h per second
+             dt = (now_ts - self.stopmark_last_update_time) if self.stopmark_last_update_time > 0 else STOPMARK_UPDATE_INTERVAL
              dt = max(0.05, min(1.0, dt))  # 夾在 50ms~1s，避免異常大步長
-             max_drop = max(1, int(round(MAX_STOPMARK_DROP_PER_SEC * dt)))
-             allowed_min = max(0, currentSpeedLimit - max_drop)
-             newSpeedLimit = max(target_speed_limit, allowed_min)
-             if newSpeedLimit != currentSpeedLimit:
-               new_speed_limit = clamp_speed_limit_kph(newSpeedLimit)
-               if new_speed_limit != currentSpeedLimit:
-                 self.params_memory.put_int("KeySetSpeed", new_speed_limit)
-                 self.params_memory.put_bool("KeyChanged", True)
-                 self.stopmark_last_update_time = now.timestamp()
+
+             self.stopmark_drop_carry_kph += MAX_STOPMARK_DROP_PER_SEC * dt
+             max_drop = int(self.stopmark_drop_carry_kph)
+
+             if max_drop > 0:
+               allowed_min = max(0, currentSpeedLimit - max_drop)
+               newSpeedLimit = max(target_speed_limit, allowed_min)
+               if newSpeedLimit != currentSpeedLimit:
+                 new_speed_limit = clamp_speed_limit_kph(newSpeedLimit)
+                 if new_speed_limit != currentSpeedLimit:
+                   self.params_memory.put_int("KeySetSpeed", new_speed_limit)
+                   self.params_memory.put_bool("KeyChanged", True)
+                   used_drop = max(0, currentSpeedLimit - new_speed_limit)
+                   self.stopmark_drop_carry_kph = max(0.0, self.stopmark_drop_carry_kph - used_drop)
+
+             self.stopmark_last_update_time = now_ts
 
       # 結束偵測（狀態轉換時觸發恢復流程）
       if self.stopmark_active_prev and not stopmark_active:
@@ -493,6 +504,8 @@ class FrogPilotPlanner:
         self.params_memory.put_bool("StopmarkActive", False)
         self.stopmark_active_prev = False
         self.stopmark_active_timer = 0.0  # 重置計時器
+        self.stopmark_drop_carry_kph = 0.0
+        self.stopmark_last_update_time = 0.0
 
     # =========================================================
     # 統一恢復出口（踩油門立即恢復）
